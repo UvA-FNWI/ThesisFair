@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "DEBUG=api-gateway:* nodemon ./bin/www"
+    "start": "DEBUG=api-gateway:* nodemon ./src/bin/www",
+    "production": "node ./src/bin/www"
   },
   "dependencies": {
     "debug": "~2.6.9",
