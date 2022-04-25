@@ -1,0 +1,11 @@
+version: "3"
+services:
+  rabbitmq:
+    image: rabbitmq:3
+    hostname: 'rabbitmq'
+    networks:
+      - thesisfair
+
+networks:
+  thesisfair:
+    name: thesisfair
