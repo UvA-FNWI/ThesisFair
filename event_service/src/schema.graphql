@@ -1,0 +1,25 @@
+scalar Date
+
+type Event {
+    evid: ID!
+    enabled: Boolean
+    name: String!
+    description: String
+    start: Date
+    location: String
+    studentSubmitDeadline: Date
+    entities: [ID]
+}
+
+type Query {
+    event(evid: ID!): Event
+}
+
+type Mutation {
+    createEvent(enabled: Boolean, name: String!, description: String, start: Date, location: String, studentSubmitDeadline: Date, entities: [ID!]): Event!
+    updateEvent(evid: ID!, enabled: Boolean, name: String!, description: String, start: Date, location: String, studentSubmitDeadline: Date, entities: [ID!]): Event!
+    deleteEvent(evid: ID!): Event
+
+    addEntity(evid: ID!, enid: ID!): Event
+    delEntity(evid:ID!, enid: ID!): Event
+}
