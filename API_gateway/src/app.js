@@ -1,17 +1,20 @@
-const createError = require('http-errors');
-const express = require('express');
-// const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+import createError from 'http-errors';
+import express from 'express';
+import morgan from 'morgan';
+// import cookieParser from 'cookie-parser';
+
+import indexRoute from './routes/index.js';
+import usersRoute from './routes/users.js';
 
 const app = express();
 
-app.use(logger('dev'));
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser());
 
-app.use('/', require('./routes/index'));
-app.use('/users', require('./routes/users'));
+app.use('/', indexRoute);
+app.use('/users', usersRoute);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -28,4 +31,4 @@ app.use((err, req, res, next) => {
   res.send(`${err.message}<br><br><code>${JSON.stringify(error)}</code>`);
 });
 
-module.exports = app;
+export default app;
