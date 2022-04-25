@@ -5,6 +5,7 @@ import morgan from 'morgan';
 
 import indexRoute from './routes/index.js';
 import usersRoute from './routes/users.js';
+import eventsRoute from './routes/events.js';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
+app.use('/events', eventsRoute);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
