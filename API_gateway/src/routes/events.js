@@ -8,9 +8,33 @@ channel.assertQueue(queue, {
 
 const router = Router();
 
-/* GET users listing. */
-router.get('/', async (req, res, next) => {
-  const result = await rpc(queue, Buffer.from('request'))
+router.get('/create', async (req, res, next) => {
+  const mutation = `
+  mutation {
+    createEvent(name: "Test event", description: "Does this work") {
+      name
+      description
+    }
+  }
+  `;
+
+  const result = JSON.parse((await rpc(queue, Buffer.from(mutation))).content.toString());
+  res.send(result);
+});
+
+router.get('/:id?', async (req, res, next) => {
+  const query = `
+  query {
+    event(evid: "${req.params.id}") {
+      name
+      description
+      location
+      entities
+    }
+  }
+  `;
+
+  const result = JSON.parse((await rpc(queue, Buffer.from(query))).content.toString());
   res.send(result);
 });
 
