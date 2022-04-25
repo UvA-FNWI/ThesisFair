@@ -1,0 +1,19 @@
+{
+  "name": "event_service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "DEBUG=event_service:* nodemon ./src/index.js",
+    "production": "node ./src/index.js"
+  },
+  "author": "Quinten Coltof",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

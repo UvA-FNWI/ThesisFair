@@ -1,0 +1,14 @@
+version: "3"
+services:
+  event_service:
+    build: .
+    entrypoint: npm run start
+    volumes:
+      - ./src:/app/src
+    networks:
+      - thesisfair
+
+networks:
+  thesisfair:
+    name: thesisfair
+    external: true
