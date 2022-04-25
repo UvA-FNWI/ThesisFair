@@ -37,10 +37,10 @@ export const connect = async () => {
 
     // Initialize rpc mechanism
     replyQueue = await channel.assertQueue('', { exclusive: true });
-    channel.consume(replyQueue.queue, handleReply);
+    channel.consume(replyQueue.queue, handleReply, { noAck: true });
+    debug('Initialized reply queue: %s', replyQueue.queue);
 
     // TODO: Properly call disconnect on shutdown/crash
-    debug('Initializing done');
 }
 
 export const rpc = (queue, data) => {
