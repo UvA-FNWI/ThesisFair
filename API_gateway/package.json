@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "DEBUG=api-gateway:* nodemon ./src/index.js",
+    "start": "DEBUG=API_gateway:* nodemon ./src/index.js",
     "production": "node ./src/index.js"
   },
   "dependencies": {
+    "amqplib": "^0.8.0",
     "debug": "~4.3.4",
     "express": "~4.17.3",
     "http-errors": "~2.0.0",
