@@ -11,9 +11,12 @@ const router = Router();
 router.get('/create', async (req, res, next) => {
   const mutation = `
   mutation {
-    createEvent(name: "Test event", description: "Does this work") {
-      name
-      description
+    event {
+      create(name: "Test event", description: "Does this work") {
+        evid
+        name
+        description
+      }
     }
   }
   `;
