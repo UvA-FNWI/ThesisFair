@@ -3,7 +3,7 @@ import express from 'express';
 import morgan from 'morgan';
 // import cookieParser from 'cookie-parser';
 
-import graphql from './graphql/graphql.js';
+import graphql from './graphql.js';
 import indexRoute from './routes/index.js';
 import usersRoute from './routes/users.js';
 import eventsRoute from './routes/events.js';
