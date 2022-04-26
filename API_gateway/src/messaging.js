@@ -46,7 +46,7 @@ export const connect = async () => {
 export const rpc = (queue, data) => {
     return new Promise((resolve, reject) => {
         const id = genCorrelationId();
-        correlationIds[id] = resolve;
+        correlationIds[id] = (msg) => resolve(JSON.parse(msg.content.toString()));
 
         channel.sendToQueue(queue, data, { correlationId: id, replyTo: replyQueue.queue });
         debug('Message send with corrolation id %d', id);
