@@ -10,6 +10,7 @@ const eventSchema = new mongoose.Schema({
     location: String,
     studentSubmitDeadline: Date,
     entities: [mongoose.Schema.ObjectId],
-})
+});
+eventSchema.virtual('evid').get(function() { return this._id; }); // Create _id alias
 
 export const Event = mongoose.model('Event', eventSchema);
