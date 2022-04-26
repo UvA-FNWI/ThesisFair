@@ -14,7 +14,7 @@ let port, server;
 connect().then(async () => {
   // Import app after the messaging library is initialized
   // so that conn and channel are set when importing.
-  const app = (await import('./app.js')).default;
+  const app = await (await import('./app.js')).default;
 
   port = normalizePort(process.env.PORT || '3000');
   app.set('port', port);

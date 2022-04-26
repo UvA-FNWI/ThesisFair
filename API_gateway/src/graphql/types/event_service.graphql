@@ -1,0 +1,12 @@
+scalar Date
+
+type Event {
+    evid: ID!
+    enabled: Boolean
+    name: String!
+    description: String
+    start: Date
+    location: String
+    studentSubmitDeadline: Date
+    entities: [ID]
+}
