@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "DEBUG=API_gateway:* nodemon ./src/index.js",
-    "production": "node ./src/index.js"
+    "production": "node ./src/index.js",
+    "test": "mocha"
   },
   "dependencies": {
     "@graphql-tools/stitch": "^8.6.9",
@@ -19,6 +20,9 @@
     "morgan": "~1.10.0"
   },
   "devDependencies": {
+    "axios": "^0.27.1",
+    "chai": "^4.3.6",
+    "mocha": "^9.2.2",
     "nodemon": "^2.0.15"
   }
 }
