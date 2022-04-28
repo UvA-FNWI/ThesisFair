@@ -1,7 +1,10 @@
 version: "3"
 services:
   event_service:
-    build: .
+    build:
+      context: .
+      args:
+        NODE_ENV: development
     entrypoint: npm run start
     volumes:
       - ./src:/app/src
