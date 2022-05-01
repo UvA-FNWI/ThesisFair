@@ -6,6 +6,9 @@ services:
       args:
         NODE_ENV: development
     entrypoint: npm run start
+    environment:
+      - rabbitmqUsername=guest
+      - rabbitmqPassword=guest
     volumes:
       - ./src:/app/src
     networks:

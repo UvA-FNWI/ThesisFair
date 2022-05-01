@@ -6,8 +6,11 @@ services:
       args:
         NODE_ENV: development
     entrypoint: npm run start
+    environment:
+      - rabbitmqUsername=guest
+      - rabbitmqPassword=guest
     ports:
-      - "3000:3000"
+      - "3000:80"
     volumes:
       - ./src:/app/src
       - ./test:/app/test
