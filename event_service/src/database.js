@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 
-export const connect = () => mongoose.connect('mongodb://mongodb/event_service');
+export const connect = async () => {
+    const conn = await mongoose.connect( process.env.mongodbConnectStr || 'mongodb://mongodb/event_service');
+    console.log('Connected to database');
+    return conn;
+}
 
 const eventSchema = new mongoose.Schema({
     enabled: Boolean,
