@@ -30,13 +30,10 @@ export const disconnect = () => {
 }
 
 export const connect = async () => {
-    let auth = `${process.env.rabbitmqUsername}:${process.env.rabbitmqPassword}@`;
-    if (auth === ':@') auth = '';
-
-    conn = await amqp.connect(`amqp://${auth}rabbitmq`)
+    conn = await amqp.connect(process.env.amqpConStr || 'amqp://rabbitmq')
     channel = await conn.createChannel();
     channel.prefetch(1);
-    debug('Connected to rabbitMQ');
+    debug('Connected to amqp');
 
     // Initialize rpc mechanism
     replyQueue = await channel.assertQueue('', { exclusive: true });

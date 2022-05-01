@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 export const connect = async () => {
-    const conn = await mongoose.connect( process.env.mongodbConnectStr || 'mongodb://mongodb/event_service');
+    const conn = await mongoose.connect( process.env.mongodbConStr || 'mongodb://mongodb/event_service');
     console.log('Connected to database');
     return conn;
 }
