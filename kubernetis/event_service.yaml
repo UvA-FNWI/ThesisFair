@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-service
+spec:
+  selector:
+    matchLabels:
+      service: event-service
+      main: "true"
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        service: event-service
+        main: "true"
+    spec:
+      containers:
+      - name: event-service
+        image: ghcr.io/quinten1333/thesisfair-event_service
+        env:
+          - name: mongodbConStr
+            value: mongodb://service-mongodb-service-mongodb/event_service
+          - name: amqpConStr
+            value: amqp://guest:guest@rabbitmq
+          - name: DEBUG
+            value: event_service:*
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-service-mongodb
+spec:
+  selector:
+    matchLabels:
+      service: event-service
+      dependency: mongodb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        service: event-service
+        dependency: mongodb
+    spec:
+      containers:
+      - name: event-service-mongodb
+        image: mongo
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-mongodb-service-mongodb
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+  selector:
+      service: event-service
+      dependency: mongodb
