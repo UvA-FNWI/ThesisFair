@@ -30,7 +30,10 @@ export const disconnect = () => {
 }
 
 export const connect = async () => {
-    conn = await amqp.connect('amqp://rabbitmq')
+    let auth = `${process.env.rabbitmqUsername}:${process.env.rabbitmqPassword}@`;
+    if (auth === ':@') auth = '';
+
+    conn = await amqp.connect(`amqp://${auth}rabbitmq`)
     channel = await conn.createChannel();
     channel.prefetch(1);
     debug('Connected to rabbitMQ');

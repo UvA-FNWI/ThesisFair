@@ -9,7 +9,10 @@ const queue = 'API_events'
 
 const main = async () => {
   await connectDB();
-  const conn = await amqp.connect('amqp://rabbitmq');
+  let auth = `${process.env.rabbitmqUsername}:${process.env.rabbitmqPassword}@`;
+  if (auth === ':@') auth = '';
+
+  const conn = await amqp.connect(`amqp://${auth}rabbitmq`)
   const channel = await conn.createChannel();
 
   channel.assertQueue(queue, {
