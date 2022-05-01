@@ -19,7 +19,7 @@ spec:
         image: ghcr.io/quinten1333/thesisfair-event_service
         env:
           - name: mongodbConStr
-            value: mongodb://service-mongodb-service-mongodb/event_service
+            value: mongodb://service-event-service-mongodb/event_service
           - name: amqpConStr
             value: amqp://guest:guest@rabbitmq
           - name: DEBUG
@@ -30,7 +30,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-mongodb-service-mongodb
+  name: service-event-service-mongodb
 spec:
   ports:
   - port: 27017
@@ -46,7 +46,7 @@ kind: StatefulSet
 metadata:
   name: event-service-mongodb
 spec:
-  serviceName: service-mongodb-service-mongodb
+  serviceName: service-event-service-mongodb
   replicas: 1
 
   selector:
