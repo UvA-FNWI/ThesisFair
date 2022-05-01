@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 
 import { Event } from './database.js';
 
-schemaComposer.addTypeDefs(readFileSync('./schema.graphql').toString('utf8'));
+schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
 schemaComposer.Query.addNestedFields({
     event: {
