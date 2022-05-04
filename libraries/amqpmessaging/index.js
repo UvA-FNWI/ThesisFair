@@ -8,8 +8,26 @@ export let channel = null;
 let replyQueue = null;
 let sendInitialized = false;
 
+const TRY_COUNT = 20;
+const TRY_TIMEOUT = 500;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const connect = async () => {
-  conn = await amqp.connect(process.env.amqpConStr || 'amqp://rabbitmq');
+  let tries = 0;
+  while(true) {
+    try {
+      conn = await amqp.connect(process.env.amqpConStr || 'amqp://rabbitmq');
+      break;
+    } catch (error) {
+      if (tries > TRY_COUNT) {
+        throw error;
+      }
+    }
+
+    await sleep(TRY_TIMEOUT);
+    tries += 1;
+  }
   channel = await conn.createChannel();
   channel.prefetch(1);
   debug('Connected to amqp');
