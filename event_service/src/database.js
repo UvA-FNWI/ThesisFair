@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import debugLib from 'debug';
 
 const debug = debugLib('event_service:database');
 
