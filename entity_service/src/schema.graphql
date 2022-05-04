@@ -1,0 +1,28 @@
+enum ContactType {
+  website
+  email
+  phonenumber
+}
+
+enum EntityType {
+  company
+  research
+}
+
+input EntityContactInfoIn {
+  type: ContactType!
+  content: String!
+}
+
+type EntityContactInfo {
+  type: ContactType!
+  content: String!
+}
+
+type Entity {
+    enid: ID!
+    name: String!
+    description: String
+    type: EntityType!
+    contact: [EntityContactInfo!]
+}

@@ -1,0 +1,29 @@
+version: "3"
+services:
+  entity_service:
+    build:
+      context: ./entity_service
+      args:
+        NODE_ENV: ${NODE_ENV}
+    entrypoint: npm run ${NODE_CMD}
+    volumes:
+      - ./entity_service/src:/app/src
+      - ./libraries:/libraries
+    networks:
+      - default
+      - thesisfair
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    command: --quiet --logpath /dev/null
+    restart: unless-stopped
+
+    ports:
+      - 27017:27017
+
+networks:
+  thesisfair:
+    name: thesisfair
+    external: true
