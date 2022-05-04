@@ -3,6 +3,8 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     hostname: 'rabbitmq'
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
     ports:
       - 15672:15672
     networks:

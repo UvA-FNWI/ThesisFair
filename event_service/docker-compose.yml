@@ -4,10 +4,10 @@ services:
     build:
       context: .
       args:
-        NODE_ENV: development
-    entrypoint: npm run start
+        NODE_ENV: ${NODE_ENV}
+    entrypoint: npm run ${NODE_CMD}
     volumes:
-      - ./src:/app/src
+      - ./event_service/src:/app/src
     networks:
       - default
       - thesisfair
@@ -16,13 +16,11 @@ services:
 
   mongodb:
     image: mongo
-    restart: always
+    command: --quiet --logpath /dev/null
+    restart: unless-stopped
 
     ports:
       - 27017:27017
-
-    logging:
-      driver: none
 
 networks:
   thesisfair:
