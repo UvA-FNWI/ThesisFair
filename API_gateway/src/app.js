@@ -4,9 +4,7 @@ import morgan from 'morgan';
 // import cookieParser from 'cookie-parser';
 
 import graphql from './graphql.js';
-import indexRoute from './routes/index.js';
-import usersRoute from './routes/users.js';
-import eventsRoute from './routes/events.js';
+// import indexRoute from './routes/index.js';
 
 const createApp = async () => {
   const app = express();
@@ -17,9 +15,7 @@ const createApp = async () => {
   // app.use(cookieParser());
 
   app.use('/graphql', await graphql());
-  app.use('/', indexRoute);
-  app.use('/users', usersRoute);
-  app.use('/events', eventsRoute);
+  // app.use('/', indexRoute);
 
   // catch 404 and forward to error handler
   app.use((req, res, next) => {
