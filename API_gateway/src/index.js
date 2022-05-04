@@ -14,6 +14,7 @@ let port, server;
 const main = async () => {
   await connect();
   await initSending();
+  debug('amqp initialized');
 
   // Import app after the messaging library is initialized
   // so that conn and channel are set when importing.
