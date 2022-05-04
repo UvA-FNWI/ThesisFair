@@ -35,14 +35,18 @@ schemaComposer.Mutation.addNestedFields({
         args: {
             evid: 'ID!',
             enabled: 'Boolean',
-            name: 'String!',
+            name: 'String',
             description: 'String',
             start: 'Date',
             location: 'String',
             studentSubmitDeadline: 'Date',
             entities: '[ID!]'
         },
-        resolve: (obj, args) => Event.findByIdAndUpdate(args.evid),
+        resolve: (obj, args) => {
+          const evid = args.evid;
+          delete args.evid;
+          return Event.findByIdAndUpdate(evid, { $set: args }, { new: true });
+        },
     },
     'event.delete': {
         type: 'Event',

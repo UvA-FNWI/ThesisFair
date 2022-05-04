@@ -85,7 +85,7 @@ query {
         const res = await request(`
 mutation {
     event {
-        update(${dictToGraphql({ evid: newevid, ...event })}) {
+        update(${dictToGraphql({ evid: newevid, ...eventUpdate })}) {
             evid
             enabled
             name
@@ -106,10 +106,10 @@ mutation {
         expect(res.data.event.update.evid).to.eq(newevid);
 
         delete res.data.event.update.evid;
-        expect(res.data.event.update).to.deep.equal(event);
+        expect(res.data.event.update).to.deep.equal(eventUpdate);
     });
 
-    it('mutation event.update should update the event', async () => {
+    it('mutation event.delete should delete the event', async () => {
         const res = await request(`
 mutation {
     event {
@@ -134,7 +134,7 @@ mutation {
         expect(res.data.event.delete.evid).to.eq(newevid);
 
         delete res.data.event.delete.evid;
-        expect(res.data.event.delete).to.deep.equal(event);
+        expect(res.data.event.delete).to.deep.equal(eventUpdate);
 
 
         const query = await request(`
