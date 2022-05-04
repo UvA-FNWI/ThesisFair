@@ -9,7 +9,7 @@ const debug = debugLib('event_service:index')
 const main = async () => {
   await connectDB();
   await connect();
-  receive('API_events', graphql);
+  receive('API_event', graphql);
   debug('Initialized, waiting for requests');
 }
 
