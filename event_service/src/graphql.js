@@ -12,7 +12,7 @@ schemaComposer.Query.addNestedFields({
         args: {
             evid: 'ID!',
         },
-        resolve: async (obj, args) => Event.findById(args.evid),
+        resolve: (obj, args) => Event.findById(args.evid),
     },
 });
 
@@ -28,7 +28,7 @@ schemaComposer.Mutation.addNestedFields({
             studentSubmitDeadline: 'Date',
             entities: '[ID!]'
         },
-        resolve: async (obj, args) => await Event.create(args),
+        resolve: (obj, args) => Event.create(args),
     },
     'event.update': {
         type: 'Event',
