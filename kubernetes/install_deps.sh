@@ -1,6 +1,5 @@
 # RabbitMQ Custom Resource Definitions
 kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
-kubectl apply -f "rabbitmq.yml"
 
 # MongoDB Custom Resource Definitions
 # helm repo add mongodb https://mongodb.github.io/helm-charts
