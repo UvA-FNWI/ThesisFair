@@ -17,3 +17,13 @@ traefikDashboard:
 
 open:
 	minikube service service-api-gateway --url
+
+
+update:
+	./scripts/updateContainerRepo.sh .
+
+up:
+	kubectl apply -f ./kubernetes
+
+down:
+	kubectl delete -f ./kubernetes
