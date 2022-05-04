@@ -1,23 +1,23 @@
 import { expect } from 'chai';
-import { dictToGraphql, request } from './lib.js';
+import { dictToGraphql, request } from '../../libraries/graphql-query-builder/index.js';
 
 let newevid;
 const event = {
     enabled: true,
-    name: 'New event name',
-    description: 'New event description',
+    name: 'New name',
+    description: 'New description',
     start: '2022-04-27T22:00:00.000Z',
-    location: 'New event location',
+    location: 'New location',
     studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
     entities: ['6266fb7b25f56e50b2306d0f', '6266fb7b25f56e50b2306d0e'],
 }
 
 const eventUpdate = {
     enabled: false,
-    name: 'Changed event name',
-    description: 'Changed event description',
+    name: 'Changed name',
+    description: 'Changed description',
     start: '2022-04-28T22:00:00.000Z',
-    location: 'Changed event location',
+    location: 'Changed location',
     studentSubmitDeadline: '2022-05-01T22:00:00.000Z',
     entities: ['6266fb7b25f56e50b2306dab', '6266fb7b25f56e50b2306dcd'],
 }
