@@ -10,4 +10,6 @@ COPY ./package*.json ./
 RUN npm ci
 
 COPY ./src ./src
+RUN  find ./src -type f -exec sed -i -E 's/(\.\.\/)*libraries/@amicopo/g' {} +
+
 ENTRYPOINT npm run production

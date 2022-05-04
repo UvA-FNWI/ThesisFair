@@ -4,7 +4,7 @@ import { introspectSchema } from '@graphql-tools/wrap';
 import { stitchSchemas } from '@graphql-tools/stitch';
 import debugLib from 'debug';
 
-import { channel, rpc } from './messaging.js';
+import { channel, rpc } from '../../libraries/amqpmessaging/index.js';
 import { graphqlConfig } from './config.js';
 
 const debug = debugLib('API_gateway:graphql');

@@ -2,12 +2,13 @@ version: "3"
 services:
   event_service:
     build:
-      context: .
+      context: ./event_service
       args:
         NODE_ENV: ${NODE_ENV}
     entrypoint: npm run ${NODE_CMD}
     volumes:
       - ./event_service/src:/app/src
+      - ./libraries:/libraries
     networks:
       - default
       - thesisfair

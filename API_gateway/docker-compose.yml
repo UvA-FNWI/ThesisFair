@@ -2,7 +2,7 @@ version: "3"
 services:
   api_gateway:
     build:
-      context: .
+      context: ./API_gateway
       args:
         NODE_ENV: ${NODE_ENV}
     entrypoint: npm run ${NODE_CMD}
@@ -11,6 +11,7 @@ services:
     volumes:
       - ./API_gateway/src:/app/src
       - ./API_gateway/test:/app/test
+      - ./libraries:/libraries
     networks:
       - thesisfair
 

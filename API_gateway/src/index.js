@@ -4,14 +4,17 @@
  * Module dependencies.
  */
 
-import { connect } from './messaging.js';
+import { connect, initSending } from '../../libraries/amqpmessaging/index.js';
 import debugLib from 'debug';
 import http from 'http';
 
 const debug = debugLib('API_gateway:server');
 let port, server;
 
-connect().then(async () => {
+const main = async () => {
+  await connect();
+  await initSending();
+
   // Import app after the messaging library is initialized
   // so that conn and channel are set when importing.
   const app = await (await import('./app.js')).default;
@@ -24,7 +27,8 @@ connect().then(async () => {
   server.listen(port);
   server.on('error', onError);
   server.on('listening', onListening);
-})
+};
+main();
 
 /**
  * Normalize a port into a number, string, or false.

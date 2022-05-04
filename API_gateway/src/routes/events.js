@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { channel, rpc } from '../messaging.js';
+import { channel, rpc } from '../../../libraries/amqpmessaging/index.js';
 
 const queue = 'API_events'
 channel.assertQueue(queue, {
