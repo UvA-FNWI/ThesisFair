@@ -14,6 +14,16 @@ schemaComposer.Query.addNestedFields({
         },
         resolve: (obj, args) => Event.findById(args.evid),
     },
+    events: {
+      type: '[Event!]!',
+      args: {
+          all: 'Boolean',
+      },
+      resolve: (obj, args) => {
+        // TODO: Premission checking
+        return Event.find(args.all ? {} : { enabled: true });
+      },
+  },
 });
 
 schemaComposer.Mutation.addNestedFields({

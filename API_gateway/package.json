@@ -6,7 +6,7 @@
   "scripts": {
     "start": "DEBUG=API_gateway:* DEBUG_COLORS=true nodemon ./src/index.js",
     "production": "node ./src/index.js",
-    "test": "mocha"
+    "test": "mocha test/**/*"
   },
   "dependencies": {
     "@amicopo/amqpmessaging": "^1.0.2",
