@@ -1,15 +1,16 @@
 import { graphqlHTTP } from 'express-graphql';
-import { print } from 'graphql';
+import { GraphQLError, print } from 'graphql';
 import { introspectSchema } from '@graphql-tools/wrap';
 import { stitchSchemas } from '@graphql-tools/stitch';
 import debugLib from 'debug';
 
 import { channel, rpc } from '../../libraries/amqpmessaging/index.js';
 import { graphqlConfig } from './config.js';
+import errors from './errors.js';
 
 const debug = debugLib('API_gateway:graphql');
 
-const executor = (queue, { document, variables }) => rpc(queue, { query: print(document), variables });
+const executor = (queue, { document, variables, context }) => rpc(queue, { query: print(document), variables, context: context ? { user: context.user } : {} });
 
 const getMiddleware = async () => {
     const subschemas = [];
@@ -33,7 +34,18 @@ const getMiddleware = async () => {
     debug('Done initializing graphql middleware');
     return graphqlHTTP({
         schema,
-        graphiql: !!process.env.DEBUG
+        graphiql: !!process.env.DEBUG,
+        customFormatErrorFn: (err) => {
+          if (!process.env.DEBUG) {
+            const split = err.message.split(' ');
+            if (split.length > 0 && errors[split[0]]) {
+              const error = errors[split[0]];
+              err.message = error.message + err.message.substring(split[0].length + 1);
+            }
+          }
+
+          return err;
+        }
     });
 }
 
