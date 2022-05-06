@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "DEBUG=API_gateway:* nodemon ./src/index.js",
+    "start": "DEBUG=API_gateway:* DEBUG_COLORS=true nodemon ./src/index.js",
     "production": "node ./src/index.js",
     "test": "mocha"
   },
