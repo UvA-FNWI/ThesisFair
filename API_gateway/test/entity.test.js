@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { request, Enum, dictToGraphql, dictToSimpleDict } from '../../libraries/graphql-query-builder/index.js';
+import { request, login, Enum, dictToGraphql, dictToSimpleDict } from '../../libraries/graphql-query-builder/index.js';
 
 let newEnid;
 const entity = {
@@ -30,6 +30,10 @@ contact {
 
 
 describe('Entity', () => {
+  before(() => {
+    login('admin', 'admin');
+  })
+
     it('mutation entity.create should create an entity', async () => {
         const res = await request(`
 mutation {

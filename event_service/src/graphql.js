@@ -1,4 +1,4 @@
-import { graphql } from 'graphql';
+import { graphql, GraphQLError } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
 
@@ -12,15 +12,26 @@ schemaComposer.Query.addNestedFields({
         args: {
             evid: 'ID!',
         },
-        resolve: (obj, args) => Event.findById(args.evid),
+        resolve: async (obj, args, req) => {
+          const event = await Event.findById(args.evid);
+
+          if (!event.enabled && req.user.type !== 'a') {
+            throw new Error('UNAUTHORIZED list disabled event');
+          }
+
+          return event;
+        },
     },
     events: {
-      type: '[Event!]!',
+      type: '[Event!]',
       args: {
           all: 'Boolean',
       },
-      resolve: (obj, args) => {
-        // TODO: Premission checking
+      resolve: (obj, args, req) => {
+        if (args.all && req.user.type !== 'a') {
+          throw new Error('UNAUTHORIZED list all events');
+        }
+
         return Event.find(args.all ? {} : { enabled: true });
       },
   },
@@ -38,7 +49,13 @@ schemaComposer.Mutation.addNestedFields({
             studentSubmitDeadline: 'Date',
             entities: '[ID!]'
         },
-        resolve: (obj, args) => Event.create(args),
+        resolve: (obj, args, req) => {
+          if (req.user.type !== 'a') {
+            throw new Error('UNAUTHORIZED create a new event');
+          }
+
+          return Event.create(args);
+        },
     },
     'event.update': {
         type: 'Event',
@@ -52,7 +69,11 @@ schemaComposer.Mutation.addNestedFields({
             studentSubmitDeadline: 'Date',
             entities: '[ID!]'
         },
-        resolve: (obj, args) => {
+        resolve: (obj, args, req) => {
+          if (req.user.type !== 'a') {
+            throw new Error('UNAUTHORIZED update an event');
+          }
+
           const evid = args.evid;
           delete args.evid;
           return Event.findByIdAndUpdate(evid, { $set: args }, { new: true });
@@ -63,7 +84,13 @@ schemaComposer.Mutation.addNestedFields({
         args: {
             evid: 'ID!',
         },
-        resolve: (obj, args) => Event.findByIdAndDelete(args.evid),
+        resolve: (obj, args, req) => {
+          if (req.user.type !== 'a') {
+            throw new Error('UNAUTHORIZED create delete an event');
+          }
+
+          return Event.findByIdAndDelete(args.evid);
+        },
     },
 
     'event.entity.add': {
@@ -72,7 +99,13 @@ schemaComposer.Mutation.addNestedFields({
             evid: 'ID!',
             enid: 'ID!',
         },
-        resolve: (obj, args) => Event.findByIdAndUpdate(args.evid, { $push: { entities: args.enid } }),
+        resolve: (obj, args, req) => {
+          if (req.user.type !== 'a') {
+            throw new Error('UNAUTHORIZED add an entity to an event');
+          }
+
+          return Event.findByIdAndUpdate(args.evid, { $push: { entities: args.enid } }, { new: true });
+        },
     },
     'event.entity.del': {
         type: 'Event',
@@ -80,11 +113,17 @@ schemaComposer.Mutation.addNestedFields({
             evid: 'ID!',
             enid: 'ID!',
         },
-        resolve: (obj, args) => Event.findByIdAndUpdate(args.evid, { $pull: { entities: args.enid } }),
+        resolve: (obj, args, req) => {
+          if (req.user.type !== 'a') {
+            throw new Error('UNAUTHORIZED delete an entity from an event');
+          }
+
+          return Event.findByIdAndUpdate(args.evid, { $pull: { entities: args.enid } }, { new: true });
+        },
     },
 })
 
 const schema = schemaComposer.buildSchema();
 
-const execute = (query, variableValues = {}) => graphql({ schema, source: query, variableValues });
+const execute = (query, variableValues = {}, contextValue = {}) => graphql({ schema, source: query, variableValues, contextValue });
 export default execute;

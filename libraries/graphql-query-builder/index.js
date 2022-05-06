@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 let url = "http://127.0.0.1:3000/graphql";
+let apiToken = null;
 
 export const setUrl = (newUrl) => {
     url = newUrl;
@@ -28,7 +29,7 @@ export const login = async (username, password) => {
 export const request = async (query, variables, shouldSucceed = true) => {
   let result;
   try {
-    return (await axios.post(
+    result = await axios.post(
       url,
       { query, variables },
       {
@@ -38,12 +39,18 @@ export const request = async (query, variables, shouldSucceed = true) => {
           Authorization: `Bearer ${JSON.stringify(apiToken)}`
         },
       }
-    )).data;
+    );
   } catch (error) {
-    console.log(query, variables);
-    console.error(error.response.data);
-    throw error;
+    if (shouldSucceed) {
+      console.log(query, variables);
+      console.error(error.response.data);
+      throw error;
+    }
+
+    return error.response.data;
   }
+
+  return result.data;
 }
 
 class EnumType {
