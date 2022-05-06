@@ -14,6 +14,23 @@ const createApp = async () => {
   app.use(express.urlencoded({ extended: false }));
   // app.use(cookieParser());
 
+  app.use((req, res, next) => {
+    if (!req.headers.authorization) {
+      next(createError(401));
+    }
+
+    if (!req.headers.authorization.startsWith('Bearer ')) {
+      next({ status: 401, message: 'Only bearer authentication is allowed' });
+    }
+
+    req.user = JSON.parse(req.headers.authorization.substring(7));
+    if (!req.user) {
+      next({ status: 401, message: 'Invalid token' });
+    }
+
+    next();
+  });
+
   app.use('/graphql', await graphql());
   // app.use('/', indexRoute);
 

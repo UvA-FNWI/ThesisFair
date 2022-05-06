@@ -53,7 +53,7 @@ export const receive = async (queue, callback) => {
     debug('Recv corr: %ds, reply:To %s', msg.properties.correlationId, msg.properties.replyTo)
 
     const payload = JSON.parse(msg.content.toString());
-    const reply = await callback(payload.query, payload.variables);
+    const reply = await callback(payload.query, payload.variables, payload.context);
 
     channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(reply)), { correlationId: msg.properties.correlationId });
     channel.ack(msg);

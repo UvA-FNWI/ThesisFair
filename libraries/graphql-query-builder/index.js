@@ -6,7 +6,27 @@ export const setUrl = (newUrl) => {
     url = newUrl;
 }
 
-export const request = async (query, variables) => {
+export const login = async (username, password) => {
+  switch (username) {
+    case 'admin':
+      apiToken = { type: 'a' };
+      break;
+
+    case 'rep':
+      apiToken = { type: 'r', evid: '6266fb7b25f56e50bcompany' };
+      break;
+
+    case 'student':
+      apiToken = { type: 's' };
+      break;
+
+    default:
+      throw new Error('Unkown username');
+  }
+}
+
+export const request = async (query, variables, shouldSucceed = true) => {
+  let result;
   try {
     return (await axios.post(
       url,
@@ -15,6 +35,7 @@ export const request = async (query, variables) => {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          Authorization: `Bearer ${JSON.stringify(apiToken)}`
         },
       }
     )).data;
