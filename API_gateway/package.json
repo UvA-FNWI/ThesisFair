@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "DEBUG=API_gateway:* DEBUG_COLORS=true nodemon ./src/index.js",
-    "production": "node ./src/index.js",
-    "test": "mocha test/**/*"
+    "production": "node ./src/index.js"
   },
   "dependencies": {
     "@amicopo/amqpmessaging": "^1.0.2",
@@ -20,8 +19,6 @@
     "morgan": "~1.10.0"
   },
   "devDependencies": {
-    "chai": "^4.3.6",
-    "mocha": "^9.2.2",
     "nodemon": "^2.0.15"
   }
 }
