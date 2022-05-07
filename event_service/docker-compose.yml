@@ -6,6 +6,8 @@ services:
       args:
         NODE_ENV: ${NODE_ENV}
     entrypoint: npm run ${NODE_CMD}
+    environment:
+      - mongodbConStr=mongodb://event_service_mongodb/event_service
     volumes:
       - ./event_service/src:/app/src
       - ./libraries:/libraries
@@ -13,9 +15,9 @@ services:
       - default
       - thesisfair
     depends_on:
-      - mongodb
+      - event_service_mongodb
 
-  mongodb:
+  event_service_mongodb:
     image: mongo
     command: --quiet --logpath /dev/null
     restart: unless-stopped
