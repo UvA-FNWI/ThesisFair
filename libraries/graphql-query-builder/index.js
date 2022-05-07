@@ -14,7 +14,7 @@ export const login = async (username, password) => {
       break;
 
     case 'rep':
-      apiToken = { type: 'r', evid: '62728401f41b2cfc83a7035b' };
+      apiToken = { type: 'r', enid: '62728401f41b2cfc83a7035b' };
       break;
 
     case 'student':
