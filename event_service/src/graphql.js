@@ -32,7 +32,17 @@ schemaComposer.Query.addNestedFields({
           throw new Error('UNAUTHORIZED list all events');
         }
 
-        return Event.find(args.all ? {} : { enabled: true });
+        const filter = {};
+        if (!args.all) {
+          filter.enabled = true;
+        }
+        if (req.user.type === 'r') {
+          filter.entities = {
+            $in: req.user.enid,
+          }
+        }
+
+        return Event.find(filter);
       },
   },
 });

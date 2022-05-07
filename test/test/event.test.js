@@ -354,8 +354,34 @@ describe.only('Event', () => {
       await login('rep', 'rep');
     });
 
-    it('query events should return a list of events the company is participating in', () => {
+    it('query events should return a list of events the company is participating in', async () => {
+      const res = await request(`
+query {
+  events(all: false) {
+    evid
+    enabled
+    name
+    description
+    start
+    location
+    studentSubmitDeadline
+    entities
+  }
+}
+      `);
 
+      expect(res.data).to.exist;
+      expect(res.errors).to.be.undefined;
+
+      expect(res.data.events).to.be.a('array');
+      for (const i in events) {
+        const event = events[i];
+        if (event.enabled && event.entities.includes('62728401f41b2cfc83a7035b')) {
+          expect(res.data.events, `Should include event of index ${i}`).to.deep.include(event);
+        } else {
+          expect(res.data.events, `Should not include event of index ${i}`).not.to.deep.include(event);
+        }
+      }
     });
 
     checkPremissions();
