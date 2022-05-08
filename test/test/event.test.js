@@ -104,7 +104,7 @@ mutation {
 };
 
 
-describe.only('Event', () => {
+describe('Event', () => {
   beforeEach(async () => {
     await initDb();
   });
