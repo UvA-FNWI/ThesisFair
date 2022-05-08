@@ -1,21 +1,10 @@
-enum ContactType {
-  website
-  email
-  phonenumber
-}
-
-enum EntityType {
-  company
-  research
-}
-
 input EntityContactInfoIn {
-  type: ContactType!
+  type: String!
   content: String!
 }
 
 type EntityContactInfo {
-  type: ContactType!
+  type: String!
   content: String!
 }
 
@@ -23,6 +12,6 @@ type Entity {
     enid: ID!
     name: String!
     description: String
-    type: EntityType!
+    type: String!
     contact: [EntityContactInfo!]
 }

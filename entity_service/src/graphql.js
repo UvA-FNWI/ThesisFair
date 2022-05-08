@@ -22,7 +22,7 @@ schemaComposer.Mutation.addNestedFields({
         args: {
             name: 'String!',
             description: 'String',
-            type: 'EntityType!',
+            type: 'String!',
             contact: '[EntityContactInfoIn!]',
         },
         resolve: (obj, args) => Entity.create(args)
@@ -33,7 +33,7 @@ schemaComposer.Mutation.addNestedFields({
             enid: 'ID!',
             name: 'String!',
             description: 'String',
-            type: 'EntityType!',
+            type: 'String!',
             contact: '[EntityContactInfoIn!]'
         },
         resolve: (obj, args) => {

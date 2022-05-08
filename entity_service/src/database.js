@@ -13,9 +13,9 @@ export const connect = async () => {
 const entitySchema = new mongoose.Schema({
     name: String,
     description: String,
-    type: String,
+    type: { type: String, enum: ['company', 'research'] },
     contact: [new mongoose.Schema({
-      type: String,
+      type: { type: String, enum: ['website', 'email', 'phonenumber'] },
       content: String,
     })],
 });
