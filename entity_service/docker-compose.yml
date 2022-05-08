@@ -6,6 +6,8 @@ services:
       args:
         NODE_ENV: ${NODE_ENV}
     entrypoint: npm run ${NODE_CMD}
+    environment:
+      - mongodbConStr=mongodb://mongodb/entity_service
     volumes:
       - ./entity_service/src:/app/src
       - ./libraries:/libraries

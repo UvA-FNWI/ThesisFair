@@ -1,5 +1,5 @@
 import { MongoClient, ObjectId } from 'mongodb';
-const uri = process.env.mongodbConStrEvent || 'mongodb://localhost:27018/event_service'
+const uri = process.env.mongodbConStr || 'mongodb://localhost:27017'
 
 const getEvents = () => [
   {

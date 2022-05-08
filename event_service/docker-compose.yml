@@ -7,7 +7,7 @@ services:
         NODE_ENV: ${NODE_ENV}
     entrypoint: npm run ${NODE_CMD}
     environment:
-      - mongodbConStr=mongodb://event_service_mongodb/event_service
+      - mongodbConStr=mongodb://mongodb/event_service
     volumes:
       - ./event_service/src:/app/src
       - ./libraries:/libraries
@@ -17,13 +17,13 @@ services:
     depends_on:
       - event_service_mongodb
 
-  event_service_mongodb:
+  mongodb:
     image: mongo
     command: --quiet --logpath /dev/null
     restart: unless-stopped
 
     ports:
-      - 27018:27017
+      - 27017:27017
 
 networks:
   thesisfair:
