@@ -3,8 +3,6 @@ import { dictToGraphql, request, login } from '../../libraries/graphql-query-bui
 
 import initDb, { events } from './event.db.js';
 
-// TODO: Run test within docker container. Connect to mongodb directly (by creating an external test network) and reload database between every call.
-
 const checkPremissions = () => {
   it('should enforce permissions properly', async () => {
     const checkResponse = (res, name) => {
