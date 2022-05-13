@@ -7,14 +7,14 @@ export const setUrl = (newUrl) => {
   url = newUrl;
 }
 
-export const login = async (username, password) => {
+export const login = async (username, password, options = {}) => {
   switch (username) {
     case 'admin':
       apiToken = { type: 'a' };
       break;
 
     case 'rep':
-      apiToken = { type: 'r', enid: '62728401f41b2cfc83a7035b' };
+      apiToken = { type: 'r', enid: options.enid || '62728401f41b2cfc83a7035b' };
       break;
 
     case 'student':

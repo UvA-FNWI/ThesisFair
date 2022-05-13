@@ -14,6 +14,13 @@ schemaComposer.Query.addNestedFields({
         },
         resolve: (obj, args) => Entity.findById(args.enid),
     },
+    entities: {
+      type: '[Entity!]',
+      args: {
+        enids: '[ID!]!'
+      },
+      resolve: (obj, args) => Entity.find({ _id: { $in: args.enids } }),
+    }
 });
 
 schemaComposer.Mutation.addNestedFields({
@@ -25,20 +32,31 @@ schemaComposer.Mutation.addNestedFields({
             type: 'String!',
             contact: '[EntityContactInfoIn!]',
         },
-        resolve: (obj, args) => Entity.create(args)
+        resolve: (obj, args, req) => {
+          if (req.user.type !== 'a') {
+            throw new Error('UNAUTHORIZED create entities');
+          }
+
+          return Entity.create(args);
+        }
       },
     'entity.update': {
         type: 'Entity',
         args: {
             enid: 'ID!',
-            name: 'String!',
+            name: 'String',
             description: 'String',
-            type: 'String!',
+            type: 'String',
             contact: '[EntityContactInfoIn!]'
         },
-        resolve: (obj, args) => {
+        resolve: (obj, args, req) => {
           const enid = args.enid;
           delete args.enid;
+
+          if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enid === enid))) {
+            throw new Error('UNAUTHORIZED update this entity');
+          }
+
           return Entity.findByIdAndUpdate(enid, { $set: args }, { new: true });
         },
     },
@@ -47,11 +65,17 @@ schemaComposer.Mutation.addNestedFields({
         args: {
             enid: 'ID!',
         },
-        resolve: (obj, args) => Entity.findByIdAndDelete(args.enid),
+        resolve: (obj, args, req) => {
+          if (req.user.type !== 'a') {
+            throw new Error('UNAUTHORIZED delete entities');
+          }
+
+          return Entity.findByIdAndDelete(args.enid)
+        },
     },
 });
 
 const schema = schemaComposer.buildSchema();
 
-const execute = (query, variableValues = {}) => graphql({ schema, source: query, variableValues });
+const execute = (query, variableValues = {}, contextValue = {}) => graphql({ schema, source: query, variableValues, contextValue });
 export default execute;
