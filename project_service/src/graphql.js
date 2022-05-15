@@ -22,7 +22,14 @@ schemaComposer.Query.addNestedFields({
       pids: '[ID!]!'
     },
     resolve: (obj, args) => Project.find({ _id: { $in: args.pids } }),
-  }
+  },
+  projectsOfCompany: {
+    type: '[Project!]',
+    args: {
+      enid: 'ID!'
+    },
+    resolve: async (obj, args) => { const a = await Project.find({ enid: args.enid }); console.log(a); return a;},
+  },
 });
 
 schemaComposer.Mutation.addNestedFields({

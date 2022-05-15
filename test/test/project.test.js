@@ -49,6 +49,28 @@ query {
     expect(res.data.projects).to.deep.include(projects[1]);
     expect(res.data.projects).to.not.deep.include(projects[2]);
   });
+
+  it('query projectsOfCompany should get the correct projects', async () => {
+    const res = await request(`
+query {
+  projectsOfCompany(${dictToGraphql({ enid: projects[0].enid })}) {
+      ${body}
+    }
+}
+    `);
+
+    expect(res).to.exist;
+    expect(res.data).to.exist;
+    expect(res.errors, 'Does not have errors').to.be.undefined;
+
+    for (const project of projects) {
+      if (projects[0].enid === project.enid) {
+        expect(res.data.projectsOfCompany).to.deep.include(project);
+      } else {
+        expect(res.data.projectsOfCompany).not.to.deep.include(project);
+      }
+    }
+  });
 }
 
 const permissions = {
