@@ -7,12 +7,14 @@ const getEntities = () => [
     description: 'New description1',
     type: 'company',
     contact: [{ type: 'website', content: 'qrcsoftware.nl/1' }, { type: 'email', content: 'info.1@uva.nl' }, { type: 'phonenumber', content: '06 12345671' }],
+    external_id: 0,
   },
   {
     name: 'New name 2',
     description: 'New description 2',
     type: 'research',
     contact: [{ type: 'website', content: 'qrcsoftware.nl/2' }, { type: 'email', content: 'info.2@uva.nl' }, { type: 'phonenumber', content: '06 12345672' }],
+    external_id: 1,
   }
 ];
 

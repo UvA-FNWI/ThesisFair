@@ -11,7 +11,21 @@ contact {
   type
   content
 }
+external_id
 `;
+
+const entity_import = {
+  csv: `Name,Column1,Last login,Fairs paid,Contact e-mail addresses,Votes,Representatives,ID
+Entity 1,Elodie Snel,01/01/2022,,elodie@snel.nl;,0,0,84336
+Entity 2,Christian de lange,01/12/2021,,christian@lange.nl;,0,0,84202
+University of Amsterdam: Graduate School of Informatics (Senior TAs),"dr. ing. Cristian Hugo Echbert, dr. Jochem Emo Sloom",,,c.h.echbert@uva.nl;j.esloom@uva.nl;,0,0,80854
+`,
+  data: [
+    { name: 'Entity 1', external_id: 84336 },
+    { name: 'Entity 2', external_id: 84202 },
+    { name: 'University of Amsterdam: Graduate School of Informatics (Senior TAs)', external_id: 80854 }
+  ]
+};
 
 const testQuery = () => {
   it('query entity should get an entity', async () => {
@@ -123,10 +137,27 @@ const permissions = {
       expect(res.data.entity.delete).to.be.null;
       expect(res.errors).to.exist;
     });
-  }
+  },
+  import: () => {
+    it('mutation import should hanle permissions properly', async () => {
+      const res = await request(`
+mutation {
+    entity {
+        import(${dictToGraphql({ file: entity_import.csv })}) {
+          ${body}
+        }
+    }
+}
+      `, undefined, false);
+
+      expect(res).to.exist;
+      expect(res.data.entity.import).to.be.null;
+      expect(res.errors).to.exist;
+    });
+  },
 }
 
-describe.only('Entity', () => {
+describe('Entity', () => {
   beforeEach(async () => {
     await initDB();
   });
@@ -144,6 +175,7 @@ describe.only('Entity', () => {
         description: 'New description',
         type: 'company',
         contact: [{ type: 'website', content: 'qrcsoftware.nl' }, { type: 'phonenumber', content: '06 12345678' }],
+        external_id: 100,
       }
 
       const res = await request(`
@@ -233,6 +265,57 @@ describe.only('Entity', () => {
 
       expect(query.data.entity).to.be.null;
     });
+
+    it('mutation entity.import should import entities', async () => {
+      const res = await request(`
+mutation {
+    entity {
+        import(${dictToGraphql({ file: entity_import.csv })}) {
+          ${body}
+        }
+    }
+}
+    `);
+
+    expect(res).to.exist;
+    expect(res.data).to.exist;
+    expect(res.errors).to.be.undefined;
+
+    expect(res.data.entity.import.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
+    expect(res.data.entity.import.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
+
+    // TODO: Test if users were made properly
+    });
+
+    it('mutation entity.import should not double import entities', async () => {
+      await request(`
+mutation {
+    entity {
+        import(${dictToGraphql({ file: entity_import.csv })}) {
+          ${body}
+        }
+    }
+}
+    `);
+
+    const res = await request(`
+    mutation {
+        entity {
+            import(${dictToGraphql({ file: entity_import.csv })}) {
+              ${body}
+            }
+        }
+    }
+        `);
+
+    expect(res).to.exist;
+    expect(res.data).to.exist;
+    expect(res.errors).to.be.undefined;
+
+    expect(res.data.entity.import.every((v) => v === null), 'All returned entities are null').to.be.true;
+
+    // TODO: Test if users were not made
+    });
   });
 
   describe('Representative', () => {
@@ -245,6 +328,7 @@ describe.only('Entity', () => {
     permissions.create();
     testUpdate();
     permissions.delete();
+    permissions.import();
   });
 
   describe('Student', () => {
@@ -257,5 +341,6 @@ describe.only('Entity', () => {
     permissions.create();
     permissions.update();
     permissions.delete();
+    permissions.import();
   });
 });
