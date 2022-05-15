@@ -15,15 +15,19 @@ const createApp = async () => {
   // app.use(cookieParser());
 
   app.use((req, res, next) => {
-    if (!req.headers.authorization) {
+    let token = req.headers.authorization;
+    if (process.env.DEBUG) {
+      token ||= req.query.authorization;
+    }
+    if (!token) {
       next(createError(401));
     }
 
-    if (!req.headers.authorization.startsWith('Bearer ')) {
+    if (!token.startsWith('Bearer ')) {
       next({ status: 401, message: 'Only bearer authentication is allowed' });
     }
 
-    req.user = JSON.parse(req.headers.authorization.substring(7));
+    req.user = JSON.parse(token.substring(7));
     if (!req.user) {
       next({ status: 401, message: 'Invalid token' });
     }
