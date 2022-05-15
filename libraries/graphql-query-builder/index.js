@@ -62,7 +62,7 @@ const serializeValue = (val) => {
       return val.toString();
 
     case 'string':
-      return '"' + val.replace(/\n/g, '\\n') + '"';
+      return JSON.stringify(val);
 
     case 'object':
       if (val instanceof Array) {
