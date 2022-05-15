@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import debugLib from 'debug';
 
-const debug = debugLib('entity_service:database');
+const debug = debugLib('project_service:database');
 
 export const connect = async () => {
   const conStr = process.env.mongodbConStr || 'mongodb://mongodb/project_service';
