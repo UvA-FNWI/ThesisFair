@@ -1,21 +1,21 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 const uri = process.env.mongodbConStrProject || 'mongodb://localhost:27017'
 
 const getProjects = () => [
   {
-    enid: '62728401f41b2cfc83a7035b',
+    enid: ObjectId('62728401f41b2cfc83a7035b'),
     name: 'New name1',
     description: 'New description1',
     datanoseLink: 'https://datanose.nl/projects/newName1',
   },
   {
-    enid: '62728401f41b2cfc83a7035b',
+    enid: ObjectId('62728401f41b2cfc83a7035b'),
     name: 'New name 2',
     description: 'New description 2',
     datanoseLink: 'https://datanose.nl/projects/newName2',
   },
   {
-    enid: '62728401f41b2cfc83a7035a',
+    enid: ObjectId('62728401f41b2cfc83a7035a'),
     name: 'Other company project',
     description: 'Belongs to another company',
     datanoseLink: 'https://datanose.nl/projects/newName3',
@@ -37,6 +37,7 @@ const run = async (client) => {
 
   for (const i in res.insertedIds) {
     projects[i].pid = res.insertedIds[i].toString();
+    projects[i].enid = projects[i].enid.toString();
     delete projects[i]._id;
   }
 }
