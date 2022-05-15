@@ -161,7 +161,7 @@ describe('project', () => {
 
     it('mutation project.create should create an project', async () => {
       const project = {
-        enid: '62728401f41b2cfc83a7035b',
+        enid: projects[0].enid,
         name: 'New name',
         description: 'New description',
         datanoseLink: 'https://datanose.nl/projects/newNew',
@@ -188,6 +188,30 @@ describe('project', () => {
       expect(res.data.project.create).to.deep.equal(project);
     });
 
+    it('mutation project.create should properly check if entity exists', async () => {
+      const project = {
+        enid: '62728401a41b2cfc83a7035b',
+        name: 'New name',
+        description: 'New description',
+        datanoseLink: 'https://datanose.nl/projects/newNew',
+      }
+
+      const res = await request(`
+  mutation {
+    project {
+        create(${dictToGraphql(project)}) {
+          ${body}
+        }
+    }
+  }
+      `, undefined, false)
+
+
+      expect(res).to.exist;
+      expect(res.data.project.create).to.be.null;
+      expect(res.errors, 'Does not have errors').to.exist;
+    });
+
     it('mutation project.update should update the project', async () => {
       const updatedEntity = { ...projects[1], pid: projects[0].pid };
       const res = await request(`
@@ -205,6 +229,24 @@ mutation {
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
       expect(res.data.project.update).to.deep.equal(updatedEntity);
+    });
+
+
+    it('mutation project.update should properly check if the entity exists', async () => {
+      const updatedEntity = { ...projects[1], pid: projects[0].pid, enid: '62728401a41b2cfc83a7035b' };
+      const res = await request(`
+mutation {
+    project {
+        update(${dictToGraphql(updatedEntity)}) {
+          ${body}
+        }
+    }
+}
+      `, undefined, false);
+
+      expect(res).to.exist;
+      expect(res.data.project.update).to.be.null;
+      expect(res.errors).to.exist;
     });
 
     it('mutation project.delete should delete the project', async () => {

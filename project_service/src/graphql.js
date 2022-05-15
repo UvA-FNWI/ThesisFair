@@ -3,6 +3,7 @@ import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
 // import { parse as csvParser } from 'csv-parse';
 
+import { rpc } from '../../libraries/amqpmessaging/index.js';
 import { Project } from './database.js';
 // import config from './config.js';
 
@@ -28,7 +29,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       enid: 'ID!'
     },
-    resolve: async (obj, args) => { const a = await Project.find({ enid: args.enid }); console.log(a); return a;},
+    resolve: (obj, args) => Project.find({ enid: args.enid }),
   },
 });
 
@@ -41,9 +42,19 @@ schemaComposer.Mutation.addNestedFields({
       description: 'String',
       datanoseLink: 'String',
     },
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED create project');
+      }
+
+      const res = await rpc('API_entity', {
+        query: `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`,
+        variables: null,
+        context: { user: { type: 'a' } },
+      });
+
+      if (!res.data.entity) {
+        throw new Error('The given enid does not exist');
       }
 
       return Project.create(args);
@@ -58,9 +69,21 @@ schemaComposer.Mutation.addNestedFields({
       description: 'String',
       datanoseLink: 'String',
     },
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED update project');
+      }
+
+      if (args.enid) {
+        const res = await rpc('API_entity', {
+          query: `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`,
+          variables: null,
+          context: { user: { type: 'a' } },
+        });
+
+        if (!res.data.entity) {
+          throw new Error('The given enid does not exist');
+        }
       }
 
       const pid = args.pid;
@@ -78,7 +101,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED delete project');
       }
 
-      return Project.findByIdAndDelete(args.pid)
+      return Project.findByIdAndDelete(args.pid);
     },
   },
   'project.import': {

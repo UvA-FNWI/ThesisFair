@@ -1,21 +1,23 @@
 import { MongoClient, ObjectId } from 'mongodb';
+import initEntityDB, { entities } from './entity.db.js';
+
 const uri = process.env.mongodbConStrProject || 'mongodb://localhost:27017'
 
 const getProjects = () => [
   {
-    enid: ObjectId('62728401f41b2cfc83a7035b'),
+    enid: ObjectId(entities[0].enid),
     name: 'New name1',
     description: 'New description1',
     datanoseLink: 'https://datanose.nl/projects/newName1',
   },
   {
-    enid: ObjectId('62728401f41b2cfc83a7035b'),
+    enid: ObjectId(entities[0].enid),
     name: 'New name 2',
     description: 'New description 2',
     datanoseLink: 'https://datanose.nl/projects/newName2',
   },
   {
-    enid: ObjectId('62728401f41b2cfc83a7035a'),
+    enid: ObjectId(entities[1].enid),
     name: 'Other company project',
     description: 'Belongs to another company',
     datanoseLink: 'https://datanose.nl/projects/newName3',
@@ -43,6 +45,7 @@ const run = async (client) => {
 }
 
 const main = async () => {
+  await initEntityDB();
   const client = new MongoClient(uri);
   await client.connect();
   try {
