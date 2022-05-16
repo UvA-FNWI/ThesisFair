@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { dictToGraphql, request, login } from '../../libraries/graphql-query-builder/index.js';
 
-import initDb, { events } from './event.db.js';
+import initDb, { db } from './db.js';
 
 const checkPremissions = () => {
   it('should enforce permissions properly', async () => {
@@ -26,14 +26,14 @@ query {
 
     res = await request(`
 query {
-  event(${dictToGraphql({ evid: events[1].evid })}) {
+  event(${dictToGraphql({ evid: db.events[1].evid })}) {
     evid
   }
 }
     `, undefined, false);
     checkResponse(res, 'event');
 
-    const createData = { ...events[0] };
+    const createData = { ...db.events[0] };
     delete createData.evid;
     res = await request(`
 mutation {
@@ -49,7 +49,7 @@ mutation {
     res = await request(`
 mutation {
   event {
-    update(${dictToGraphql({ ...events[0], evid: events[1].evid })}) {
+    update(${dictToGraphql({ ...db.events[0], evid: db.events[1].evid })}) {
       evid
     }
   }
@@ -64,7 +64,7 @@ mutation {
     res = await request(`
 mutation {
   event {
-    delete(${dictToGraphql({ evid: events[0].evid })}) {
+    delete(${dictToGraphql({ evid: db.events[0].evid })}) {
       evid
     }
   }
@@ -77,7 +77,7 @@ mutation {
 mutation {
   event {
     entity{
-      add(${dictToGraphql({ evid: events[0].evid, enid: '6266fb7b25f56e50b2309d0a' })}) {
+      add(${dictToGraphql({ evid: db.events[0].evid, enid: '6266fb7b25f56e50b2309d0a' })}) {
         evid
       }
     }
@@ -90,7 +90,7 @@ mutation {
 mutation {
   event {
     entity{
-      del(${dictToGraphql({ evid: events[0].evid, enid: '6266fb7b25f56e50b2306d0f' })}) {
+      del(${dictToGraphql({ evid: db.events[0].evid, enid: '6266fb7b25f56e50b2306d0f' })}) {
         evid
       }
     }
@@ -115,7 +115,7 @@ describe('Event', () => {
     it('query event should get a specific event', async () => {
       const res = await request(`
   query {
-    event(${dictToGraphql({ evid: events[0].evid })}) {
+    event(${dictToGraphql({ evid: db.events[0].evid })}) {
       evid
       enabled
       name
@@ -131,7 +131,7 @@ describe('Event', () => {
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
-      expect(res.data.event).to.deep.equal(events[0]);
+      expect(res.data.event).to.deep.equal(db.events[0]);
     });
 
     it('query events(all:false) should get all enabled events', async () => {
@@ -154,8 +154,8 @@ describe('Event', () => {
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
       expect(res.data.events).to.be.a('array');
-      for (const i in events) {
-        const event = events[i];
+      for (const i in db.events) {
+        const event = db.events[i];
         if (event.enabled) {
           expect(res.data.events, `Should include event of index ${i}`).to.deep.include(event);
         } else {
@@ -184,8 +184,8 @@ describe('Event', () => {
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
       expect(res.data.events).to.be.a('array');
-      for (const i in events) {
-        expect(res.data.events, `Should include event of index ${i}`).to.deep.include(events[i]);
+      for (const i in db.events) {
+        expect(res.data.events, `Should include event of index ${i}`).to.deep.include(db.events[i]);
       }
     });
 
@@ -229,7 +229,7 @@ describe('Event', () => {
 
     it('mutation event.update should update the event', async () => {
       const eventUpdate = {
-        evid: events[0].evid,
+        evid: db.events[0].evid,
         enabled: false,
         name: 'Changed name',
         description: 'Changed description',
@@ -266,7 +266,7 @@ describe('Event', () => {
       const res = await request(`
   mutation {
     event {
-      delete(${dictToGraphql({ evid: events[0].evid })}) {
+      delete(${dictToGraphql({ evid: db.events[0].evid })}) {
         evid
         enabled
         name
@@ -283,12 +283,12 @@ describe('Event', () => {
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
-      expect(res.data.event.delete).to.deep.equal(events[0]);
+      expect(res.data.event.delete).to.deep.equal(db.events[0]);
 
 
       const query = await request(`
   query {
-    event(${dictToGraphql({ evid: events[0].evid })}) {
+    event(${dictToGraphql({ evid: db.events[0].evid })}) {
       evid
       enabled
       name
@@ -311,7 +311,7 @@ describe('Event', () => {
   mutation {
     event {
       entity {
-        add(${dictToGraphql({ evid: events[0].evid, enid: newEnid })}) {
+        add(${dictToGraphql({ evid: db.events[0].evid, enid: newEnid })}) {
           evid
           entities
         }
@@ -331,7 +331,7 @@ describe('Event', () => {
   mutation {
     event {
       entity {
-        del(${dictToGraphql({ evid: events[0].evid, enid: events[0].entities[0] })}) {
+        del(${dictToGraphql({ evid: db.events[0].evid, enid: db.events[0].entities[0] })}) {
           evid
           entities
         }
@@ -343,13 +343,13 @@ describe('Event', () => {
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
-      expect(res.data.event.entity.del.entities).not.to.include(events[0].entities[0]);
+      expect(res.data.event.entity.del.entities).not.to.include(db.events[0].entities[0]);
     });
   });
 
   describe('Representative', () => {
-    before(async () => {
-      await login('rep', 'rep');
+    beforeEach(async () => {
+      await login('rep', 'rep', { enid: db.entities[0].enid });
     });
 
     it('query events should return a list of events the company is participating in', async () => {
@@ -372,14 +372,10 @@ query {
       expect(res.errors).to.be.undefined;
 
       expect(res.data.events).to.be.a('array');
-      for (const i in events) {
-        const event = events[i];
-        if (event.enabled && event.entities.includes('62728401f41b2cfc83a7035b')) {
-          expect(res.data.events, `Should include event of index ${i}`).to.deep.include(event);
-        } else {
-          expect(res.data.events, `Should not include event of index ${i}`).not.to.deep.include(event);
-        }
-      }
+      expect(res.data.events).to.deep.include(db.events[0]);
+      expect(res.data.events).not.to.deep.include(db.events[1]);
+      expect(res.data.events).not.to.deep.include(db.events[2]);
+      expect(res.data.events).not.to.deep.include(db.events[3]);
     });
 
     checkPremissions();

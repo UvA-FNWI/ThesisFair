@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { request, login, dictToGraphql } from '../../libraries/graphql-query-builder/index.js';
-import initDB, { entities } from './entity.db.js';
+import initDB, { db } from './db.js';
 
 const body = `enid
 name
@@ -31,7 +31,7 @@ const testQuery = () => {
   it('query entity should get an entity', async () => {
     const res = await request(`
 query {
-    entity(${dictToGraphql({ enid: entities[0].enid })}) {
+    entity(${dictToGraphql({ enid: db.entities[0].enid })}) {
       ${body}
     }
 }
@@ -41,13 +41,13 @@ query {
     expect(res.data).to.exist;
     expect(res.errors, 'Does not have errors').to.be.undefined;
 
-    expect(res.data.entity).to.deep.equal(entities[0]);
+    expect(res.data.entity).to.deep.equal(db.entities[0]);
   });
 
   it('query entities should get the correct entities', async () => {
     const res = await request(`
 query {
-    entities(${dictToGraphql({ enids: [entities[1].enid, entities[0].enid] })}) {
+    entities(${dictToGraphql({ enids: [db.entities[1].enid, db.entities[0].enid] })}) {
       ${body}
     }
 }
@@ -57,14 +57,14 @@ query {
     expect(res.data).to.exist;
     expect(res.errors, 'Does not have errors').to.be.undefined;
 
-    expect(res.data.entities).to.deep.include(entities[0]);
-    expect(res.data.entities).to.deep.include(entities[1]);
+    expect(res.data.entities).to.deep.include(db.entities[0]);
+    expect(res.data.entities).to.deep.include(db.entities[1]);
   });
 }
 
 const testUpdate = () => {
   it('mutation entity.update should update the entity', async () => {
-    const updatedEntity = { ...entities[1], enid: entities[0].enid };
+    const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
     const res = await request(`
 mutation {
     entity {
@@ -86,7 +86,7 @@ mutation {
 const permissions = {
   create: () => {
     it('mutation create should hanle permissions properly', async () => {
-      const newEntity = { ...entities[0] };
+      const newEntity = { ...db.entities[0] };
       delete newEntity.enid;
       const res = await request(`
   mutation {
@@ -105,7 +105,7 @@ const permissions = {
   },
   update: () => {
     it('mutation update should hanle permissions properly', async () => {
-      const updatedEntity = { ...entities[1], enid: entities[0].enid };
+      const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
       const res = await request(`
   mutation {
       entity {
@@ -126,7 +126,7 @@ const permissions = {
       const res = await request(`
   mutation {
       entity {
-          delete(${dictToGraphql({ enid: entities[0].enid })}) {
+          delete(${dictToGraphql({ enid: db.entities[0].enid })}) {
             ${body}
           }
       }
@@ -200,7 +200,7 @@ describe('Entity', () => {
     });
 
     it('should check enum values properly', async () => {
-      let entity = JSON.parse(JSON.stringify(entities[0]));
+      let entity = JSON.parse(JSON.stringify(db.entities[0]));
       delete entity.enid;
       entity.type = 'invalidType';
 
@@ -217,7 +217,7 @@ describe('Entity', () => {
       expect(res.data.entity.create).to.be.null;
       expect(res.errors).to.exist;
 
-      entity = JSON.parse(JSON.stringify(entities[0]));
+      entity = JSON.parse(JSON.stringify(db.entities[0]));
       delete entity.enid;
       entity.contact[0].type = 'invalidType';
 
@@ -241,7 +241,7 @@ describe('Entity', () => {
       const res = await request(`
   mutation {
       entity {
-          delete(${dictToGraphql({ enid: entities[0].enid })}) {
+          delete(${dictToGraphql({ enid: db.entities[0].enid })}) {
             ${body}
           }
       }
@@ -252,12 +252,12 @@ describe('Entity', () => {
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
-      expect(res.data.entity.delete).to.deep.equal(entities[0]);
+      expect(res.data.entity.delete).to.deep.equal(db.entities[0]);
 
 
       const query = await request(`
   query {
-      entity(${dictToGraphql({ enid: entities[0].enid })}) {
+      entity(${dictToGraphql({ enid: db.entities[0].enid })}) {
         ${body}
       }
   }
@@ -320,7 +320,7 @@ mutation {
 
   describe('Representative', () => {
     beforeEach(async () => {
-      await login('rep', 'rep', { enid: entities[0].enid });
+      await login('rep', 'rep', { enid: db.entities[0].enid });
     });
 
     testQuery();

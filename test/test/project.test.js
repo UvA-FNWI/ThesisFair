@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { request, login, dictToGraphql } from '../../libraries/graphql-query-builder/index.js';
-import initDB, { projects } from './project.db.js';
+import initDB, { db } from './db.js';
 
 const body = `pid
 enid
@@ -19,7 +19,7 @@ const testQuery = () => {
   it('query project should get a project', async () => {
     const res = await request(`
 query {
-  project(${dictToGraphql({ pid: projects[0].pid })}) {
+  project(${dictToGraphql({ pid: db.projects[0].pid })}) {
     ${body}
   }
 }
@@ -29,13 +29,13 @@ query {
     expect(res.data).to.exist;
     expect(res.errors, 'Does not have errors').to.be.undefined;
 
-    expect(res.data.project).to.deep.equal(projects[0]);
+    expect(res.data.project).to.deep.equal(db.projects[0]);
   });
 
   it('query projects should get the correct projects', async () => {
     const res = await request(`
 query {
-    projects(${dictToGraphql({ pids: [projects[1].pid, projects[0].pid] })}) {
+    projects(${dictToGraphql({ pids: [db.projects[1].pid, db.projects[0].pid] })}) {
       ${body}
     }
 }
@@ -45,15 +45,15 @@ query {
     expect(res.data).to.exist;
     expect(res.errors, 'Does not have errors').to.be.undefined;
 
-    expect(res.data.projects).to.deep.include(projects[0]);
-    expect(res.data.projects).to.deep.include(projects[1]);
-    expect(res.data.projects).to.not.deep.include(projects[2]);
+    expect(res.data.projects).to.deep.include(db.projects[0]);
+    expect(res.data.projects).to.deep.include(db.projects[1]);
+    expect(res.data.projects).to.not.deep.include(db.projects[2]);
   });
 
   it('query projectsOfCompany should get the correct projects', async () => {
     const res = await request(`
 query {
-  projectsOfCompany(${dictToGraphql({ enid: projects[0].enid })}) {
+  projectsOfCompany(${dictToGraphql({ enid: db.projects[0].enid })}) {
       ${body}
     }
 }
@@ -63,8 +63,8 @@ query {
     expect(res.data).to.exist;
     expect(res.errors, 'Does not have errors').to.be.undefined;
 
-    for (const project of projects) {
-      if (projects[0].enid === project.enid) {
+    for (const project of db.projects) {
+      if (db.projects[0].enid === project.enid) {
         expect(res.data.projectsOfCompany).to.deep.include(project);
       } else {
         expect(res.data.projectsOfCompany).not.to.deep.include(project);
@@ -76,7 +76,7 @@ query {
 const permissions = {
   create: () => {
     it('mutation create should hanle permissions properly', async () => {
-      const newEntity = { ...projects[0] };
+      const newEntity = { ...db.projects[0] };
       delete newEntity.pid;
       const res = await request(`
   mutation {
@@ -95,7 +95,7 @@ const permissions = {
   },
   update: () => {
     it('mutation update should hanle permissions properly', async () => {
-      const updatedEntity = { ...projects[1], pid: projects[0].pid };
+      const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid };
       const res = await request(`
   mutation {
       project {
@@ -116,7 +116,7 @@ const permissions = {
       const res = await request(`
   mutation {
       project {
-          delete(${dictToGraphql({ pid: projects[0].pid })}) {
+          delete(${dictToGraphql({ pid: db.projects[0].pid })}) {
             ${body}
           }
       }
@@ -161,7 +161,7 @@ describe('project', () => {
 
     it('mutation project.create should create an project', async () => {
       const project = {
-        enid: projects[0].enid,
+        enid: db.projects[0].enid,
         name: 'New name',
         description: 'New description',
         datanoseLink: 'https://datanose.nl/projects/newNew',
@@ -213,7 +213,7 @@ describe('project', () => {
     });
 
     it('mutation project.update should update the project', async () => {
-      const updatedEntity = { ...projects[1], pid: projects[0].pid };
+      const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid };
       const res = await request(`
 mutation {
     project {
@@ -233,7 +233,7 @@ mutation {
 
 
     it('mutation project.update should properly check if the entity exists', async () => {
-      const updatedEntity = { ...projects[1], pid: projects[0].pid, enid: '62728401a41b2cfc83a7035b' };
+      const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid, enid: '62728401a41b2cfc83a7035b' };
       const res = await request(`
 mutation {
     project {
@@ -253,7 +253,7 @@ mutation {
       const res = await request(`
   mutation {
       project {
-          delete(${dictToGraphql({ pid: projects[0].pid })}) {
+          delete(${dictToGraphql({ pid: db.projects[0].pid })}) {
             ${body}
           }
       }
@@ -264,12 +264,12 @@ mutation {
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
-      expect(res.data.project.delete).to.deep.equal(projects[0]);
+      expect(res.data.project.delete).to.deep.equal(db.projects[0]);
 
 
       const query = await request(`
   query {
-      project(${dictToGraphql({ pid: projects[0].pid })}) {
+      project(${dictToGraphql({ pid: db.projects[0].pid })}) {
         ${body}
       }
   }
@@ -329,7 +329,7 @@ mutation {
 
     describe('Representative', () => {
       beforeEach(async () => {
-        await login('rep', 'rep', { pid: projects[0].pid });
+        await login('rep', 'rep', { pid: db.projects[0].pid });
       });
 
       testQuery();
