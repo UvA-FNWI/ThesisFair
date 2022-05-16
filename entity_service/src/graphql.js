@@ -3,8 +3,10 @@ import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
 import { parse as csvParser } from 'csv-parse';
 
+import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Entity } from './database.js';
 import config from './config.js';
+import { dictToGraphql } from '../../libraries/graphql-query-builder/index.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -69,9 +71,14 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete entities');
+      }
+
+      const res = await rgraphql('API_project', `mutation { project { deleteOfEntity(${dictToGraphql({ enid: args.enid })}) } }`);
+      if (res.errors || !res.data.project || !res.data.project.deleteOfEntity) {
+        throw new Error('Deleting all linked projects failed');
       }
 
       return Entity.findByIdAndDelete(args.enid)

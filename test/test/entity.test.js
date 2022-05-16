@@ -254,6 +254,20 @@ describe('Entity', () => {
 
       expect(res.data.entity.delete).to.deep.equal(db.entities[0]);
 
+      const projects = await request(`
+      query {
+        projectsOfEntity(${dictToGraphql({ enid: db.entities[0].enid })}) {
+            pid
+            enid
+          }
+      }
+      `);
+
+      expect(projects).to.exist;
+      expect(projects.data.projectsOfEntity).to.exist;
+      expect(projects.data.projectsOfEntity).to.be.a('array');
+      expect(projects.data.projectsOfEntity).to.have.length(0);
+      expect(projects.errors).to.be.undefined;
 
       const query = await request(`
   query {
