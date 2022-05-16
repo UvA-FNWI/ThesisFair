@@ -278,6 +278,50 @@ mutation {
       expect(query.data.project).to.be.null;
     });
 
+    it('mutation project.deleteOfEntity should delete all entities projects', async () => {
+      const res = await request(`
+  mutation {
+    project {
+      deleteOfEntity(${dictToGraphql({ enid: db.entities[0].enid })})
+    }
+  }
+      `);
+
+      expect(res).to.exist;
+      expect(res.data).to.exist;
+      expect(res.errors, 'Does not have errors').to.be.undefined;
+
+      let query = await request(`
+  query {
+      project(${dictToGraphql({ pid: db.projects[0].pid })}) {
+        ${body}
+      }
+  }
+      `);
+
+      expect(query.data.project).to.be.null;
+
+      query = await request(`
+  query {
+      project(${dictToGraphql({ pid: db.projects[1].pid })}) {
+        ${body}
+      }
+  }
+      `);
+
+      expect(query.data.project).to.be.null;
+
+      query = await request(`
+  query {
+      project(${dictToGraphql({ pid: db.projects[2].pid })}) {
+        ${body}
+      }
+  }
+      `);
+
+      expect(query.data.project).to.deep.equal(db.projects[2]);
+    });
+
     //     it('mutation project.import should import projects', async () => {
     //       const res = await request(`
     // mutation {

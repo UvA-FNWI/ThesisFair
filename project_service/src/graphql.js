@@ -104,6 +104,20 @@ schemaComposer.Mutation.addNestedFields({
       return Project.findByIdAndDelete(args.pid);
     },
   },
+  'project.deleteOfEntity': {
+    type: 'Boolean',
+    args: {
+      enid: 'ID!',
+    },
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED delete project');
+      }
+
+      await Project.deleteMany({ enid: args.enid });
+      return true
+    }
+  },
   'project.import': {
     type: '[Project]',
     args: {
