@@ -54,7 +54,7 @@ mutation {
     }
   }
 }
-    `);
+    `, undefined, false);
     checkResponse(res, 'event.update');
 
     expect(res.errors).to.exist;
@@ -69,7 +69,7 @@ mutation {
     }
   }
 }
-    `);
+    `, undefined, false);
     checkResponse(res, 'event.delete');
 
 
@@ -83,7 +83,7 @@ mutation {
     }
   }
 }
-    `);
+    `, undefined, false);
     checkResponse(res, 'event.entity.add');
 
     res = await request(`
@@ -96,7 +96,7 @@ mutation {
     }
   }
 }
-    `);
+    `, undefined, false);
     checkResponse(res, 'event.entity.del');
   });
 };
@@ -299,7 +299,7 @@ describe('Event', () => {
       entities
     }
   }
-          `);
+      `);
 
       expect(query.data.event).to.be.null;
     });
