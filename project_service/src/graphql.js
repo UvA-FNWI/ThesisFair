@@ -47,11 +47,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create project');
       }
 
-      const res = await rgraphql('API_entity',
-        `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`,
-        null,
-        { user: { type: 'a' } },
-      );
+      const res = await rgraphql('API_entity', `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`);
 
       if (!res.data.entity) {
         throw new Error('The given enid does not exist');
@@ -75,11 +71,7 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       if (args.enid) {
-        const res = await rgraphql('API_entity',
-          `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`,
-          null,
-          { user: { type: 'a' } },
-        );
+        const res = await rgraphql('API_entity', `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`);
 
         if (!res.data.entity) {
           throw new Error('The given enid does not exist');
