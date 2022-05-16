@@ -50,10 +50,10 @@ query {
     expect(res.data.projects).to.not.deep.include(db.projects[2]);
   });
 
-  it('query projectsOfCompany should get the correct projects', async () => {
+  it('query projectsOfEntity should get the correct projects', async () => {
     const res = await request(`
 query {
-  projectsOfCompany(${dictToGraphql({ enid: db.projects[0].enid })}) {
+  projectsOfEntity(${dictToGraphql({ enid: db.projects[0].enid })}) {
       ${body}
     }
 }
@@ -65,9 +65,9 @@ query {
 
     for (const project of db.projects) {
       if (db.projects[0].enid === project.enid) {
-        expect(res.data.projectsOfCompany).to.deep.include(project);
+        expect(res.data.projectsOfEntity).to.deep.include(project);
       } else {
-        expect(res.data.projectsOfCompany).not.to.deep.include(project);
+        expect(res.data.projectsOfEntity).not.to.deep.include(project);
       }
     }
   });
