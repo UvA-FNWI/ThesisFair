@@ -4,13 +4,13 @@ import { introspectSchema } from '@graphql-tools/wrap';
 import { stitchSchemas } from '@graphql-tools/stitch';
 import debugLib from 'debug';
 
-import { channel, rpc } from '../../libraries/amqpmessaging/index.js';
+import { channel, rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { graphqlConfig } from './config.js';
 import errors from './errors.js';
 
 const debug = debugLib('API_gateway:graphql');
 
-const executor = (queue, { document, variables, context }) => rpc(queue, { query: print(document), variables, context: context ? { user: context.user } : {} });
+const executor = (queue, { document, variables, context }) => rgraphql(queue, print(document), variables, context ? { user: context.user } : {});
 
 const getMiddleware = async () => {
     const subschemas = [];

@@ -98,3 +98,7 @@ export const rpc = (queue, data) => {
     debug('Message send with corrolation id %d', id);
   });
 }
+
+export const rgraphql = (queue, query, variables, context) => {
+  return rpc(queue, { query, variables, context });
+}

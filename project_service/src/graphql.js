@@ -3,7 +3,7 @@ import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
 // import { parse as csvParser } from 'csv-parse';
 
-import { rpc } from '../../libraries/amqpmessaging/index.js';
+import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Project } from './database.js';
 // import config from './config.js';
 
@@ -47,11 +47,11 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create project');
       }
 
-      const res = await rpc('API_entity', {
-        query: `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`,
-        variables: null,
-        context: { user: { type: 'a' } },
-      });
+      const res = await rgraphql('API_entity',
+        `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`,
+        null,
+        { user: { type: 'a' } },
+      );
 
       if (!res.data.entity) {
         throw new Error('The given enid does not exist');
@@ -75,11 +75,11 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       if (args.enid) {
-        const res = await rpc('API_entity', {
-          query: `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`,
-          variables: null,
-          context: { user: { type: 'a' } },
-        });
+        const res = await rgraphql('API_entity',
+          `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`,
+          null,
+          { user: { type: 'a' } },
+        );
 
         if (!res.data.entity) {
           throw new Error('The given enid does not exist');
