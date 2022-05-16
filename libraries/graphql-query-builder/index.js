@@ -50,6 +50,11 @@ export const request = async (query, variables, shouldSucceed = true) => {
     return error.response.data;
   }
 
+  if (shouldSucceed && result.data.errors) {
+    console.log(shouldSucceed)
+    console.log(result.data);
+  }
+
   return result.data;
 }
 
