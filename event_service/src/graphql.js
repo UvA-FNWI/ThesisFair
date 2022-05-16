@@ -14,6 +14,7 @@ schemaComposer.Query.addNestedFields({
         },
         resolve: async (obj, args, req) => {
           const event = await Event.findById(args.evid);
+          if (!event) { return null; }
 
           if (!event.enabled && req.user.type !== 'a') {
             throw new Error('UNAUTHORIZED list disabled event');
