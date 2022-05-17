@@ -12,6 +12,7 @@ export const connect = async () => {
 
 const projectSchema = new mongoose.Schema({
   enid: mongoose.Schema.ObjectId,
+  evid: mongoose.Schema.ObjectId,
   name: String,
   description: String,
   datanoseLink: String,

@@ -90,18 +90,21 @@ const configs = {
     get: () => [
       {
         enid: ObjectId(db.entities[0].enid),
+        evid: ObjectId(db.events[0].evid),
         name: 'New name1',
         description: 'New description1',
         datanoseLink: 'https://datanose.nl/projects/newName1',
       },
       {
         enid: ObjectId(db.entities[0].enid),
+        evid: ObjectId(db.events[0].evid),
         name: 'New name 2',
         description: 'New description 2',
         datanoseLink: 'https://datanose.nl/projects/newName2',
       },
       {
         enid: ObjectId(db.entities[1].enid),
+        evid: ObjectId(db.events[1].evid),
         name: 'Other company project',
         description: 'Belongs to another company',
         datanoseLink: 'https://datanose.nl/projects/newName3',
@@ -111,6 +114,7 @@ const configs = {
       for (const i in res.insertedIds) {
         projects[i].pid = res.insertedIds[i].toString();
         projects[i].enid = projects[i].enid.toString();
+        projects[i].evid = projects[i].evid.toString();
         delete projects[i]._id;
       }
     }

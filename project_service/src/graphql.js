@@ -31,6 +31,13 @@ schemaComposer.Query.addNestedFields({
     },
     resolve: (obj, args) => Project.find({ enid: args.enid }),
   },
+  projectsOfEvent: {
+    type: '[Project!]',
+    args: {
+      evid: 'ID!'
+    },
+    resolve: (obj, args) => Project.find({ evid: args.evid }),
+  },
 });
 
 schemaComposer.Mutation.addNestedFields({
@@ -38,6 +45,7 @@ schemaComposer.Mutation.addNestedFields({
     type: 'Project',
     args: {
       enid: 'ID!',
+      evid: 'ID!',
       name: 'String!',
       description: 'String',
       datanoseLink: 'String',
@@ -47,9 +55,24 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create project');
       }
 
-      const res = await rgraphql('API_entity', `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`);
+      const res = await Promise.all([
+        rgraphql('API_event', `query { event(evid: ${JSON.stringify(args.evid)}) { evid } }`),
+        rgraphql('API_entity', `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`),
+      ]);
 
-      if (!res.data.entity) {
+      if (res[0].errors) {
+        throw new Error('An unkown error occured while checking if the enid is valid');
+      }
+
+      if (res[1].errors) {
+        throw new Error('An unkown error occured while checking if the enid is valid');
+      }
+
+      if (!res[0].data.event) {
+        throw new Error('The given evid does not exist');
+      }
+
+      if (!res[1].data.entity) {
         throw new Error('The given enid does not exist');
       }
 
@@ -61,6 +84,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       pid: 'ID!',
       enid: 'ID',
+      evid: 'ID',
       name: 'String',
       description: 'String',
       datanoseLink: 'String',
@@ -70,8 +94,27 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED update project');
       }
 
+      if (args.evid) {
+        const res = await rgraphql('API_event', `query { event(evid: ${JSON.stringify(args.evid)}) { evid } }`);
+
+        if (res.errors || !res.data) {
+          console.log(res);
+          throw new Error('An unkown error occured while checking if the evid is valid');
+        }
+
+        if (!res.data.event) {
+          throw new Error('The given evid does not exist');
+        }
+      }
+
       if (args.enid) {
         const res = await rgraphql('API_entity', `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`);
+        console.log(res.data.entity, !res.data.entity);
+
+        if (res.errors || !res.data) {
+          console.log(res);
+          throw new Error('An unkown error occured while checking if the enid is valid');
+        }
 
         if (!res.data.entity) {
           throw new Error('The given enid does not exist');

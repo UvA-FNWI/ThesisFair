@@ -5,6 +5,7 @@ import initDB, { db } from './db.js';
 
 const body = `pid
 enid
+evid
 name
 description
 datanoseLink`;
@@ -71,6 +72,28 @@ query {
       }
     }
   });
+
+  it('query projectsOfEvent should get the correct projects', async () => {
+    const res = await request(`
+query {
+  projectsOfEvent(${dictToGraphql({ evid: db.events[0].evid })}) {
+      ${body}
+    }
+}
+    `);
+
+    expect(res).to.exist;
+    expect(res.data).to.exist;
+    expect(res.errors, 'Does not have errors').to.be.undefined;
+
+    for (const project of db.projects) {
+      if (db.events[0].evid === project.evid) {
+        expect(res.data.projectsOfEvent).to.deep.include(project);
+      } else {
+        expect(res.data.projectsOfEvent).not.to.deep.include(project);
+      }
+    }
+  });
 }
 
 const permissions = {
@@ -128,23 +151,23 @@ const permissions = {
       expect(res.errors).to.exist;
     });
   },
-//   import: () => {
-//     it('mutation import should hanle permissions properly', async () => {
-//       const res = await request(`
-// mutation {
-//     project {
-//         import(${dictToGraphql({ file: entity_import.csv })}) {
-//           ${body}
-//         }
-//     }
-// }
-//       `, undefined, false);
+  //   import: () => {
+  //     it('mutation import should hanle permissions properly', async () => {
+  //       const res = await request(`
+  // mutation {
+  //     project {
+  //         import(${dictToGraphql({ file: entity_import.csv })}) {
+  //           ${body}
+  //         }
+  //     }
+  // }
+  //       `, undefined, false);
 
-//       expect(res).to.exist;
-//       expect(res.data.project.import).to.be.null;
-//       expect(res.errors).to.exist;
-//     });
-//   },
+  //       expect(res).to.exist;
+  //       expect(res.data.project.import).to.be.null;
+  //       expect(res.errors).to.exist;
+  //     });
+  //   },
 }
 
 describe('project', () => {
@@ -162,6 +185,7 @@ describe('project', () => {
     it('mutation project.create should create an project', async () => {
       const project = {
         enid: db.projects[0].enid,
+        evid: db.events[0].evid,
         name: 'New name',
         description: 'New description',
         datanoseLink: 'https://datanose.nl/projects/newNew',
@@ -188,9 +212,10 @@ describe('project', () => {
       expect(res.data.project.create).to.deep.equal(project);
     });
 
-    it('mutation project.create should properly check if entity exists', async () => {
+    it('mutation project.create should properly check if event exists', async () => {
       const project = {
-        enid: '62728401a41b2cfc83a7035b',
+        enid: db.entities[0].enid,
+        evid: '62728401a41b2cfc83a7035b',
         name: 'New name',
         description: 'New description',
         datanoseLink: 'https://datanose.nl/projects/newNew',
@@ -209,7 +234,31 @@ describe('project', () => {
 
       expect(res).to.exist;
       expect(res.data.project.create).to.be.null;
-      expect(res.errors, 'Does not have errors').to.exist;
+      expect(res.errors).to.exist;
+    });
+
+    it('mutation project.create should properly check if entity exists', async () => {
+      const project = {
+        enid: '62728401a41b2cfc83a7035b',
+        evid: db.events[0].evid,
+        name: 'New name',
+        description: 'New description',
+        datanoseLink: 'https://datanose.nl/projects/newNew',
+      }
+
+      const res = await request(`
+  mutation {
+    project {
+        create(${dictToGraphql(project)}) {
+          ${body}
+        }
+    }
+  }
+      `, undefined, false)
+
+      expect(res).to.exist;
+      expect(res.data.project.create).to.be.null;
+      expect(res.errors).to.exist;
     });
 
     it('mutation project.update should update the project', async () => {
@@ -231,13 +280,45 @@ mutation {
       expect(res.data.project.update).to.deep.equal(updatedEntity);
     });
 
+    it('mutation project.update should properly check if event exists', async () => {
+      const res = await request(`
+  mutation {
+    project {
+        update(${dictToGraphql({ pid: db.projects[0].pid, evid: '62728401a41b2cfc83a7035b' })}) {
+          ${body}
+        }
+    }
+  }
+      `, undefined, false)
+
+
+      expect(res).to.exist;
+      expect(res.data.project.update).to.be.null;
+      expect(res.errors).to.exist;
+    });
+
+    it('mutation project.update should properly check if event exists', async () => {
+      const res = await request(`
+  mutation {
+    project {
+        update(${dictToGraphql({ pid: db.projects[0].pid, evid: '62728401a41b2cfc83a7035b' })}) {
+          ${body}
+        }
+    }
+  }
+      `, undefined, false)
+
+      expect(res).to.exist;
+      expect(res.data.project.update).to.be.null;
+      expect(res.errors).to.exist;
+    });
+
 
     it('mutation project.update should properly check if the entity exists', async () => {
-      const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid, enid: '62728401a41b2cfc83a7035b' };
       const res = await request(`
 mutation {
     project {
-        update(${dictToGraphql(updatedEntity)}) {
+        update(${dictToGraphql({ pid: db.projects[0].pid, enid: '62728401a41b2cfc83a7035b' })}) {
           ${body}
         }
     }
