@@ -144,6 +144,7 @@ const configs = {
     uri: process.env.mongodbConStrUser || 'mongodb://localhost:27017/user_service',
     library: '../../user_service/src/database.js',
     object: 'User',
+    objects: ['User', 'Student', 'Representative'],
     hide: ['password'],
     get: () => [
       {
@@ -208,6 +209,9 @@ const main = async () => {
     const lib = await import(config.library);
     await lib.connect(config.uri);
     await lib[config.object].db.dropDatabase();
+    for (const object of config.objects || [config.object]) {
+      await lib[object].init();
+    }
 
     db[name] = normalize(await lib[config.object].insertMany(config.get()), config.hide);
 
