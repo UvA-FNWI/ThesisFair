@@ -51,7 +51,6 @@ user {
 }
     `);
 
-    expect(res).to.exist;
     expect(res.data).to.exist;
     expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -72,22 +71,21 @@ user {
 const testRepCreate = () => {
   it('mutation user.representative.create should create a representative', async () => {
     expect(db.users[2].enid).to.exist;
-    const newRep = { ...db.users[2] };
+    const newRep = { ...db.users[2], email: 'new.email@email.nl' };
     delete newRep.uid;
 
     const res = await request(`
 mutation {
-user {
-  representative {
-    create(${dictToGraphql(newRep)}) {
-      ${repBody}
+  user {
+    representative {
+      create(${dictToGraphql(newRep)}) {
+        ${repBody}
+      }
     }
   }
 }
-}
     `);
 
-    expect(res).to.exist;
     expect(res.data).to.exist;
     expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -98,10 +96,12 @@ user {
   });
 };
 
-describe.only('User', () => {
+describe('User', () => {
   beforeEach(async () => {
     await initDb();
   });
+
+  //* Admin
 
   describe('admin', () => {
     before(async () => {
@@ -118,7 +118,6 @@ query {
 }
     `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -135,7 +134,6 @@ query {
 }
     `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -143,6 +141,27 @@ query {
     });
 
     testRepCreate();
+
+    it('mutation user.representative.create should check for double email address', async () => {
+      expect(db.users[2].enid).to.exist;
+      const newRep = { ...db.users[2] };
+      delete newRep.uid;
+
+      const res = await request(`
+  mutation {
+    user {
+      representative {
+        create(${dictToGraphql(newRep)}) {
+          ${repBody}
+        }
+      }
+    }
+  }
+      `, undefined, false);
+
+      expect(res.errors).to.exist;
+      expect(res.data.user.representative.create).to.be.null;
+    });
 
     it('mutation user.representative.update should update a representative', async () => {
       expect(db.users[2].enid).to.exist;
@@ -161,7 +180,6 @@ mutation {
 }
       `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -193,7 +211,6 @@ mutation {
 }
       `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -212,7 +229,6 @@ mutation {
 }
       `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -231,6 +247,10 @@ mutation {
 
     testRepDelete('a representative', 2);
   });
+
+
+  //* Representative
+
 
   describe('Representative', () => {
     beforeEach(async () => {
@@ -255,7 +275,6 @@ mutation {
 }
       `, undefined, false);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.exist;
 
@@ -281,7 +300,6 @@ mutation {
 }
       `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -306,7 +324,6 @@ mutation {
 }
       `, undefined, false);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors).to.be.exist;
 
@@ -330,7 +347,6 @@ mutation {
 }
       `, undefined, false);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors).to.be.exist;
 
@@ -339,6 +355,8 @@ mutation {
 
     testRepDelete('self', 2);
   });
+
+  //* Admin representative
 
   describe('Admin Representative', () => {
     beforeEach(async () => {
@@ -367,7 +385,6 @@ mutation {
 }
       `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors).not.to.exist;
 
@@ -393,7 +410,6 @@ mutation {
 }
       `, undefined, false);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors).to.exist;
 
@@ -412,7 +428,6 @@ mutation {
 }
       `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
@@ -433,6 +448,9 @@ mutation {
     testRepDelete('self', 3);
 
   });
+
+
+  //* Student
 
   describe('Student', () => {
     beforeEach(async () => {
@@ -465,7 +483,6 @@ mutation {
 }
       `);
 
-      expect(res).to.exist;
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 

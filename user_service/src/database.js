@@ -17,20 +17,20 @@ export const disconnect = async () => {
 const userSchema = new mongoose.Schema({
   firstname: String,
   lastname: String,
-  email: String,
+  email: { type: String, required: true, unique: true },
   phone: String,
 });
 userSchema.virtual('uid').get(function () { return this._id; }); // Create _id alias
 export const User = mongoose.model('User', userSchema);
 
 export const Student = User.discriminator('Student', new mongoose.Schema({
-  studentnumber: String,
+  studentnumber: { type: String, required: true, unique: true },
   websites: [String],
   studies: [String],
 }));
 
 export const Representative = User.discriminator('Representative', new mongoose.Schema({
-  enid: mongoose.Schema.ObjectId,
-  password: String,
+  enid: { type: mongoose.Schema.ObjectId, required: true },
+  password: { type: String, required: true },
   repAdmin: Boolean,
 }));
