@@ -98,7 +98,6 @@ schemaComposer.Mutation.addNestedFields({
         const res = await rgraphql('API_event', `query { event(evid: ${JSON.stringify(args.evid)}) { evid } }`);
 
         if (res.errors || !res.data) {
-          console.log(res);
           throw new Error('An unkown error occured while checking if the evid is valid');
         }
 
@@ -109,8 +108,6 @@ schemaComposer.Mutation.addNestedFields({
 
       if (args.enid) {
         const res = await rgraphql('API_entity', `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`);
-        console.log(res.data.entity, !res.data.entity);
-
         if (res.errors || !res.data) {
           console.log(res);
           throw new Error('An unkown error occured while checking if the enid is valid');
