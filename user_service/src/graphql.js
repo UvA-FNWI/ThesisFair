@@ -1,6 +1,7 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
+import jwt from 'jsonwebtoken';
 
 import { User, Student, Representative } from './database.js';
 
@@ -25,6 +26,47 @@ schemaComposer.Query.addNestedFields({
     }, // TODO: Add permission checks
     resolve: (obj, args) => User.findById(args.uid),
   },
+  'apiToken': {
+    type: 'String',
+    args: {
+      email: 'String!',
+      password: 'String!',
+    },
+    resolve: async (obj, args) => {
+      const user = await User.findOne({ email: args.email });
+      if (!user) { throw new Error('No user with that email found.'); }
+
+      if (user.password !== args.password) {
+        throw new Error('Incorrect password');
+      }
+
+      let additionalData;
+      if (user.admin) {
+        additionalData = { type: 'a' };
+      } else if (user instanceof Student) {
+        additionalData = { type: 's' };
+      } else if (user instanceof Representative) {
+        additionalData = { type: 'r', enid: user.enid };
+      }
+
+      return new Promise((resolve, reject) => {
+        jwt.sign({
+          uid: user.uid,
+          ...additionalData,
+        }, process.env.jwtKey, {
+          algorithm: 'HS512',
+          expiresIn: '24h',
+        }, (err, key) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          resolve(key);
+        });
+      });
+    },
+  },
 });
 
 schemaComposer.Mutation.addNestedFields({
@@ -47,6 +89,9 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create user accounts for this entity');
       }
 
+      // TODO: Generate random password
+      args.password = 'hi';
+
       // TODO: Send mail
 
       return Representative.create(args);
@@ -62,6 +107,7 @@ schemaComposer.Mutation.addNestedFields({
       email: 'String',
       phone: 'String',
       repAdmin: 'Boolean',
+      password: 'String',
     },
     resolve: async (obj, args, req) => {
       const uid = args.uid;
@@ -79,6 +125,9 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED update enid of representative');
       }
 
+      if (args.password) { // TODO: finish
+        // args.password =
+      }
 
       return Representative.findByIdAndUpdate(uid, { $set: args }, { new: true });
     },

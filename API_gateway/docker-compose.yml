@@ -6,6 +6,8 @@ services:
       args:
         NODE_ENV: ${NODE_ENV}
     entrypoint: npm run ${NODE_CMD}
+    environment:
+      - jwtKey=${JWT_SECRET}
     ports:
       - "3000:80"
     volumes:

@@ -197,6 +197,23 @@ const configs = {
         repAdmin: false,
         __t: "Representative",
       },
+      {
+        email: 'admin',
+        password: 'admin',
+        admin: true,
+      },
+      {
+        email: 'rep',
+        password: 'rep',
+        enid: db.entities[0].enid,
+        repAdmin: false,
+        __t: "Representative",
+      },
+      {
+        email: 'student',
+        studentnumber: '02345678',
+        __t: "Student",
+      },
     ],
   },
 };

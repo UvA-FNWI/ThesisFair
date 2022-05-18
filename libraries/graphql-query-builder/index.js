@@ -1,14 +1,45 @@
 import axios from 'axios';
 
-let url = "http://127.0.0.1:3000/graphql";
+let url = "http://127.0.0.1:3000/";
 let apiToken = null;
+let apiTokenData = null;
 
 export const setUrl = (newUrl) => {
   url = newUrl;
-}
+};
 
-export const login = async (username, password, options = {}) => {
-  switch (username) {
+export const getTokenData = () => apiTokenData;
+
+export const loginReal = async (email, password) => {
+  const res = await axios.post(url + 'login',
+    { email, password },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        Authorization: `Bearer ${JSON.stringify(apiToken)}`
+      },
+    }
+  );
+
+  if (res.data.errors) {
+    throw res.data;
+  }
+
+  apiToken = res.data.data.apiToken;
+  const split = apiToken.split('.');
+  if (split.length !== 3) {
+    throw new Error(`Received invalid token. Token has ${split.length} parts, expected 3.`);
+  }
+
+  const payload = (new Buffer.from(split[1], 'base64')).toString();
+  apiTokenData = JSON.parse(payload);
+
+  return apiTokenData;
+};
+
+export const login = async (email, password, options = {}) => {
+  switch (email) {
     case 'admin':
       apiToken = { type: 'a' };
       break;
@@ -30,7 +61,7 @@ export const request = async (query, variables, shouldSucceed = true) => {
   let result;
   try {
     result = await axios.post(
-      url,
+      url + 'graphql',
       { query, variables },
       {
         headers: {

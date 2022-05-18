@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { dictToGraphql, request, login } from '../../libraries/graphql-query-builder/index.js';
+import { dictToGraphql, request, login, loginReal } from '../../libraries/graphql-query-builder/index.js';
 
 import initDb, { db } from './db.js';
 
@@ -99,6 +99,14 @@ mutation {
 describe('User', () => {
   beforeEach(async () => {
     await initDb();
+  });
+
+  it('login should function', async () => {
+    expect(db.users[5].email).to.equal('admin');
+    const tokenData = await loginReal('admin', 'admin');
+
+    expect(tokenData.uid).to.equal(db.users[5].uid);
+    expect(tokenData.type).to.equal('a');
   });
 
   //* Admin

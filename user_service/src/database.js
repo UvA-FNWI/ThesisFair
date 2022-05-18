@@ -19,6 +19,8 @@ const userSchema = new mongoose.Schema({
   lastname: String,
   email: { type: String, required: true, unique: true },
   phone: String,
+  admin: Boolean,
+  password: String,
 });
 userSchema.virtual('uid').get(function () { return this._id; }); // Create _id alias
 export const User = mongoose.model('User', userSchema);
@@ -31,6 +33,5 @@ export const Student = User.discriminator('Student', new mongoose.Schema({
 
 export const Representative = User.discriminator('Representative', new mongoose.Schema({
   enid: { type: mongoose.Schema.ObjectId, required: true },
-  password: { type: String, required: true },
   repAdmin: Boolean,
 }));

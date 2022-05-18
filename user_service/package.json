@@ -15,6 +15,7 @@
     "debug": "^4.3.4",
     "graphql": "^16.3.0",
     "graphql-compose": "^9.0.8",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.1"
   },
   "devDependencies": {

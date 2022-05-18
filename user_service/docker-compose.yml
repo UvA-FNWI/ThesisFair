@@ -8,6 +8,7 @@ services:
     entrypoint: npm run ${NODE_CMD}
     environment:
       - mongodbConStr=mongodb://mongodb/user_service
+      - jwtKey=${JWT_SECRET}
     volumes:
       - ./user_service/src:/app/src
       - ./libraries:/libraries
