@@ -30,9 +30,16 @@ const createApp = async () => {
     // set locals, only providing error in development
     const error = req.app.get('env') === 'development' ? err : {};
 
+    let message;
+    if (req.headers.accept === 'application/json') {
+      message = JSON.stringify(error.message);
+    } else {
+      message = `${err.message}<br><br><code>${JSON.stringify(error)}</code>`
+    }
+
     // send error page
     res.status(err.status || 500);
-    res.send(`${err.message}<br><br><code>${JSON.stringify(error)}</code>`);
+    res.send(message);
   });
 
   return app;
