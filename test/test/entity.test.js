@@ -163,7 +163,7 @@ describe('Entity', () => {
   });
 
   describe('Admin', () => {
-    before(async () => {
+    beforeEach(async () => {
       await login('admin', 'admin');
     });
 
@@ -346,7 +346,7 @@ mutation {
   });
 
   describe('Student', () => {
-    before(async () => {
+    beforeEach(async () => {
       await login('student', 'student');
     });
 

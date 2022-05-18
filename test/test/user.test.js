@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { dictToGraphql, request, login, loginReal } from '../../libraries/graphql-query-builder/index.js';
+import { dictToGraphql, request, login } from '../../libraries/graphql-query-builder/index.js';
 
 import initDb, { db } from './db.js';
 
@@ -103,7 +103,7 @@ describe('User', () => {
 
   it('login should function', async () => {
     expect(db.users[5].email).to.equal('admin');
-    const tokenData = await loginReal('admin', 'admin');
+    const tokenData = await login('admin', 'admin');
 
     expect(tokenData.uid).to.equal(db.users[5].uid);
     expect(tokenData.type).to.equal('a');
@@ -264,7 +264,8 @@ mutation {
   describe('Representative', () => {
     beforeEach(async () => {
       expect(db.users[2].enid).to.exist;
-      await login('rep', 'rep', { enid: db.users[2].enid, uid: db.users[2].uid });
+      expect(db.users[2].repAdmin).to.be.false;
+      await login('rep', 'rep');
     });
 
     it('mutation user.representative.update should update a representative', async () => {
@@ -369,8 +370,8 @@ mutation {
 
   describe('Admin Representative', () => {
     beforeEach(async () => {
-      expect(db.users[2].enid).to.exist;
-      await login('rep', 'rep', { enid: db.users[3].enid, uid: db.users[3].uid, repAdmin: true });
+      expect(db.users[3].repAdmin).to.be.true;
+      await login('repAdmin', 'repAdmin');
     });
 
     testRepCreate();
@@ -464,7 +465,7 @@ mutation {
   describe('Student', () => {
     beforeEach(async () => {
       expect(db.users[0].studentnumber).to.exist;
-      await login('student', 'student', { uid: db.users[0].uid });
+      await login('student', 'student');
     });
 
     it('mutation user.student.update should allow a user to update self', async () => {

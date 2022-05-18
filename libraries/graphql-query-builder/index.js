@@ -10,7 +10,7 @@ export const setUrl = (newUrl) => {
 
 export const getTokenData = () => apiTokenData;
 
-export const loginReal = async (email, password) => {
+export const login = async (email, password) => {
   const res = await axios.post(url + 'login',
     { email, password },
     {
@@ -38,25 +38,6 @@ export const loginReal = async (email, password) => {
   return apiTokenData;
 };
 
-export const login = async (email, password, options = {}) => {
-  switch (email) {
-    case 'admin':
-      apiToken = { type: 'a' };
-      break;
-
-    case 'rep':
-      apiToken = { type: 'r', uid: options.uid, enid: options.enid, repAdmin: options.repAdmin || false };
-      break;
-
-    case 'student':
-      apiToken = { type: 's', uid: options.uid };
-      break;
-
-    default:
-      throw new Error('Unkown username');
-  }
-}
-
 export const request = async (query, variables, shouldSucceed = true) => {
   let result;
   try {
@@ -67,7 +48,7 @@ export const request = async (query, variables, shouldSucceed = true) => {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          Authorization: `Bearer ${JSON.stringify(apiToken)}`
+          Authorization: `Bearer ${apiToken}`
         },
       }
     );

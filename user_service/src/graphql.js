@@ -47,6 +47,9 @@ schemaComposer.Query.addNestedFields({
         additionalData = { type: 's' };
       } else if (user instanceof Representative) {
         additionalData = { type: 'r', enid: user.enid };
+        if (user.repAdmin) {
+          additionalData.repAdmin = true;
+        }
       }
 
       return new Promise((resolve, reject) => {

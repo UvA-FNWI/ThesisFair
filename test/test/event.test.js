@@ -101,6 +101,29 @@ mutation {
   });
 };
 
+const testQuery = () => {
+  it('query event should get a specific event', async () => {
+    const res = await request(`
+query {
+  event(${dictToGraphql({ evid: db.events[0].evid })}) {
+    evid
+    enabled
+    name
+    description
+    start
+    location
+    studentSubmitDeadline
+    entities
+  }
+}
+        `);
+
+    expect(res.data).to.exist;
+    expect(res.errors, 'Does not have errors').to.be.undefined;
+
+    expect(res.data.event).to.deep.equal(db.events[0]);
+  });
+};
 
 describe('Event', () => {
   beforeEach(async () => {
@@ -108,31 +131,11 @@ describe('Event', () => {
   });
 
   describe('admin', () => {
-    before(async () => {
+    beforeEach(async () => {
       await login('admin', 'admin');
     });
 
-    it('query event should get a specific event', async () => {
-      const res = await request(`
-  query {
-    event(${dictToGraphql({ evid: db.events[0].evid })}) {
-      evid
-      enabled
-      name
-      description
-      start
-      location
-      studentSubmitDeadline
-      entities
-    }
-  }
-          `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.event).to.deep.equal(db.events[0]);
-    });
+    testQuery();
 
     it('query events(all:false) should get all enabled events', async () => {
       const res = await request(`
@@ -349,7 +352,7 @@ describe('Event', () => {
 
   describe('Representative', () => {
     beforeEach(async () => {
-      await login('rep', 'rep', { enid: db.entities[0].enid });
+      await login('rep', 'rep');
     });
 
     it('query events should return a list of events the company is participating in', async () => {
@@ -382,9 +385,11 @@ query {
   });
 
   describe('Student', () => {
-    before(async () => {
+    beforeEach(async () => {
       await login('student', 'student');
     });
+
+    testQuery();
 
     checkPremissions();
   })
