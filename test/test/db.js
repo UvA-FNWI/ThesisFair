@@ -1,12 +1,57 @@
-import { MongoClient, ObjectId } from 'mongodb';
-
 export let db;
+
+const normalize = (objects, hide = []) => {
+  hide ||= [];
+
+  const normalizeValue = (value) => {
+    if (value instanceof Object) {
+      // The check below needs to hapen dirty because every ObjectId is from another mongoose library instance.
+      if (value.constructor.name === 'ObjectId') {
+        return value.toString();
+      } else if (value instanceof Date) {
+        return value.toISOString();
+      } else if (Array.isArray(value)) {
+        if (value.length === 0) { return value; }
+
+        for (const i in value) {
+          value[i] = normalizeValue(value[i]);
+        }
+      }
+    }
+
+    return value;
+  }
+
+  const normalizeObject = (object) => {
+    delete object.id;
+    delete object._id;
+    delete object.__v;
+    delete object.__t;
+
+    for (const key of hide) {
+      delete object[key];
+    }
+
+    for (const key in object) {
+      object[key] = normalizeValue(object[key]);
+    }
+
+    return object;
+  }
+
+  return objects.map((object) =>
+    object.toObject({
+      virtuals: true,
+      transform: (doc, object) => normalizeObject(object)
+    })
+  );
+}
 
 const configs = {
   entities: {
-    uri: process.env.mongodbConStrEntity || 'mongodb://localhost:27017',
-    db: 'entity_service',
-    collection: 'entities',
+    uri: process.env.mongodbConStrEntity || 'mongodb://localhost:27017/entity_service',
+    library: '../../entity_service/src/database.js',
+    object: 'Entity',
     get: () => [
       {
         name: 'New name1',
@@ -23,17 +68,11 @@ const configs = {
         external_id: 1,
       }
     ],
-    postCreate: (entities, res) => {
-      for (const i in res.insertedIds) {
-        entities[i].enid = res.insertedIds[i].toString();
-        delete entities[i]._id;
-      }
-    }
   },
   events: {
-    uri: process.env.mongodbConStrEvent || 'mongodb://localhost:27017',
-    db: 'event_service',
-    collection: 'events',
+    uri: process.env.mongodbConStrEvent || 'mongodb://localhost:27017/event_service',
+    library: '../../event_service/src/database.js',
+    object: 'Event',
     get: () => [
       {
         enabled: true,
@@ -42,7 +81,7 @@ const configs = {
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 1',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
-        entities: [new ObjectId(db.entities[0].enid), new ObjectId(db.entities[1].enid)],
+        entities: [db.entities[0].enid, db.entities[1].enid],
       },
       {
         enabled: false,
@@ -51,7 +90,7 @@ const configs = {
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 2',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
-        entities: [new ObjectId(db.entities[0].enid), new ObjectId(db.entities[1].enid)],
+        entities: [db.entities[0].enid, db.entities[1].enid],
       },
       {
         enabled: true,
@@ -60,7 +99,7 @@ const configs = {
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 3',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
-        entities: [new ObjectId(db.entities[1].enid)],
+        entities: [db.entities[1].enid],
       },
       {
         enabled: true,
@@ -69,60 +108,43 @@ const configs = {
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 4',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
-        entities: [new ObjectId(db.entities[1].enid)],
+        entities: [db.entities[1].enid],
       },
     ],
-    postCreate: (events, res) => {
-      for (const i in res.insertedIds) {
-        events[i].evid = res.insertedIds[i].toString();
-        delete events[i]._id;
-
-        for (const entityIndex in events[i].entities) {
-          events[i].entities[entityIndex] = events[i].entities[entityIndex].toString();
-        }
-      }
-    }
   },
   projects: {
-    uri: process.env.mongodbConStrProject || 'mongodb://localhost:27017',
-    db: 'project_service',
-    collection: 'projects',
+    uri: process.env.mongodbConStrProject || 'mongodb://localhost:27017/project_service',
+    library: '../../project_service/src/database.js',
+    object: 'Project',
     get: () => [
       {
-        enid: ObjectId(db.entities[0].enid),
-        evid: ObjectId(db.events[0].evid),
+        enid: db.entities[0].enid,
+        evid: db.events[0].evid,
         name: 'New name1',
         description: 'New description1',
         datanoseLink: 'https://datanose.nl/projects/newName1',
       },
       {
-        enid: ObjectId(db.entities[0].enid),
-        evid: ObjectId(db.events[0].evid),
+        enid: db.entities[0].enid,
+        evid: db.events[0].evid,
         name: 'New name 2',
         description: 'New description 2',
         datanoseLink: 'https://datanose.nl/projects/newName2',
       },
       {
-        enid: ObjectId(db.entities[1].enid),
-        evid: ObjectId(db.events[1].evid),
+        enid: db.entities[1].enid,
+        evid: db.events[1].evid,
         name: 'Other company project',
         description: 'Belongs to another company',
         datanoseLink: 'https://datanose.nl/projects/newName3',
       },
-    ],
-    postCreate: (projects, res) => {
-      for (const i in res.insertedIds) {
-        projects[i].pid = res.insertedIds[i].toString();
-        projects[i].enid = projects[i].enid.toString();
-        projects[i].evid = projects[i].evid.toString();
-        delete projects[i]._id;
-      }
-    }
+    ]
   },
   users: {
-    uri: process.env.mongodbConStrUser || 'mongodb://localhost:27017',
-    db: 'user_service',
-    collection: 'users',
+    uri: process.env.mongodbConStrUser || 'mongodb://localhost:27017/user_service',
+    library: '../../user_service/src/database.js',
+    object: 'User',
+    hide: ['password'],
     get: () => [
       {
         firstname: 'Quinten',
@@ -175,17 +197,6 @@ const configs = {
         __t: "Representative",
       },
     ],
-    postCreate: (users, res) => {
-      for (const i in res.insertedIds) {
-        users[i].uid = res.insertedIds[i].toString();
-        if (users[i].enid) {
-          users[i].enid = users[i].enid.toString();
-          delete users[i].password;
-        }
-        delete users[i]._id;
-        delete users[i].__t;
-      }
-    }
   },
 };
 
@@ -194,22 +205,13 @@ const main = async () => {
   for (const name in configs) {
     const config = configs[name];
 
-    const client = new MongoClient(config.uri);
-    await client.connect();
-    try {
-      const mongodb = client.db(config.db);
-      const collection = mongodb.collection(config.collection);
+    const lib = await import(config.library);
+    await lib.connect(config.uri);
+    await lib[config.object].db.dropDatabase();
 
-      if (await mongodb.listCollections({ name: config.collection }).hasNext()) {
-        await collection.drop();
-      }
+    db[name] = normalize(await lib[config.object].insertMany(config.get()), config.hide);
 
-      db[name] = config.get();
-      const res = await collection.insertMany(db[name]);
-      await config.postCreate(db[name], res);
-    } finally {
-      await client.close();
-    }
+    await lib.disconnect();
   }
 }
 

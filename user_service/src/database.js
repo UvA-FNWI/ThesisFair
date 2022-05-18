@@ -3,11 +3,15 @@ import debugLib from 'debug';
 
 const debug = debugLib('project_service:database');
 
-export const connect = async () => {
-  const conStr = process.env.mongodbConStr || 'mongodb://mongodb/project_service';
+export const connect = async (uri) => {
+  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/project_service';
   const conn = await mongoose.connect(conStr);
   debug(`Connected to database: ${conStr}`);
   return conn;
+}
+
+export const disconnect = async () => {
+  await mongoose.connection.close();
 }
 
 const userSchema = new mongoose.Schema({
