@@ -104,7 +104,7 @@ describe('User', () => {
   //* Admin
 
   describe('admin', () => {
-    before(async () => {
+    beforeEach(async () => {
       await login('admin', 'admin');
     });
 
@@ -166,7 +166,7 @@ query {
     it('mutation user.representative.update should update a representative', async () => {
       expect(db.users[2].enid).to.exist;
       expect(db.users[4].enid).to.exist;
-      const updatedRep = { ...db.users[4], uid: db.users[2].uid };
+      const updatedRep = { ...db.users[4], uid: db.users[2].uid, email: 'new.email@email.nl' };
 
       const res = await request(`
 mutation {
@@ -193,7 +193,8 @@ mutation {
         ...db.users[1],
         uid: db.users[0].uid,
         studentnumber: db.users[0].studentnumber,
-        studies: db.users[0].studies
+        studies: db.users[0].studies,
+        email: 'new.email@email.nl',
       };
       const updateQuery = { ...updatedStudent };
       delete updateQuery.studentnumber;
@@ -260,7 +261,7 @@ mutation {
 
     it('mutation user.representative.update should update a representative', async () => {
       expect(db.users[2].enid).to.exist;
-      const newRep = { ...db.users[2] };
+      const newRep = { ...db.users[2], email: 'new.email@email.nl' };
       delete newRep.uid;
 
       const res = await request(`
@@ -284,7 +285,7 @@ mutation {
     it('mutation user.representative.update should allow a representative to update self', async () => {
       expect(db.users[2].enid).to.exist;
       expect(db.users[4].enid).to.exist;
-      const updatedRep = { ...db.users[4], uid: db.users[2].uid, enid: db.users[2].enid };
+      const updatedRep = { ...db.users[4], uid: db.users[2].uid, enid: db.users[2].enid, email: 'new.email@email.nl' };
       const updateQuery = { ...updatedRep };
       delete updateQuery.enid;
 
@@ -309,7 +310,7 @@ mutation {
     it('mutation user.representative.update should not allow to update other representative', async () => {
       expect(db.users[2].enid).to.exist;
       expect(db.users[4].enid).to.exist;
-      const updatedRep = { ...db.users[2], uid: db.users[4].uid };
+      const updatedRep = { ...db.users[2], uid: db.users[4].uid, email: 'new.email@email.nl' };
       delete updatedRep.enid;
 
       const res = await request(`
@@ -333,7 +334,7 @@ mutation {
     it('mutation user.representative.update should not be be able to update enid', async () => {
       expect(db.users[2].enid).to.exist;
       expect(db.users[4].enid).to.exist;
-      const updatedRep = { ...db.users[3], uid: db.users[2].uid };
+      const updatedRep = { ...db.users[3], uid: db.users[2].uid, email: 'new.email@email.nl' };
 
       const res = await request(`
 mutation {
@@ -369,7 +370,7 @@ mutation {
     it('mutation user.representative.update should allow to update other representatives from same entity', async () => {
       expect(db.users[2].enid).to.exist;
       expect(db.users[3].enid).to.exist;
-      const updatedRep = { ...db.users[3], uid: db.users[2].uid };
+      const updatedRep = { ...db.users[3], uid: db.users[2].uid, email: 'new.email@email.nl' };
       const updateQuery = { ...updatedRep };
       delete updateQuery.enid;
 
@@ -394,7 +395,7 @@ mutation {
     it('mutation user.representative.update should not allow to update other representatives from other entity', async () => {
       expect(db.users[3].enid).to.exist;
       expect(db.users[4].enid).to.exist;
-      const updatedRep = { ...db.users[3], uid: db.users[4].uid };
+      const updatedRep = { ...db.users[3], uid: db.users[4].uid, email: 'new.email@email.nl' };
       const updateQuery = { ...updatedRep };
       delete updateQuery.enid;
 
@@ -465,7 +466,8 @@ mutation {
         ...db.users[1],
         uid: db.users[0].uid,
         studentnumber: db.users[0].studentnumber,
-        studies: db.users[0].studies
+        studies: db.users[0].studies,
+        email: 'new.email@email.nl',
       };
       const updateQuery = {...updatedStudent};
       delete updateQuery.studentnumber;
