@@ -2,8 +2,23 @@ import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 import { User, Student, Representative } from './database.js';
+
+const saltRounds = process.env.DEBUG ? 0 : 10;
+const hash = (password) => bcrypt.hash(password, saltRounds);
+const randomPassword = (length = 12) => {
+  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#%&*()';
+  let password = '';
+
+  for (let i = 0; i < length; i++) {
+    password += alphabet[crypto.randomInt(0, alphabet.length)];
+  }
+
+  return password;
+}
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -27,7 +42,7 @@ schemaComposer.Query.addNestedFields({
     resolve: (obj, args) => User.findById(args.uid),
   },
   'apiToken': {
-    type: 'String',
+    type: 'String!',
     args: {
       email: 'String!',
       password: 'String!',
@@ -36,7 +51,7 @@ schemaComposer.Query.addNestedFields({
       const user = await User.findOne({ email: args.email });
       if (!user) { throw new Error('No user with that email found.'); }
 
-      if (user.password !== args.password) {
+      if (!(await bcrypt.compare(args.password, user.password))) {
         throw new Error('Incorrect password');
       }
 
@@ -92,9 +107,10 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create user accounts for this entity');
       }
 
-      // TODO: Generate random password
-      args.password = 'hi';
+      const password = randomPassword();
+      args.password = await hash(password);
 
+      console.log('Created user with password: ', password)
       // TODO: Send mail
 
       return Representative.create(args);
@@ -117,7 +133,7 @@ schemaComposer.Mutation.addNestedFields({
       delete args.uid;
 
       if (!(req.user.type === 'a' ||
-        uid === req.user.uid ||
+        req.user.uid === uid ||
         (req.user.repAdmin === true &&
           req.user.enid == (await Representative.findById(uid, { enid: 1 })).enid)
       )) {
@@ -128,8 +144,12 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED update enid of representative');
       }
 
-      if (args.password) { // TODO: finish
-        // args.password =
+      if (args.password) {
+        if (req.user.uid !== uid) {
+          throw new Error('UNAUTHORIZED update other peoples passwords');
+        }
+
+        args.password = await hash(args.password);
       }
 
       return Representative.findByIdAndUpdate(uid, { $set: args }, { new: true });

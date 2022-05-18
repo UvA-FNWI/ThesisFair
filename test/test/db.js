@@ -1,4 +1,16 @@
+import bcrypt from 'bcrypt';
+
 export let db;
+
+const saltRounds = 0;
+const hashCache = {};
+const hash = async (password) => {
+  if (hashCache[password]) {
+    return hashCache[password];
+  }
+
+  return (hashCache[password] = await bcrypt.hash(password, saltRounds))
+};
 
 const normalize = (objects, hide = []) => {
   hide ||= [];
@@ -146,12 +158,12 @@ const configs = {
     object: 'User',
     objects: ['User', 'Student', 'Representative'],
     hide: ['password'],
-    get: () => [
+    get: async () => [
       {
         firstname: 'Quinten',
         lastname: 'Coltof',
         email: 'student',
-        password: 'student',
+        password: await hash('student'),
         phone: '+31 6 01234567',
         studentnumber: '12345678',
         websites: ['https://qrcsoftware.nl', 'https://softwareify.nl'],
@@ -174,7 +186,7 @@ const configs = {
         email: 'rep',
         phone: '+31 6 21234567',
         enid: db.entities[0].enid,
-        password: 'rep',
+        password: await hash('rep'),
         repAdmin: false,
         __t: "Representative",
       },
@@ -184,7 +196,7 @@ const configs = {
         email: 'repAdmin',
         phone: '+31 6 31234567',
         enid: db.entities[0].enid,
-        password: 'repAdmin',
+        password: await hash('repAdmin'),
         repAdmin: true,
         __t: "Representative",
       },
@@ -194,13 +206,13 @@ const configs = {
         email: 'Eduard.d@uva.com',
         phone: '+31 6 41234567',
         enid: db.entities[1].enid,
-        password: 'helloWorld!',
+        password: await hash('helloWorld!'),
         repAdmin: false,
         __t: "Representative",
       },
       {
         email: 'admin',
-        password: 'admin',
+        password: await hash('admin'),
         admin: true,
       },
     ],
@@ -214,14 +226,16 @@ const main = async () => {
 
     const lib = await import(config.library);
     await lib.connect(config.uri);
-    await lib[config.object].db.dropDatabase();
-    for (const object of config.objects || [config.object]) {
-      await lib[object].init();
+    try {
+      await lib[config.object].db.dropDatabase();
+      for (const object of config.objects || [config.object]) {
+        await lib[object].init();
+      }
+
+      db[name] = normalize(await lib[config.object].insertMany(await config.get()), config.hide);
+    } finally {
+      await lib.disconnect();
     }
-
-    db[name] = normalize(await lib[config.object].insertMany(config.get()), config.hide);
-
-    await lib.disconnect();
   }
 }
 

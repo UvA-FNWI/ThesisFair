@@ -295,7 +295,7 @@ mutation {
       expect(db.users[2].enid).to.exist;
       expect(db.users[4].enid).to.exist;
       const updatedRep = { ...db.users[4], uid: db.users[2].uid, enid: db.users[2].enid, email: 'new.email@email.nl' };
-      const updateQuery = { ...updatedRep };
+      const updateQuery = { ...updatedRep, password: 'newPWD' };
       delete updateQuery.enid;
 
       const res = await request(`
@@ -314,6 +314,7 @@ mutation {
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
       expect(res.data.user.representative.update).to.deep.equal(updatedRep);
+      await login('new.email@email.nl', 'newPWD');
     });
 
     it('mutation user.representative.update should not allow to update other representative', async () => {
@@ -399,6 +400,31 @@ mutation {
       expect(res.errors).not.to.exist;
 
       expect(res.data.user.representative.update).to.deep.equal(updatedRep);
+    });
+
+    it('mutation user.representative.update should not allow to update other representatives passwords', async () => {
+      expect(db.users[2].enid).to.exist;
+      expect(db.users[3].enid).to.exist;
+      const updatedRep = { ...db.users[3], uid: db.users[2].uid, email: 'new.email@email.nl' };
+      const updateQuery = { ...updatedRep, password: 'newPWD' };
+      delete updateQuery.enid;
+
+      const res = await request(`
+mutation {
+  user {
+    representative {
+      update(${dictToGraphql(updateQuery)}) {
+        ${repBody}
+      }
+    }
+  }
+}
+      `, undefined, false);
+
+      expect(res.data).to.exist;
+      expect(res.errors).to.exist;
+
+      expect(res.data.user.representative.update).to.be.null;
     });
 
     it('mutation user.representative.update should not allow to update other representatives from other entity', async () => {
@@ -498,6 +524,7 @@ mutation {
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
       expect(res.data.user.student.update).to.deep.equal(updatedStudent);
+      await login('new.email@email.nl', 'student');
     });
 
   });
