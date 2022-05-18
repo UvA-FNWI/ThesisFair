@@ -4,6 +4,7 @@ import { readFileSync } from 'fs';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 import { User, Student, Representative } from './database.js';
 
@@ -18,7 +19,12 @@ const randomPassword = (length = 12) => {
   }
 
   return password;
-}
+};
+
+const mail = nodemailer.createTransport({
+  host: 'mailhog',
+  port: 1025,
+});
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -110,8 +116,21 @@ schemaComposer.Mutation.addNestedFields({
       const password = randomPassword();
       args.password = await hash(password);
 
-      console.log('Created user with password: ', password)
-      // TODO: Send mail
+      await mail.sendMail({
+        from: 'UvA ThesisFair <quintencoltof1@gmail.com>',
+        to: args.email,
+        subject: 'ThesisFair representative account created',
+        text: `
+Dear ${args.firstname} ${args.lastname},
+
+Your UvA ThesisFair ${args.repAdmin ? 'admin ' : ''}representative account has been created.
+You can log in at https://TODO.nl/login
+
+Your credentials are:
+Email: ${args.email}
+Password: ${password}
+`
+      })
 
       return Representative.create(args);
     }

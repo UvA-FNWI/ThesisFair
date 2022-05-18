@@ -10,6 +10,13 @@ services:
     networks:
       - thesisfair
 
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025
+    networks:
+      - thesisfair
+
 networks:
   thesisfair:
     name: thesisfair
