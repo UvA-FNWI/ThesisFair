@@ -21,16 +21,16 @@ export default (req, res, next) => {
 
   jwt.verify(token, process.env.jwtKey, { algorithms: ['HS512'] }, (err, data) => {
     if (err) {
-      next({ status: 401, message: 'Invalid token' });
+      next({ status: 401, message: 'Supplied token is invalid' });
       return;
     }
 
-    req.user = data;
-    if (!req.user) {
+    if (!data) {
       next({ status: 401, message: 'Invalid token payload' });
       return;
     }
 
+    req.user = data;
     next();
   });
 };
