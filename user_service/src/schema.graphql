@@ -7,13 +7,26 @@ interface UserBase {
 }
 
 type Student implements UserBase {
+  uid: ID!
+  firstname: String!
+  lastname: String!
+  email: String
+  phone: String
+
   studentnumber: String!
-  webistes: [String!]
+  websites: [String!]
   studies: [String!]
 }
 
 type Representative implements UserBase {
+  uid: ID!
+  firstname: String!
+  lastname: String!
+  email: String
+  phone: String
+
   enid: ID!
+  repAdmin: Boolean!
 }
 
 union User = Student | Representative

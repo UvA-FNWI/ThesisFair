@@ -119,6 +119,74 @@ const configs = {
       }
     }
   },
+  users: {
+    uri: process.env.mongodbConStrUser || 'mongodb://localhost:27017',
+    db: 'user_service',
+    collection: 'users',
+    get: () => [
+      {
+        firstname: 'Quinten',
+        lastname: 'Coltof',
+        email: 'quintencoltof1@gmail.com',
+        phone: '+31 6 01234567',
+        studentnumber: '12345678',
+        websites: ['https://qrcsoftware.nl', 'https://softwareify.nl'],
+        studies: ['UvA Informatica'],
+        __t: "Student",
+      },
+      {
+        firstname: 'Johannes',
+        lastname: 'Sebastiaan',
+        email: 'johannes.sebastiaan@gmail.com',
+        phone: '+31 6 11234567',
+        studentnumber: '22345678',
+        websites: ['https://johannes.nl', 'https://sebastiaan.nl'],
+        studies: ['UvA Kunstmatige Intellegentie', 'VU Rechten'],
+        __t: "Student",
+      },
+      {
+        firstname: 'John',
+        lastname: 'de jonge',
+        email: 'john.j@asml.com',
+        phone: '+31 6 21234567',
+        enid: db.entities[0].enid,
+        password: 'helloWorld!',
+        repAdmin: false,
+        __t: "Representative",
+      },
+      {
+        firstname: 'Edsger',
+        lastname: 'Dijkstra',
+        email: 'Edsger.d@asml.com',
+        phone: '+31 6 31234567',
+        enid: db.entities[0].enid,
+        password: 'helloWorld!',
+        repAdmin: true,
+        __t: "Representative",
+      },
+      {
+        firstname: 'Eduard',
+        lastname: 'Dijkstra',
+        email: 'Eduard.d@uva.com',
+        phone: '+31 6 41234567',
+        enid: db.entities[1].enid,
+        password: 'helloWorld!',
+        repAdmin: false,
+        __t: "Representative",
+      },
+    ],
+    postCreate: (users, res) => {
+      for (const i in res.insertedIds) {
+        users[i].uid = res.insertedIds[i].toString();
+        if (users[i].enid) {
+          users[i].enid = users[i].enid.toString();
+          delete users[i].password;
+        }
+        delete users[i]._id;
+        delete users[i].__t;
+      }
+    }
+  },
 };
 
 const main = async () => {

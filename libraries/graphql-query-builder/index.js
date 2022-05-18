@@ -14,11 +14,11 @@ export const login = async (username, password, options = {}) => {
       break;
 
     case 'rep':
-      apiToken = { type: 'r', enid: options.enid || '62728401f41b2cfc83a7035b' };
+      apiToken = { type: 'r', uid: options.uid, enid: options.enid, repAdmin: options.repAdmin || false };
       break;
 
     case 'student':
-      apiToken = { type: 's' };
+      apiToken = { type: 's', uid: options.uid };
       break;
 
     default:
@@ -51,7 +51,6 @@ export const request = async (query, variables, shouldSucceed = true) => {
   }
 
   if (shouldSucceed && result.data.errors) {
-    console.log(shouldSucceed)
     console.log(result.data);
   }
 

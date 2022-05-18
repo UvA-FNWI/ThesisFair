@@ -28,4 +28,5 @@ export const Student = User.discriminator('Student', new mongoose.Schema({
 export const Representative = User.discriminator('Representative', new mongoose.Schema({
   enid: mongoose.Schema.ObjectId,
   password: String,
+  repAdmin: Boolean,
 }));
