@@ -23,7 +23,8 @@ export const login = async (email, password) => {
   );
 
   if (res.data.errors) {
-    throw res.data;
+    console.error(res.data.errors);
+    throw new Error(res.data.errors[0].message);
   }
 
   apiToken = res.data.data.apiToken;
