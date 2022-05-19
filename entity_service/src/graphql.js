@@ -76,9 +76,16 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED delete entities');
       }
 
-      const res = await rgraphql('API_project', `mutation { project { deleteOfEntity(${dictToGraphql({ enid: args.enid })}) } }`);
-      if (res.errors || !res.data.project || !res.data.project.deleteOfEntity) {
+      const [projects, users] = await Promise.all([
+        rgraphql('API_project', `mutation { project { deleteOfEntity(${dictToGraphql({ enid: args.enid })}) } }`),
+        rgraphql('API_user', `mutation { user { deleteOfEntity(${dictToGraphql({ enid: args.enid })}) } }`),
+      ]);
+      if (projects.errors || !projects.data.project || !projects.data.project.deleteOfEntity) {
         throw new Error('Deleting all linked projects failed');
+      }
+
+      if (users.errors || !users.data.user || !users.data.user.deleteOfEntity) {
+        throw new Error('Deleting all representatives failed');
       }
 
       return Entity.findByIdAndDelete(args.enid)

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { request, login, dictToGraphql } from '../../libraries/graphql-query-builder/index.js';
-import initDB, { init, db, models } from './db.js';
+import initDB, { init, disconnect, db, models } from './db.js';
 
 const body = `enid
 name
@@ -159,6 +159,7 @@ mutation {
 
 describe('Entity', () => {
   before(init);
+  after(disconnect);
   beforeEach(initDB);
 
   describe('Admin', () => {
@@ -236,7 +237,7 @@ describe('Entity', () => {
 
     testUpdate();
 
-    it('mutation entity.delete should delete the entity', async () => {
+    it('mutation entity.delete should delete the entity, linked projects and representatives', async () => {
       const res = await request(`
   mutation {
       entity {
@@ -253,6 +254,19 @@ describe('Entity', () => {
 
       expect(res.data.entity.delete).to.deep.equal(db.entities[0]);
 
+      const query = await request(`
+      query {
+          entity(${dictToGraphql({ enid: db.entities[0].enid })}) {
+            ${body}
+          }
+      }
+              `);
+
+      expect(query.data.entity).to.be.null;
+
+      const representatives = await models.Representative.find({ enid: db.entities[0].enid });
+      expect(representatives).to.have.length(0);
+
       const projects = await request(`
       query {
         projectsOfEntity(${dictToGraphql({ enid: db.entities[0].enid })}) {
@@ -268,15 +282,7 @@ describe('Entity', () => {
       expect(projects.data.projectsOfEntity).to.have.length(0);
       expect(projects.errors).to.be.undefined;
 
-      const query = await request(`
-  query {
-      entity(${dictToGraphql({ enid: db.entities[0].enid })}) {
-        ${body}
-      }
-  }
-          `);
 
-      expect(query.data.entity).to.be.null;
     });
 
     it('mutation entity.import should import entities', async () => {
@@ -290,14 +296,14 @@ mutation {
 }
     `);
 
-    expect(res).to.exist;
-    expect(res.data).to.exist;
-    expect(res.errors).to.be.undefined;
+      expect(res).to.exist;
+      expect(res.data).to.exist;
+      expect(res.errors).to.be.undefined;
 
-    expect(res.data.entity.import.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
-    expect(res.data.entity.import.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
+      expect(res.data.entity.import.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
+      expect(res.data.entity.import.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
 
-    // TODO: Test if users were made properly
+      // TODO: Test if users were made properly
     });
 
     it('mutation entity.import should not double import entities', async () => {
@@ -311,7 +317,7 @@ mutation {
 }
     `);
 
-    const res = await request(`
+      const res = await request(`
     mutation {
         entity {
             import(${dictToGraphql({ file: entity_import.csv })}) {
@@ -321,13 +327,13 @@ mutation {
     }
         `);
 
-    expect(res).to.exist;
-    expect(res.data).to.exist;
-    expect(res.errors).to.be.undefined;
+      expect(res).to.exist;
+      expect(res.data).to.exist;
+      expect(res.errors).to.be.undefined;
 
-    expect(res.data.entity.import.every((v) => v === null), 'All returned entities are null').to.be.true;
+      expect(res.data.entity.import.every((v) => v === null), 'All returned entities are null').to.be.true;
 
-    // TODO: Test if users were not made
+      // TODO: Test if users were not made
     });
   });
 

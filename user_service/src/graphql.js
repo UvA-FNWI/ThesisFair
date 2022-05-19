@@ -217,6 +217,20 @@ Password: ${password}
       return User.findByIdAndDelete(args.uid);
     },
   },
+  'user.deleteOfEntity': {
+    type: 'Boolean',
+    args: {
+      enid: 'ID!',
+    },
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED delete entities');
+      }
+
+      await Representative.deleteMany({ enid: args.enid });
+      return true;
+    },
+  },
 });
 
 const schema = schemaComposer.buildSchema();
