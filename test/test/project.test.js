@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { request, login, dictToGraphql } from '../../libraries/graphql-query-builder/index.js';
-import initDB, { db } from './db.js';
+import initDB, { init, disconnect, db } from './db.js';
 
 const body = `pid
 enid
@@ -171,9 +171,9 @@ const permissions = {
 }
 
 describe('project', () => {
-  beforeEach(async () => {
-    await initDB();
-  });
+  before(init);
+  after(disconnect);
+  beforeEach(initDB);
 
   describe('Admin', () => {
     beforeEach(async () => {

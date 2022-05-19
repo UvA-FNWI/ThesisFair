@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { request, login, dictToGraphql } from '../../libraries/graphql-query-builder/index.js';
-import initDB, { db } from './db.js';
+import initDB, { init, db, models } from './db.js';
 
 const body = `enid
 name
@@ -158,9 +158,8 @@ mutation {
 }
 
 describe('Entity', () => {
-  beforeEach(async () => {
-    await initDB();
-  });
+  before(init);
+  beforeEach(initDB);
 
   describe('Admin', () => {
     beforeEach(async () => {

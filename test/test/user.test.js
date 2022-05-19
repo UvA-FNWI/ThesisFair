@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { dictToGraphql, request, login } from '../../libraries/graphql-query-builder/index.js';
 
-import initDb, { db } from './db.js';
+import initDB, { init, disconnect, db } from './db.js';
 
 const body = `... on UserBase {
   uid
@@ -97,9 +97,9 @@ mutation {
 };
 
 describe('User', () => {
-  beforeEach(async () => {
-    await initDb();
-  });
+  before(init);
+  after(disconnect);
+  beforeEach(initDB);
 
   it('login should function', async () => {
     expect(db.users[5].email).to.equal('admin');

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { dictToGraphql, request, login } from '../../libraries/graphql-query-builder/index.js';
 
-import initDb, { db } from './db.js';
+import initDb, { init, disconnect, db } from './db.js';
 
 const checkPremissions = () => {
   it('should enforce permissions properly', async () => {
@@ -126,9 +126,9 @@ query {
 };
 
 describe('Event', () => {
-  beforeEach(async () => {
-    await initDb();
-  });
+  before(init);
+  after(disconnect);
+  beforeEach(initDb);
 
   describe('admin', () => {
     beforeEach(async () => {

@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 
 export let db;
+export let models;
 
 const saltRounds = 0;
 const hashCache = {};
@@ -219,24 +220,76 @@ const configs = {
   },
 };
 
+/**
+ * Import libraries once
+ */
+const importLibraries = async () => {
+  let promises = [];
+  for (const name in configs) {
+    promises.push(import(configs[name].library));
+  }
+  promises = await Promise.all(promises);
+
+  const libs = {};
+  let i = 0;
+  for (const name in configs) {
+    libs[name] = promises[i];
+    i += 1;
+  }
+
+  return libs;
+};
+
+
+let libraries = null;
+export const init = async () => {
+  libraries = await importLibraries();
+
+  models = {};
+  const promises = [];
+  for (const name in configs) {
+    const config = configs[name];
+    promises.push(libraries[name].connect(config.uri));
+
+    for (const object of config.objects || [config.object]) {
+      if (object in models) {
+        throw new Error(`Duplicate model name '${object}'! Could not merge into one models object.`);
+      }
+
+      models[object] = libraries[name][object];
+    }
+  }
+
+  await Promise.all(promises);
+}
+
 const main = async () => {
+  if (!libraries) {
+    throw new Error('init function needs to be called before main');
+  }
+
   db = {};
   for (const name in configs) {
     const config = configs[name];
 
-    const lib = await import(config.library);
-    await lib.connect(config.uri);
-    try {
-      await lib[config.object].db.dropDatabase();
-      for (const object of config.objects || [config.object]) {
-        await lib[object].init();
-      }
+    const lib = libraries[name];
 
-      db[name] = normalize(await lib[config.object].insertMany(await config.get()), config.hide);
-    } finally {
-      await lib.disconnect();
-    }
+    await lib[config.object].deleteMany();
+    db[name] = normalize(await lib[config.object].insertMany(await config.get()), config.hide);
   }
 }
 
+export const disconnect = async () => {
+  const promises = [];
+  for (const name in configs) {
+    promises.push(libraries[name].disconnect());
+  }
+
+  await Promise.all(promises);
+};
+
 export default main;
+if (process.argv.length === 3 && process.argv[2] === 'run') {
+  console.log('Initializing database from cli');
+  init().then(main);
+}
