@@ -169,6 +169,7 @@ const configs = {
         studentnumber: '12345678',
         websites: ['https://qrcsoftware.nl', 'https://softwareify.nl'],
         studies: ['UvA Informatica'],
+        share: [db.entities[0].enid],
         __t: "Student",
       },
       {
@@ -179,6 +180,7 @@ const configs = {
         studentnumber: '22345678',
         websites: ['https://johannes.nl', 'https://sebastiaan.nl'],
         studies: ['UvA Kunstmatige Intellegentie', 'VU Rechten'],
+        share: [db.entities[1].enid],
         __t: "Student",
       },
       {

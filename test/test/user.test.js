@@ -36,7 +36,8 @@ email
 phone
 studentnumber
 websites
-studies`
+studies
+share`
 
 const testRepDelete = (msg, index) => {
   it('mutation user.delete should delete ' + msg, async () => {
@@ -525,6 +526,47 @@ mutation {
 
       expect(res.data.user.student.update).to.deep.equal(updatedStudent);
       await login('new.email@email.nl', 'student');
+    });
+
+    it('mutation user.student.shareInfo should let a user share info with an entity', async () => {
+      expect(db.users[0].studentnumber).to.exist;
+      const res = await request(`
+mutation {
+  user {
+    student {
+      shareInfo(${dictToGraphql({ uid: db.users[0].uid, enid: db.entities[1].enid, share: true })}) {
+        ${studentBody}
+      }
+    }
+  }
+}
+      `);
+
+      expect(res.data).to.exist;
+      expect(res.errors, 'Does not have errors').to.be.undefined;
+
+      db.users[0].share.push(db.entities[1].enid);
+      expect(res.data.user.student.shareInfo).to.deep.equal(db.users[0]);
+    });
+
+    it('mutation user.student.shareInfo should revoke sharing info with an entity', async () => {
+      expect(db.users[0].studentnumber).to.exist;
+      const res = await request(`
+mutation {
+  user {
+    student {
+      shareInfo(${dictToGraphql({ uid: db.users[0].uid, enid: db.entities[0].enid, share: false })}) {
+        ${studentBody}
+      }
+    }
+  }
+}
+      `);
+
+      expect(res.data).to.exist;
+      expect(res.errors, 'Does not have errors').to.be.undefined;
+
+      expect(res.data.user.student.shareInfo).to.deep.equal({...db.users[0], share: [] });
     });
 
   });

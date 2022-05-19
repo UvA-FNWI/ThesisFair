@@ -29,6 +29,7 @@ export const Student = User.discriminator('Student', new mongoose.Schema({
   studentnumber: { type: String, required: true, unique: true },
   websites: [String],
   studies: [String],
+  share: [mongoose.Schema.Types.ObjectId],
 }));
 
 export const Representative = User.discriminator('Representative', new mongoose.Schema({

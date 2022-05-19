@@ -16,6 +16,7 @@ type Student implements UserBase {
   studentnumber: String!
   websites: [String!]
   studies: [String!]
+  share: [ID!]
 }
 
 type Representative implements UserBase {

@@ -196,6 +196,28 @@ Password: ${password}
       return Student.findByIdAndUpdate(uid, { $set: args }, { new: true });
     },
   },
+  'user.student.shareInfo': {
+    type: 'Student',
+    args: {
+      uid: 'ID!',
+      enid: 'ID!',
+      share: 'Boolean!'
+    },
+    resolve: async (obj, args, req) => {
+      if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
+        throw new Error('UNAUTHORIZED update share information');
+      }
+
+      let operation;
+      if (args.share) {
+        operation = { $push: { share: args.enid } };
+      } else {
+        operation = { $pull: { share: args.enid } };
+      }
+
+      return Student.findByIdAndUpdate(args.uid, operation, { new: true });
+    }
+  },
   'user.delete': {
     type: 'User',
     args: {
