@@ -14,6 +14,7 @@ const body = `... on UserBase {
   studentnumber
   websites
   studies
+  share
 }
 ... on Representative {
   enid
@@ -204,10 +205,12 @@ mutation {
         studentnumber: db.users[0].studentnumber,
         studies: db.users[0].studies,
         email: 'new.email@email.nl',
+        share: db.users[0].share,
       };
       const updateQuery = { ...updatedStudent };
       delete updateQuery.studentnumber;
       delete updateQuery.studies;
+      delete updateQuery.share;
 
       const res = await request(`
 mutation {
@@ -264,9 +267,54 @@ mutation {
 
   describe('Representative', () => {
     beforeEach(async () => {
+      expect(db.users[2].email).to.equal('rep');
       expect(db.users[2].enid).to.exist;
       expect(db.users[2].repAdmin).to.be.false;
       await login('rep', 'rep');
+    });
+
+    it('query user should return a student', async () => {
+      expect(db.users[0].studentnumber).to.exist;
+      const res = await request(`
+query {
+  user(${dictToGraphql({ uid: db.users[0].uid })}) {
+    ${body}
+  }
+}
+    `);
+
+      expect(res.data).to.exist;
+      expect(res.errors, 'Does not have errors').to.be.undefined;
+
+      expect(res.data.user).to.deep.equal(db.users[0]);
+    });
+
+    it('query user should check if the user shared its data', async () => {
+      expect(db.users[1].studentnumber).to.exist;
+      const res = await request(`
+query {
+  user(${dictToGraphql({ uid: db.users[1].uid })}) {
+    ${body}
+  }
+}
+    `, undefined, false);
+
+      expect(res.errors).to.exist;
+      expect(res.data.user).to.be.null;
+    });
+
+    it('query user should check if the representative is an admin', async () => {
+      expect(db.users[3].enid).to.exist;
+      const res = await request(`
+query {
+  user(${dictToGraphql({ uid: db.users[3].uid })}) {
+    ${body}
+  }
+}
+    `, undefined, false);
+
+      expect(res.errors).to.exist;
+      expect(res.data.user).to.be.null;
     });
 
     it('mutation user.representative.update should update a representative', async () => {
@@ -372,8 +420,37 @@ mutation {
 
   describe('Admin Representative', () => {
     beforeEach(async () => {
+      expect(db.users[3].email).to.equal('repAdmin');
       expect(db.users[3].repAdmin).to.be.true;
       await login('repAdmin', 'repAdmin');
+    });
+
+    it('query user should get a representative', async () => {
+      expect(db.users[2].enid).to.exist;
+      const res = await request(`
+query {
+  user(${dictToGraphql({ uid: db.users[2].uid })}) {
+    ${body}
+  }
+}
+    `);
+
+      expect(res.errors).to.be.undefined;
+      expect(res.data.user).to.deep.equal(db.users[2]);
+    });
+
+    it('query user should check if the representative is from the same entity', async () => {
+      expect(db.users[4].enid).to.exist;
+      const res = await request(`
+query {
+  user(${dictToGraphql({ uid: db.users[4].uid })}) {
+    ${body}
+  }
+}
+    `, undefined, false);
+
+      expect(res.errors).to.exist;
+      expect(res.data.user).to.be.null;
     });
 
     testRepCreate();
@@ -504,10 +581,12 @@ mutation {
         studentnumber: db.users[0].studentnumber,
         studies: db.users[0].studies,
         email: 'new.email@email.nl',
+        share: db.users[0].share,
       };
-      const updateQuery = {...updatedStudent};
+      const updateQuery = { ...updatedStudent };
       delete updateQuery.studentnumber;
       delete updateQuery.studies;
+      delete updateQuery.share;
 
       const res = await request(`
 mutation {
@@ -566,7 +645,7 @@ mutation {
       expect(res.data).to.exist;
       expect(res.errors, 'Does not have errors').to.be.undefined;
 
-      expect(res.data.user.student.shareInfo).to.deep.equal({...db.users[0], share: [] });
+      expect(res.data.user.student.shareInfo).to.deep.equal({ ...db.users[0], share: [] });
     });
 
   });

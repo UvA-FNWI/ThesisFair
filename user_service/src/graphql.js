@@ -45,8 +45,22 @@ schemaComposer.Query.addNestedFields({
     type: 'User',
     args: {
       uid: 'ID!',
-    }, // TODO: Add permission checks
-    resolve: (obj, args) => User.findById(args.uid),
+    },
+    resolve: async (obj, args, req) => {
+      const user = await User.findById(args.uid);
+      if (!user) {
+        return null;
+      }
+
+      if (!(req.user.type === 'a' ||
+        req.user.uid === args.uid ||
+        (user instanceof Student && req.user.type === 'r' && user.share.includes(req.user.enid)) ||
+        (user instanceof Representative && req.user.type === 'r' && req.user.repAdmin === true && req.user.enid == user.enid))) {
+        throw new Error('UNAUTHORIZED to get this ' + (user instanceof Student ? 'student' : 'representative'));
+      }
+
+      return user;
+    },
   },
   'apiToken': {
     type: 'String!',
