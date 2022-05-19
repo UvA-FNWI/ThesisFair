@@ -10,12 +10,13 @@ import { User, Student, Representative } from './database.js';
 
 const saltRounds = process.env.DEBUG ? 0 : 10;
 const hash = (password) => bcrypt.hash(password, saltRounds);
-const randomPassword = (length = 12) => {
+const randomInt = (min, max) => new Promise((resolve, reject) => crypto.randomInt(min, max, (err, int) => { if (err) { reject(err) } else { resolve(int) } }));
+const randomPassword = async (length = 12) => {
   const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#%&*()';
   let password = '';
 
   for (let i = 0; i < length; i++) {
-    password += alphabet[crypto.randomInt(0, alphabet.length)];
+    password += alphabet[await randomInt(0, alphabet.length)];
   }
 
   return password;
@@ -113,7 +114,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create user accounts for this entity');
       }
 
-      const password = randomPassword();
+      const password = await randomPassword();
       args.password = await hash(password);
 
       await mail.sendMail({
