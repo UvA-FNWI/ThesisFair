@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 import debugLib from 'debug';
 
-const debug = debugLib('project_service:database');
+const debug = debugLib('user_service:database');
 
 export const connect = async (uri) => {
-  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/project_service';
+  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/user_service';
   const conn = await mongoose.connect(conStr);
   debug(`Connected to database: ${conStr}`);
   return conn;
