@@ -3,7 +3,7 @@ import { dictToGraphql, request, login } from '../../libraries/graphql-query-bui
 
 import initDB, { init, disconnect, db } from './db.js';
 
-describe.only('Vote', () => {
+describe('Vote', () => {
   before(init);
   after(disconnect);
   beforeEach(initDB);
