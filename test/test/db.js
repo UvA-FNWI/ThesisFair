@@ -220,6 +220,30 @@ const configs = {
       },
     ],
   },
+  votes: {
+    uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/vote_service',
+    library: '../../vote_service/src/database.js',
+    object: 'Vote',
+    get: () => [
+      {
+        uid: db.users[0].uid,
+        evid: db.events[0].evid,
+        votes: [
+          { enid: db.projects[0].enid, pid: db.projects[0].pid },
+          { enid: db.projects[1].enid, pid: db.projects[1].pid },
+          { enid: db.projects[2].enid, pid: db.projects[2].pid },
+        ],
+      },
+      {
+        uid: db.users[1].uid,
+        evid: db.events[0].evid,
+        votes: [
+          { enid: db.projects[0].enid, pid: db.projects[0].pid },
+          { enid: db.projects[2].enid, pid: db.projects[2].pid },
+        ],
+      },
+    ],
+  },
 };
 
 /**
@@ -293,5 +317,5 @@ export const disconnect = async () => {
 export default main;
 if (process.argv.length === 3 && process.argv[2] === 'run') {
   console.log('Initializing database from cli');
-  init().then(main);
+  init().then(main).then(disconnect);
 }
