@@ -4,10 +4,6 @@ let url = "http://127.0.0.1:3000/";
 let apiToken = null;
 let apiTokenData = null;
 
-export const setUrl = (newUrl) => {
-  url = newUrl;
-};
-
 export const getTokenData = () => apiTokenData;
 
 export const login = async (email, password) => {
