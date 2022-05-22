@@ -236,7 +236,7 @@ const configs = {
       },
       {
         uid: db.users[1].uid,
-        evid: db.events[0].evid,
+        evid: db.events[1].evid,
         votes: [
           { enid: db.projects[0].enid, pid: db.projects[0].pid },
           { enid: db.projects[2].enid, pid: db.projects[2].pid },
