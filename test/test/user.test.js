@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { dictToGraphql, request, login } from '../../libraries/graphql-query-builder/index.js';
+import api, { apiTokenData } from '../../userStories/api.js';
 
 import initDB, { init, disconnect, db } from './db.js';
 
@@ -43,30 +44,11 @@ share`
 const testRepDelete = (msg, index) => {
   it('mutation user.delete should delete ' + msg, async () => {
     expect(db.users[index].enid).to.exist;
-    const res = await request(`
-mutation {
-user {
-  delete(${dictToGraphql({ uid: db.users[index].uid })}) {
-    ${body}
-  }
-}
-}
-    `);
+    const res = await api.user.delete(db.users[index].uid).exec();
+    expect(res.user.delete).to.deep.equal(db.users[index]);
 
-    expect(res.data).to.exist;
-    expect(res.errors, 'Does not have errors').to.be.undefined;
-
-    expect(res.data.user.delete).to.deep.equal(db.users[index]);
-
-    const query = await request(`
-    query {
-      user(${dictToGraphql({ uid: db.users[index].uid })}) {
-        ${body}
-      }
-    }
-    `);
-
-    expect(query.data.user).to.be.null;
+    const query = await await api.user.get(db.users[index].uid).exec();
+    expect(query.user).to.be.null;
   });
 };
 
@@ -76,25 +58,12 @@ const testRepCreate = () => {
     const newRep = { ...db.users[2], email: 'new.email@email.nl' };
     delete newRep.uid;
 
-    const res = await request(`
-mutation {
-  user {
-    representative {
-      create(${dictToGraphql(newRep)}) {
-        ${repBody}
-      }
-    }
-  }
-}
-    `);
+    const res = await api.user.representative.create(newRep).exec();
 
-    expect(res.data).to.exist;
-    expect(res.errors, 'Does not have errors').to.be.undefined;
+    expect(res.user.representative.create.uid).to.exist;
+    newRep.uid = res.user.representative.create.uid;
 
-    expect(res.data.user.representative.create.uid).to.exist;
-    newRep.uid = res.data.user.representative.create.uid;
-
-    expect(res.data.user.representative.create).to.deep.equal(newRep);
+    expect(res.user.representative.create).to.deep.equal(newRep);
   });
 };
 
@@ -105,49 +74,31 @@ describe('User', () => {
 
   it('login should function', async () => {
     expect(db.users[5].email).to.equal('admin');
-    const tokenData = await login('admin', 'admin');
+    await api.user.login('admin', 'admin');
 
-    expect(tokenData.uid).to.equal(db.users[5].uid);
-    expect(tokenData.type).to.equal('a');
+    expect(apiTokenData.uid).to.equal(db.users[5].uid);
+    expect(apiTokenData.type).to.equal('a');
   });
 
   //* Admin
 
   describe('admin', () => {
     beforeEach(async () => {
-      await login('admin', 'admin');
+      await api.user.login('admin', 'admin');
     });
 
     it('query user should return a student', async () => {
       expect(db.users[0].studentnumber).to.exist;
-      const res = await request(`
-query {
-  user(${dictToGraphql({ uid: db.users[0].uid })}) {
-    ${body}
-  }
-}
-    `);
+      const res = await api.user.get(db.users[0].uid).exec();
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user).to.deep.equal(db.users[0]);
+      expect(res.user).to.deep.equal(db.users[0]);
     });
 
     it('query user should return a representative', async () => {
       expect(db.users[2].enid).to.exist;
-      const res = await request(`
-query {
-  user(${dictToGraphql({ uid: db.users[2].uid })}) {
-    ${body}
-  }
-}
-    `);
+      const res = await api.user.get(db.users[2].uid).exec();
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user).to.deep.equal(db.users[2]);
+      expect(res.user).to.deep.equal(db.users[2]);
     });
 
     testRepCreate();
@@ -157,20 +108,13 @@ query {
       const newRep = { ...db.users[2] };
       delete newRep.uid;
 
-      const res = await request(`
-  mutation {
-    user {
-      representative {
-        create(${dictToGraphql(newRep)}) {
-          ${repBody}
-        }
+      try {
+        await api.user.representative.create(newRep).exec();
+        expect(true, 'Code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user.representative.create).to.be.null;
       }
-    }
-  }
-      `, undefined, false);
-
-      expect(res.errors).to.exist;
-      expect(res.data.user.representative.create).to.be.null;
     });
 
     it('mutation user.representative.update should update a representative', async () => {
@@ -178,22 +122,8 @@ query {
       expect(db.users[4].enid).to.exist;
       const updatedRep = { ...db.users[4], uid: db.users[2].uid, email: 'new.email@email.nl' };
 
-      const res = await request(`
-mutation {
-  user {
-    representative {
-      update(${dictToGraphql(updatedRep)}) {
-        ${repBody}
-      }
-    }
-  }
-}
-      `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user.representative.update).to.deep.equal(updatedRep);
+      const res = await api.user.representative.update(updatedRep).exec();
+      expect(res.user.representative.update).to.deep.equal(updatedRep);
     });
 
     it('mutation user.student.update should update a student', async () => {
@@ -212,50 +142,17 @@ mutation {
       delete updateQuery.studies;
       delete updateQuery.share;
 
-      const res = await request(`
-mutation {
-  user {
-    student {
-      update(${dictToGraphql(updateQuery)}) {
-        ${studentBody}
-      }
-    }
-  }
-}
-      `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user.student.update).to.deep.equal(updatedStudent);
+      const res = await api.user.student.update(updateQuery).exec();
+      expect(res.user.student.update).to.deep.equal(updatedStudent);
     });
 
     it('mutation user.delete should delete a student', async () => {
       expect(db.users[0].studentnumber).to.exist;
-      const res = await request(`
-mutation {
-  user {
-    delete(${dictToGraphql({ uid: db.users[0].uid })}) {
-      ${body}
-    }
-  }
-}
-      `);
+      const res = await api.user.delete(db.users[0].uid).exec();
+      expect(res.user.delete).to.deep.equal(db.users[0]);
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user.delete).to.deep.equal(db.users[0]);
-
-      const query = await request(`
-      query {
-        user(${dictToGraphql({ uid: db.users[0].uid })}) {
-          ${body}
-        }
-      }
-      `);
-
-      expect(query.data.user).to.be.null;
+      const query = await api.user.get(db.users[0].uid).exec();
+      expect(query.user).to.be.null;
     });
 
     testRepDelete('a representative', 2);
