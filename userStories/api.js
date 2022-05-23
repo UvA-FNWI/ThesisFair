@@ -176,6 +176,7 @@ const fields = { // TODO: Deep freeze this object
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id'],
   Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities'],
   Project: ['pid', 'enid', 'evid', 'name', 'description', 'datanoseLink'],
+  StudentVote: ['uid', 'pid'],
 }
 
 const bodies = {
@@ -185,6 +186,7 @@ const bodies = {
   Entity: (projection) => genBody(fields.Entity, projection),
   Event: (projection) => genBody(fields.Event, projection),
   Project: (projection) => genBody(fields.Project, projection),
+  StudentVote: (projection) => genBody(fields.StudentVote, projection),
 }
 
 export default {
@@ -574,6 +576,36 @@ export default {
         args: {
           file: { value: file, type: 'String!' },
           enid: { value: enid, type: 'ID!' },
+        }
+      }),
+  },
+  votes: {
+    getOfStudent: (uid, evid) =>
+      new GraphQLBuilder({
+        name: 'getVotesOfStudent',
+        functionPath: 'votesOfStudent',
+        args: {
+          uid: { value: uid, type: 'ID!' },
+          evid: { value: evid, type: 'ID!' },
+        }
+      }),
+    getOfEntity: (enid, evid, projection) =>
+      new GraphQLBuilder({
+        name: 'getVotesOfEntity',
+        functionPath: 'votesOfEntity',
+        body: bodies.StudentVote(projection),
+        args: {
+          enid: { value: enid, type: 'ID!' },
+          evid: { value: evid, type: 'ID!' },
+        }
+      }),
+    getOfProject: (pid, evid) =>
+      new GraphQLBuilder({
+        name: 'getVotesOfProject',
+        functionPath: 'votesOfProject',
+        args: {
+          pid: { value: pid, type: 'ID!' },
+          evid: { value: evid, type: 'ID!' },
         }
       }),
   }
