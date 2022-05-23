@@ -175,6 +175,7 @@ const fields = { // TODO: Deep freeze this object
   Representative: ['enid', 'repAdmin'],
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id'],
   Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities'],
+  Project: ['pid', 'enid', 'evid', 'name', 'description', 'datanoseLink'],
 }
 
 const bodies = {
@@ -183,6 +184,7 @@ const bodies = {
   Representative: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ${genBody(fields.Representative, projection)}`,
   Entity: (projection) => genBody(fields.Entity, projection),
   Event: (projection) => genBody(fields.Event, projection),
+  Project: (projection) => genBody(fields.Project, projection),
 }
 
 export default {
@@ -476,5 +478,103 @@ export default {
           }
         }),
     }
+  },
+  project: {
+    get: (pid, projection) =>
+      new GraphQLBuilder({
+        name: 'getProject',
+        functionPath: 'project',
+        body: bodies.Project(projection),
+        args: {
+          pid: { value: pid, type: 'ID!' },
+        }
+      }),
+    getMultiple: (pids, projection) =>
+      new GraphQLBuilder({
+        name: 'getProjects',
+        functionPath: 'projects',
+        body: bodies.Project(projection),
+        args: {
+          pids: { value: pids, type: '[ID!]!' },
+        }
+      }),
+    getOfEntity: (enid, projection) =>
+      new GraphQLBuilder({
+        name: 'getProjectsOfEntity',
+        functionPath: 'projectsOfEntity',
+        body: bodies.Project(projection),
+        args: {
+          enid: { value: enid, type: 'ID!' },
+        }
+      }),
+    getOfEvent: (evid, projection) =>
+      new GraphQLBuilder({
+        name: 'getProjectsOfEvent',
+        functionPath: 'projectsOfEvent',
+        body: bodies.Project(projection),
+        args: {
+          evid: { value: evid, type: 'ID!' },
+        }
+      }),
+
+    create: (project, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'createProject',
+        functionPath: 'project.create',
+        body: bodies.Project(projection),
+        args: {
+          enid: { value: project.enid, type: 'ID!' },
+          evid: { value: project.evid, type: 'ID!' },
+          name: { value: project.name, type: 'String!' },
+          description: { value: project.description, type: 'String' },
+          datanoseLink: { value: project.datanoseLink, type: 'String' },
+        }
+      }),
+    update: (project, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'updateProject',
+        functionPath: 'project.update',
+        body: bodies.Project(projection),
+        args: {
+          pid: { value: project.pid, type: 'ID!' },
+          enid: { value: project.enid, type: 'ID' },
+          evid: { value: project.evid, type: 'ID' },
+          name: { value: project.name, type: 'String' },
+          description: { value: project.description, type: 'String' },
+          datanoseLink: { value: project.datanoseLink, type: 'String' },
+        }
+      }),
+    delete: (pid, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'deleteProject',
+        functionPath: 'project.delete',
+        body: bodies.Project(projection),
+        args: {
+          pid: { value: pid, type: 'ID!' },
+        }
+      }),
+    deleteOfEntity: (enid) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'deleteProjectOfEntity',
+        functionPath: 'project.deleteOfEntity',
+        args: {
+          enid: { value: enid, type: 'ID!' },
+        }
+      }),
+    import: (file, enid, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'importProject',
+        functionPath: 'project.import',
+        body: bodies.Project(projection),
+        args: {
+          file: { value: file, type: 'String!' },
+          enid: { value: enid, type: 'ID!' },
+        }
+      }),
   }
 }
