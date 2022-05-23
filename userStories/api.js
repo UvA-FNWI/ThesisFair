@@ -45,17 +45,22 @@ const login = async (email, password) => {
 };
 
 const graphql = async (query, variables) => {
-  const response = (await axios.post(
-    url + 'graphql',
-    { query, variables },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        Authorization: `Bearer ${apiToken}`
-      },
-    }
-  )).data;
+  let response;
+  try {
+    response = (await axios.post(
+      url + 'graphql',
+      { query, variables },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          Authorization: `Bearer ${apiToken}`
+        },
+      }
+    )).data;
+  } catch (error) {
+    throw error.response.data;
+  }
 
   if (response.errors) {
     throw response;
