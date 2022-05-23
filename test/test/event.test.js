@@ -1,127 +1,32 @@
 import { expect } from 'chai';
-import { dictToGraphql, request, login } from '../../libraries/graphql-query-builder/index.js';
 
+import { fail } from './lib.js';
+import api from '../../userStories/api.js';
 import initDb, { init, disconnect, db } from './db.js';
 
 const checkPremissions = () => {
   it('should enforce permissions properly', async () => {
-    const checkResponse = (res, name) => {
-      expect(res.errors).to.exist;
-      expect(res.errors[0].message).to.include('UNAUTHORIZED');
-      let data = res.data;
-      for (const key of name.split('.')) {
-        data = data[key];
-      }
-      expect(data).to.be.null;
-    }
-
-    let res = await request(`
-query {
-  events(all: true) {
-    evid
-  }
-}
-    `, undefined, false);
-    checkResponse(res, 'events');
-
-    res = await request(`
-query {
-  event(${dictToGraphql({ evid: db.events[1].evid })}) {
-    evid
-  }
-}
-    `, undefined, false);
-    checkResponse(res, 'event');
+    expect(db.events[1].enabled).to.be.false;
 
     const createData = { ...db.events[0] };
     delete createData.evid;
-    res = await request(`
-mutation {
-  event {
-    create(${dictToGraphql(createData)}) {
-      evid
-    }
-  }
-}
-    `, undefined, false);
-    checkResponse(res, 'event.create');
 
-    res = await request(`
-mutation {
-  event {
-    update(${dictToGraphql({ ...db.events[0], evid: db.events[1].evid })}) {
-      evid
-    }
-  }
-}
-    `, undefined, false);
-    checkResponse(res, 'event.update');
-
-    expect(res.errors).to.exist;
-    expect(res.errors[0].message).to.include('UNAUTHORIZED');
-    expect(res.data.event.update).to.be.null;
-
-    res = await request(`
-mutation {
-  event {
-    delete(${dictToGraphql({ evid: db.events[0].evid })}) {
-      evid
-    }
-  }
-}
-    `, undefined, false);
-    checkResponse(res, 'event.delete');
-
-
-    res = await request(`
-mutation {
-  event {
-    entity{
-      add(${dictToGraphql({ evid: db.events[0].evid, enid: '6266fb7b25f56e50b2309d0a' })}) {
-        evid
-      }
-    }
-  }
-}
-    `, undefined, false);
-    checkResponse(res, 'event.entity.add');
-
-    res = await request(`
-mutation {
-  event {
-    entity{
-      del(${dictToGraphql({ evid: db.events[0].evid, enid: '6266fb7b25f56e50b2306d0f' })}) {
-        evid
-      }
-    }
-  }
-}
-    `, undefined, false);
-    checkResponse(res, 'event.entity.del');
+    await Promise.all([
+      fail(api.event.getAll(true).exec),
+      fail(api.event.get(db.events[1].evid).exec),
+      fail(api.event.create(createData).exec),
+      fail(api.event.update({ ...db.events[0], evid: db.events[1].evid }).exec),
+      fail(api.event.delete(db.events[0].evid).exec),
+      fail(api.event.entity.add(db.events[0].evid, db.entities[1].enid).exec),
+      fail(api.event.entity.del(db.events[0].evid, db.events[0].entities[0]).exec),
+    ]);
   });
 };
 
 const testQuery = () => {
   it('query event should get a specific event', async () => {
-    const res = await request(`
-query {
-  event(${dictToGraphql({ evid: db.events[0].evid })}) {
-    evid
-    enabled
-    name
-    description
-    start
-    location
-    studentSubmitDeadline
-    entities
-  }
-}
-        `);
-
-    expect(res.data).to.exist;
-    expect(res.errors, 'Does not have errors').to.be.undefined;
-
-    expect(res.data.event).to.deep.equal(db.events[0]);
+    const res = await api.event.get(db.events[0].evid).exec();
+    expect(res.event).to.deep.equal(db.events[0]);
   });
 };
 
@@ -132,253 +37,98 @@ describe('Event', () => {
 
   describe('admin', () => {
     beforeEach(async () => {
-      await login('admin', 'admin');
+      await api.user.login('admin', 'admin');
     });
 
     testQuery();
 
     it('query events(all:false) should get all enabled events', async () => {
-      const res = await request(`
-  query {
-    events(all: false) {
-      evid
-      enabled
-      name
-      description
-      start
-      location
-      studentSubmitDeadline
-      entities
-    }
-  }
-        `);
+      const res = await api.event.getAll().exec();
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.events).to.be.a('array');
+      expect(res.events).to.be.a('array');
       for (const i in db.events) {
         const event = db.events[i];
         if (event.enabled) {
-          expect(res.data.events, `Should include event of index ${i}`).to.deep.include(event);
+          expect(res.events, `Should include event of index ${i}`).to.deep.include(event);
         } else {
-          expect(res.data.events, `Should not include event of index ${i}`).not.to.deep.include(event);
+          expect(res.events, `Should not include event of index ${i}`).not.to.deep.include(event);
         }
       }
     });
 
     it('query events(all:true) should get all events', async () => {
-      const res = await request(`
-  query {
-    events(all: true) {
-      evid
-      enabled
-      name
-      description
-      start
-      location
-      studentSubmitDeadline
-      entities
-    }
-  }
-      `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.events).to.be.a('array');
+      const res = await api.event.getAll(true).exec();
+      expect(res.events).to.be.a('array');
       for (const i in db.events) {
-        expect(res.data.events, `Should include event of index ${i}`).to.deep.include(db.events[i]);
+        expect(res.events, `Should include event of index ${i}`).to.deep.include(db.events[i]);
       }
     });
 
     it('mutation event.create should create an event', async () => {
-      const event = {
-        enabled: true,
-        name: 'New name',
-        description: 'New description',
-        start: '2022-04-27T22:00:00.000Z',
-        location: 'New location',
-        studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
-        entities: ['6266fb7b25f56e50b2306d0f', '6266fb7b25f56e50b2306d0e'],
-      }
+      const event = { ...db.events[0] };
+      delete event.evid;
 
-      const res = await request(`
-  mutation {
-    event {
-      create(${dictToGraphql(event)}) {
-        evid
-        enabled
-        name
-        description
-        start
-        location
-        studentSubmitDeadline
-        entities
-      }
-    }
-  }
-          `);
-
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.event.create.evid).to.exist;
-      event.evid = res.data.event.create.evid;
-
-      expect(res.data.event.create).to.deep.equal(event);
+      const res = await api.event.create(event).exec();
+      expect(res.event.create.evid).to.exist;
+      expect(res.event.create).to.deep.equal({ ...event, evid: res.event.create.evid });
     });
 
     it('mutation event.update should update the event', async () => {
       const eventUpdate = {
+        ...db.events[1],
         evid: db.events[0].evid,
-        enabled: false,
-        name: 'Changed name',
-        description: 'Changed description',
-        start: '2022-04-28T22:00:00.000Z',
-        location: 'Changed location',
-        studentSubmitDeadline: '2022-05-01T22:00:00.000Z',
-        entities: ['6266fb7b25f56e50b2306dab', '6266fb7b25f56e50b2306dcd'],
       }
 
-      const res = await request(`
-  mutation {
-    event {
-      update(${dictToGraphql(eventUpdate)}) {
-        evid
-        enabled
-        name
-        description
-        start
-        location
-        studentSubmitDeadline
-        entities
-      }
-    }
-  }
-          `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.event.update).to.deep.equal(eventUpdate);
+      const res = await api.event.update(eventUpdate).exec();
+      expect(res.event.update).to.deep.equal(eventUpdate);
     });
 
     it('mutation event.delete should delete the event', async () => {
-      const res = await request(`
-  mutation {
-    event {
-      delete(${dictToGraphql({ evid: db.events[0].evid })}) {
-        evid
-        enabled
-        name
-        description
-        start
-        location
-        studentSubmitDeadline
-        entities
-      }
-    }
-  }
-          `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.event.delete).to.deep.equal(db.events[0]);
+      const res = await api.event.delete(db.events[0].evid).exec();
+      expect(res.event.delete).to.deep.equal(db.events[0]);
 
 
-      const query = await request(`
-  query {
-    event(${dictToGraphql({ evid: db.events[0].evid })}) {
-      evid
-      enabled
-      name
-      description
-      start
-      location
-      studentSubmitDeadline
-      entities
-    }
-  }
-      `);
-
-      expect(query.data.event).to.be.null;
+      const query = await api.event.get(db.events[0].evid).exec();
+      expect(query.event).to.be.null;
     });
 
     it('mutation event.entity.add should add the entity', async () => {
+      const res = await api.event.entity.add(db.events[0].evid, db.entities[0].enid).exec();
+      expect(res.event.entity.add.entities).to.include(db.entities[0].enid);
+    });
+
+    it('mutation event.entity.add should check if entity exists', async () => {
       const newEnid = '6272838d6a373ac04510b798';
-
-      const res = await request(`
-  mutation {
-    event {
-      entity {
-        add(${dictToGraphql({ evid: db.events[0].evid, enid: newEnid })}) {
-          evid
-          entities
-        }
+      try {
+        await api.event.entity.add(db.events[0].evid, newEnid).exec();
+      } catch (error) {
+        console.log(error);
+        expect(error.errors).to.exist;
+        expect(error.event.entity.add).to.be.null;
+        return;
       }
-    }
-  }
-          `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.event.entity.add.entities).to.include(newEnid);
+      expect(true, 'Code should not reach this').to.be.null;
     });
 
     it('mutation event.entity.del should del the entity', async () => {
-      const res = await request(`
-  mutation {
-    event {
-      entity {
-        del(${dictToGraphql({ evid: db.events[0].evid, enid: db.events[0].entities[0] })}) {
-          evid
-          entities
-        }
-      }
-    }
-  }
-          `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.event.entity.del.entities).not.to.include(db.events[0].entities[0]);
+      const res = await api.event.entity.del(db.events[0].evid, db.events[0].entities[0]).exec();
+      expect(res.event.entity.del.entities).not.to.include(db.events[0].entities[0]);
     });
   });
 
   describe('Representative', () => {
     beforeEach(async () => {
-      await login('rep', 'rep');
+      await api.user.login('rep', 'rep');
     });
 
     it('query events should return a list of events the company is participating in', async () => {
-      const res = await request(`
-query {
-  events(all: false) {
-    evid
-    enabled
-    name
-    description
-    start
-    location
-    studentSubmitDeadline
-    entities
-  }
-}
-      `);
+      const res = await api.event.getAll().exec();
 
-      expect(res.data).to.exist;
-      expect(res.errors).to.be.undefined;
-
-      expect(res.data.events).to.be.a('array');
-      expect(res.data.events).to.deep.include(db.events[0]);
-      expect(res.data.events).not.to.deep.include(db.events[1]);
-      expect(res.data.events).not.to.deep.include(db.events[2]);
-      expect(res.data.events).not.to.deep.include(db.events[3]);
+      expect(res.events).to.be.a('array');
+      expect(res.events).to.deep.include(db.events[0]);
+      expect(res.events).not.to.deep.include(db.events[1]);
+      expect(res.events).not.to.deep.include(db.events[2]);
+      expect(res.events).not.to.deep.include(db.events[3]);
     });
 
     checkPremissions();
@@ -386,7 +136,7 @@ query {
 
   describe('Student', () => {
     beforeEach(async () => {
-      await login('student', 'student');
+      await api.user.login('student', 'student');
     });
 
     testQuery();

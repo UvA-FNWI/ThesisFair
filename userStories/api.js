@@ -174,6 +174,7 @@ const fields = { // TODO: Deep freeze this object
   Student: ['studentnumber', 'websites', 'studies', 'share'],
   Representative: ['enid', 'repAdmin'],
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id'],
+  Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities'],
 }
 
 const bodies = {
@@ -181,6 +182,7 @@ const bodies = {
   Student: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ${genBody(fields.Student, projection)}`,
   Representative: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ${genBody(fields.Representative, projection)}`,
   Entity: (projection) => genBody(fields.Entity, projection),
+  Event: (projection) => genBody(fields.Event, projection),
 }
 
 export default {
@@ -387,5 +389,92 @@ export default {
           file: { value: file, type: 'String!' },
         }
       }),
+  },
+  event: {
+    get: (evid, projection) =>
+      new GraphQLBuilder({
+        name: 'getEvent',
+        functionPath: 'event',
+        body: bodies.Event(projection),
+        args: {
+          evid: { value: evid, type: 'ID!' },
+        }
+      }),
+    getAll: (all = false, projection) =>
+      new GraphQLBuilder({
+        name: 'getEvents',
+        functionPath: 'events',
+        body: bodies.Event(projection),
+        args: {
+          all: { value: all, type: 'Boolean' },
+        }
+      }),
+    create: (event, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'createEvent',
+        functionPath: 'event.create',
+        body: bodies.Event(projection),
+        args: {
+          enabled: { value: event.enabled, type: 'Boolean' },
+          name: { value: event.name, type: 'String!' },
+          description: { value: event.description, type: 'String' },
+          start: { value: event.start, type: 'Date' },
+          location: { value: event.location, type: 'String' },
+          studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
+          entities: { value: event.entities, type: '[ID!]' },
+        }
+      }),
+    update: (event, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'updateEvent',
+        functionPath: 'event.update',
+        body: bodies.Event(projection),
+        args: {
+          evid: { value: event.evid, type: 'ID!' },
+          enabled: { value: event.enabled, type: 'Boolean' },
+          name: { value: event.name, type: 'String!' },
+          description: { value: event.description, type: 'String' },
+          start: { value: event.start, type: 'Date' },
+          location: { value: event.location, type: 'String' },
+          studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
+          entities: { value: event.entities, type: '[ID!]' },
+        }
+      }),
+    delete: (evid, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'deleteEvent',
+        functionPath: 'event.delete',
+        body: bodies.Event(projection),
+        args: {
+          evid: { value: evid, type: 'ID!' },
+        }
+      }),
+    entity: {
+      add: (evid, enid, projection) =>
+        new GraphQLBuilder({
+          type: 'mutation',
+          name: 'addEntityToEvent',
+          functionPath: 'event.entity.add',
+          body: bodies.Event(projection),
+          args: {
+            evid: { value: evid, type: 'ID!' },
+            enid: { value: enid, type: 'ID!' },
+          }
+        }),
+      del: (evid, enid, projection) =>
+        new GraphQLBuilder({
+          type: 'mutation',
+          name: 'delEntityToEvent',
+          functionPath: 'event.entity.del',
+          body: bodies.Event(projection),
+          args: {
+            evid: { value: evid, type: 'ID!' },
+            enid: { value: enid, type: 'ID!' },
+          }
+        }),
+    }
   }
 }
