@@ -1,71 +1,7 @@
 import { expect } from 'chai';
-import { dictToGraphql, request, login } from '../../libraries/graphql-query-builder/index.js';
+
 import api, { apiTokenData } from '../../userStories/api.js';
-
 import initDB, { init, disconnect, db } from './db.js';
-
-const body = `... on UserBase {
-  uid
-  firstname
-  lastname
-  email
-  phone
-}
-... on Student {
-  studentnumber
-  websites
-  studies
-  share
-}
-... on Representative {
-  enid
-  repAdmin
-}`
-
-const repBody = `uid
-firstname
-lastname
-email
-phone
-enid
-repAdmin`
-
-
-const studentBody = `uid
-firstname
-lastname
-email
-phone
-studentnumber
-websites
-studies
-share`
-
-const testRepDelete = (msg, index) => {
-  it('mutation user.delete should delete ' + msg, async () => {
-    expect(db.users[index].enid).to.exist;
-    const res = await api.user.delete(db.users[index].uid).exec();
-    expect(res.user.delete).to.deep.equal(db.users[index]);
-
-    const query = await api.user.get(db.users[index].uid).exec();
-    expect(query.user).to.be.null;
-  });
-};
-
-const testRepCreate = () => {
-  it('mutation user.representative.create should create a representative', async () => {
-    expect(db.users[2].enid).to.exist;
-    const newRep = { ...db.users[2], email: 'new.email@email.nl' };
-    delete newRep.uid;
-
-    const res = await api.user.representative.create(newRep).exec();
-
-    expect(res.user.representative.create.uid).to.exist;
-    newRep.uid = res.user.representative.create.uid;
-
-    expect(res.user.representative.create).to.deep.equal(newRep);
-  });
-};
 
 describe('User', () => {
   before(init);
@@ -224,7 +160,7 @@ describe('User', () => {
       const res = await api.user.representative.update(updateQuery).exec();
 
       expect(res.user.representative.update).to.deep.equal(updatedRep);
-      await login('new.email@email.nl', 'newPWD');
+      await api.user.login('new.email@email.nl', 'newPWD');
     });
 
     it('mutation user.representative.update should not allow to update other representative', async () => {
@@ -361,7 +297,7 @@ describe('User', () => {
   describe('Student', () => {
     beforeEach(async () => {
       expect(db.users[0].studentnumber).to.exist;
-      await login('student', 'student');
+      await api.user.login('student', 'student');
     });
 
     it('mutation user.student.update should allow a user to update self', async () => {
@@ -380,65 +316,74 @@ describe('User', () => {
       delete updateQuery.studies;
       delete updateQuery.share;
 
-      const res = await request(`
-mutation {
-  user {
-    student {
-      update(${dictToGraphql(updateQuery)}) {
-        ${studentBody}
-      }
-    }
-  }
-}
-      `);
+      const res = await api.user.student.update(updateQuery).exec();
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user.student.update).to.deep.equal(updatedStudent);
-      await login('new.email@email.nl', 'student');
+      expect(res.user.student.update).to.deep.equal(updatedStudent);
+      await api.user.login('new.email@email.nl', 'student');
     });
 
     it('mutation user.student.shareInfo should let a user share info with an entity', async () => {
       expect(db.users[0].studentnumber).to.exist;
-      const res = await request(`
-mutation {
-  user {
-    student {
-      shareInfo(${dictToGraphql({ uid: db.users[0].uid, enid: db.entities[1].enid, share: true })}) {
-        ${studentBody}
-      }
-    }
-  }
-}
-      `);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
+      const res = await api.user.student.shareInfo(db.users[0].uid, db.entities[1].enid, true).exec();
 
       db.users[0].share.push(db.entities[1].enid);
-      expect(res.data.user.student.shareInfo).to.deep.equal(db.users[0]);
+      expect(res.user.student.shareInfo).to.deep.equal(db.users[0]);
     });
 
     it('mutation user.student.shareInfo should revoke sharing info with an entity', async () => {
       expect(db.users[0].studentnumber).to.exist;
-      const res = await request(`
-mutation {
-  user {
-    student {
-      shareInfo(${dictToGraphql({ uid: db.users[0].uid, enid: db.entities[0].enid, share: false })}) {
-        ${studentBody}
+      const res = await api.user.student.shareInfo(db.users[0].uid, db.entities[0].enid, false).exec();
+      expect(res.user.student.shareInfo).to.deep.equal({ ...db.users[0], share: [] });
+    });
+
+    it('mutation user.representative.create should fail', async () => {
+      expect(db.users[3].enid).to.exist;
+
+      try {
+        await api.user.representative.create({...db.users[3], email: 'new@new.nl'}).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
       }
-    }
-  }
-}
-      `);
+    });
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
+    it('mutation user.representative.update should fail', async () => {
+      expect(db.users[3].enid).to.exist;
 
-      expect(res.data.user.student.shareInfo).to.deep.equal({ ...db.users[0], share: [] });
+      try {
+        await api.user.representative.update(db.users[3]).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+      }
     });
 
   });
 });
+
+
+function testRepDelete(msg, index) {
+  it('mutation user.delete should delete ' + msg, async () => {
+    expect(db.users[index].enid).to.exist;
+    const res = await api.user.delete(db.users[index].uid).exec();
+    expect(res.user.delete).to.deep.equal(db.users[index]);
+
+    const query = await api.user.get(db.users[index].uid).exec();
+    expect(query.user).to.be.null;
+  });
+};
+
+function testRepCreate() {
+  it('mutation user.representative.create should create a representative', async () => {
+    expect(db.users[2].enid).to.exist;
+    const newRep = { ...db.users[2], email: 'new.email@email.nl' };
+    delete newRep.uid;
+
+    const res = await api.user.representative.create(newRep).exec();
+
+    expect(res.user.representative.create.uid).to.exist;
+    newRep.uid = res.user.representative.create.uid;
+
+    expect(res.user.representative.create).to.deep.equal(newRep);
+  });
+};
