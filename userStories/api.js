@@ -149,19 +149,38 @@ const genBody = (possibleFields, projection) => {
     fields = [...possibleFields].filter((field) => !fields.includes(field));
   }
 
-  return fields.join(' ');
+  let res = fields.filter((v) => !v.includes('.')).join(' ');
+
+  const complexFields = {};
+  for (const field of fields.filter((v) => v.includes('.'))) {
+    const [parent, child] = field.split('.');
+
+    if (!(parent in complexFields)) {
+      complexFields[parent] = [];
+    }
+
+    complexFields[parent].push(child);
+  }
+
+  for (const field in complexFields) {
+    res += ` ${field} {${complexFields[field].join(' ')}}`;
+  }
+
+  return res;
 };
 
 const fields = { // TODO: Deep freeze this object
   UserBase: ['uid', 'firstname', 'lastname', 'email', 'phone'],
   Student: ['studentnumber', 'websites', 'studies', 'share'],
   Representative: ['enid', 'repAdmin'],
+  Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id'],
 }
 
 const bodies = {
   User: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ... on Student {${genBody(fields.Student, projection)}} ... on Representative {${genBody(fields.Representative, projection)}}`,
   Student: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ${genBody(fields.Student, projection)}`,
   Representative: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ${genBody(fields.Representative, projection)}`,
+  Entity: (projection) => genBody(fields.Entity, projection),
 }
 
 export default {
@@ -286,17 +305,87 @@ export default {
         }),
 
       shareInfo: (uid, enid, share, projection) =>
+        new GraphQLBuilder({
+          type: 'mutation',
+          name: 'updateStudentShare',
+          functionPath: 'user.student.shareInfo',
+          body: bodies.Student(projection),
+          args: {
+            uid: { value: uid, type: 'ID!' },
+            enid: { value: enid, type: 'ID!' },
+            share: { value: share, type: 'Boolean!' },
+          },
+        }),
+    },
+  },
+  entity: {
+    get: (enid, projection) =>
+      new GraphQLBuilder({
+        name: 'getEntity',
+        functionPath: 'entity',
+        body: bodies.Entity(projection),
+        args: {
+          enid: { value: enid, type: 'ID!' },
+        }
+      }),
+    getMultiple: (enids, projection) =>
+      new GraphQLBuilder({
+        name: 'getEntities',
+        functionPath: 'entities',
+        body: bodies.Entity(projection),
+        args: {
+          enids: { value: enids, type: '[ID!]!' },
+        }
+      }),
+
+    create: (entity, projection) =>
       new GraphQLBuilder({
         type: 'mutation',
-        name: 'updateStudentShare',
-        functionPath: 'user.student.shareInfo',
-        body: bodies.Student(projection),
+        name: 'createEntity',
+        functionPath: 'entity.create',
+        body: bodies.Entity(projection),
         args: {
-          uid: { value: uid, type: 'ID!' },
-          enid: { value: enid, type: 'ID!' },
-          share: { value: share, type: 'Boolean!' },
-        },
+          name: { value: entity.name, type: 'String!' },
+          description: { value: entity.description, type: 'String' },
+          type: { value: entity.type, type: 'String!' },
+          contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
+          external_id: { value: entity.external_id, type: 'Int' },
+        }
       }),
-    },
+    update: (entity, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'updateEntity',
+        functionPath: 'entity.update',
+        body: bodies.Entity(projection),
+        args: {
+          enid: { value: entity.enid, type: 'ID!' },
+          name: { value: entity.name, type: 'String' },
+          description: { value: entity.description, type: 'String' },
+          type: { value: entity.type, type: 'String!' },
+          contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
+          external_id: { value: entity.external_id, type: 'Int' },
+        }
+      }),
+    delete: (enid, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'deleteEntity',
+        functionPath: 'entity.delete',
+        body: bodies.Entity(projection),
+        args: {
+          enid: { value: enid, type: 'ID!' },
+        }
+      }),
+    import: (file, projection) =>
+      new GraphQLBuilder({
+        type: 'mutation',
+        name: 'importEntity',
+        functionPath: 'entity.import',
+        body: bodies.Entity(projection),
+        args: {
+          file: { value: file, type: 'String!' },
+        }
+      }),
   }
 }

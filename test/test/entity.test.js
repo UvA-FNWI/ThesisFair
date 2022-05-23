@@ -1,18 +1,7 @@
 import { expect } from 'chai';
 
-import { request, login, dictToGraphql } from '../../libraries/graphql-query-builder/index.js';
+import api from '../../userStories/api.js';
 import initDB, { init, disconnect, db, models } from './db.js';
-
-const body = `enid
-name
-description
-type
-contact {
-  type
-  content
-}
-external_id
-`;
 
 const entity_import = {
   csv: `Name,Column1,Last login,Fairs paid,Contact e-mail addresses,Votes,Representatives,ID
@@ -29,57 +18,22 @@ University of Amsterdam: Graduate School of Informatics (Senior TAs),"dr. ing. C
 
 const testQuery = () => {
   it('query entity should get an entity', async () => {
-    const res = await request(`
-query {
-    entity(${dictToGraphql({ enid: db.entities[0].enid })}) {
-      ${body}
-    }
-}
-    `);
-
-    expect(res).to.exist;
-    expect(res.data).to.exist;
-    expect(res.errors, 'Does not have errors').to.be.undefined;
-
-    expect(res.data.entity).to.deep.equal(db.entities[0]);
+    const res = await api.entity.get(db.entities[0].enid).exec();
+    expect(res.entity).to.deep.equal(db.entities[0]);
   });
 
   it('query entities should get the correct entities', async () => {
-    const res = await request(`
-query {
-    entities(${dictToGraphql({ enids: [db.entities[1].enid, db.entities[0].enid] })}) {
-      ${body}
-    }
-}
-    `);
-
-    expect(res).to.exist;
-    expect(res.data).to.exist;
-    expect(res.errors, 'Does not have errors').to.be.undefined;
-
-    expect(res.data.entities).to.deep.include(db.entities[0]);
-    expect(res.data.entities).to.deep.include(db.entities[1]);
+    const res = await api.entity.getMultiple([db.entities[1].enid, db.entities[0].enid]).exec();
+    expect(res.entities).to.deep.include(db.entities[0]);
+    expect(res.entities).to.deep.include(db.entities[1]);
   });
 }
 
 const testUpdate = () => {
   it('mutation entity.update should update the entity', async () => {
     const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
-    const res = await request(`
-mutation {
-    entity {
-        update(${dictToGraphql(updatedEntity)}) {
-          ${body}
-        }
-    }
-}
-        `);
-
-    expect(res).to.exist;
-    expect(res.data).to.exist;
-    expect(res.errors, 'Does not have errors').to.be.undefined;
-
-    expect(res.data.entity.update).to.deep.equal(updatedEntity);
+    const res = await api.entity.update(updatedEntity).exec();
+    expect(res.entity.update).to.deep.equal(updatedEntity);
   });
 }
 
@@ -88,71 +42,49 @@ const permissions = {
     it('mutation create should hanle permissions properly', async () => {
       const newEntity = { ...db.entities[0] };
       delete newEntity.enid;
-      const res = await request(`
-  mutation {
-    entity {
-        create(${dictToGraphql(newEntity)}) {
-          ${body}
-        }
-    }
-  }
-      `, undefined, false);
 
-      expect(res).to.exist;
-      expect(res.data.entity.create).to.be.null;
-      expect(res.errors).to.exist;
+      try {
+        await api.entity.create(newEntity).exec();
+        expect(true, 'Code should not reach this').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.entity.create).to.be.null;
+      }
     });
   },
   update: () => {
     it('mutation update should hanle permissions properly', async () => {
       const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
-      const res = await request(`
-  mutation {
-      entity {
-          update(${dictToGraphql(updatedEntity)}) {
-            ${body}
-          }
-      }
-  }
-      `, undefined, false);
 
-      expect(res).to.exist;
-      expect(res.data.entity.update).to.be.null;
-      expect(res.errors).to.exist;
+      try {
+        await api.entity.update(updatedEntity).exec();
+        expect(true, 'Code should not reach this').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.entity.update).to.be.null;
+      }
     });
   },
   delete: () => {
     it('mutation delete should hanle permissions properly', async () => {
-      const res = await request(`
-  mutation {
-      entity {
-          delete(${dictToGraphql({ enid: db.entities[0].enid })}) {
-            ${body}
-          }
+      try {
+        await api.entity.delete(db.entities[0].enid).exec();
+        expect(true, 'Code should not reach this').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.entity.delete).to.be.null;
       }
-  }
-      `, undefined, false);
-
-      expect(res).to.exist;
-      expect(res.data.entity.delete).to.be.null;
-      expect(res.errors).to.exist;
     });
   },
   import: () => {
     it('mutation import should hanle permissions properly', async () => {
-      const res = await request(`
-mutation {
-    entity {
-        import(${dictToGraphql({ file: entity_import.csv })}) {
-          ${body}
-        }
-    }
-}
-      `, undefined, false);
-
-      expect(res).to.exist;
-      expect(res.data.entity.import).to.be.null;
-      expect(res.errors).to.exist;
+      try {
+        await api.entity.import(entity_import.csv).exec();
+        expect(true, 'Code should not reach this').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.entity.import).to.be.null;
+      }
     });
   },
 }
@@ -164,7 +96,7 @@ describe('Entity', () => {
 
   describe('Admin', () => {
     beforeEach(async () => {
-      await login('admin', 'admin');
+      await api.user.login('admin', 'admin');
     });
 
     testQuery();
@@ -178,160 +110,64 @@ describe('Entity', () => {
         external_id: 100,
       }
 
-      const res = await request(`
-  mutation {
-    entity {
-        create(${dictToGraphql(entity)}) {
-          ${body}
-        }
-    }
-  }
-      `)
+      const res = await api.entity.create(entity).exec();
 
-
-      expect(res).to.exist;
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.entity.create.enid).to.exist;
-      entity.enid = res.data.entity.create.enid;
-
-      expect(res.data.entity.create).to.deep.equal(entity);
+      expect(res.entity.create.enid).to.exist;
+      expect(res.entity.create).to.deep.equal({ ...entity, enid: res.entity.create.enid });
     });
 
     it('should check enum values properly', async () => {
+      const check = async (entity) => {
+        try {
+          await api.entity.create(entity).exec();
+          expect(true, 'Code should not reach this').to.be.null;
+        } catch (error) {
+          expect(error.errors).to.exist;
+          expect(error.data.entity.create).to.be.null;
+        }
+      };
+
       let entity = JSON.parse(JSON.stringify(db.entities[0]));
       delete entity.enid;
       entity.type = 'invalidType';
-
-      let res = await request(`
-      mutation {
-          entity {
-              create(${dictToGraphql(entity)}) {
-                ${body}
-              }
-          }
-      }
-      `, undefined, false);
-
-      expect(res.data.entity.create).to.be.null;
-      expect(res.errors).to.exist;
+      await check(entity);
 
       entity = JSON.parse(JSON.stringify(db.entities[0]));
       delete entity.enid;
       entity.contact[0].type = 'invalidType';
-
-      res = await request(`
-      mutation {
-          entity {
-              create(${dictToGraphql(entity)}) {
-                ${body}
-              }
-          }
-      }
-      `, undefined, false);
-
-      expect(res.data.entity.create).to.be.null;
-      expect(res.errors).to.exist;
+      await check(entity);
     });
 
     testUpdate();
 
     it('mutation entity.delete should delete the entity, linked projects and representatives', async () => {
-      const res = await request(`
-  mutation {
-      entity {
-          delete(${dictToGraphql({ enid: db.entities[0].enid })}) {
-            ${body}
-          }
-      }
-  }
-          `);
+      const res = await api.entity.delete(db.entities[0].enid).exec();
+      expect(res.entity.delete).to.deep.equal(db.entities[0]);
 
-      expect(res).to.exist;
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.entity.delete).to.deep.equal(db.entities[0]);
-
-      const query = await request(`
-      query {
-          entity(${dictToGraphql({ enid: db.entities[0].enid })}) {
-            ${body}
-          }
-      }
-              `);
-
-      expect(query.data.entity).to.be.null;
+      const query = await api.entity.get(db.entities[0].enid).exec();
+      expect(query.entity).to.be.null;
 
       const representatives = await models.Representative.find({ enid: db.entities[0].enid });
       expect(representatives).to.have.length(0);
 
-      const projects = await request(`
-      query {
-        projectsOfEntity(${dictToGraphql({ enid: db.entities[0].enid })}) {
-            pid
-            enid
-          }
-      }
-      `);
-
-      expect(projects).to.exist;
-      expect(projects.data.projectsOfEntity).to.exist;
-      expect(projects.data.projectsOfEntity).to.be.a('array');
-      expect(projects.data.projectsOfEntity).to.have.length(0);
-      expect(projects.errors).to.be.undefined;
-
-
+      const projects = await models.Project.find({ enid: db.entities[0].enid });
+      expect(projects).to.have.length(0);
     });
 
     it('mutation entity.import should import entities', async () => {
-      const res = await request(`
-mutation {
-    entity {
-        import(${dictToGraphql({ file: entity_import.csv })}) {
-          ${body}
-        }
-    }
-}
-    `);
+      const res = await api.entity.import(entity_import.csv).exec();
 
-      expect(res).to.exist;
-      expect(res.data).to.exist;
-      expect(res.errors).to.be.undefined;
-
-      expect(res.data.entity.import.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
-      expect(res.data.entity.import.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
+      expect(res.entity.import.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
+      expect(res.entity.import.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
 
       // TODO: Test if users were made properly
     });
 
     it('mutation entity.import should not double import entities', async () => {
-      await request(`
-mutation {
-    entity {
-        import(${dictToGraphql({ file: entity_import.csv })}) {
-          ${body}
-        }
-    }
-}
-    `);
+      await api.entity.import(entity_import.csv).exec();
+      const res = await api.entity.import(entity_import.csv).exec();
 
-      const res = await request(`
-    mutation {
-        entity {
-            import(${dictToGraphql({ file: entity_import.csv })}) {
-              ${body}
-            }
-        }
-    }
-        `);
-
-      expect(res).to.exist;
-      expect(res.data).to.exist;
-      expect(res.errors).to.be.undefined;
-
-      expect(res.data.entity.import.every((v) => v === null), 'All returned entities are null').to.be.true;
+      expect(res.entity.import.every((v) => v === null), 'All returned entities are null').to.be.true;
 
       // TODO: Test if users were not made
     });
@@ -339,7 +175,7 @@ mutation {
 
   describe('Representative', () => {
     beforeEach(async () => {
-      await login('rep', 'rep', { enid: db.entities[0].enid });
+      await api.user.login('rep', 'rep', { enid: db.entities[0].enid });
     });
 
     testQuery();
@@ -352,7 +188,7 @@ mutation {
 
   describe('Student', () => {
     beforeEach(async () => {
-      await login('student', 'student');
+      await api.user.login('student', 'student');
     });
 
     testQuery();
