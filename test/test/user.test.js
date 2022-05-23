@@ -47,7 +47,7 @@ const testRepDelete = (msg, index) => {
     const res = await api.user.delete(db.users[index].uid).exec();
     expect(res.user.delete).to.deep.equal(db.users[index]);
 
-    const query = await await api.user.get(db.users[index].uid).exec();
+    const query = await api.user.get(db.users[index].uid).exec();
     expect(query.user).to.be.null;
   });
 };
@@ -167,74 +167,51 @@ describe('User', () => {
       expect(db.users[2].email).to.equal('rep');
       expect(db.users[2].enid).to.exist;
       expect(db.users[2].repAdmin).to.be.false;
-      await login('rep', 'rep');
+      await api.user.login('rep', 'rep');
     });
 
     it('query user should return a student', async () => {
       expect(db.users[0].studentnumber).to.exist;
-      const res = await request(`
-query {
-  user(${dictToGraphql({ uid: db.users[0].uid })}) {
-    ${body}
-  }
-}
-    `);
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user).to.deep.equal(db.users[0]);
+      const res = await api.user.get(db.users[0].uid).exec();
+      expect(res.user).to.deep.equal(db.users[0]);
     });
 
     it('query user should check if the user shared its data', async () => {
       expect(db.users[1].studentnumber).to.exist;
-      const res = await request(`
-query {
-  user(${dictToGraphql({ uid: db.users[1].uid })}) {
-    ${body}
-  }
-}
-    `, undefined, false);
-
-      expect(res.errors).to.exist;
-      expect(res.data.user).to.be.null;
+      try {
+        await api.user.get(db.users[1].uid).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user).to.be.null;
+      }
     });
 
     it('query user should check if the representative is an admin', async () => {
       expect(db.users[3].enid).to.exist;
-      const res = await request(`
-query {
-  user(${dictToGraphql({ uid: db.users[3].uid })}) {
-    ${body}
-  }
-}
-    `, undefined, false);
 
-      expect(res.errors).to.exist;
-      expect(res.data.user).to.be.null;
+      try {
+        await api.user.get(db.users[3].uid).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user).to.be.null;
+      }
     });
 
-    it('mutation user.representative.update should update a representative', async () => {
+    it('mutation user.representative.update should not be able to update another representative', async () => {
       expect(db.users[2].enid).to.exist;
       const newRep = { ...db.users[2], email: 'new.email@email.nl' };
       delete newRep.uid;
 
-      const res = await request(`
-mutation {
-  user {
-    representative {
-      create(${dictToGraphql(newRep)}) {
-        ${repBody}
+      try {
+        await api.user.representative.create(newRep).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user.representative.create).to.be.null;
       }
-    }
-  }
-}
-      `, undefined, false);
-
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.exist;
-
-      expect(res.data.user.representative.create).to.be.null;
     });
 
     it('mutation user.representative.update should allow a representative to update self', async () => {
@@ -244,22 +221,9 @@ mutation {
       const updateQuery = { ...updatedRep, password: 'newPWD' };
       delete updateQuery.enid;
 
-      const res = await request(`
-mutation {
-  user {
-    representative {
-      update(${dictToGraphql(updateQuery)}) {
-        ${repBody}
-      }
-    }
-  }
-}
-      `);
+      const res = await api.user.representative.update(updateQuery).exec();
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user.representative.update).to.deep.equal(updatedRep);
+      expect(res.user.representative.update).to.deep.equal(updatedRep);
       await login('new.email@email.nl', 'newPWD');
     });
 
@@ -269,22 +233,13 @@ mutation {
       const updatedRep = { ...db.users[2], uid: db.users[4].uid, email: 'new.email@email.nl' };
       delete updatedRep.enid;
 
-      const res = await request(`
-mutation {
-  user {
-    representative {
-      update(${dictToGraphql(updatedRep)}) {
-        ${repBody}
+      try {
+        await api.user.representative.update(updatedRep).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user.representative.update).to.be.null;
       }
-    }
-  }
-}
-      `, undefined, false);
-
-      expect(res.data).to.exist;
-      expect(res.errors).to.be.exist;
-
-      expect(res.data.user.representative.update).to.be.null;
     });
 
     it('mutation user.representative.update should not be be able to update enid', async () => {
@@ -292,25 +247,26 @@ mutation {
       expect(db.users[4].enid).to.exist;
       const updatedRep = { ...db.users[3], uid: db.users[2].uid, email: 'new.email@email.nl' };
 
-      const res = await request(`
-mutation {
-  user {
-    representative {
-      update(${dictToGraphql(updatedRep)}) {
-        ${repBody}
+      try {
+        await api.user.representative.update(updatedRep).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user.representative.update).to.be.null;
       }
-    }
-  }
-}
-      `, undefined, false);
-
-      expect(res.data).to.exist;
-      expect(res.errors).to.be.exist;
-
-      expect(res.data.user.representative.update).to.be.null;
     });
 
     testRepDelete('self', 2);
+
+    it('mutation user.delete should not allow to delete other representatives', async () => {
+      expect(db.users[3].enid).to.exist;
+      try {
+        await api.user.delete(db.users[3].uid).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+      }
+    })
   });
 
   //* Admin representative
@@ -319,35 +275,25 @@ mutation {
     beforeEach(async () => {
       expect(db.users[3].email).to.equal('repAdmin');
       expect(db.users[3].repAdmin).to.be.true;
-      await login('repAdmin', 'repAdmin');
+      await api.user.login('repAdmin', 'repAdmin');
     });
 
     it('query user should get a representative', async () => {
       expect(db.users[2].enid).to.exist;
-      const res = await request(`
-query {
-  user(${dictToGraphql({ uid: db.users[2].uid })}) {
-    ${body}
-  }
-}
-    `);
-
-      expect(res.errors).to.be.undefined;
-      expect(res.data.user).to.deep.equal(db.users[2]);
+      const res = await api.user.get(db.users[2].uid).exec();
+      expect(res.user).to.deep.equal(db.users[2]);
     });
 
     it('query user should check if the representative is from the same entity', async () => {
       expect(db.users[4].enid).to.exist;
-      const res = await request(`
-query {
-  user(${dictToGraphql({ uid: db.users[4].uid })}) {
-    ${body}
-  }
-}
-    `, undefined, false);
 
-      expect(res.errors).to.exist;
-      expect(res.data.user).to.be.null;
+      try {
+        await api.user.get(db.users[4].uid).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user).to.be.null;
+      }
     });
 
     testRepCreate();
@@ -359,22 +305,8 @@ query {
       const updateQuery = { ...updatedRep };
       delete updateQuery.enid;
 
-      const res = await request(`
-mutation {
-  user {
-    representative {
-      update(${dictToGraphql(updateQuery)}) {
-        ${repBody}
-      }
-    }
-  }
-}
-      `);
-
-      expect(res.data).to.exist;
-      expect(res.errors).not.to.exist;
-
-      expect(res.data.user.representative.update).to.deep.equal(updatedRep);
+      const res = await api.user.representative.update(updateQuery).exec();
+      expect(res.user.representative.update).to.deep.equal(updatedRep);
     });
 
     it('mutation user.representative.update should not allow to update other representatives passwords', async () => {
@@ -384,22 +316,13 @@ mutation {
       const updateQuery = { ...updatedRep, password: 'newPWD' };
       delete updateQuery.enid;
 
-      const res = await request(`
-mutation {
-  user {
-    representative {
-      update(${dictToGraphql(updateQuery)}) {
-        ${repBody}
+      try {
+        await api.user.representative.update(updateQuery).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user.representative.update).to.be.null;
       }
-    }
-  }
-}
-      `, undefined, false);
-
-      expect(res.data).to.exist;
-      expect(res.errors).to.exist;
-
-      expect(res.data.user.representative.update).to.be.null;
     });
 
     it('mutation user.representative.update should not allow to update other representatives from other entity', async () => {
@@ -409,50 +332,22 @@ mutation {
       const updateQuery = { ...updatedRep };
       delete updateQuery.enid;
 
-      const res = await request(`
-mutation {
-  user {
-    representative {
-      update(${dictToGraphql(updateQuery)}) {
-        ${repBody}
+      try {
+        await api.user.representative.update(updateQuery).exec();
+        expect(true, 'code should not come here').to.be.null;
+      } catch (error) {
+        expect(error.errors).to.exist;
+        expect(error.data.user.representative.update).to.be.null;
       }
-    }
-  }
-}
-      `, undefined, false);
-
-      expect(res.data).to.exist;
-      expect(res.errors).to.exist;
-
-      expect(res.data.user.representative.update).to.be.null;
     });
 
     it('mutation user.delete should delete a representative from the same entity', async () => {
       expect(db.users[2].enid).to.exist;
-      const res = await request(`
-mutation {
-  user {
-    delete(${dictToGraphql({ uid: db.users[2].uid })}) {
-      ${body}
-    }
-  }
-}
-      `);
+      const res = await api.user.delete(db.users[2].uid).exec();
+      expect(res.user.delete).to.deep.equal(db.users[2]);
 
-      expect(res.data).to.exist;
-      expect(res.errors, 'Does not have errors').to.be.undefined;
-
-      expect(res.data.user.delete).to.deep.equal(db.users[2]);
-
-      const query = await request(`
-      query {
-        user(${dictToGraphql({ uid: db.users[2].uid })}) {
-          ${body}
-        }
-      }
-      `);
-
-      expect(query.data.user).to.be.null;
+      const query = await api.user.get(db.users[2].uid).exec();
+      expect(query.user).to.be.null;
     });
 
     testRepDelete('another representative from the same entity', 2);
