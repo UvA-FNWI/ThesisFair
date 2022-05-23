@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 
+import { fail } from './lib.js';
 import api, { apiTokenData } from '../../userStories/api.js';
 import initDB, { init, disconnect, db } from './db.js';
 
@@ -44,13 +45,7 @@ describe('User', () => {
       const newRep = { ...db.users[2] };
       delete newRep.uid;
 
-      try {
-        await api.user.representative.create(newRep).exec();
-        expect(true, 'Code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.user.representative.create).to.be.null;
-      }
+      await fail(api.user.representative.create(newRep).exec);
     });
 
     it('mutation user.representative.update should update a representative', async () => {
@@ -169,39 +164,21 @@ describe('User', () => {
       const updatedRep = { ...db.users[2], uid: db.users[4].uid, email: 'new.email@email.nl' };
       delete updatedRep.enid;
 
-      try {
-        await api.user.representative.update(updatedRep).exec();
-        expect(true, 'code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.user.representative.update).to.be.null;
-      }
+      await fail(api.user.representative.update(updatedRep).exec);
     });
 
     it('mutation user.representative.update should not be be able to update enid', async () => {
       expect(db.users[2].enid).to.exist;
       expect(db.users[4].enid).to.exist;
       const updatedRep = { ...db.users[3], uid: db.users[2].uid, email: 'new.email@email.nl' };
-
-      try {
-        await api.user.representative.update(updatedRep).exec();
-        expect(true, 'code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.user.representative.update).to.be.null;
-      }
+      await fail(api.user.representative.update(updatedRep).exec);
     });
 
     testRepDelete('self', 2);
 
     it('mutation user.delete should not allow to delete other representatives', async () => {
       expect(db.users[3].enid).to.exist;
-      try {
-        await api.user.delete(db.users[3].uid).exec();
-        expect(true, 'code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-      }
+      await fail(api.user.delete(db.users[3].uid).exec);
     })
   });
 
@@ -223,13 +200,7 @@ describe('User', () => {
     it('query user should check if the representative is from the same entity', async () => {
       expect(db.users[4].enid).to.exist;
 
-      try {
-        await api.user.get(db.users[4].uid).exec();
-        expect(true, 'code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.user).to.be.null;
-      }
+      await fail(api.user.get(db.users[4].uid).exec);
     });
 
     testRepCreate();
@@ -252,13 +223,7 @@ describe('User', () => {
       const updateQuery = { ...updatedRep, password: 'newPWD' };
       delete updateQuery.enid;
 
-      try {
-        await api.user.representative.update(updateQuery).exec();
-        expect(true, 'code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.user.representative.update).to.be.null;
-      }
+      await fail(api.user.representative.update(updateQuery).exec);
     });
 
     it('mutation user.representative.update should not allow to update other representatives from other entity', async () => {
@@ -268,13 +233,7 @@ describe('User', () => {
       const updateQuery = { ...updatedRep };
       delete updateQuery.enid;
 
-      try {
-        await api.user.representative.update(updateQuery).exec();
-        expect(true, 'code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.user.representative.update).to.be.null;
-      }
+      await fail(api.user.representative.update(updateQuery).exec);
     });
 
     it('mutation user.delete should delete a representative from the same entity', async () => {
@@ -339,25 +298,14 @@ describe('User', () => {
     it('mutation user.representative.create should fail', async () => {
       expect(db.users[3].enid).to.exist;
 
-      try {
-        await api.user.representative.create({...db.users[3], email: 'new@new.nl'}).exec();
-        expect(true, 'code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-      }
+      await fail(api.user.representative.create({...db.users[3], email: 'new@new.nl'}).exec);
     });
 
     it('mutation user.representative.update should fail', async () => {
       expect(db.users[3].enid).to.exist;
 
-      try {
-        await api.user.representative.update(db.users[3]).exec();
-        expect(true, 'code should not come here').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-      }
+      await fail(api.user.representative.update(db.users[3]).exec);
     });
-
   });
 });
 

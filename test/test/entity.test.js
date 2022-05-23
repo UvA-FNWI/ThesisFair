@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 
+import { fail } from './lib.js';
 import api from '../../userStories/api.js';
 import initDB, { init, disconnect, db, models } from './db.js';
 
@@ -43,48 +44,24 @@ const permissions = {
       const newEntity = { ...db.entities[0] };
       delete newEntity.enid;
 
-      try {
-        await api.entity.create(newEntity).exec();
-        expect(true, 'Code should not reach this').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.entity.create).to.be.null;
-      }
+      await fail(api.entity.create(newEntity).exec);
     });
   },
   update: () => {
     it('mutation update should hanle permissions properly', async () => {
       const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
 
-      try {
-        await api.entity.update(updatedEntity).exec();
-        expect(true, 'Code should not reach this').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.entity.update).to.be.null;
-      }
+      await fail(api.entity.update(updatedEntity).exec);
     });
   },
   delete: () => {
     it('mutation delete should hanle permissions properly', async () => {
-      try {
-        await api.entity.delete(db.entities[0].enid).exec();
-        expect(true, 'Code should not reach this').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.entity.delete).to.be.null;
-      }
+      await fail(api.entity.delete(db.entities[0].enid).exec);
     });
   },
   import: () => {
     it('mutation import should hanle permissions properly', async () => {
-      try {
-        await api.entity.import(entity_import.csv).exec();
-        expect(true, 'Code should not reach this').to.be.null;
-      } catch (error) {
-        expect(error.errors).to.exist;
-        expect(error.data.entity.import).to.be.null;
-      }
+      await fail(api.entity.import(entity_import.csv).exec);
     });
   },
 }
@@ -118,13 +95,7 @@ describe('Entity', () => {
 
     it('should check enum values properly', async () => {
       const check = async (entity) => {
-        try {
-          await api.entity.create(entity).exec();
-          expect(true, 'Code should not reach this').to.be.null;
-        } catch (error) {
-          expect(error.errors).to.exist;
-          expect(error.data.entity.create).to.be.null;
-        }
+        await fail(api.entity.create(entity).exec);
       };
 
       let entity = JSON.parse(JSON.stringify(db.entities[0]));
