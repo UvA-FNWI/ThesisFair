@@ -6,7 +6,6 @@ import { parse as csvParser } from 'csv-parse';
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Entity } from './database.js';
 import config from './config.js';
-import { dictToGraphql } from '../../libraries/graphql-query-builder/index.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -77,14 +76,16 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       const [projects, users] = await Promise.all([
-        rgraphql('API_project', `mutation { project { deleteOfEntity(${dictToGraphql({ enid: args.enid })}) } }`),
-        rgraphql('API_user', `mutation { user { deleteOfEntity(${dictToGraphql({ enid: args.enid })}) } }`),
+        rgraphql('API_project', 'mutation deleteLinkedProjects($enid: ID!) { project { deleteOfEntity(enid: $enid) } }', { enid: args.enid }),
+        rgraphql('API_user', 'mutation deleteLinkedUsers($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: args.enid }),
       ]);
       if (projects.errors || !projects.data.project || !projects.data.project.deleteOfEntity) {
+        console.error('Deleting linked projects failed', projects.errors);
         throw new Error('Deleting all linked projects failed');
       }
 
       if (users.errors || !users.data.user || !users.data.user.deleteOfEntity) {
+        console.error('Deleting linked users failed', users.errors);
         throw new Error('Deleting all representatives failed');
       }
 
