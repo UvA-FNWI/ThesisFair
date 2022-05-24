@@ -4,6 +4,8 @@ import { fail } from './lib.js';
 import api from '../../userStories/api.js';
 import initDb, { init, disconnect, db } from './db.js';
 
+const nonExistingId = '6272838d6a373ac04510b798';
+
 const checkPremissions = () => {
   it('should enforce permissions properly', async () => {
     expect(db.events[1].enabled).to.be.false;
@@ -73,6 +75,13 @@ describe('Event', () => {
       expect(res.event.create).to.deep.equal({ ...event, evid: res.event.create.evid });
     });
 
+    it('mutation event.create should check if the entities exist', async () => {
+      const event = { ...db.events[0], entities: [nonExistingId] };
+      delete event.evid;
+
+      await fail(api.event.create(event).exec);
+    });
+
     it('mutation event.update should update the event', async () => {
       const eventUpdate = {
         ...db.events[1],
@@ -81,6 +90,15 @@ describe('Event', () => {
 
       const res = await api.event.update(eventUpdate).exec();
       expect(res.event.update).to.deep.equal(eventUpdate);
+    });
+
+    it('mutation event.update should check if the entities exist', async () => {
+      const eventUpdate = {
+        evid: db.events[0].evid,
+        entities: [nonExistingId],
+      }
+
+      await fail(api.event.update(eventUpdate).exec);
     });
 
     it('mutation event.delete should delete the event', async () => {
@@ -98,16 +116,7 @@ describe('Event', () => {
     });
 
     it('mutation event.entity.add should check if entity exists', async () => {
-      const newEnid = '6272838d6a373ac04510b798';
-      try {
-        await api.event.entity.add(db.events[0].evid, newEnid).exec();
-      } catch (error) {
-        console.log(error);
-        expect(error.errors).to.exist;
-        expect(error.event.entity.add).to.be.null;
-        return;
-      }
-      expect(true, 'Code should not reach this').to.be.null;
+      await fail(api.event.entity.add(db.events[0].evid, nonExistingId).exec);
     });
 
     it('mutation event.entity.del should del the entity', async () => {
