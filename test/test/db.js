@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 
-export let db;
-export let models;
+import { MongoDBProvisioner } from '../../libraries/mongoDBProvisioner/index.js';
 
 const saltRounds = 0;
 const hashCache = {};
@@ -13,59 +12,12 @@ const hash = async (password) => {
   return (hashCache[password] = await bcrypt.hash(password, saltRounds))
 };
 
-const normalize = (objects, hide = []) => {
-  hide ||= [];
-
-  const normalizeValue = (value) => {
-    if (value instanceof Object) {
-      // The check below needs to hapen dirty because every ObjectId is from another mongoose library instance.
-      if (value.constructor.name === 'ObjectId') {
-        return value.toString();
-      } else if (value instanceof Date) {
-        return value.toISOString();
-      } else if (Array.isArray(value)) {
-        if (value.length === 0) { return value; }
-
-        for (const i in value) {
-          value[i] = normalizeValue(value[i]);
-        }
-      }
-    }
-
-    return value;
-  }
-
-  const normalizeObject = (object) => {
-    delete object.id;
-    delete object._id;
-    delete object.__v;
-    delete object.__t;
-
-    for (const key of hide) {
-      delete object[key];
-    }
-
-    for (const key in object) {
-      object[key] = normalizeValue(object[key]);
-    }
-
-    return object;
-  }
-
-  return objects.map((object) =>
-    object.toObject({
-      virtuals: true,
-      transform: (doc, object) => normalizeObject(object)
-    })
-  );
-}
-
 const configs = {
   entities: {
     uri: process.env.mongodbConStrEntity || 'mongodb://localhost:27017/entity_service',
     library: '../../entity_service/src/database.js',
     object: 'Entity',
-    get: () => [
+    get: (db) => [
       {
         name: 'New name1',
         description: 'New description1',
@@ -86,7 +38,7 @@ const configs = {
     uri: process.env.mongodbConStrEvent || 'mongodb://localhost:27017/event_service',
     library: '../../event_service/src/database.js',
     object: 'Event',
-    get: () => [
+    get: (db) => [
       {
         enabled: true,
         name: 'New name 1',
@@ -129,7 +81,7 @@ const configs = {
     uri: process.env.mongodbConStrProject || 'mongodb://localhost:27017/project_service',
     library: '../../project_service/src/database.js',
     object: 'Project',
-    get: () => [
+    get: (db) => [
       {
         enid: db.entities[0].enid,
         evid: db.events[0].evid,
@@ -159,7 +111,7 @@ const configs = {
     object: 'User',
     objects: ['User', 'Student', 'Representative'],
     hide: ['password'],
-    get: async () => [
+    get: async (db) => [
       {
         firstname: 'Quinten',
         lastname: 'Coltof',
@@ -224,7 +176,7 @@ const configs = {
     uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/vote_service',
     library: '../../vote_service/src/database.js',
     object: 'Vote',
-    get: () => [
+    get: (db) => [
       {
         uid: db.users[0].uid,
         evid: db.events[0].evid,
@@ -246,75 +198,19 @@ const configs = {
   },
 };
 
-/**
- * Import libraries once
- */
-const importLibraries = async () => {
-  let promises = [];
-  for (const name in configs) {
-    promises.push(import(configs[name].library));
-  }
-  promises = await Promise.all(promises);
+const provisioner = new MongoDBProvisioner(configs);
 
-  const libs = {};
-  let i = 0;
-  for (const name in configs) {
-    libs[name] = promises[i];
-    i += 1;
-  }
-
-  return libs;
-};
-
-
-let libraries = null;
-export const init = async () => {
-  libraries = await importLibraries();
-
-  models = {};
-  const promises = [];
-  for (const name in configs) {
-    const config = configs[name];
-    promises.push(libraries[name].connect(config.uri));
-
-    for (const object of config.objects || [config.object]) {
-      if (object in models) {
-        throw new Error(`Duplicate model name '${object}'! Could not merge into one models object.`);
-      }
-
-      models[object] = libraries[name][object];
-    }
-  }
-
-  await Promise.all(promises);
-}
-
+export let db;
+export let models;
+export const init = provisioner.init;
 const main = async () => {
-  if (!libraries) {
-    throw new Error('init function needs to be called before main');
-  }
-
-  db = {};
-  for (const name in configs) {
-    const config = configs[name];
-
-    const lib = libraries[name];
-
-    await lib[config.object].deleteMany();
-    db[name] = normalize(await lib[config.object].insertMany(await config.get()), config.hide);
-  }
+  await provisioner.provision();
+  db = provisioner.db;
+  models = provisioner.models;
 }
-
-export const disconnect = async () => {
-  const promises = [];
-  for (const name in configs) {
-    promises.push(libraries[name].disconnect());
-  }
-
-  await Promise.all(promises);
-};
-
 export default main;
+export const disconnect = provisioner.disconnect;
+
 if (process.argv.length === 3 && process.argv[2] === 'run') {
   console.log('Initializing database from cli');
   init().then(main).then(disconnect);
