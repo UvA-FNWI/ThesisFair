@@ -166,7 +166,7 @@ const genProvisionerConfig = ({ events: eventCount, admins: adminCount, students
     uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/vote_service',
     library: '../../vote_service/src/database.js',
     object: 'Vote',
-    get: (db) => {
+    get: async (db, models) => {
       const votes = [];
       for (let event = 0; event < eventCount; event++) {
         for (let student = 0; student < studentCount; student++) {
@@ -175,14 +175,19 @@ const genProvisionerConfig = ({ events: eventCount, admins: adminCount, students
           const start = event * entityCount * projectCount; // Inclusive
           const end = (event + 1) * entityCount * projectCount; // Non-inclusive
 
+          const studentVotes = sample(Array.from({ length: end - start }, (v, k) => k + start), studentVoteCount).map((choice) => ({
+            enid: db.projects[choice].enid,
+            pid: db.projects[choice].pid
+          }));
+
           votes.push({
             uid: db.users[studentIndex].uid,
             evid: db.events[event].evid,
-            votes: sample(Array.from({ length: end - start }, (v, k) => k + start), studentVoteCount).map((choice) => ({
-              enid: db.projects[choice].enid,
-              pid: db.projects[choice].pid
-            })),
+            votes: studentVotes,
           });
+
+          const enids = studentVotes.map((v) => v.enid).filter((v, i, a) => a.indexOf(v) === i);
+          await models.Student.findByIdAndUpdate(db.users[studentIndex].uid, { share: enids });
         }
       }
 

@@ -108,7 +108,7 @@ export class MongoDBProvisioner {
       const lib = this.libraries[name];
 
       await lib[config.object].deleteMany();
-      this.db[name] = normalize(await lib[config.object].insertMany(await config.get(this.db)), config.hide);
+      this.db[name] = normalize(await lib[config.object].insertMany(await config.get(this.db, this.models)), config.hide);
     }
   }
 
