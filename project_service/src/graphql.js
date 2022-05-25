@@ -27,9 +27,10 @@ schemaComposer.Query.addNestedFields({
   projectsOfEntity: {
     type: '[Project!]',
     args: {
-      enid: 'ID!'
+      evid: 'ID!',
+      enid: 'ID!',
     },
-    resolve: (obj, args) => Project.find({ enid: args.enid }),
+    resolve: (obj, args) => Project.find({ evid: args.evid, enid: args.enid }),
   },
   projectsOfEvent: {
     type: '[Project!]',

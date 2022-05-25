@@ -508,12 +508,13 @@ export default {
           pids: { value: pids, type: '[ID!]!' },
         }
       }),
-    getOfEntity: (enid, projection) =>
+    getOfEntity: (evid, enid, projection) =>
       new GraphQLBuilder({
         name: 'getProjectsOfEntity',
         functionPath: 'projectsOfEntity',
         body: bodies.Project(projection),
         args: {
+          evid: { value: evid, type: 'ID!' },
           enid: { value: enid, type: 'ID!' },
         }
       }),

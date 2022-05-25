@@ -26,7 +26,7 @@ const testQuery = () => {
   });
 
   it('query projectsOfEntity should get the correct projects', async () => {
-    const res = await api.project.getOfEntity(db.entities[0].enid).exec();
+    const res = await api.project.getOfEntity(db.events[0].evid, db.entities[0].enid).exec();
 
     for (const project of db.projects) {
       if (db.projects[0].enid === project.enid) {
