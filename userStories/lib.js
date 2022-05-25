@@ -9,6 +9,13 @@ export const loginStudent = async (event, student) => {
   return events[event].evid;
 }
 
+export const loginRep = async (event, entity, representative) => {
+  await api.user.login(`representative.${event}-${entity}-${representative}@company.nl`, 'representative');
+  const events = await api.event.getAll(false, { evid: 1 }).exec();
+  return events[0].evid;
+}
+
+
 export const pages = {
   student: {
     dashboard: async () => {
@@ -71,6 +78,37 @@ export const pages = {
           }
         }
       };
+    }
+  },
+  rep: {
+    dashboard: async () => {
+      return {
+        user: await api.user.get(apiTokenData.uid).exec(),
+        actions: {
+          updateInfo: async () => {
+            api.user.representative.update({
+              uid: apiTokenData.uid,
+              firstname: 'Lorem ipsum.',
+              lastname: 'Lorem ipsum.',
+              phone: 'Lorem ipsum.',
+            })
+          }
+        }
+      }
+    },
+    projects: async (evid) => {
+      return {
+        projects: await api.project.getOfEntity(evid, apiTokenData.enid).exec(),
+        actions: {
+          getVotedUsers: async (pid) => {
+            const uids = await api.votes.getOfProject(pid, evid).exec();
+
+            return {
+              students: await api.user.getMultiple(uids).exec(),
+            }
+          }
+        }
+      }
     }
   }
 }

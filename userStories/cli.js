@@ -32,6 +32,7 @@ const abortController = new AbortController();
 const exec = (type, ...options) => {
   const proc = child_process.spawn('node', [`${type}/index.js`, 'simulate', ...options], { signal: abortController.signal });
   proc.stdout.pipe(process.stdout);
+  proc.stderr.pipe(process.stderr);
 
   proc.on('exit', (code) => {
     if (code !== 0) {
@@ -69,7 +70,8 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
       }
 
       for (let representative = representativesChunk * serverIndex; representative < representativesChunk * (serverIndex + 1); representative++) {
-
+        exec('representative', event, entity, representative);
+        await randSleep(0.01, 0.5);
       }
     }
   }
