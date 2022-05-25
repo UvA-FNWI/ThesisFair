@@ -20,13 +20,13 @@ University of Amsterdam: Graduate School of Informatics (Senior TAs),"dr. ing. C
 const testQuery = () => {
   it('query entity should get an entity', async () => {
     const res = await api.entity.get(db.entities[0].enid).exec();
-    expect(res.entity).to.deep.equal(db.entities[0]);
+    expect(res).to.deep.equal(db.entities[0]);
   });
 
   it('query entities should get the correct entities', async () => {
     const res = await api.entity.getMultiple([db.entities[1].enid, db.entities[0].enid]).exec();
-    expect(res.entities).to.deep.include(db.entities[0]);
-    expect(res.entities).to.deep.include(db.entities[1]);
+    expect(res).to.deep.include(db.entities[0]);
+    expect(res).to.deep.include(db.entities[1]);
   });
 }
 
@@ -34,7 +34,7 @@ const testUpdate = () => {
   it('mutation entity.update should update the entity', async () => {
     const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
     const res = await api.entity.update(updatedEntity).exec();
-    expect(res.entity.update).to.deep.equal(updatedEntity);
+    expect(res).to.deep.equal(updatedEntity);
   });
 }
 
@@ -89,8 +89,8 @@ describe('Entity', () => {
 
       const res = await api.entity.create(entity).exec();
 
-      expect(res.entity.create.enid).to.exist;
-      expect(res.entity.create).to.deep.equal({ ...entity, enid: res.entity.create.enid });
+      expect(res.enid).to.exist;
+      expect(res).to.deep.equal({ ...entity, enid: res.enid });
     });
 
     it('should check enum values properly', async () => {
@@ -113,10 +113,10 @@ describe('Entity', () => {
 
     it('mutation entity.delete should delete the entity, linked projects and representatives', async () => {
       const res = await api.entity.delete(db.entities[0].enid).exec();
-      expect(res.entity.delete).to.deep.equal(db.entities[0]);
+      expect(res).to.deep.equal(db.entities[0]);
 
       const query = await api.entity.get(db.entities[0].enid).exec();
-      expect(query.entity).to.be.null;
+      expect(query).to.be.null;
 
       const representatives = await models.Representative.find({ enid: db.entities[0].enid });
       expect(representatives).to.have.length(0);
@@ -128,8 +128,8 @@ describe('Entity', () => {
     it('mutation entity.import should import entities', async () => {
       const res = await api.entity.import(entity_import.csv).exec();
 
-      expect(res.entity.import.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
-      expect(res.entity.import.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
+      expect(res.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
+      expect(res.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
 
       // TODO: Test if users were made properly
     });
@@ -138,7 +138,7 @@ describe('Entity', () => {
       await api.entity.import(entity_import.csv).exec();
       const res = await api.entity.import(entity_import.csv).exec();
 
-      expect(res.entity.import.every((v) => v === null), 'All returned entities are null').to.be.true;
+      expect(res.every((v) => v === null), 'All returned entities are null').to.be.true;
 
       // TODO: Test if users were not made
     });

@@ -129,7 +129,15 @@ class GraphQLBuilder {
     return variables;
   }
 
-  exec = () => graphql(this.genQuery(), this.genVariablesDict());
+  exec = async () => {
+    let res = await graphql(this.genQuery(), this.genVariablesDict());
+
+    for (const key of this.functionPath.split('.')) {
+      res = res[key];
+    }
+
+    return res;
+  }
 }
 
 const genBody = (possibleFields, projection) => {

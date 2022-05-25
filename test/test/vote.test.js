@@ -19,7 +19,7 @@ describe('Vote', () => {
     it('query votesOfStudent should properly query a student', testVotesOfStudent);
     it('query votesOfStudent should properly query a student and filter on event', async () => {
       const res = await api.votes.getOfStudent(db.users[1].uid, db.events[0].evid).exec();
-      expect(res.votesOfStudent).to.be.null;
+      expect(res).to.be.null;
     });
 
     it('query votesOfEntity should properly query votes of an entity', testVotesOfEntity);
@@ -47,7 +47,7 @@ describe('Vote', () => {
     it('query votesOfProject should properly query votes of an project', testVotesOfProject);
     it('query votesOfProject should not query votes of another entities project', async () => {
       const res = await api.votes.getOfProject(db.projects[2].pid, db.events[0].evid).exec();
-      expect(res.votesOfProject).to.have.length(0);
+      expect(res).to.have.length(0);
     });
   });
 
@@ -76,22 +76,22 @@ describe('Vote', () => {
 async function testVotesOfStudent(studentIndex = 0, eventIndex = 0) {
   const res = await api.votes.getOfStudent(db.users[studentIndex].uid, db.events[eventIndex].evid).exec();
 
-  expect(res.votesOfStudent).to.be.a('array');
-  expect(res.votesOfStudent).to.deep.equal(db.votes[studentIndex].votes.map((v) => v.pid));
+  expect(res).to.be.a('array');
+  expect(res).to.deep.equal(db.votes[studentIndex].votes.map((v) => v.pid));
 }
 
 async function testVotesOfEntity(entityIndex = 0, eventIndex = 0) {
   const res = await api.votes.getOfEntity(db.entities[entityIndex].enid, db.events[eventIndex].evid).exec();
 
-  expect(res.votesOfEntity).to.be.a('array');
+  expect(res).to.be.a('array');
 
   for (const studentVote of db.votes) {
     for (const vote of studentVote.votes) {
       const doc = { uid: studentVote.uid, pid: vote.pid };
       if (studentVote.evid === db.events[eventIndex].evid && vote.enid === db.entities[entityIndex].enid) {
-        expect(res.votesOfEntity).to.deep.include(doc);
+        expect(res).to.deep.include(doc);
       } else {
-        expect(res.votesOfEntity).not.to.deep.include(doc);
+        expect(res).not.to.deep.include(doc);
       }
     }
   }
@@ -100,7 +100,7 @@ async function testVotesOfEntity(entityIndex = 0, eventIndex = 0) {
 async function testVotesOfProject(projectIndex = 0, eventIndex = 0) {
   const res = await api.votes.getOfProject(db.projects[projectIndex].pid, db.events[eventIndex].evid).exec();
 
-  expect(res.votesOfProject).to.be.a('array');
+  expect(res).to.be.a('array');
 
   let voted;
   for (const studentVote of db.votes) {
@@ -109,9 +109,9 @@ async function testVotesOfProject(projectIndex = 0, eventIndex = 0) {
     ).length === 1;
 
     if (voted) {
-      expect(res.votesOfProject).to.deep.include(studentVote.uid);
+      expect(res).to.deep.include(studentVote.uid);
     } else {
-      expect(res.votesOfProject).not.to.deep.include(studentVote.uid);
+      expect(res).not.to.deep.include(studentVote.uid);
     }
   }
 }

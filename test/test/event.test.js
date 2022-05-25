@@ -28,7 +28,7 @@ const checkPremissions = () => {
 const testQuery = () => {
   it('query event should get a specific event', async () => {
     const res = await api.event.get(db.events[0].evid).exec();
-    expect(res.event).to.deep.equal(db.events[0]);
+    expect(res).to.deep.equal(db.events[0]);
   });
 };
 
@@ -47,22 +47,22 @@ describe('Event', () => {
     it('query events(all:false) should get all enabled events', async () => {
       const res = await api.event.getAll().exec();
 
-      expect(res.events).to.be.a('array');
+      expect(res).to.be.a('array');
       for (const i in db.events) {
         const event = db.events[i];
         if (event.enabled) {
-          expect(res.events, `Should include event of index ${i}`).to.deep.include(event);
+          expect(res, `Should include event of index ${i}`).to.deep.include(event);
         } else {
-          expect(res.events, `Should not include event of index ${i}`).not.to.deep.include(event);
+          expect(res, `Should not include event of index ${i}`).not.to.deep.include(event);
         }
       }
     });
 
     it('query events(all:true) should get all events', async () => {
       const res = await api.event.getAll(true).exec();
-      expect(res.events).to.be.a('array');
+      expect(res).to.be.a('array');
       for (const i in db.events) {
-        expect(res.events, `Should include event of index ${i}`).to.deep.include(db.events[i]);
+        expect(res, `Should include event of index ${i}`).to.deep.include(db.events[i]);
       }
     });
 
@@ -71,8 +71,8 @@ describe('Event', () => {
       delete event.evid;
 
       const res = await api.event.create(event).exec();
-      expect(res.event.create.evid).to.exist;
-      expect(res.event.create).to.deep.equal({ ...event, evid: res.event.create.evid });
+      expect(res.evid).to.exist;
+      expect(res).to.deep.equal({ ...event, evid: res.evid });
     });
 
     it('mutation event.create should check if the entities exist', async () => {
@@ -89,7 +89,7 @@ describe('Event', () => {
       }
 
       const res = await api.event.update(eventUpdate).exec();
-      expect(res.event.update).to.deep.equal(eventUpdate);
+      expect(res).to.deep.equal(eventUpdate);
     });
 
     it('mutation event.update should check if the entities exist', async () => {
@@ -103,16 +103,16 @@ describe('Event', () => {
 
     it('mutation event.delete should delete the event', async () => {
       const res = await api.event.delete(db.events[0].evid).exec();
-      expect(res.event.delete).to.deep.equal(db.events[0]);
+      expect(res).to.deep.equal(db.events[0]);
 
 
       const query = await api.event.get(db.events[0].evid).exec();
-      expect(query.event).to.be.null;
+      expect(query).to.be.null;
     });
 
     it('mutation event.entity.add should add the entity', async () => {
       const res = await api.event.entity.add(db.events[0].evid, db.entities[0].enid).exec();
-      expect(res.event.entity.add.entities).to.include(db.entities[0].enid);
+      expect(res.entities).to.include(db.entities[0].enid);
     });
 
     it('mutation event.entity.add should check if entity exists', async () => {
@@ -121,7 +121,7 @@ describe('Event', () => {
 
     it('mutation event.entity.del should del the entity', async () => {
       const res = await api.event.entity.del(db.events[0].evid, db.events[0].entities[0]).exec();
-      expect(res.event.entity.del.entities).not.to.include(db.events[0].entities[0]);
+      expect(res.entities).not.to.include(db.events[0].entities[0]);
     });
   });
 
@@ -133,11 +133,11 @@ describe('Event', () => {
     it('query events should return a list of events the company is participating in', async () => {
       const res = await api.event.getAll().exec();
 
-      expect(res.events).to.be.a('array');
-      expect(res.events).to.deep.include(db.events[0]);
-      expect(res.events).not.to.deep.include(db.events[1]);
-      expect(res.events).not.to.deep.include(db.events[2]);
-      expect(res.events).not.to.deep.include(db.events[3]);
+      expect(res).to.be.a('array');
+      expect(res).to.deep.include(db.events[0]);
+      expect(res).not.to.deep.include(db.events[1]);
+      expect(res).not.to.deep.include(db.events[2]);
+      expect(res).not.to.deep.include(db.events[3]);
     });
 
     checkPremissions();

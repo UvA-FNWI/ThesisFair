@@ -14,15 +14,15 @@ const project_import = {
 const testQuery = () => {
   it('query project should get a project', async () => {
     const res = await api.project.get(db.projects[0].pid).exec();
-    expect(res.project).to.deep.equal(db.projects[0]);
+    expect(res).to.deep.equal(db.projects[0]);
   });
 
   it('query projects should get the correct projects', async () => {
     const res = await api.project.getMultiple([db.projects[1].pid, db.projects[0].pid]).exec();
 
-    expect(res.projects).to.deep.include(db.projects[0]);
-    expect(res.projects).to.deep.include(db.projects[1]);
-    expect(res.projects).to.not.deep.include(db.projects[2]);
+    expect(res).to.deep.include(db.projects[0]);
+    expect(res).to.deep.include(db.projects[1]);
+    expect(res).to.not.deep.include(db.projects[2]);
   });
 
   it('query projectsOfEntity should get the correct projects', async () => {
@@ -30,9 +30,9 @@ const testQuery = () => {
 
     for (const project of db.projects) {
       if (db.projects[0].enid === project.enid) {
-        expect(res.projectsOfEntity).to.deep.include(project);
+        expect(res).to.deep.include(project);
       } else {
-        expect(res.projectsOfEntity).not.to.deep.include(project);
+        expect(res).not.to.deep.include(project);
       }
     }
   });
@@ -42,9 +42,9 @@ const testQuery = () => {
 
     for (const project of db.projects) {
       if (db.events[0].evid === project.evid) {
-        expect(res.projectsOfEvent).to.deep.include(project);
+        expect(res).to.deep.include(project);
       } else {
-        expect(res.projectsOfEvent).not.to.deep.include(project);
+        expect(res).not.to.deep.include(project);
       }
     }
   });
@@ -93,8 +93,8 @@ describe('project', () => {
       delete project.pid;
 
       const res = await api.project.create(project).exec();
-      expect(res.project.create.pid).to.exist;
-      expect(res.project.create).to.deep.equal({...project, pid: res.project.create.pid});
+      expect(res.pid).to.exist;
+      expect(res).to.deep.equal({...project, pid: res.pid});
     });
 
     it('mutation project.create should properly check if event exists', async () => {
@@ -114,7 +114,7 @@ describe('project', () => {
     it('mutation project.update should update the project', async () => {
       const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid };
       const res = await api.project.update(updatedEntity).exec()
-      expect(res.project.update).to.deep.equal(updatedEntity);
+      expect(res).to.deep.equal(updatedEntity);
     });
 
     it('mutation project.update should properly check if the event exists', async () => {
@@ -128,22 +128,21 @@ describe('project', () => {
 
     it('mutation project.delete should delete the project', async () => {
       const res = await api.project.delete(db.projects[0].pid).exec();
-      expect(res.project.delete).to.deep.equal(db.projects[0]);
-
+      expect(res).to.deep.equal(db.projects[0]);
 
       const query = await api.project.get(db.projects[0].pid).exec();
-      expect(query.project).to.be.null;
+      expect(query).to.be.null;
     });
 
     it('mutation project.deleteOfEntity should delete all entities projects', async () => {
       await api.project.deleteOfEntity(db.entities[0].enid).exec();
 
       let query = await api.project.get(db.projects[0].pid).exec();
-      expect(query.project).to.be.null;
+      expect(query).to.be.null;
       query = await api.project.get(db.projects[1].pid).exec();
-      expect(query.project).to.be.null;
+      expect(query).to.be.null;
       query = await api.project.get(db.projects[2].pid).exec();
-      expect(query.project).to.deep.equal(db.projects[2]);
+      expect(query).to.deep.equal(db.projects[2]);
     });
 
     describe('Representative', () => {
