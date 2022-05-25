@@ -6,6 +6,6 @@ const updateAccount = async (event, student) => {
   const { actions } = await pages.student.dashboard();
   await randSleep(0, 2);
 
-  actions.updateInfo();
+  await actions.updateInfo();
 }
 export default updateAccount;
