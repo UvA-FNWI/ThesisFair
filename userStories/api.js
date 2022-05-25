@@ -212,14 +212,22 @@ export default {
       new GraphQLBuilder({
         name: 'getUser',
         functionPath: 'user',
-        args: 'uid: $uid',
         body: bodies.User(projection),
         args: {
           uid: { value: uid, type: 'ID!' },
         },
-      }
-      )
-    ,
+      }),
+
+    getMultiple: (uids, projection) =>
+      new GraphQLBuilder({
+        name: 'getUsers',
+        functionPath: 'users',
+        body: bodies.User(projection),
+        args: {
+          uids: { value: uids, type: '[ID!]!' },
+        },
+      }),
+
 
     delete: (uid, projection) =>
       new GraphQLBuilder({

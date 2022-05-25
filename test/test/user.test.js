@@ -38,6 +38,11 @@ describe('User', () => {
       expect(res).to.deep.equal(db.users[2]);
     });
 
+    it('query users should return the correct users', async () => {
+      const res = await api.user.getMultiple(db.users.filter((user) => !user.admin).map((user) => user.uid)).exec();
+      expect(res).to.deep.equal(db.users.filter((user) => !user.admin));
+    });
+
     testRepCreate();
 
     it('mutation user.representative.create should check for double email address', async () => {
@@ -118,6 +123,21 @@ describe('User', () => {
       await fail(api.user.get(db.users[3].uid).exec);
     });
 
+    it('query users should return the correct users', async () => {
+      const res = await api.user.getMultiple([db.users[0].uid]).exec();
+      expect(res).to.deep.equal([db.users[0]]);
+    });
+
+    it('query users should check if the user shared its data', async () => {
+      expect(db.users[1].studentnumber).to.exist;
+      await fail(api.user.getMultiple([db.users[1].uid]).exec);
+    });
+
+    it('query users should check if the representative is an admin', async () => {
+      expect(db.users[3].enid).to.exist;
+      await fail(api.user.getMultiple([db.users[3].uid]).exec);
+    });
+
     it('mutation user.representative.update should not be able to update another representative', async () => {
       expect(db.users[2].enid).to.exist;
       const newRep = { ...db.users[2], email: 'new.email@email.nl' };
@@ -181,6 +201,12 @@ describe('User', () => {
       expect(db.users[4].enid).to.exist;
 
       await fail(api.user.get(db.users[4].uid).exec);
+    });
+
+    it('query users should return the correct users', async () => {
+      const res = await api.user.getMultiple([db.users[2].uid, db.users[3].uid]).exec();
+      expect(res).to.deep.include(db.users[2]);
+      expect(res).to.deep.include(db.users[3]);
     });
 
     testRepCreate();
@@ -285,6 +311,10 @@ describe('User', () => {
       expect(db.users[3].enid).to.exist;
 
       await fail(api.user.representative.update(db.users[3]).exec);
+    });
+
+    it('query users should fail', async () => {
+      await fail(api.user.getMultiple([db.users[0].uid, db.users[1].uid]).exec);
     });
   });
 });

@@ -1,16 +1,16 @@
 interface UserBase {
   uid: ID!
-  firstname: String!
-  lastname: String!
-  email: String
+  firstname: String
+  lastname: String
+  email: String!
   phone: String
 }
 
 type Student implements UserBase {
   uid: ID!
-  firstname: String!
-  lastname: String!
-  email: String
+  firstname: String
+  lastname: String
+  email: String!
   phone: String
 
   studentnumber: String!
@@ -21,13 +21,21 @@ type Student implements UserBase {
 
 type Representative implements UserBase {
   uid: ID!
-  firstname: String!
-  lastname: String!
-  email: String
+  firstname: String
+  lastname: String
+  email: String!
   phone: String
 
   enid: ID!
   repAdmin: Boolean!
 }
 
-union User = Student | Representative
+type Admin implements UserBase {
+  uid: ID!
+  firstname: String
+  lastname: String
+  email: String!
+  phone: String
+}
+
+union User = Student | Representative | Admin

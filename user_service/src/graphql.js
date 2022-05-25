@@ -34,10 +34,9 @@ schemaComposer.types.get('User').setResolveType((value) => {
     return 'Student';
   } else if (value instanceof Representative) {
     return 'Representative';
+  } else {
+    return 'Admin';
   }
-
-  console.error('Could not resolve: ', value);
-  throw new Error('Could not resolve user type');
 })
 
 schemaComposer.Query.addNestedFields({
@@ -60,6 +59,27 @@ schemaComposer.Query.addNestedFields({
       }
 
       return user;
+    },
+  },
+  users: {
+    type: '[User]',
+    args: {
+      uids: '[ID!]!',
+    },
+    resolve: async (obj, args, req) => {
+      const users = await User.find({ _id: { $in: args.uids } });
+
+      if (req.user.type !== 'a') {
+        for (const user of users) {
+          if (!(
+            (user instanceof Student && req.user.type === 'r' && user.share.includes(req.user.enid)) ||
+            (user instanceof Representative && req.user.type === 'r' && req.user.repAdmin === true && req.user.enid == user.enid))) {
+              throw new Error('UNAUTHORIZED to get ' + (user instanceof Student ? 'student' : 'representative') + ' with uid ' + user.uid);
+          }
+        }
+      }
+
+      return users;
     },
   },
   'apiToken': {
