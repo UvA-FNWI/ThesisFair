@@ -191,25 +191,33 @@ const genProvisionerConfig = ({ events: eventCount, admins: adminCount, students
   },
 });
 
-export const config = {
-  events: 2,
-  admins: 2,
-  students: 500,
-  studentVotes: 5, // <= entities * projects
-
-  entities: 40,
-  adminRepresentatives: 2,
-  representatives: 8,
-  projects: 15,
-};
-const provisioner = new MongoDBProvisioner(genProvisionerConfig(config));
-
-export const init = provisioner.init;
-const main = provisioner.provision;
-export default main;
-export const disconnect = provisioner.disconnect;
+/**
+ * @param {Object} config Config object
+ * @param {Number} config.events The amount of events
+ * @param {Number} config.admins The amount of admins per event
+ * @param {Number} config.students The amount of students per event
+ * @param {Number} config.studentVotes The amount of votes for projects per student. Should be smaller or equal to entities * projects
+ * @param {Number} config.entities The amount of entities per event
+ * @param {Number} config.adminRepresentatives The amount of admin representatives per entity
+ * @param {Number} config.representatives The amount of representatives per entity
+ * @param {Number} config.projects The amount of projects per entity
+ */
+export default (config) => new MongoDBProvisioner(genProvisionerConfig(config));
 
 if (process.argv.length === 3 && process.argv[2] === 'run') {
-  console.log('Initializing database from cli');
-  init().then(main).then(disconnect);
+  const config = {
+    events: 2,
+    admins: 2,
+    students: 500,
+    studentVotes: 5, // <= entities * projects
+
+    entities: 40,
+    adminRepresentatives: 2,
+    representatives: 8,
+    projects: 15,
+  };
+  const provisioner = new MongoDBProvisioner(genProvisionerConfig(config));
+
+  console.log('Initializing database from cli with sample config');
+  provisioner.init().then(provisioner.main).then(provisioner.disconnect);
 }
