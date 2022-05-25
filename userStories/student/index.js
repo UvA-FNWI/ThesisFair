@@ -9,7 +9,10 @@ const simulate = async (event, student) => {
   let fn;
   while (true) {
     fn = stories[Math.floor(Math.random() * stories.length)];
-    await fn(event, student);
+    await fn(event, student).catch((err) => {
+      console.error(fn.name, 'Threw error: ', err);
+      process.exit(1);
+    });
     console.log(`sub,student,ran,${event}-${student},${fn.name}`);
   }
 };
