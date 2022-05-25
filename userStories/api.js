@@ -138,8 +138,8 @@ const genBody = (possibleFields, projection) => {
 
   if (fields.length) {
     whitelist = !!projection[fields[0]];
-    for (const val of projection) {
-      if ((val && !whitelist) || (!val && whitelist)) {
+    for (const val in projection) {
+      if ((projection[val] && !whitelist) || (!projection[val] && whitelist)) {
         throw new Error('Mixing white and blacklist techniques');
       }
     }
