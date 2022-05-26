@@ -1,4 +1,3 @@
-import createError from 'http-errors';
 import jwt from 'jsonwebtoken';
 
 export default (req, res, next) => {
@@ -10,7 +9,7 @@ export default (req, res, next) => {
 
   let token = req.headers.authorization;
   if (!token) {
-    next(createError(401));
+    next({ status: 401, message: 'Unauthorized' });
     return;
   }
 
