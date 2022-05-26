@@ -24,7 +24,7 @@ const init = async (events, admins, students, studentVotes, entities, adminRepre
 
   console.log('DB initialization done');
   console.log('\nTo test with all users execute the following command:');
-  console.log(`node cli.js run ${events} ${admins} ${students} ${entities} ${adminRepresentatives} ${representatives}`);
+  console.log(`node mainCli.js run ${events} ${admins} ${students} ${entities} ${adminRepresentatives} ${representatives}`);
 };
 
 const subprocesses = [];
@@ -36,12 +36,12 @@ const exec = (type, ...options) => {
 
   proc.on('exit', (code) => {
     if (code !== 0) {
-      console.error(type, ...options, 'crashed');
+      console.error('[!]', type, ...options, 'crashed');
       console.error(proc.stderr.read().toString());
       return;
     }
 
-    console.log(['master', 'procDone', type, ...options].join(','));
+    console.log(['mainCli', 'procDone', type, ...options].join(','));
   });
   subprocesses.push(proc);
 }
