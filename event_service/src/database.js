@@ -2,17 +2,7 @@ import mongoose from 'mongoose';
 import debugLib from 'debug';
 
 const debug = debugLib('event_service:database');
-
-export const connect = async (uri) => {
-  const conStr = uri || process.env.mongodbConStr || 'mongodb://localhost/event_service';
-  const conn = await mongoose.connect(conStr);
-  debug(`Connected to database: ${conStr}`);
-  return conn;
-}
-
-export const disconnect = async () => {
-  await mongoose.connection.close();
-}
+let conn;
 
 const eventSchema = new mongoose.Schema({
   enabled: Boolean,
@@ -25,4 +15,17 @@ const eventSchema = new mongoose.Schema({
 });
 eventSchema.virtual('evid').get(function () { return this._id; }); // Create _id alias
 
-export const Event = mongoose.model('Event', eventSchema);
+export let Event;
+
+export const connect = async (uri) => {
+  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/event_service';
+  conn = mongoose.createConnection(conStr);
+  debug(`Connected to database: ${conStr}`);
+
+  Event = conn.model('Event', eventSchema);
+  return conn;
+}
+
+export const disconnect = async () => {
+  await conn.close();
+}

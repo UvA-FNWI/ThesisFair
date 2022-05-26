@@ -2,17 +2,7 @@ import mongoose from 'mongoose';
 import debugLib from 'debug';
 
 const debug = debugLib('vote_service:database');
-
-export const connect = async (uri) => {
-  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/vote_service';
-  const conn = await mongoose.connect(conStr);
-  debug(`Connected to database: ${conStr}`);
-  return conn;
-}
-
-export const disconnect = async () => {
-  await mongoose.connection.close();
-}
+let conn;
 
 const voteSchema = new mongoose.Schema({
   uid: mongoose.Schema.ObjectId,
@@ -25,5 +15,17 @@ const voteSchema = new mongoose.Schema({
 voteSchema.virtual('vid').get(function () { return this._id; }); // Create _id alias
 voteSchema.index({ uid: 1, evid: 1 }, { unique: true });
 voteSchema.index({ uid: 1, evid: 1, 'votes.pid': 1 }, { unique: true });
+export let Vote;
 
-export const Vote = mongoose.model('Vote', voteSchema);
+export const connect = async (uri) => {
+  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/vote_service';
+  conn = mongoose.createConnection(conStr);
+  debug(`Connected to database: ${conStr}`);
+
+  Vote =  conn.model('Vote', voteSchema);
+  return conn;
+}
+
+export const disconnect = async () => {
+  await conn.close();
+}

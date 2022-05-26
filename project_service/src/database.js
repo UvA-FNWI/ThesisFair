@@ -2,17 +2,7 @@ import mongoose from 'mongoose';
 import debugLib from 'debug';
 
 const debug = debugLib('project_service:database');
-
-export const connect = async (uri) => {
-  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/project_service';
-  const conn = await mongoose.connect(conStr);
-  debug(`Connected to database: ${conStr}`);
-  return conn;
-}
-
-export const disconnect = async () => {
-  await mongoose.connection.close();
-}
+let conn;
 
 const projectSchema = new mongoose.Schema({
   enid: mongoose.Schema.ObjectId,
@@ -23,4 +13,17 @@ const projectSchema = new mongoose.Schema({
 });
 projectSchema.virtual('pid').get(function () { return this._id; }); // Create _id alias
 
-export const Project = mongoose.model('Project', projectSchema);
+export let Project;
+
+export const connect = async (uri) => {
+  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/project_service';
+  conn = mongoose.createConnection(conStr);
+  debug(`Connected to database: ${conStr}`);
+
+  Project = conn.model('Project', projectSchema);
+  return conn;
+}
+
+export const disconnect = async () => {
+  await conn.close();
+}

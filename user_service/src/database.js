@@ -2,17 +2,7 @@ import mongoose from 'mongoose';
 import debugLib from 'debug';
 
 const debug = debugLib('user_service:database');
-
-export const connect = async (uri) => {
-  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/user_service';
-  const conn = await mongoose.connect(conStr);
-  debug(`Connected to database: ${conStr}`);
-  return conn;
-}
-
-export const disconnect = async () => {
-  await mongoose.connection.close();
-}
+let conn;
 
 const userSchema = new mongoose.Schema({
   firstname: String,
@@ -23,16 +13,32 @@ const userSchema = new mongoose.Schema({
   password: String,
 });
 userSchema.virtual('uid').get(function () { return this._id; }); // Create _id alias
-export const User = mongoose.model('User', userSchema);
+export let User;
+export let Student;
+export let Representative;
 
-export const Student = User.discriminator('Student', new mongoose.Schema({
-  studentnumber: { type: String, required: true, unique: true },
-  websites: [String],
-  studies: [String],
-  share: [mongoose.Schema.Types.ObjectId],
-}));
 
-export const Representative = User.discriminator('Representative', new mongoose.Schema({
-  enid: { type: mongoose.Schema.ObjectId, required: true },
-  repAdmin: Boolean,
-}));
+export const connect = async (uri) => {
+  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/user_service';
+  conn = mongoose.createConnection(conStr);
+  debug(`Connected to database: ${conStr}`);
+
+  User = conn.model('User', userSchema);
+
+  Student = User.discriminator('Student', new mongoose.Schema({
+    studentnumber: { type: String, required: true, unique: true },
+    websites: [String],
+    studies: [String],
+    share: [mongoose.Schema.Types.ObjectId],
+  }));
+
+  Representative = User.discriminator('Representative', new mongoose.Schema({
+    enid: { type: mongoose.Schema.ObjectId, required: true },
+    repAdmin: Boolean,
+  }));
+  return conn;
+}
+
+export const disconnect = async () => {
+  await conn.close();
+}
