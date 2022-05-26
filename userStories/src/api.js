@@ -53,7 +53,6 @@ const login = async (email, password) => {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        Authorization: `Bearer ${JSON.stringify(apiToken)}`
       },
     }
   );
