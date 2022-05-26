@@ -90,6 +90,10 @@ const graphql = async (functionPath, query, variables) => {
       }
     );
   } catch (error) {
+    if (error.response.status === 401) {
+      throw new Error('APItoken is invalid');
+    }
+
     throw error.response.data;
   }
 
