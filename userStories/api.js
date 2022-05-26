@@ -320,7 +320,7 @@ export default {
             uid: { value: student.uid, type: 'ID!' },
             firstname: { value: student.firstname, type: 'String' },
             lastname: { value: student.lastname, type: 'String' },
-            email: { value: student.email, type: 'String!' },
+            email: { value: student.email, type: 'String' },
             phone: { value: student.phone, type: 'String' },
             websites: { value: student.websites, type: '[String!]' },
           },
