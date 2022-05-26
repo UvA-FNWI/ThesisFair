@@ -6,11 +6,13 @@ spec:
   selector:
     matchLabels:
       service: api-gateway
-  replicas: 2
+      dependency: main
+  # replicas: 2
   template:
     metadata:
       labels:
         service: api-gateway
+        dependency: main
     spec:
       containers:
       - name: api-gateway
@@ -20,8 +22,31 @@ spec:
         env:
           - name: amqpConStr
             value: amqp://guest:guest@rabbitmq
-          - name: DEBUG
-            value: API_gateway:*
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 128Mi
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-gateway
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
 
 ---
 
@@ -31,6 +56,7 @@ metadata:
   name: service-api-gateway
   labels:
     service: api-gateway
+    dependency: main
 spec:
   type: NodePort
   ports:
@@ -40,3 +66,4 @@ spec:
     protocol: TCP
   selector:
     service: api-gateway
+    dependency: main
