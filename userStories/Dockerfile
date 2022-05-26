@@ -9,6 +9,7 @@ WORKDIR /app
 COPY ./package*.json ./
 RUN npm ci
 
-COPY . .
+COPY ./src ./src
+RUN  find ./src -type f -exec sed -i -E 's/(\.\.\/)*libraries/@amicopo/g' {} +
 
 ENTRYPOINT node ./command/mainCli.js init $events $admins $students $studentVotes $entities $adminRepresentatives $representatives $projects
