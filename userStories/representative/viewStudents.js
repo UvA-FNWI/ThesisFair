@@ -7,7 +7,7 @@ const viewStudents = async (event, entity, representative) => {
   await randSleep(0.5, 2);
 
   for (const project of projects) {
-    const { students } = await actions.getVotedUsers(project.pid);
+    await actions.getVotedUsers(project.pid);
     await randSleep(0.5, 2);
   }
 }
