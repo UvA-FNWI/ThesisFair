@@ -8,7 +8,7 @@ const simulate = async (stories, args) => {
       console.error(fn.name, 'Threw error: ', err);
       process.exit(1);
     });
-    console.log(`subCli,student,ran,${fn.name},${args.join('-')}`);
+    console.log(`${Date.now()},subCli,student,ran,${fn.name},${args.join('-')}`);
   }
 };
 
