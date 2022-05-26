@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { enableTrace, clearTrace, getTrace } from './api.js';
+import { enableTrace, clearTrace, getTrace } from '../api.js';
 
 const simulate = async (name, stories, args) => {
   let fn;

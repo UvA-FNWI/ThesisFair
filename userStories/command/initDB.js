@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-import { MongoDBProvisioner } from '../libraries/mongoDBProvisioner/index.js';
+import { MongoDBProvisioner } from '../../libraries/mongoDBProvisioner/index.js';
 
 const saltRounds = 10;
 const hashCache = {};

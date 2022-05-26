@@ -1,4 +1,4 @@
-import api, { apiTokenData } from './api.js';
+import api, { apiTokenData } from '../api.js';
 
 export const sleep = (s) => new Promise((resolve) => setTimeout(resolve, s * 1000));
 export const randSleep = (min, max) => sleep(min + (Math.random() * max - min));

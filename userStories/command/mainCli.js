@@ -28,7 +28,7 @@ const init = async (events, admins, students, studentVotes, entities, adminRepre
 
 const subprocesses = [];
 const exec = (type, ...options) => {
-  const proc = child_process.spawn('node', [`${type}/index.js`, 'simulate', ...options]);
+  const proc = child_process.spawn('node', [`../subordinate/${type}/index.js`, 'simulate', ...options]);
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
 
