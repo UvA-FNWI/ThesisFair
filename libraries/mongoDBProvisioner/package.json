@@ -1,5 +1,5 @@
 {
-  "name": "mongodbprovisioner",
+  "name": "@amicopo/mongodbprovisioner",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
