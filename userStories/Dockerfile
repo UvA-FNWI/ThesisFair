@@ -11,5 +11,6 @@ RUN npm ci
 
 COPY ./src ./src
 RUN  find ./src -type f -exec sed -i -E 's/(\.\.\/)*libraries/@amicopo/g' {} +
+RUN sed -i -E "s/(..\/)+(.+)\/src\/database.js/..\/dbs\/\2.js/g" ./src/command/initDB.js
 
-ENTRYPOINT node ./command/mainCli.js init $events $admins $students $studentVotes $entities $adminRepresentatives $representatives $projects
+ENTRYPOINT node ./src/command/mainCli.js init $events $admins $students $studentVotes $entities $adminRepresentatives $representatives $projects

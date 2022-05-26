@@ -10,8 +10,10 @@
   "author": "Quinten Coltof",
   "license": "ISC",
   "dependencies": {
+    "@amicopo/mongodbprovisioner": "^1.0.1",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
-    "commander": "^9.2.0"
+    "commander": "^9.2.0",
+    "mongoose": "^6.3.4"
   }
 }
