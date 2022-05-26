@@ -27,9 +27,8 @@ const init = async (events, admins, students, studentVotes, entities, adminRepre
 };
 
 const subprocesses = [];
-const abortController = new AbortController();
 const exec = (type, ...options) => {
-  const proc = child_process.spawn('node', [`${type}/index.js`, 'simulate', ...options], { signal: abortController.signal });
+  const proc = child_process.spawn('node', [`${type}/index.js`, 'simulate', ...options]);
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
 
@@ -46,6 +45,9 @@ const exec = (type, ...options) => {
 }
 
 const run = async (events, admins, students, entities, adminRepresentatives, representatives, servers, serverIndex) => {
+  process.stdout.setMaxListeners(1000);
+  process.stderr.setMaxListeners(1000);
+
   const eventsChunk = events / servers;
   const adminsChunk = admins / servers;
   const studentsChunk = students / servers;
