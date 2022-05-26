@@ -27,8 +27,8 @@ const init = async (events, admins, students, studentVotes, entities, adminRepre
 };
 
 const subprocesses = [];
-const exec = (type, ...options) => {
-  const proc = child_process.spawn('node', [`../subordinate/${type}/index.js`, 'simulate', ...options]);
+const exec = (type, url, ...options) => {
+  const proc = child_process.spawn('node', [`../subordinate/${type}/index.js`, 'simulate', ...options, '--url', url]);
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
 
@@ -43,7 +43,7 @@ const exec = (type, ...options) => {
   subprocesses.push(proc);
 }
 
-const run = async (events, admins, students, entities, adminRepresentatives, representatives, servers, serverIndex) => {
+const run = async (events, admins, students, entities, adminRepresentatives, representatives, url, servers, serverIndex) => {
   process.stdout.setMaxListeners(1000);
   process.stderr.setMaxListeners(1000);
 
@@ -60,16 +60,16 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
     }
 
     for (let student = studentsChunk * serverIndex; student < studentsChunk * (serverIndex + 1); student++) {
-      exec('student', event, student);
+      exec('student', url, event, student);
     }
 
     for (let entity = entitiesChunk * serverIndex; entity < entitiesChunk * (serverIndex + 1); entity++) {
       for (let adminRepresentative = adminRepresentativesChunk * serverIndex; adminRepresentative < adminRepresentativesChunk * (serverIndex + 1); adminRepresentative++) {
-        exec('adminRepresentative', event, entity, adminRepresentative);
+        exec('adminRepresentative', url, event, entity, adminRepresentative);
       }
 
       for (let representative = representativesChunk * serverIndex; representative < representativesChunk * (serverIndex + 1); representative++) {
-        exec('representative', event, entity, representative);
+        exec('representative', url, event, entity, representative);
       }
     }
   }
@@ -96,6 +96,7 @@ const main = () => {
     .argument('<entities>', 'The amount of entities per event', parseInt)
     .argument('<adminRepresentatives>', 'The amount of admin representatives per entity', parseInt)
     .argument('<representatives>', 'The amount of representatives per entity', parseInt)
+    .argument('[url]', 'The url of the webserver to run against', 'http://localhost:3000/')
     .argument('[servers]', 'The amount of servers the workload is split over', (v) => parseInt(v), 1)
     .argument('[serverIndex]', 'The index of this server', (v) => parseInt(v), 0)
     .action(run);

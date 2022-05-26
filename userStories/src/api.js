@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const url = typeof window !== 'undefined' ? '/' : 'http://127.0.0.1:3000/';
+let url = typeof window !== 'undefined' ? '/' : 'http://localhost:3000/';
+export const setUrl = (newUrl) => { url = newUrl; }
 let trace = [];
 let tracing = false;
 

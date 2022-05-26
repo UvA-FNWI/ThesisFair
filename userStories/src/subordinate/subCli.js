@@ -1,7 +1,11 @@
 import { Command } from 'commander';
-import { enableTrace, clearTrace, getTrace } from '../api.js';
+import { setUrl, enableTrace, clearTrace, getTrace } from '../api.js';
 
 const simulate = async (name, stories, args) => {
+  const [_, program] = args.splice(args.length - 2, 2);
+  const { url } = program.optsWithGlobals();
+  setUrl(url);
+
   let fn;
   enableTrace();
   while (true) {
@@ -27,7 +31,8 @@ const simulate = async (name, stories, args) => {
 
 export default (name, args, stories) => {
   const program = new Command();
-  const simulateCmd = program.command('simulate').action((...args) => simulate(name, stories, args.slice(0, -2)).catch(console.log))
+  program.option('--url <url>', 'The url of the webserver to run against', 'http://localhost:3000/');
+  const simulateCmd = program.command('simulate').action((...args) => simulate(name, stories, args).catch(console.log))
   for (const arg of args) {
     simulateCmd.argument(`<${arg}>`, '', parseInt);
   }
