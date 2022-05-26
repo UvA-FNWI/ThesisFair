@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-import { MongoDBProvisioner } from '../../libraries/mongodbprovisioner/index.js';
+import { MongoDBProvisioner } from '../../../libraries/mongodbprovisioner/index.js';
 
 const saltRounds = 10;
 const hashCache = {};
@@ -28,7 +28,7 @@ const sample = (options, amount) => {
 const genProvisionerConfig = ({ events: eventCount, admins: adminCount, students: studentCount, studentVotes: studentVoteCount, entities: entityCount, adminRepresentatives: adminRepCount, representatives: repCount, projects: projectCount }) => ({
   entities: {
     uri: process.env.mongodbConStrEntity || 'mongodb://localhost:27017/entity_service',
-    library: '../../entity_service/src/database.js',
+    library: import('../../../entity_service/src/database.js'),
     object: 'Entity',
     get: (db) => {
       const entities = [];
@@ -49,7 +49,7 @@ const genProvisionerConfig = ({ events: eventCount, admins: adminCount, students
   },
   events: {
     uri: process.env.mongodbConStrEvent || 'mongodb://localhost:27017/event_service',
-    library: '../../event_service/src/database.js',
+    library: import('../../../event_service/src/database.js'),
     object: 'Event',
     get: (db) => {
       const events = [];
@@ -70,7 +70,7 @@ const genProvisionerConfig = ({ events: eventCount, admins: adminCount, students
   },
   projects: {
     uri: process.env.mongodbConStrProject || 'mongodb://localhost:27017/project_service',
-    library: '../../project_service/src/database.js',
+    library: import('../../../project_service/src/database.js'),
     object: 'Project',
     get: (db) => {
       const projects = [];
@@ -95,7 +95,7 @@ const genProvisionerConfig = ({ events: eventCount, admins: adminCount, students
   },
   users: {
     uri: process.env.mongodbConStrUser || 'mongodb://localhost:27017/user_service',
-    library: '../../user_service/src/database.js',
+    library: import('../../../user_service/src/database.js'),
     object: 'User',
     objects: ['User', 'Student', 'Representative'],
     hide: ['password'],
@@ -164,7 +164,7 @@ const genProvisionerConfig = ({ events: eventCount, admins: adminCount, students
   },
   votes: {
     uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/vote_service',
-    library: '../../vote_service/src/database.js',
+    library: import('../../../vote_service/src/database.js'),
     object: 'Vote',
     get: async (db, models) => {
       const votes = [];

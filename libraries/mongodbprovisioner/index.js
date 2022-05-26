@@ -60,7 +60,7 @@ export class MongoDBProvisioner {
   importLibraries = async () => {
     let promises = [];
     for (const name in this.configs) {
-      promises.push(import(this.configs[name].library));
+      promises.push(this.configs[name].library);
     }
     promises = await Promise.all(promises);
 

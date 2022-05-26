@@ -15,7 +15,7 @@ const hash = async (password) => {
 const configs = {
   entities: {
     uri: process.env.mongodbConStrEntity || 'mongodb://localhost:27017/entity_service',
-    library: '../../entity_service/src/database.js',
+    library: import('../../entity_service/src/database.js'),
     object: 'Entity',
     get: (db) => [
       {
@@ -36,7 +36,7 @@ const configs = {
   },
   events: {
     uri: process.env.mongodbConStrEvent || 'mongodb://localhost:27017/event_service',
-    library: '../../event_service/src/database.js',
+    library: import('../../event_service/src/database.js'),
     object: 'Event',
     get: (db) => [
       {
@@ -79,7 +79,7 @@ const configs = {
   },
   projects: {
     uri: process.env.mongodbConStrProject || 'mongodb://localhost:27017/project_service',
-    library: '../../project_service/src/database.js',
+    library: import('../../project_service/src/database.js'),
     object: 'Project',
     get: (db) => [
       {
@@ -107,7 +107,7 @@ const configs = {
   },
   users: {
     uri: process.env.mongodbConStrUser || 'mongodb://localhost:27017/user_service',
-    library: '../../user_service/src/database.js',
+    library: import('../../user_service/src/database.js'),
     object: 'User',
     objects: ['User', 'Student', 'Representative'],
     hide: ['password'],
@@ -174,7 +174,7 @@ const configs = {
   },
   votes: {
     uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/vote_service',
-    library: '../../vote_service/src/database.js',
+    library: import('../../vote_service/src/database.js'),
     object: 'Vote',
     get: (db) => [
       {
