@@ -2,7 +2,6 @@ import child_process from 'child_process';
 import { Command } from 'commander';
 
 import dbProvisioner from './initDB.js';
-import { randSleep } from './lib.js';
 
 const init = async (events, admins, students, studentVotes, entities, adminRepresentatives, representatives, projects) => {
   console.log('Initializing database...');
@@ -61,17 +60,15 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
 
     for (let student = studentsChunk * serverIndex; student < studentsChunk * (serverIndex + 1); student++) {
       exec('student', event, student);
-      await randSleep(0.01, 0.5);
     }
 
     for (let entity = entitiesChunk * serverIndex; entity < entitiesChunk * (serverIndex + 1); entity++) {
       for (let adminRepresentative = adminRepresentativesChunk * serverIndex; adminRepresentative < adminRepresentativesChunk * (serverIndex + 1); adminRepresentative++) {
-
+        exec('adminRepresentative', event, entity, adminRepresentative);
       }
 
       for (let representative = representativesChunk * serverIndex; representative < representativesChunk * (serverIndex + 1); representative++) {
         exec('representative', event, entity, representative);
-        await randSleep(0.01, 0.5);
       }
     }
   }
