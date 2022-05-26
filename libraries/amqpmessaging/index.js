@@ -29,7 +29,7 @@ export const connect = async () => {
     tries += 1;
   }
   channel = await conn.createChannel();
-  channel.prefetch(1);
+  channel.prefetch(5);
   debug('Connected to amqp');
 
   // TODO: Properly call disconnect on shutdown/crash
