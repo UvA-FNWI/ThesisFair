@@ -63,6 +63,14 @@ const login = async (email, password) => {
     throw res.data.errors;
   }
 
+  if (tracing) {
+    trace.push({
+      fn: 'user.login',
+      startTime: res.config.startTime,
+      duration: res.config.duration
+    })
+  }
+
   setApiToken(res.data.data.apiToken);
   apiTokenData = unpackToken(apiToken);
 };
