@@ -14,7 +14,7 @@ const simulate = async (stories, args) => {
 
 export default (args, stories) => {
   const program = new Command();
-  const simulateCmd = program.command('simulate').action((...args) => simulate(stories, args).catch(console.log))
+  const simulateCmd = program.command('simulate').action((...args) => simulate(stories, args.slice(0, -2)).catch(console.log))
   for (const arg of args) {
     simulateCmd.argument(`<${arg}>`, '', parseInt);
   }
