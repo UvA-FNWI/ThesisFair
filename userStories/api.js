@@ -1,6 +1,29 @@
 import axios from 'axios';
 
 const url = typeof window !== 'undefined' ? '/' : 'http://127.0.0.1:3000/';
+let trace = [];
+let tracing = false;
+
+export const enableTrace = () => {
+  tracing = true;
+
+  axios.interceptors.request.use((config) => {
+    config.startTime = Date.now();
+
+    return config;
+  });
+
+  axios.interceptors.response.use((response) => {
+    response.config.duration = Date.now() - response.config.startTime;
+    return response;
+  });
+};
+
+export const clearTrace = () => {
+  trace = [];
+}
+
+export const getTrace = () => trace;
 
 const setApiToken = (token) => {
   apiToken = token;
@@ -44,10 +67,10 @@ const login = async (email, password) => {
   apiTokenData = unpackToken(apiToken);
 };
 
-const graphql = async (query, variables) => {
+const graphql = async (functionPath, query, variables) => {
   let response;
   try {
-    response = (await axios.post(
+    response = await axios.post(
       url + 'graphql',
       { query, variables },
       {
@@ -57,16 +80,25 @@ const graphql = async (query, variables) => {
           Authorization: `Bearer ${apiToken}`
         },
       }
-    )).data;
+    );
   } catch (error) {
     throw error.response.data;
   }
 
-  if (response.errors) {
-    throw response;
+  if (tracing) {
+    trace.push({
+      fn: functionPath,
+      startTime: response.config.startTime,
+      duration: response.config.duration
+    })
   }
 
-  return response.data;
+  const data = response.data;
+  if (data.errors) {
+    throw data;
+  }
+
+  return data.data;
 }
 
 class GraphQLBuilder {
@@ -130,7 +162,7 @@ class GraphQLBuilder {
   }
 
   exec = async () => {
-    let res = await graphql(this.genQuery(), this.genVariablesDict());
+    let res = await graphql(this.functionPath, this.genQuery(), this.genVariablesDict());
 
     for (const key of this.functionPath.split('.')) {
       res = res[key];
