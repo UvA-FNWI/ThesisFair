@@ -9,8 +9,8 @@ export const loginStudent = async (event, student) => {
   return events[event].evid;
 }
 
-export const loginRep = async (event, entity, representative) => {
-  await api.user.login(`representative.${event}-${entity}-${representative}@company.nl`, 'representative');
+export const loginRep = async (event, entity, representative, admin = false) => {
+  await api.user.login(`${admin ? 'adminRepresentative' : 'representative'}.${event}-${entity}-${representative}@company.nl`, admin ? 'adminRepresentative' : 'representative');
   const events = await api.event.getAll(false, { evid: 1 }).exec();
   return events[0].evid;
 }
@@ -23,13 +23,13 @@ export const pages = {
         user: await api.user.get(apiTokenData.uid).exec(),
         actions: {
           updateInfo: async () => {
-            api.user.student.update({
+            await api.user.student.update({
               uid: apiTokenData.uid,
               firstname: 'Lorem ipsum.',
               lastname: 'Lorem ipsum.',
               phone: 'Lorem ipsum.',
               websites: ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ut magna id ut.', 'Lorem ipsum dolor nam.', 'Lorem ipsum dolor sit amet massa nunc.'],
-            })
+            }).exec();
           }
         }
       }
@@ -86,12 +86,12 @@ export const pages = {
         user: await api.user.get(apiTokenData.uid).exec(),
         actions: {
           updateInfo: async () => {
-            api.user.representative.update({
+            await api.user.representative.update({
               uid: apiTokenData.uid,
               firstname: 'Lorem ipsum.',
               lastname: 'Lorem ipsum.',
               phone: 'Lorem ipsum.',
-            })
+            }).exec();
           }
         }
       }
@@ -110,5 +110,22 @@ export const pages = {
         }
       }
     }
-  }
+  },
+  repAdmin: {
+    entityDashboard: async () => {
+      return {
+        entity: await api.entity.get(apiTokenData.enid).exec(),
+        actions: {
+          updateInfo: async () => {
+            await api.entity.update({
+              enid: apiTokenData.enid,
+              name: 'Lorem ipsum.',
+              description: 'Lorem ipsum.',
+              contact: [{ type: 'website', content: 'Lorem ipsum.'}, { type: 'phone', content: '+31 000000000' }, { type: 'email', content: 'contact@company.nl' }],
+            }).exec();
+          }
+        }
+      };
+    },
+  },
 }
