@@ -6,4 +6,4 @@ import updateAccount from './updateAccount.js';
 const args = ['event', 'entity', 'representative'];
 const stories = [updateAccount, viewStudents];
 
-subCli(args, stories);
+subCli('representative', args, stories);

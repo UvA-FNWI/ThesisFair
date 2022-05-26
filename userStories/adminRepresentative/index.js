@@ -6,4 +6,4 @@ import updateEntity from './updateEntity.js';
 const args = ['event', 'entity', 'adminRepresentative'];
 const stories = [updateAccount, updateEntity];
 
-subCli(args, stories);
+subCli('adminRepresentative', args, stories);

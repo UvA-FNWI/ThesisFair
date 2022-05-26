@@ -7,4 +7,4 @@ import updateAccount from './updateAccount.js';
 const args = ['event', 'student'];
 const stories = [browseProjects, browseVotedProjects, updateAccount];
 
-subCli(args, stories);
+subCli('student', args, stories);

@@ -1,20 +1,33 @@
 import { Command } from 'commander';
+import { enableTrace, clearTrace, getTrace } from './api.js';
 
-const simulate = async (stories, args) => {
+const simulate = async (name, stories, args) => {
   let fn;
+  enableTrace();
   while (true) {
     fn = stories[Math.floor(Math.random() * stories.length)];
     await fn(...args).catch((err) => {
       console.error(fn.name, 'Threw error: ', err);
       process.exit(1);
     });
-    console.log(`${Date.now()},subCli,student,ran,${fn.name},${args.join('-')}`);
+    console.log(JSON.stringify({
+      time: Date.now(),
+      proc: 'subCli',
+      event: 'ran',
+      data: {
+        type: name,
+        fn: fn.name,
+        args: args,
+        trace: getTrace(),
+      }
+    }))
+    clearTrace();
   }
 };
 
-export default (args, stories) => {
+export default (name, args, stories) => {
   const program = new Command();
-  const simulateCmd = program.command('simulate').action((...args) => simulate(stories, args.slice(0, -2)).catch(console.log))
+  const simulateCmd = program.command('simulate').action((...args) => simulate(name, stories, args.slice(0, -2)).catch(console.log))
   for (const arg of args) {
     simulateCmd.argument(`<${arg}>`, '', parseInt);
   }
