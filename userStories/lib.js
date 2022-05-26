@@ -67,7 +67,7 @@ export const pages = {
         actions: {
           openEntity: async (enid) => {
             return {
-              projects: await api.project.getOfEntity(enid).exec(),
+              projects: await api.project.getOfEntity(evid, enid).exec(),
             };
           },
           search: async (name) => { // TODO
