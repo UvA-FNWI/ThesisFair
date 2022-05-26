@@ -24,7 +24,11 @@ update:
 	./scripts/updateContainerRepo.sh .
 
 up:
-	kubectl apply -f ./kubernetes/build
+	kubectl apply -f ./kubernetes/build/
+
+init:
+	kubectl apply -f kubernetes/dbInit.yaml
 
 down:
-	kubectl delete -f ./kubernetes/build
+	kubectl delete -f ./kubernetes/build/
+	kubectl delete -f kubernetes/dbInit.yaml
