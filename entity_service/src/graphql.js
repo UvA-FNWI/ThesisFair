@@ -58,8 +58,12 @@ schemaComposer.Mutation.addNestedFields({
       const enid = args.enid;
       delete args.enid;
 
-      if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enid === enid))) {
+      if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.repAdmin === true && req.user.enid === enid))) {
         throw new Error('UNAUTHORIZED update this entity');
+      }
+
+      if (args.type && req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED update type of entity');
       }
 
       return Entity.findByIdAndUpdate(enid, { $set: args }, { new: true });

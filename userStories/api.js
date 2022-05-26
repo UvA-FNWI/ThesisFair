@@ -384,7 +384,7 @@ export default {
           enid: { value: entity.enid, type: 'ID!' },
           name: { value: entity.name, type: 'String' },
           description: { value: entity.description, type: 'String' },
-          type: { value: entity.type, type: 'String!' },
+          type: { value: entity.type, type: 'String' },
           contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
           external_id: { value: entity.external_id, type: 'Int' },
         }

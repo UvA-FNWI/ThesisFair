@@ -30,14 +30,6 @@ const testQuery = () => {
   });
 }
 
-const testUpdate = () => {
-  it('mutation entity.update should update the entity', async () => {
-    const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
-    const res = await api.entity.update(updatedEntity).exec();
-    expect(res).to.deep.equal(updatedEntity);
-  });
-}
-
 const permissions = {
   create: () => {
     it('mutation create should hanle permissions properly', async () => {
@@ -109,7 +101,11 @@ describe('Entity', () => {
       await check(entity);
     });
 
-    testUpdate();
+    it('mutation entity.update should update the entity', async () => {
+      const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
+      const res = await api.entity.update(updatedEntity).exec();
+      expect(res).to.deep.equal(updatedEntity);
+    });
 
     it('mutation entity.delete should delete the entity, linked projects and representatives', async () => {
       const res = await api.entity.delete(db.entities[0].enid).exec();
@@ -144,15 +140,40 @@ describe('Entity', () => {
     });
   });
 
-  describe('Representative', () => {
+  describe('Admin representative', () => {
     beforeEach(async () => {
-      await api.user.login('rep', 'rep', { enid: db.entities[0].enid });
+      await api.user.login('repAdmin', 'repAdmin');
     });
 
     testQuery();
 
     permissions.create();
-    testUpdate();
+
+    it('mutation entity.update should update the entity', async () => {
+      const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid, type: db.entities[0].type };
+      const updateQuery = {...updatedEntity};
+      delete updateQuery.type;
+      const res = await api.entity.update(updateQuery).exec();
+      expect(res).to.deep.equal(updatedEntity);
+    });
+
+    it('mutation entity.update should not allow admin representatives to update entity type', async () => {
+      await fail(api.entity.update({ enid: db.entities[0].enid, type: 'research' }).exec);
+    })
+
+    permissions.delete();
+    permissions.import();
+  });
+
+  describe('Representative', () => {
+    beforeEach(async () => {
+      await api.user.login('rep', 'rep');
+    });
+
+    testQuery();
+
+    permissions.create();
+    permissions.update();
     permissions.delete();
     permissions.import();
   });
