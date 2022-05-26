@@ -35,7 +35,6 @@ const exec = (type, ...options) => {
   proc.on('exit', (code) => {
     if (code !== 0) {
       console.error('[!]', type, ...options, 'crashed');
-      console.error(proc.stderr.read().toString());
       return;
     }
 
