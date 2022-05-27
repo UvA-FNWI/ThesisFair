@@ -38,4 +38,6 @@ spec:
         - name: mongodbConStrVote
           value: mongodb://service-vote-service-mongodb/vote_service
       restartPolicy: Never
+      imagePullSecrets:
+      - name: regghcr
   backoffLimit: 1

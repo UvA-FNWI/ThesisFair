@@ -1,7 +1,5 @@
 start:
 	minikube start --driver=kvm2 --memory=6g --disk-size=50g --cpus=8
-	minikube addons enable registry-creds
-	minikube addons configure registry-creds
 	kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
 
 stop:
@@ -24,6 +22,7 @@ update:
 	./scripts/updateContainerRepo.sh .
 
 up:
+	cd kubernetes && ./build.sh
 	kubectl apply -f ./kubernetes/build/
 
 init:
