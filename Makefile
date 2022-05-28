@@ -41,3 +41,4 @@ azureCLI:
 
 dashboardToken:
 	kubectl create token admin -n kubernetes-dashboard
+# http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#
