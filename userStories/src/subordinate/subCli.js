@@ -1,15 +1,20 @@
 import { Command } from 'commander';
 import { setUrl, enableTrace, clearTrace, getTrace } from '../api.js';
+import debugLib from 'debug';
+
+const debug = debugLib('userStories:subCli')
 
 const simulate = async (name, stories, args) => {
   const [_, program] = args.splice(args.length - 2, 2);
   const { url } = program.optsWithGlobals();
   setUrl(url);
+  debug('URL: %s', url);
 
   let fn;
   enableTrace();
   while (true) {
     fn = stories[Math.floor(Math.random() * stories.length)];
+    debug('Running %s', fn.name);
     await fn(...args).catch((err) => {
       console.error(fn.name, 'Threw error: ', err);
       process.exit(1);
@@ -39,7 +44,12 @@ export default (name, args, stories) => {
 
   program.command('debug')
     .argument('<story index>', '', parseInt, 0)
-    .action((index) => stories[index](...args.map(() => 0)).catch(console.log));
+    .action((index, _, program) => {
+      const { url } = program.optsWithGlobals();
+      setUrl(url);
+
+      stories[index](...args.map(() => 0)).catch(console.log);
+     });
 
   program.parse();
 }
