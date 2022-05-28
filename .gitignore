@@ -1,3 +1,4 @@
 node_modules/
 userStories/files/*.csv
 **/build/
+results/
