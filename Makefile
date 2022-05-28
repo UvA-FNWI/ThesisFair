@@ -26,8 +26,18 @@ up:
 	kubectl apply -f ./kubernetes/build/
 
 init:
+	cd server/initKubernetes && ./build.sh
+	kubectl apply -f ./server/initKubernetes/build
+
+seed:
 	kubectl apply -f kubernetes/dbInit.yaml
 
 down:
 	kubectl delete -f ./kubernetes/build/
 	kubectl delete -f kubernetes/dbInit.yaml
+
+azureCLI:
+	docker start -ai ThesisFair_azureCLI || docker run -it --network host -v $$HOME/.kube:/root/.kube --name ThesisFair_azureCLI mcr.microsoft.com/azure-cli
+
+dashboardToken:
+	kubectl create token admin -n kubernetes-dashboard

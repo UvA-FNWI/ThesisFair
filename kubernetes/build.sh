@@ -1,5 +1,9 @@
 services=("entity_service" "event_service" "project_service" "user_service" "vote_service")
 
+if [[ -e build ]]; then
+  rm -r build
+fi
+
 mkdir -p build
 
 cp static/*.yaml build
