@@ -11,15 +11,15 @@ spec:
         imagePullPolicy: Always
         env:
         - name: events
-          value: "2"
+          value: "1"
         - name: admins
-          value: "2"
+          value: "4"
         - name: students
-          value: "100"
+          value: "500"
         - name: studentVotes
           value: "5"
         - name: entities
-          value: "50"
+          value: "40"
         - name: adminRepresentatives
           value: "2"
         - name: representatives
