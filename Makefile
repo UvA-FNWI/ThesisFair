@@ -1,5 +1,6 @@
 start:
 	minikube start --driver=kvm2 --memory=6g --disk-size=50g --cpus=8
+	minikube addons enable metrics-server
 	kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
 
 stop:
