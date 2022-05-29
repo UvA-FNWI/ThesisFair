@@ -15,6 +15,7 @@ In production each service should have their own database. In the docker-compose
 # Cluster urls
 - Dashboard http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 - Prometheus: http://localhost:8001/api/v1/namespaces/monitoring/services/prometheus-server:80/proxy/
+- Grafana: `make grafanaDashboard` then http://localhost:3000/login
 - RabbitMQ: `make rabbitmqDashboard` then http://localhost:15672/#/
 
 
@@ -48,6 +49,7 @@ kubectl edit cm prometheus-server -n monitoring -o yaml
 Add the config below to the "scrape_configs" section.
 ```
     - job_name: RabbitMQ
+      scrape_interval: 10s
       static_configs:
       - targets:
         - rabbitmq.default.svc.cluster.local:15692

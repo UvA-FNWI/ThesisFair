@@ -10,7 +10,12 @@ delete:
 	minikube delete
 
 rabbitmqDashboard:
+	xdg-open "http://localhost:3000/login"
 	kubectl port-forward "service/rabbitmq" 15672
+
+grafanaDashboard:
+	xdg-open "http://localhost:3000/login"
+	kubectl port-forward -n monitoring service/grafana 3000:3000
 
 traefikDashboard:
 	kubectl port-forward $$(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
