@@ -17,6 +17,7 @@ In production each service should have their own database. In the docker-compose
 - Prometheus: http://localhost:8001/api/v1/namespaces/monitoring/services/prometheus-server:80/proxy/
 - Grafana: `make grafanaDashboard` then http://localhost:3000/login
 - RabbitMQ: `make rabbitmqDashboard` then http://localhost:15672/#/
+- Traefik: <server ip>:32080 or <server ip>:32443 or http://localhost:8001/api/v1/namespaces/default/services/traefik:80/proxy/
 
 
 # Installation
@@ -53,6 +54,11 @@ Add the config below to the "scrape_configs" section.
       static_configs:
       - targets:
         - rabbitmq.default.svc.cluster.local:15692
+    - job_name: Traefik
+      scrape_interval: 10s
+      static_configs:
+      - targets:
+        - traefik.default.svc.cluster.local:9100
 ```
 
 ## Running the ThesisFair software

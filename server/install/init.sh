@@ -29,3 +29,6 @@ kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/d
 # Prometheus for monitoring
 kubectl create namespace monitoring
 helm install prometheus prometheus-community/prometheus --namespace monitoring
+
+# Traefik for ingress routing
+helm install traefik traefik/traefik --set service.type=NodePort --set nodePort=true --set ports.web.nodePort=32080 --set ports.websecure.nodePort=32443
