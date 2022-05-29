@@ -18,10 +18,7 @@ kubectl taint node $hostname node-role.kubernetes.io/control-plane:NoSchedule-
 kubectl taint node $hostname node-role.kubernetes.io/master:NoSchedule-
 
 # Flannel
-# mkdir -p /opt/bin/
-# wget https://github.com/flannel-io/flannel/releases/download/v0.18.0/flanneld-amd64 --output-document /opt/bin/flanneld
 kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-# kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
 
