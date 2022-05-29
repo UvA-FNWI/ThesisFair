@@ -1,12 +1,14 @@
 apiVersion: rabbitmq.com/v1beta1
 kind: RabbitmqCluster
 metadata:
-    name: rabbitmq
+  name: rabbitmq
 spec:
   replicas: 1
   rabbitmq:
-          additionalConfig: |
-                  log.console.level = info
-                  default_user = guest
-                  default_pass = guest
-                  default_user_tags.administrator = true
+    additionalPlugins:
+    - rabbitmq_prometheus
+    additionalConfig: |
+            log.console.level = info
+            default_user = guest
+            default_pass = guest
+            default_user_tags.administrator = true
