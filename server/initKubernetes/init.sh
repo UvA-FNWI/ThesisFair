@@ -17,7 +17,7 @@ fi
 
 # Traefik for ingress routing
 if [[ "$helmInstalled" == *"\ntraefik"* ]]; then
-  helm repo add traefik https://helm.traefik.io/traefik
+  helm repo add traefik https://helm.traefik.io/traefik # Source code: https://github.com/traefik/traefik-helm-chart/
   helm install traefik traefik/traefik --set service.type=NodePort --set nodePort=true --set ports.web.nodePort=32080 --set ports.websecure.nodePort=32443 --set ports.traefik.expose=true
 else
   echo "Prometheus already installed. Not re-installing"
