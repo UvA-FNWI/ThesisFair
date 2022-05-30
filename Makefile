@@ -33,8 +33,7 @@ up:
 	kubectl apply -f ./kubernetes/build/
 
 init:
-	cd server/initKubernetes && ./build.sh
-	kubectl apply -f ./server/initKubernetes/build
+	cd server/initKubernetes && ./init.sh
 
 seed:
 	kubectl apply -f kubernetes/dbInit.yaml

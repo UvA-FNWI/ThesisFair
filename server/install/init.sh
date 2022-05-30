@@ -19,16 +19,3 @@ kubectl taint node $hostname node-role.kubernetes.io/master:NoSchedule-
 
 # Flannel
 kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-
-# Dashboard
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
-
-# RabbitMQ Custom Resource Definisons
-kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
-
-# Prometheus for monitoring
-kubectl create namespace monitoring
-helm install prometheus prometheus-community/prometheus --namespace monitoring
-
-# Traefik for ingress routing
-helm install traefik traefik/traefik --set service.type=NodePort --set nodePort=true --set ports.web.nodePort=32080 --set ports.websecure.nodePort=32443 --set ports.traefik.expose=true
