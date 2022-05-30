@@ -17,7 +17,8 @@ In production each service should have their own database. In the docker-compose
 - Prometheus: http://localhost:8001/api/v1/namespaces/monitoring/services/prometheus-server:80/proxy/
 - Grafana: `make grafanaDashboard` then http://localhost:3000/login
 - RabbitMQ: `make rabbitmqDashboard` then http://localhost:15672/#/
-- Traefik: <server ip>:32080 or <server ip>:32443 or http://localhost:8001/api/v1/namespaces/default/services/traefik:80/proxy/
+- Traefik http: <server ip>:32080 or <server ip>:32443 or http://localhost:8001/api/v1/namespaces/default/services/traefik:80/proxy/
+- Traefik dashboard: `make traefikDashboard` then http://localhost:9000/dashboard/
 
 
 # Installation
