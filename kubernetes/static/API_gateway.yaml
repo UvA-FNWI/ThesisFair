@@ -71,3 +71,22 @@ spec:
   selector:
     service: api-gateway
     dependency: main
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-api-gateway
+
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name:  service-api-gateway
+                port:
+                  number: 80
