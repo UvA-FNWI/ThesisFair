@@ -7,7 +7,6 @@ spec:
     matchLabels:
       service: $serviceName
       dependency: main
-  replicas: 2
   template:
     metadata:
       labels:
@@ -24,8 +23,33 @@ spec:
             value: amqp://guest:guest@rabbitmq
           - name: jwtKey
             value: ojbbXCBUC2u2TpHmL4Y/NEnZutD8eCef1pcJ9K8OEvm5NwPJA8IB30Z129W4+gYXntiTA4434aK1SbjxR18Mut+aj6wucQfIwQIewl1Lp0xnwxFpvZ+hi0Y4cucgL5bJBWQL3yGd2JVR9S4BNwfn/oYINsvraVbfy+2caEswKc1JGKpBy0XpuTzXLc9nX7ahWvD7dGY2gwzTRPmIdJX87t0M2/WEV7jd+jP8YeO2AB6Bh9YeHXlANOwtFK/Be4NGpZNRusNLh0Smf0QcABgBCn7UyMTSsigYN21+rKz7X+lzGej7GYY8VWKco0v09KYiigi54oRAQcfkfn5mTEF2Zxrn5Lgngx4WYEuZ2399rSor1Q/TYV9mGF4Gep8PjG2jzjWA1fJrqYcgWhgUfzHSKywZ7ftDXubH2YX2BlCUIIwBxqF6yKqisdnl5Uql9VepqW9am5fXFkGZpvvZbniHWnrSw6FQnXPQvzhYjASwNTl/cXTSO52L+pxW7WVGOufa9qJ+JMSLSs0ZtnhHDTYFnygqu+07K01FCsedfkhFgdFf7ldIzzBpHEyd9I5eqFJ/UTftvwt1qSbYJqA6q+aI0RS1SPUSFWuynpW6KD2e3yHLgBCcox23TT8Fkm5rA3En8032pg642v6xHjNEARbe9pCrSCGCdJbJtgvBi94LC+U=
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 128Mi
       imagePullSecrets:
       - name: regghcr
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: $serviceName
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: $serviceName
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
 
 ---
 
