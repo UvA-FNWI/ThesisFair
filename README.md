@@ -43,23 +43,9 @@ Execute `init.sh` on the server. This can be done by doing:
 1. Run `make init`
 
 ## Configuring kubernetes
-To monitor the RabbitMQ instance the ThesisFair software will use, it needs to be added to the prometheus scrape config. To edit the prometheus configuration run:
+To improve the accuricy of the prometheus monitoring we need to lower the scrape interval. To do this, execute the following command and set the scrape interval in the global section to 10s.
 ```
 kubectl edit cm prometheus-server -n monitoring -o yaml
-```
-
-Add the config below to the "scrape_configs" section.
-```
-    - job_name: RabbitMQ
-      scrape_interval: 10s
-      static_configs:
-      - targets:
-        - rabbitmq.default.svc.cluster.local:15692
-    - job_name: Traefik
-      scrape_interval: 10s
-      static_configs:
-      - targets:
-        - traefik.default.svc.cluster.local:9100
 ```
 
 ## Running the ThesisFair software
