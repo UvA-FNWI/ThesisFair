@@ -46,4 +46,4 @@ azureCLI:
 	docker start -ai ThesisFair_azureCLI || docker run -it --network host -v $$HOME/.kube:/root/.kube --name ThesisFair_azureCLI mcr.microsoft.com/azure-cli
 
 dashboardToken:
-	kubectl create token admin -n kubernetes-dashboard
+	kubectl create token admin -n kubernetes-dashboard --duration 24h
