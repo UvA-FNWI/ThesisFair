@@ -6,6 +6,7 @@ import dbProvisioner from './initDB.js';
 
 const Result = mongoose.model('Result', new mongoose.Schema({
   run: String,
+  id: mongoose.Schema.Types.ObjectId,
   time: Date,
   proc: String,
   event: String,
@@ -37,7 +38,7 @@ const init = async (events, admins, students, studentVotes, entities, adminRepre
 };
 
 const subprocesses = [];
-const exec = (type, url, db, run, ...options) => {
+const exec = (type, url, db, run, id, ...options) => {
   const proc = child_process.spawn('node', [`../subordinate/${type}/index.js`, 'simulate', ...options, '--url', url]);
   proc.stderr.pipe(process.stderr);
 
@@ -59,6 +60,7 @@ const exec = (type, url, db, run, ...options) => {
     for (const string of strings) {
       data = JSON.parse(string);
       data.run = run;
+      data.id = id;
       Result.create(data);
     }
   });
@@ -84,8 +86,10 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
   }
   console.log('Running...');
 
+  const id = mongoose.Types.ObjectId();
   await Result.create({
     run: run,
+    id: id,
     time: Date.now(),
     proc: 'mainCli',
     event: 'runStart',
@@ -109,16 +113,16 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
     }
 
     for (let student = studentsChunk * serverIndex; student < studentsChunk * (serverIndex + 1); student++) {
-      exec('student', url, dbFlag, run, event, student);
+      exec('student', url, dbFlag, run, id, event, student);
     }
 
     for (let entity = entitiesChunk * serverIndex; entity < entitiesChunk * (serverIndex + 1); entity++) {
       for (let adminRepresentative = adminRepresentativesChunk * serverIndex; adminRepresentative < adminRepresentativesChunk * (serverIndex + 1); adminRepresentative++) {
-        exec('adminRepresentative', url, dbFlag, run, event, entity, adminRepresentative);
+        exec('adminRepresentative', url, dbFlag, run, id, event, entity, adminRepresentative);
       }
 
       for (let representative = representativesChunk * serverIndex; representative < representativesChunk * (serverIndex + 1); representative++) {
-        exec('representative', url, dbFlag, run, event, entity, representative);
+        exec('representative', url, dbFlag, run, id, event, entity, representative);
       }
     }
   }
