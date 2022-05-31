@@ -41,15 +41,26 @@ const exec = (type, url, db, run, ...options) => {
   const proc = child_process.spawn('node', [`../subordinate/${type}/index.js`, 'simulate', ...options, '--url', url]);
   proc.stderr.pipe(process.stderr);
 
+  let buffer = '';
+  let strings;
   proc.stdout.on('data', (data) => {
     if (!db) {
       console.log(data.toString().strip())
       return;
     }
 
-    data = JSON.parse(data.toString());
-    data.run = run;
-    Result.create(data);
+    buffer += data.toString();
+    strings = buffer.split('\n');
+    if (strings.length === 0) {
+      return;
+    }
+
+    buffer += strings.pop()
+    for (const string of strings) {
+      data = JSON.parse(string);
+      data.run = run;
+      Result.create(data);
+    }
   });
 
   proc.on('exit', (code) => {
