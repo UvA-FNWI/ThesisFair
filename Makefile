@@ -26,7 +26,7 @@ open:
 
 
 update:
-	./scripts/updateContainerRepo.sh .
+	./scripts/updateContainerRepo.sh ./msa
 
 up:
 	cd kubernetes && ./build.sh

@@ -6,10 +6,10 @@ if [[ -z $root ]]; then
 fi
 
 for dir in $root/*; do
-  if [[ ! -e $root/$dir/Makefile ]]; then
+  if [[ ! -e $dir/Makefile ]]; then
     continue
   fi
 
-  make -C $root/$dir build
-  make -C $root/$dir push
+  make -C $dir build
+  make -C $dir push
 done
