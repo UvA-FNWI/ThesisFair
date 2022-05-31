@@ -1,4 +1,5 @@
 node_modules/
 userStories/files/*.csv
 **/build/
-results/
+results/**/*.txt
+results/**/*.csv
