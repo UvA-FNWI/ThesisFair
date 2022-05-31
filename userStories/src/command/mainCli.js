@@ -37,7 +37,7 @@ const init = async (events, admins, students, studentVotes, entities, adminRepre
   console.log(`node mainCli.js run ${events} ${admins} ${students} ${entities} ${adminRepresentatives} ${representatives}`);
 };
 
-const subprocesses = [];
+const subprocess = [];
 const exec = (type, url, db, run, id, ...options) => {
   const proc = child_process.spawn('node', [`../subordinate/${type}/index.js`, 'simulate', ...options, '--url', url]);
 
@@ -68,38 +68,63 @@ const exec = (type, url, db, run, id, ...options) => {
   });
 
   proc.on('exit', (code) => {
+    subprocess.splice(subprocess.indexOf(proc), 1);
     if (code !== 0) {
       console.error('[!]', type, ...options, 'crashed');
 
-      Result.create({
-        run,
-        id,
-        time: Date.now(),
-        proc: 'mainCli',
-        event: 'subCli crashed',
-        data: {
-          type,
-          options,
-          stderr: proc.stderr.read(),
-        }
-      });
+      if (db) {
+        Result.create({
+          run,
+          id,
+          time: Date.now(),
+          proc: 'mainCli',
+          event: 'subCli crashed',
+          data: {
+            type,
+            options,
+            stderr: proc.stderr.read(),
+          }
+        });
+      }
       return;
     }
 
     console.log(['mainCli', 'procDone', type, ...options].join(','));
   });
-  subprocesses.push(proc);
+  subprocess.push(proc);
 }
 
 const run = async (events, admins, students, entities, adminRepresentatives, representatives, url, servers, serverIndex, options) => {
   const { db, run } = options;
   const dbFlag = !!db;
   if (dbFlag) {
-    console.log('Connecting to results database');
+    console.error('Connecting to results database');
     await mongoose.connect(db);
-    console.log('Connected to results database');
+    console.error('Connected to results database');
   }
-  console.log('Running...');
+  console.error('Running...');
+
+  process.on('SIGINT', async () => {
+    console.error('Stopping subprocess')
+
+    if (dbFlag) {
+      await Result.create({
+        run: run,
+        id: id,
+        time: Date.now(),
+        proc: 'mainCli',
+        event: 'runEnd'
+      });
+
+      const i = setInterval(() => {
+        console.error('Subprocesses still running', subprocess.length);
+        if (subprocess.length === 0) {
+          mongoose.disconnect();
+          clearInterval(i);
+        }
+      }, 1000);
+    }
+  });
 
   const id = mongoose.Types.ObjectId();
   await Result.create({
