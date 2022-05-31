@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-import { MongoDBProvisioner } from '../../libraries/mongoDBProvisioner/index.js';
+import { MongoDBProvisioner } from '../../msa/libraries/mongodbprovisioner/index.js';
 
 const saltRounds = 0;
 const hashCache = {};
@@ -15,7 +15,7 @@ const hash = async (password) => {
 const configs = {
   entities: {
     uri: process.env.mongodbConStrEntity || 'mongodb://localhost:27017/entity_service',
-    library: import('../../entity_service/src/database.js'),
+    library: import('../../msa/entity_service/src/database.js'),
     object: 'Entity',
     get: (db) => [
       {
@@ -36,7 +36,7 @@ const configs = {
   },
   events: {
     uri: process.env.mongodbConStrEvent || 'mongodb://localhost:27017/event_service',
-    library: import('../../event_service/src/database.js'),
+    library: import('../../msa/event_service/src/database.js'),
     object: 'Event',
     get: (db) => [
       {
@@ -79,7 +79,7 @@ const configs = {
   },
   projects: {
     uri: process.env.mongodbConStrProject || 'mongodb://localhost:27017/project_service',
-    library: import('../../project_service/src/database.js'),
+    library: import('../../msa/project_service/src/database.js'),
     object: 'Project',
     get: (db) => [
       {
@@ -107,7 +107,7 @@ const configs = {
   },
   users: {
     uri: process.env.mongodbConStrUser || 'mongodb://localhost:27017/user_service',
-    library: import('../../user_service/src/database.js'),
+    library: import('../../msa/user_service/src/database.js'),
     object: 'User',
     objects: ['User', 'Student', 'Representative'],
     hide: ['password'],
@@ -174,7 +174,7 @@ const configs = {
   },
   votes: {
     uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/vote_service',
-    library: import('../../vote_service/src/database.js'),
+    library: import('../../msa/vote_service/src/database.js'),
     object: 'Vote',
     get: (db) => [
       {

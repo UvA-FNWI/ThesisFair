@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { fail } from './lib.js';
-import api, { apiTokenData } from '../../userStories/api.js';
+import api, { apiTokenData } from '../../userStories/src/api.js';
 import initDB, { init, disconnect, db } from './db.js';
 
 describe('User', () => {
