@@ -40,7 +40,6 @@ const init = async (events, admins, students, studentVotes, entities, adminRepre
 const subprocesses = [];
 const exec = (type, url, db, run, id, ...options) => {
   const proc = child_process.spawn('node', [`../subordinate/${type}/index.js`, 'simulate', ...options, '--url', url]);
-  proc.stderr.pipe(process.stderr);
 
   let buffer = '';
   let strings;
@@ -68,6 +67,19 @@ const exec = (type, url, db, run, id, ...options) => {
   proc.on('exit', (code) => {
     if (code !== 0) {
       console.error('[!]', type, ...options, 'crashed');
+
+      Result.create({
+        run,
+        id,
+        time: Date.now(),
+        proc: 'mainCli',
+        event: 'subCli crashed',
+        data: {
+          type,
+          options,
+          stderr: proc.stderr.read(),
+        }
+      });
       return;
     }
 
