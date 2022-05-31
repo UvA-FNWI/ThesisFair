@@ -73,6 +73,16 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
   }
   console.log('Running...');
 
+  await Result.create({
+    run: run,
+    time: Date.now(),
+    proc: 'mainCli',
+    event: 'runStart',
+    data: {
+      events, admins, students, entities, adminRepresentatives, representatives, url, servers, serverIndex
+    }
+  });
+
   process.stderr.setMaxListeners(1000);
 
   const eventsChunk = events / servers;
