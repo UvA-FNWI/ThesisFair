@@ -58,6 +58,9 @@ const exec = (type, url, db, run, id, ...options) => {
     buffer += strings.pop()
     for (const string of strings) {
       data = JSON.parse(string);
+      if (data.event === 'error') {
+        console.error('Error occured during user story execution');
+      }
       data.run = run;
       data.id = id;
       Result.create(data);
