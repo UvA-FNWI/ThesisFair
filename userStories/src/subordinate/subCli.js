@@ -15,21 +15,34 @@ const simulate = async (name, stories, args) => {
   while (true) {
     fn = stories[Math.floor(Math.random() * stories.length)];
     debug('Running %s', fn.name);
-    await fn(...args).catch((err) => {
-      console.error(fn.name, 'Threw error: ', err);
-      process.exit(1);
-    });
-    console.log(JSON.stringify({
-      time: Date.now(),
-      proc: 'subCli',
-      event: 'ran',
-      data: {
-        type: name,
-        fn: fn.name,
-        args: args,
-        trace: getTrace(),
-      }
-    }))
+    try {
+      await fn(...args);
+      console.log(JSON.stringify({
+        time: Date.now(),
+        proc: 'subCli',
+        event: 'ran',
+        data: {
+          type: name,
+          fn: fn.name,
+          args: args,
+          trace: getTrace(),
+        }
+      }));
+    } catch (error) {
+      console.log(JSON.stringify({
+        time: Date.now(),
+        proc: 'subCli',
+        event: 'error',
+        data: {
+          type: name,
+          fn: fn.name,
+          args: args,
+          trace: getTrace(),
+          error
+        }
+      }));
+    }
+
     clearTrace();
   }
 };
