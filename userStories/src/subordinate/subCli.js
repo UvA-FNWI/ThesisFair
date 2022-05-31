@@ -2,7 +2,8 @@ import { Command } from 'commander';
 import { setUrl, enableTrace, clearTrace, getTrace } from '../api.js';
 import debugLib from 'debug';
 
-const debug = debugLib('userStories:subCli')
+const debug = debugLib('userStories:subCli');
+let running = true;
 
 const simulate = async (name, stories, args) => {
   const [_, program] = args.splice(args.length - 2, 2);
@@ -12,7 +13,7 @@ const simulate = async (name, stories, args) => {
 
   let fn;
   enableTrace();
-  while (true) {
+  while (running) {
     fn = stories[Math.floor(Math.random() * stories.length)];
     debug('Running %s', fn.name);
     try {
@@ -46,6 +47,10 @@ const simulate = async (name, stories, args) => {
     clearTrace();
   }
 };
+
+process.on('SIGINT', () => {
+  running = false;
+})
 
 export default (name, args, stories) => {
   const program = new Command();
