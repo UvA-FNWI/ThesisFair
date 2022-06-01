@@ -20,7 +20,7 @@ const normalize = (objects, hide = []) => {
     return value;
   }
 
-  const normalizeObject = (object) => {
+  const normalizeDocument = (object) => {
     delete object.id;
     delete object._id;
     delete object.__v;
@@ -40,7 +40,7 @@ const normalize = (objects, hide = []) => {
   return objects.map((object) =>
     object.toObject({
       virtuals: true,
-      transform: (doc, object) => normalizeObject(object)
+      transform: (_, doc) => normalizeDocument(doc)
     })
   );
 }

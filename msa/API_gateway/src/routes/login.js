@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { rgraphql } from '../../../libraries/amqpmessaging/index.js';
 
-const router = Router();
+const loginRouter = Router();
 
-router.post('/', async (req, res, next) => {
+loginRouter.post('/', async (req, res, next) => {
   if (!req.body.email ||!req.body.password) {
     next({ status: 401, message: 'No email or password supplied' });
     return;
@@ -14,4 +14,4 @@ router.post('/', async (req, res, next) => {
   res.send(result);
 });
 
-export default router;
+export default loginRouter;

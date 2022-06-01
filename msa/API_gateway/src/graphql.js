@@ -1,5 +1,5 @@
 import { graphqlHTTP } from 'express-graphql';
-import { GraphQLError, print } from 'graphql';
+import { print } from 'graphql';
 import { introspectSchema } from '@graphql-tools/wrap';
 import { stitchSchemas } from '@graphql-tools/stitch';
 import debugLib from 'debug';

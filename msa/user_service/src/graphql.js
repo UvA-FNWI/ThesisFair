@@ -292,5 +292,5 @@ Password: ${password}
 
 const schema = schemaComposer.buildSchema();
 
-const execute = (query, variableValues = {}, contextValue = {}) => graphql({ schema, source: query, variableValues, contextValue });
-export default execute;
+const executeGraphql = (query, variableValues = {}, contextValue = {}) => graphql({ schema, source: query, variableValues, contextValue });
+export default executeGraphql;

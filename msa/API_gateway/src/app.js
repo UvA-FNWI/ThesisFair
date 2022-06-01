@@ -1,32 +1,30 @@
 import createError from 'http-errors';
 import express from 'express';
 import morgan from 'morgan';
-// import cookieParser from 'cookie-parser';
 
 import auth from './auth.js';
 import login from './routes/login.js';
 import graphql from './graphql.js';
 
 const createApp = async () => {
-  const app = express();
+  const newApp = express();
 
-  app.use(morgan('dev'));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: false }));
-  // app.use(cookieParser());
+  newApp.use(morgan('dev'));
+  newApp.use(express.json());
+  newApp.use(express.urlencoded({ extended: false }));
 
 
-  app.use('/login', login);
-  app.use(auth);
-  app.use('/graphql', await graphql());
+  newApp.use('/login', login);
+  newApp.use(auth);
+  newApp.use('/graphql', await graphql());
 
   // catch 404 and forward to error handler
-  app.use((req, res, next) => {
+  newApp.use((req, res, next) => {
     next(createError(404));
   });
 
   // error handler
-  app.use((err, req, res, next) => {
+  newApp.use((err, req, res, next) => {
     // set locals, only providing error in development
     const error = req.app.get('env') === 'development' ? err : {};
 
@@ -42,7 +40,7 @@ const createApp = async () => {
     res.send(message);
   });
 
-  return app;
+  return newApp;
 }
 
 const app = createApp();

@@ -1,4 +1,4 @@
-import { graphql, GraphQLError } from 'graphql';
+import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
 
@@ -170,5 +170,5 @@ schemaComposer.Mutation.addNestedFields({
 
 const schema = schemaComposer.buildSchema();
 
-const execute = (query, variableValues = {}, contextValue = {}) => graphql({ schema, source: query, variableValues, contextValue });
-export default execute;
+const executeGraphql = (query, variableValues = {}, contextValue = {}) => graphql({ schema, source: query, variableValues, contextValue });
+export default executeGraphql;

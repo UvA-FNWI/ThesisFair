@@ -35,16 +35,16 @@ main();
  * Normalize a port into a number, string, or false.
  */
 function normalizePort(val) {
-  const port = parseInt(val, 10);
+  const normalizedPort = parseInt(val, 10);
 
-  if (isNaN(port)) {
+  if (isNaN(normalizedPort)) {
     // named pipe
     return val;
   }
 
-  if (port >= 0) {
+  if (normalizedPort >= 0) {
     // port number
-    return port;
+    return normalizedPort;
   }
 
   return false;
