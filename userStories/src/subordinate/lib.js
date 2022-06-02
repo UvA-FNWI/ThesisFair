@@ -134,14 +134,18 @@ export const pages = {
             }).exec();
           },
 
-          createUser: () => {
-            return api.user.representative.create({
+          createUser: async () => {
+            const user = await api.user.representative.create({
               enid: apiTokenData.enid,
               firstname: 'Employee firstname',
               lastname: 'Employee lastname',
               email: `${apiTokenData.enid} - ${Date.now()} - ${Math.random()*100}@company.nl`,
               phone: '06 83277881'
             }).exec();
+
+            return {
+              user: user,
+            };
           },
 
           updateUser: async (uid, admin) => {
