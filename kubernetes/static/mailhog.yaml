@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailhog
+spec:
+  selector:
+    matchLabels:
+      service: mailhog
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        service: mailhog
+    spec:
+      containers:
+      - name: mailhog
+        image: mailhog/mailhog
+        ports:
+        - containerPort: 8025
+      - name: clear-mails
+        image: archlinux
+        command:
+        - sh
+        args:
+        - -c
+        - while true; do curl -X DELETE http://localhost:8025/api/v1/messages && sleep 10; done
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailhog
+spec:
+  ports:
+  - name: interface
+    port: 8025
+    targetPort: 8025
+  - name: smtp
+    port: 1025
+    targetPort: 1025
+  selector:
+    service: mailhog

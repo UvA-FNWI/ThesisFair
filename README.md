@@ -19,6 +19,7 @@ In production each service should have their own database. In the docker-compose
 - RabbitMQ: `make rabbitmqDashboard` then http://localhost:15672/#/
 - Traefik http: <server ip>:32080 or <server ip>:32443 or http://localhost:8001/api/v1/namespaces/default/services/traefik:80/proxy/
 - Traefik dashboard: `make traefikDashboard` then http://localhost:9000/dashboard/
+- Mailhog: http://localhost:8001/api/v1/namespaces/default/services/mailhog:8025/proxy/
 
 
 # Installation
