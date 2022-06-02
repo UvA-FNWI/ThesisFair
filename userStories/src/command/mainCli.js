@@ -89,7 +89,7 @@ const exec = (type, url, db, run, id, ...options) => {
       return;
     }
 
-    console.error('[i] ', type, ...options, 'exited gracefully');
+    console.error('[i]', type, ...options, 'exited gracefully');
   });
   subprocess.push(proc);
 }
