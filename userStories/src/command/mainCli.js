@@ -45,7 +45,7 @@ const exec = (type, url, db, run, id, ...options) => {
   let strings;
   proc.stdout.on('data', (data) => {
     if (!db) {
-      console.log(data.toString().strip())
+      console.log(data.toString())
       return;
     }
 
@@ -115,28 +115,32 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
         proc: 'mainCli',
         event: 'runEnd'
       });
-
-      const i = setInterval(() => {
-        console.error('Subprocesses still running', subprocess.length);
-        if (subprocess.length === 0) {
-          mongoose.disconnect();
-          clearInterval(i);
-        }
-      }, 1000);
     }
+
+    const i = setInterval(() => {
+      console.error('Subprocesses still running', subprocess.length);
+      if (subprocess.length === 0) {
+        if (dbFlag) {
+          mongoose.disconnect();
+        }
+        clearInterval(i);
+      }
+    }, 1000);
   });
 
   const id = mongoose.Types.ObjectId();
-  await Result.create({
-    run: run,
-    id: id,
-    time: Date.now(),
-    proc: 'mainCli',
-    event: 'runStart',
-    data: {
-      events, admins, students, entities, adminRepresentatives, representatives, url, servers, serverIndex
-    }
-  });
+  if (dbFlag) {
+    await Result.create({
+      run: run,
+      id: id,
+      time: Date.now(),
+      proc: 'mainCli',
+      event: 'runStart',
+      data: {
+        events, admins, students, entities, adminRepresentatives, representatives, url, servers, serverIndex
+      }
+    });
+  }
 
   process.stderr.setMaxListeners(1000);
 
