@@ -1,9 +1,9 @@
 import { pages, loginRep, randSleep } from '../lib.js';
 
-const updateAccount = async (event, entity, adminRepresentative) => {
-  await loginRep(event, entity, adminRepresentative, true);
+const updateAccount = async (api, event, entity, adminRepresentative) => {
+  await loginRep(api, event, entity, adminRepresentative, true);
 
-  const { actions } = await pages.rep.dashboard();
+  const { actions } = await pages.rep.dashboard(api);
   await randSleep(0, 2);
 
   await actions.updateInfo();

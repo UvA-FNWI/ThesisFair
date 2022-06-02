@@ -1,9 +1,9 @@
 import { pages, loginAdmin, randSleep } from '../lib.js';
 
-const manageEvents = async (event, admin) => {
-  const evid = await loginAdmin(event, admin);
+const manageEvents = async (api, event, admin) => {
+  const evid = await loginAdmin(api, event, admin);
 
-  const { actions } = await pages.admin.eventsDashboard();
+  const { actions } = await pages.admin.eventsDashboard(api);
   await randSleep(0, 2);
 
   await actions.updateEvent(evid);

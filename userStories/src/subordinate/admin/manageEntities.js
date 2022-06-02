@@ -1,9 +1,9 @@
 import { pages, loginAdmin, randSleep } from '../lib.js';
 
-const manageEntities = async (event, admin) => {
-  await loginAdmin(event, admin);
+const manageEntities = async (api, event, admin) => {
+  await loginAdmin(api, event, admin);
 
-  const { actions } = await pages.admin.entitiesDashboard();
+  const { actions } = await pages.admin.entitiesDashboard(api);
   await randSleep(0, 2);
 
   const { entity } = await actions.createEntity();

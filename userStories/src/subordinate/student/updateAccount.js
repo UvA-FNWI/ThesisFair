@@ -1,9 +1,9 @@
 import { pages, loginStudent, randSleep } from '../lib.js';
 
-const updateAccount = async (event, student) => {
-  await loginStudent(event, student);
+const updateAccount = async (api, event, student) => {
+  await loginStudent(api, event, student);
 
-  const { actions } = await pages.student.dashboard();
+  const { actions } = await pages.student.dashboard(api);
   await randSleep(0, 2);
 
   await actions.updateInfo();

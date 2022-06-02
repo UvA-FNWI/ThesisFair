@@ -1,9 +1,8 @@
-import subCli from '../subCli.js';
+import simulate from '../simulate.js';
 
 import viewStudents from './viewStudents.js';
 import updateAccount from './updateAccount.js';
 
-const args = ['event', 'entity', 'representative'];
 const stories = [updateAccount, viewStudents];
 
-subCli('representative', args, stories);
+export default (url, running, callback, event, entity, representative) => simulate(url, running, callback, 'representative', stories, [event, entity, representative])

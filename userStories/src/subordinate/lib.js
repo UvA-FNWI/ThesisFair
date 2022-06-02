@@ -1,23 +1,22 @@
-import api, { apiTokenData } from '../api.js';
 import { readFile } from 'fs/promises';
 
 const longDescription = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at vehicula neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam sagittis magna vitae interdum vehicula. Duis mi neque, accumsan vel lacus ac, pretium pellentesque est. Donec tellus purus, sodales sit amet eros nec, consectetur mattis quam. Ut pretium, est eu lacinia accumsan, quam nunc euismod mi, sit amet viverra dui lorem nec velit. In tempus, leo eu aliquet pretium, urna tellus rutrum quam, eget accumsan odio mauris imperdiet massa. Sed ut faucibus arcu. Fusce vel tortor vitae risus pulvinar luctus. Etiam at dui metus. Etiam odio nisi, imperdiet efficitur iaculis ac, feugiat ac massa. Aliquam pellentesque libero bibendum nunc volutpat, sit amet pharetra nisl efficitur. Suspendisse malesuada leo mauris. Aenean cursus mi et eros scelerisque, sed efficitur mauris volutpat. Donec volutpat enim id aliquet porttitor. Maecenas nec iaculis tortor.';
 export const sleep = (s) => new Promise((resolve) => setTimeout(resolve, s * 1000));
-export const randSleep = (min, max) => sleep(min + (Math.random() * max - min));
+export const randSleep = () => {}; //(min, max) => sleep(min + (Math.random() * max - min));
 
-export const loginStudent = async (event, student) => {
+export const loginStudent = async (api, event, student) => {
   await api.user.login(`student.${event}-${student}@student.uva.nl`, 'student');
   const events = await api.event.getAll().exec();
   return events[event].evid;
 }
 
-export const loginRep = async (event, entity, representative, admin = false) => {
+export const loginRep = async (api, event, entity, representative, admin = false) => {
   await api.user.login(`${admin ? 'adminRepresentative' : 'representative'}.${event}-${entity}-${representative}@company.nl`, admin ? 'adminRepresentative' : 'representative');
   const events = await api.event.getAll(false, { evid: 1 }).exec();
   return events[0].evid;
 }
 
-export const loginAdmin = async (event, admin) => {
+export const loginAdmin = async (api, event, admin) => {
   await api.user.login(`admin.${event}-${admin}@uva.nl`, 'admin');
   const events = await api.event.getAll().exec();
   return events[event].evid;
@@ -25,13 +24,13 @@ export const loginAdmin = async (event, admin) => {
 
 export const pages = {
   student: {
-    dashboard: async () => {
+    dashboard: async (api) => {
       return {
-        user: await api.user.get(apiTokenData.uid).exec(),
+        user: await api.user.get(api.getApiTokenData().uid).exec(),
         actions: {
           updateInfo: async () => {
             await api.user.student.update({
-              uid: apiTokenData.uid,
+              uid: api.getApiTokenData().uid,
               firstname: 'Lorem ipsum.',
               lastname: 'Lorem ipsum.',
               phone: 'Lorem ipsum.',
@@ -39,14 +38,14 @@ export const pages = {
             }).exec();
           },
           uploadCV: async () => {
-            await api.user.student.uploadCV(apiTokenData.uid, (await readFile('../../files/cv.txt')).toString('base64')).exec();
+            await api.user.student.uploadCV(api.getApiTokenData().uid, (await readFile('files/cv.txt')).toString('base64')).exec();
           }
         }
       }
     },
 
-    votes: async (evid) => {
-      const votes = await api.votes.getOfStudent(apiTokenData.uid, evid).exec();
+    votes: async (api, evid) => {
+      const votes = await api.votes.getOfStudent(api.getApiTokenData().uid, evid).exec();
       const projectArray = await api.project.getMultiple(votes, { evid: 0 }).exec();
       const projects = {};
       for (const project of projectArray) {
@@ -68,7 +67,7 @@ export const pages = {
       }
     },
 
-    entities: async (evid) => {
+    entities: async (api, evid) => {
       const event = await api.event.get(evid).exec();
       const entities = await api.entity.getMultiple(event.entities).exec();
 
@@ -84,20 +83,20 @@ export const pages = {
 
           },
           shareInfo: async (enid, state) => {
-            await api.user.student.shareInfo(apiTokenData.uid, enid, state).exec();
+            await api.user.student.shareInfo(api.getApiTokenData().uid, enid, state).exec();
           }
         }
       };
     }
   },
   rep: {
-    dashboard: async () => {
+    dashboard: async (api) => {
       return {
-        user: await api.user.get(apiTokenData.uid).exec(),
+        user: await api.user.get(api.getApiTokenData().uid).exec(),
         actions: {
           updateInfo: async () => {
             await api.user.representative.update({
-              uid: apiTokenData.uid,
+              uid: api.getApiTokenData().uid,
               firstname: 'Lorem ipsum.',
               lastname: 'Lorem ipsum.',
               phone: 'Lorem ipsum.',
@@ -106,9 +105,9 @@ export const pages = {
         }
       }
     },
-    projects: async (evid) => {
+    projects: async (api, evid) => {
       return {
-        projects: await api.project.getOfEntity(evid, apiTokenData.enid).exec(),
+        projects: await api.project.getOfEntity(evid, api.getApiTokenData().enid).exec(),
         actions: {
           getVotedUsers: async (pid) => {
             const uids = await api.votes.getOfProject(pid, evid).exec();
@@ -122,13 +121,13 @@ export const pages = {
     }
   },
   repAdmin: {
-    entityDashboard: async () => {
+    entityDashboard: async (api) => {
       return {
-        entity: await api.entity.get(apiTokenData.enid).exec(),
+        entity: await api.entity.get(api.getApiTokenData().enid).exec(),
         actions: {
           updateInfo: async () => {
             await api.entity.update({
-              enid: apiTokenData.enid,
+              enid: api.getApiTokenData().enid,
               name: 'Lorem ipsum.',
               description: 'Lorem ipsum.',
               contact: [{ type: 'website', content: 'Lorem ipsum.'}, { type: 'phone', content: '+31 000000000' }, { type: 'email', content: 'contact@company.nl' }],
@@ -137,10 +136,10 @@ export const pages = {
 
           createUser: async () => {
             const user = await api.user.representative.create({
-              enid: apiTokenData.enid,
+              enid: api.getApiTokenData().enid,
               firstname: 'Employee firstname',
               lastname: 'Employee lastname',
-              email: `${apiTokenData.enid} - ${Date.now()} - ${Math.random()*100}@company.nl`,
+              email: `${api.getApiTokenData().enid} - ${Date.now()} - ${Math.random()*100}@company.nl`,
               phone: '06 83277881'
             }).exec();
 
@@ -164,7 +163,7 @@ export const pages = {
     },
   },
   admin: {
-    eventsDashboard: async () => {
+    eventsDashboard: async (api) => {
       return {
         events: await api.event.getAll().exec(),
 
@@ -196,7 +195,7 @@ export const pages = {
         }
       }
     },
-    entitiesDashboard: async () => {
+    entitiesDashboard: async (api) => {
       return {
         entities: await api.entity.getAll().exec(),
 
@@ -234,7 +233,7 @@ export const pages = {
         }
       };
     },
-    projectsDashboard: async (evid) => {
+    projectsDashboard: async (api, evid) => {
       return {
         projects: await api.project.getOfEvent(evid).exec(),
 
