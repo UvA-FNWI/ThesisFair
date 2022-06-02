@@ -12,6 +12,7 @@
   "dependencies": {
     "commander": "^9.3.0",
     "csv-parse": "^5.1.0",
+    "inquirer": "^8.2.4",
     "mongoose": "^6.3.5"
   }
 }

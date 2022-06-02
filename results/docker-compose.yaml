@@ -4,5 +4,8 @@ services:
     image: mongo
     restart: unless-stopped
 
+    volumes:
+      - ./db:/etc/mongo
+
     ports:
       - 27017:27017

@@ -3,4 +3,7 @@ userStories/files/*.csv
 **/build/
 results/**/*.txt
 results/**/*.csv
+results/**/*.mongoexport
+results/**/*.png
+results/db
 **/.scannerwork
