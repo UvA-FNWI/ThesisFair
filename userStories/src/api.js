@@ -348,6 +348,14 @@ export default {
     },
 
     student: {
+      getCV: (uid) =>
+        new GraphQLBuilder({
+          name: 'getCVStudent',
+          functionPath: 'cv',
+          args: {
+            uid: { value: uid, type: 'ID!' },
+          },
+        }),
       /**
        * @param {Object} student
        * @param {String} student.uid
@@ -373,7 +381,16 @@ export default {
             websites: { value: student.websites, type: '[String!]' },
           },
         }),
-
+      uploadCV: (uid, file) =>
+        new GraphQLBuilder({
+          type: 'mutation',
+          name: 'uploadCVStudent',
+          functionPath: 'user.student.uploadCV',
+          args: {
+            uid: { value: uid, type: 'ID!' },
+            file: { value: file, type: 'String!' },
+          },
+        }),
       shareInfo: (uid, enid, share, projection) =>
         new GraphQLBuilder({
           type: 'mutation',

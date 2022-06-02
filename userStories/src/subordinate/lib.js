@@ -1,4 +1,5 @@
 import api, { apiTokenData } from '../api.js';
+import { readFile } from 'fs/promises';
 
 export const sleep = (s) => new Promise((resolve) => setTimeout(resolve, s * 1000));
 export const randSleep = (min, max) => sleep(min + (Math.random() * max - min));
@@ -30,6 +31,9 @@ export const pages = {
               phone: 'Lorem ipsum.',
               websites: ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ut magna id ut.', 'Lorem ipsum dolor nam.', 'Lorem ipsum dolor sit amet massa nunc.'],
             }).exec();
+          },
+          uploadCV: async () => {
+            await api.user.student.uploadCV(apiTokenData.uid, (await readFile('../../files/cv.txt')).toString('base64')).exec();
           }
         }
       }

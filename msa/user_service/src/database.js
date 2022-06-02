@@ -42,3 +42,5 @@ export const connect = async (uri) => {
 export const disconnect = async () => {
   await conn.close();
 }
+
+export const isValidObjectId = mongoose.isValidObjectId;

@@ -1,12 +1,13 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
-import { readFileSync } from 'fs';
+import { readFileSync, mkdirSync, existsSync, constants } from 'fs';
+import { writeFile, readFile, access } from 'fs/promises';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 
-import { User, Student, Representative } from './database.js';
+import { User, Student, Representative, isValidObjectId } from './database.js';
 
 const saltRounds = process.env.DEBUG ? 0 : 10;
 const hash = (password) => bcrypt.hash(password, saltRounds);
@@ -81,6 +82,38 @@ schemaComposer.Query.addNestedFields({
 
       return users;
     },
+  },
+  cv: {
+    type: 'String',
+    args: {
+      uid: 'ID!',
+    },
+    resolve: async (obj, args, req) => {
+      if (!isValidObjectId(args.uid)) {
+        throw new Error('Invalid uid supplied');
+      }
+
+      const user = await User.findById(args.uid);
+      if (!user) {
+        return null;
+      }
+
+      if (!(req.user.type === 'a' ||
+        req.user.uid === args.uid ||
+        (user instanceof Student && req.user.type === 'r' && user.share.includes(req.user.enid)) ||
+        (user instanceof Representative && req.user.type === 'r' && req.user.repAdmin === true && req.user.enid == user.enid))) {
+        throw new Error('UNAUTHORIZED to get this students CV');
+      }
+
+      const file = `./data/${args.uid}`;
+      try {
+        await access(file, constants.R_OK);
+      } catch (error) {
+        return null;
+      }
+
+      return readFile(file).then((content) => content.toString());
+    }
   },
   'apiToken': {
     type: 'String!',
@@ -230,6 +263,25 @@ Password: ${password}
       return Student.findByIdAndUpdate(uid, { $set: args }, { new: true });
     },
   },
+  'user.student.uploadCV': {
+    type: 'Boolean',
+    args: {
+      uid: 'ID!',
+      file: 'String!',
+    },
+    resolve: async (obj, args, req) => {
+      if (!isValidObjectId(args.uid)) {
+        throw new Error('Invalid uid supplied');
+      }
+
+      if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
+        throw new Error('UNAUTHORIZED update student');
+      }
+
+      await writeFile(`./data/${args.uid}`, args.file);
+      return true;
+    },
+  },
   'user.student.shareInfo': {
     type: 'Student',
     args: {
@@ -289,6 +341,10 @@ Password: ${password}
     },
   },
 });
+
+if (!existsSync('./data')) {
+  mkdirSync('./data');
+}
 
 const schema = schemaComposer.buildSchema();
 

@@ -10,8 +10,8 @@ const createApp = async () => {
   const newApp = express();
 
   newApp.use(morgan('dev'));
-  newApp.use(express.json());
-  newApp.use(express.urlencoded({ extended: false }));
+  newApp.use(express.json({ limit: '10mb' }));
+  newApp.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 
   newApp.use('/login', login);

@@ -82,6 +82,16 @@ describe('User', () => {
       expect(res).to.deep.equal(updatedStudent);
     });
 
+    it('mutation user.student.uploadCV should a upload a CV to a specific user', async () => {
+      expect(db.users[1].studentnumber).to.exist;
+      const cv = 'This is my epic CV';
+      const res = await api.user.student.uploadCV(db.users[1].uid, cv).exec();
+      expect(res).to.be.true;
+
+      const storedCV = await api.user.student.getCV(db.users[1].uid).exec();
+      expect(storedCV).to.equal(cv);
+    });
+
     it('mutation user.delete should delete a student', async () => {
       expect(db.users[0].studentnumber).to.exist;
       const res = await api.user.delete(db.users[0].uid).exec();
@@ -111,11 +121,18 @@ describe('User', () => {
 
       const res = await api.user.get(db.users[0].uid).exec();
       expect(res).to.deep.equal(db.users[0]);
+
+      await api.user.student.getCV(db.users[0].uid).exec();
     });
 
     it('query user should check if the user shared its data', async () => {
       expect(db.users[1].studentnumber).to.exist;
       await fail(api.user.get(db.users[1].uid).exec);
+    });
+
+    it('query cv should check if the user shared its data', async () => {
+      expect(db.users[1].studentnumber).to.exist;
+      await fail(api.user.student.getCV(db.users[1].uid).exec);
     });
 
     it('query user should check if the representative is an admin', async () => {
@@ -285,6 +302,20 @@ describe('User', () => {
 
       expect(res).to.deep.equal(updatedStudent);
       await api.user.login('new.email@email.nl', 'student');
+    });
+
+    it('mutation user.student.uploadCV should allow a student to upload their CV', async () => {
+      expect(db.users[0].studentnumber).to.exist;
+      const cv = 'This is my epic CV';
+      const res = await api.user.student.uploadCV(db.users[0].uid, cv).exec();
+      expect(res).to.be.true;
+
+      const storedCV = await api.user.student.getCV(db.users[0].uid).exec();
+      expect(storedCV).to.equal(cv);
+    });
+
+    it('mutation user.student.uploadCV should not allow a student to upload someone elses CV', async () => {
+      await fail(api.user.student.uploadCV(db.users[1].uid, 'hi').exec);
     });
 
     it('mutation user.student.shareInfo should let a user share info with an entity', async () => {
