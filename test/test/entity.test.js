@@ -31,6 +31,11 @@ const testQuery = () => {
 }
 
 const permissions = {
+  getAll: () => {
+    it('mutation getAll should hanle permissions properly', async () => {
+      await fail(api.entity.getAll().exec);
+    });
+  },
   create: () => {
     it('mutation create should hanle permissions properly', async () => {
       const newEntity = { ...db.entities[0] };
@@ -69,6 +74,11 @@ describe('Entity', () => {
     });
 
     testQuery();
+
+    it('query entitiesAll should get all entities' , async () => {
+      const res = await api.entity.getAll().exec();
+      expect(res).to.deep.equal(db.entities);
+    });
 
     it('mutation entity.create should create an entity', async () => {
       const entity = {
@@ -147,6 +157,7 @@ describe('Entity', () => {
 
     testQuery();
 
+    permissions.getAll();
     permissions.create();
 
     it('mutation entity.update should update the entity', async () => {
@@ -185,6 +196,7 @@ describe('Entity', () => {
 
     testQuery();
 
+    permissions.getAll();
     permissions.create();
     permissions.update();
     permissions.delete();

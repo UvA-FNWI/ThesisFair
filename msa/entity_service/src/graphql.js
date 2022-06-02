@@ -17,6 +17,16 @@ schemaComposer.Query.addNestedFields({
     },
     resolve: (obj, args) => Entity.findById(args.enid),
   },
+  entitiesAll: {
+    type: '[Entity!]',
+    resolve: (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED get all entities');
+      }
+
+      return Entity.find();
+    },
+  },
   entities: {
     type: '[Entity!]',
     args: {

@@ -145,7 +145,7 @@ class GraphQLBuilder {
       defs += '$' + variable + ':' + this.args[variable].type + ',';
     }
 
-    return defs ? defs.substring(0, defs.length - 1) : '';
+    return defs ? `(${defs.substring(0, defs.length - 1)})` : '';
   }
 
   genArgs = () => {
@@ -154,18 +154,18 @@ class GraphQLBuilder {
       args += arg + ':$' + arg + ',';
     }
 
-    return args ? args.substring(0, args.length - 1) : '';
+    return args ? `(${args.substring(0, args.length - 1)})` : '';
   }
 
   genQuery = () => {
     const path = this.functionPath.split('.').reverse();
-    let queryBody = `${path.shift()}(${this.genArgs()}) ${this.body === null ? '' : `{${this.body}}`}`;
+    let queryBody = `${path.shift()}${this.genArgs()} ${this.body === null ? '' : `{${this.body}}`}`;
 
     for (const name of path) {
       queryBody = `${name} {${queryBody}}`;
     }
 
-    return `${this.type} ${this.name}(${this.genVariableDefs()}){${queryBody}}`;
+    return `${this.type} ${this.name}${this.genVariableDefs()}{${queryBody}}`;
   }
 
   genVariablesDict = () => {
@@ -414,6 +414,12 @@ export default {
         args: {
           enid: { value: enid, type: 'ID!' },
         }
+      }),
+    getAll: (evid, projection) =>
+      new GraphQLBuilder({
+        name: 'getAllEntity',
+        functionPath: 'entitiesAll',
+        body: bodies.Entity(projection),
       }),
     getMultiple: (enids, projection) =>
       new GraphQLBuilder({
