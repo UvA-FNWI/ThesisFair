@@ -6,6 +6,7 @@ import { parse as csvParser } from 'csv-parse';
 
 const Result = mongoose.model('Result', new mongoose.Schema({
   run: String,
+  id: mongoose.Schema.Types.ObjectId,
   time: Date,
   proc: String,
   event: String,
@@ -16,6 +17,7 @@ const uploadFile = (file, run) => {
   return new Promise((resolve, reject) => {
     const fileName = path.basename(file);
     const parser = csvParser({ columns: true, skip_empty_lines: true, trim: true, relaxQuotes: true });
+    const id = mongoose.Types.ObjectId();
 
     parser.on('readable', async () => {
       let record;
@@ -25,10 +27,11 @@ const uploadFile = (file, run) => {
         delete record[timeKey];
 
         await Result.create({
+          id: id,
           run: run,
           time: time,
           proc: fileName,
-          event: 'manualCSVImport',
+          event: 'manualCSVImportRecord',
           data: record,
         })
       }
@@ -43,10 +46,14 @@ const uploadFile = (file, run) => {
 }
 
 const uploadDir = async (csvDir, db, run) => {
-  await mongoose.connect(db);
+  await mongoose.connect('mongodb://' + db);
   console.log('Connected to database');
 
   for (const file of fs.readdirSync(csvDir)) {
+    if (!file.endsWith('.csv')) {
+      continue;
+    }
+
     console.log('Loading', file);
     await uploadFile(path.join(csvDir, file), run);
     console.log('Uploaded', file);
