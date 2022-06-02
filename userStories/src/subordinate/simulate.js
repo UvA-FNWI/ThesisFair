@@ -18,13 +18,12 @@ export default async (url, running, callback, name, stories, args) => {
         trace: api.getTrace(),
       });
     } catch (error) {
-      console.log(error);
       callback(1, {
         type: name,
         fn: fn.name,
         args: args,
         trace: api.getTrace(),
-        error
+        error: JSON.stringify(error),
       });
     }
 
