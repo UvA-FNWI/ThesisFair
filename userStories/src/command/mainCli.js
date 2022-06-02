@@ -89,7 +89,7 @@ const exec = (type, url, db, run, id, ...options) => {
       return;
     }
 
-    console.log(['mainCli', 'procDone', type, ...options].join(','));
+    console.error('[i] ', type, ...options, 'exited gracefully');
   });
   subprocess.push(proc);
 }
@@ -104,8 +104,18 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
   }
   console.error('Running...');
 
+  let running = true;
+  let forcedShutdown = false;
   process.on('SIGINT', async () => {
+    if (!running) {
+      forcedShutdown = true;
+      console.error('Force killing subprocesses');
+      subprocess.forEach((proc) => proc.kill());
+      return;
+    }
+
     console.error('Stopping subprocess')
+    running = false;
 
     if (dbFlag) {
       await Result.create({
@@ -122,6 +132,10 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
       if (subprocess.length === 0) {
         if (dbFlag) {
           mongoose.disconnect();
+        }
+
+        if (forcedShutdown) {
+          console.log('Shutdown was forced and thus not clean!');
         }
         clearInterval(i);
       }
@@ -144,28 +158,28 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
 
   process.stderr.setMaxListeners(1000);
 
-  const eventsChunk = events / servers;
-  const adminsChunk = admins / servers;
-  const studentsChunk = students / servers;
-  const entitiesChunk = entities / servers;
-  const adminRepresentativesChunk = adminRepresentatives / servers;
-  const representativesChunk = representatives / servers;
+  const eventsChunk = Math.ceil(events / servers);
+  const adminsChunk = Math.ceil(admins / servers);
+  const studentsChunk = Math.ceil(students / servers);
+  const entitiesChunk = Math.ceil(entities / servers);
+  const adminRepresentativesChunk = Math.ceil(adminRepresentatives / servers);
+  const representativesChunk = Math.ceil(representatives / servers);
 
-  for (let event = eventsChunk * serverIndex; event < eventsChunk * (serverIndex + 1); event++) {
-    for (let admin = adminsChunk * serverIndex; admin < adminsChunk * (serverIndex + 1); admin++) {
-
+  for (let event = eventsChunk * serverIndex; event < Math.min(events, eventsChunk * (serverIndex + 1)); event++) {
+    for (let admin = adminsChunk * serverIndex; Math.min(admins, admin < adminsChunk * (serverIndex + 1)); admin++) {
+      exec('admin', url, dbFlag, run, id, event, admin);
     }
 
-    for (let student = studentsChunk * serverIndex; student < studentsChunk * (serverIndex + 1); student++) {
+    for (let student = studentsChunk * serverIndex; Math.min(students, student < studentsChunk * (serverIndex + 1)); student++) {
       exec('student', url, dbFlag, run, id, event, student);
     }
 
-    for (let entity = entitiesChunk * serverIndex; entity < entitiesChunk * (serverIndex + 1); entity++) {
-      for (let adminRepresentative = adminRepresentativesChunk * serverIndex; adminRepresentative < adminRepresentativesChunk * (serverIndex + 1); adminRepresentative++) {
+    for (let entity = entitiesChunk * serverIndex; Math.min(entities, entity < entitiesChunk * (serverIndex + 1)); entity++) {
+      for (let adminRepresentative = adminRepresentativesChunk * serverIndex; Math.min(adminRepresentatives, adminRepresentative < adminRepresentativesChunk * (serverIndex + 1)); adminRepresentative++) {
         exec('adminRepresentative', url, dbFlag, run, id, event, entity, adminRepresentative);
       }
 
-      for (let representative = representativesChunk * serverIndex; representative < representativesChunk * (serverIndex + 1); representative++) {
+      for (let representative = representativesChunk * serverIndex; Math.min(representatives, representative < representativesChunk * (serverIndex + 1)); representative++) {
         exec('representative', url, dbFlag, run, id, event, entity, representative);
       }
     }
