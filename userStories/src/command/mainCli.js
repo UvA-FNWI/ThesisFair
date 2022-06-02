@@ -2,8 +2,6 @@ import child_process from 'child_process';
 import { Command } from 'commander';
 import mongoose from 'mongoose';
 
-import dbProvisioner from './initDB.js';
-
 const Result = mongoose.model('Result', new mongoose.Schema({
   run: String,
   id: mongoose.Schema.Types.ObjectId,
@@ -15,6 +13,7 @@ const Result = mongoose.model('Result', new mongoose.Schema({
 
 
 const init = async (events, admins, students, studentVotes, entities, adminRepresentatives, representatives, projects) => {
+  const { default: dbProvisioner } = await import('./initDB.js')
   console.log('Initializing database...');
   const provisionar = dbProvisioner({
     events,
