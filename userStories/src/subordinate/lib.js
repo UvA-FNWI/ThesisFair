@@ -16,6 +16,11 @@ export const loginRep = async (event, entity, representative, admin = false) => 
   return events[0].evid;
 }
 
+export const loginAdmin = async (event, admin) => {
+  await api.user.login(`admin.${event}-${admin}@uva.nl`, 'admin');
+  const events = await api.event.getAll().exec();
+  return events[event].evid;
+}
 
 export const pages = {
   student: {
@@ -153,4 +158,38 @@ export const pages = {
       };
     },
   },
+  admin: {
+    eventsDashboard: async () => {
+      return {
+        events: await api.event.getAll().exec(),
+
+        actions: {
+          createEvent: async () => {
+            const event = await api.event.create({
+              enabled: false,
+              name: 'The next big thesisfair',
+              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id mauris eget odio euismod ornare. Maecenas cursus tortor mauris, vel gravida lacus venenatis non. Ut euismod semper felis, non rhoncus purus volutpat at. Mauris lorem metus, vestibulum at ornare nec, semper id nisi. Sed luctus, nulla id faucibus accumsan, quam tortor placerat lacus, id varius odio arcu vel neque. Sed rhoncus ex ex, aliquam ultrices diam cursus non. Integer scelerisque at est eget fringilla. Maecenas ornare velit ut sem consectetur dapibus. Nulla id purus pellentesque, blandit augue nec, commodo magna. Nulla sit amet nisl gravida, lobortis justo non, suscipit magna. Nam ultrices tortor vitae tristique vehicula. Maecenas ac eleifend odio, ac convallis massa. Cras placerat dapibus turpis, non pulvinar quam placerat in. Cras libero augue, mattis quis efficitur quis, posuere ut justo. Donec sem turpis, iaculis quis nibh eu, suscipit auctor augue. Praesent vitae imperdiet lectus, in mattis quam.',
+              start: Date.now(),
+              location: 'UvA',
+              studentSubmitDeadline: new Date() + 7,
+              entities: []
+            }).exec();
+            return {
+              event: event
+            }
+          },
+          updateEvent: async (evid) => {
+            await api.event.update({
+              evid: evid,
+              name: 'The name is now different!',
+              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at vehicula neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam sagittis magna vitae interdum vehicula. Duis mi neque, accumsan vel lacus ac, pretium pellentesque est. Donec tellus purus, sodales sit amet eros nec, consectetur mattis quam. Ut pretium, est eu lacinia accumsan, quam nunc euismod mi, sit amet viverra dui lorem nec velit. In tempus, leo eu aliquet pretium, urna tellus rutrum quam, eget accumsan odio mauris imperdiet massa. Sed ut faucibus arcu. Fusce vel tortor vitae risus pulvinar luctus. Etiam at dui metus. Etiam odio nisi, imperdiet efficitur iaculis ac, feugiat ac massa. Aliquam pellentesque libero bibendum nunc volutpat, sit amet pharetra nisl efficitur. Suspendisse malesuada leo mauris. Aenean cursus mi et eros scelerisque, sed efficitur mauris volutpat. Donec volutpat enim id aliquet porttitor. Maecenas nec iaculis tortor.'
+            }).exec();
+          },
+          deleteEvent: async (evid) => {
+            await api.event.delete(evid).exec();
+          },
+        }
+      }
+    }
+  }
 }
