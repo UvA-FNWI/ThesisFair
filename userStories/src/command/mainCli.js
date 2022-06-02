@@ -158,14 +158,11 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
 
   process.stderr.setMaxListeners(1000);
 
-  const eventsChunk = Math.ceil(events / servers);
   const adminsChunk = Math.ceil(admins / servers);
   const studentsChunk = Math.ceil(students / servers);
   const entitiesChunk = Math.ceil(entities / servers);
-  const adminRepresentativesChunk = Math.ceil(adminRepresentatives / servers);
-  const representativesChunk = Math.ceil(representatives / servers);
 
-  for (let event = eventsChunk * serverIndex; event < Math.min(events, eventsChunk * (serverIndex + 1)); event++) {
+  for (let event = 0; event < events; event++) {
     for (let admin = adminsChunk * serverIndex; Math.min(admins, admin < adminsChunk * (serverIndex + 1)); admin++) {
       exec('admin', url, dbFlag, run, id, event, admin);
     }
@@ -175,11 +172,11 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
     }
 
     for (let entity = entitiesChunk * serverIndex; Math.min(entities, entity < entitiesChunk * (serverIndex + 1)); entity++) {
-      for (let adminRepresentative = adminRepresentativesChunk * serverIndex; Math.min(adminRepresentatives, adminRepresentative < adminRepresentativesChunk * (serverIndex + 1)); adminRepresentative++) {
+      for (let adminRepresentative = 0; adminRepresentatives; adminRepresentative++) {
         exec('adminRepresentative', url, dbFlag, run, id, event, entity, adminRepresentative);
       }
 
-      for (let representative = representativesChunk * serverIndex; Math.min(representatives, representative < representativesChunk * (serverIndex + 1)); representative++) {
+      for (let representative = 0; representatives; representative++) {
         exec('representative', url, dbFlag, run, id, event, entity, representative);
       }
     }
