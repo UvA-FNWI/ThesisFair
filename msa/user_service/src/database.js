@@ -34,7 +34,7 @@ export const connect = async (uri) => {
 
   Representative = User.discriminator('Representative', new mongoose.Schema({
     enid: { type: mongoose.Schema.ObjectId, required: true },
-    repAdmin: Boolean,
+    repAdmin: { type: Boolean, default: false },
   }));
   return conn;
 }
