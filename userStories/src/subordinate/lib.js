@@ -194,6 +194,44 @@ export const pages = {
           },
         }
       }
-    }
+    },
+    entitiesDashboard: async () => {
+      return {
+        entities: await api.entity.getAll().exec(),
+
+        actions: {
+          updateEntity: async (enid) => {
+            await api.entity.update({
+              enid: enid,
+              name: 'The new name of the company',
+              description: 'The new company description set by the admin is waaaay beter than the previous',
+              type: 'research',
+            }).exec();
+          },
+          createEntity: async () => {
+            const entity = await api.entity.create({
+              name: 'The name of the company',
+              description: 'The company description set by the admin is waaaay beter than the previous',
+              type: 'company',
+            }).exec();
+
+            return {
+              entity: entity
+            }
+          },
+          updateEntity: async (evid) => {
+            await api.entity.create({
+              evid: evid,
+              name: 'The name is now different!',
+              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at vehicula neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam sagittis magna vitae interdum vehicula. Duis mi neque, accumsan vel lacus ac, pretium pellentesque est. Donec tellus purus, sodales sit amet eros nec, consectetur mattis quam. Ut pretium, est eu lacinia accumsan, quam nunc euismod mi, sit amet viverra dui lorem nec velit. In tempus, leo eu aliquet pretium, urna tellus rutrum quam, eget accumsan odio mauris imperdiet massa. Sed ut faucibus arcu. Fusce vel tortor vitae risus pulvinar luctus. Etiam at dui metus. Etiam odio nisi, imperdiet efficitur iaculis ac, feugiat ac massa. Aliquam pellentesque libero bibendum nunc volutpat, sit amet pharetra nisl efficitur. Suspendisse malesuada leo mauris. Aenean cursus mi et eros scelerisque, sed efficitur mauris volutpat. Donec volutpat enim id aliquet porttitor. Maecenas nec iaculis tortor.',
+              type: 'company',
+            }).exec();
+          },
+          deleteEntity: async (evid) => {
+            await api.entity.delete(evid).exec();
+          },
+        }
+      };
+    },
   }
 }
