@@ -1,6 +1,7 @@
 import api, { apiTokenData } from '../api.js';
 import { readFile } from 'fs/promises';
 
+const longDescription = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at vehicula neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam sagittis magna vitae interdum vehicula. Duis mi neque, accumsan vel lacus ac, pretium pellentesque est. Donec tellus purus, sodales sit amet eros nec, consectetur mattis quam. Ut pretium, est eu lacinia accumsan, quam nunc euismod mi, sit amet viverra dui lorem nec velit. In tempus, leo eu aliquet pretium, urna tellus rutrum quam, eget accumsan odio mauris imperdiet massa. Sed ut faucibus arcu. Fusce vel tortor vitae risus pulvinar luctus. Etiam at dui metus. Etiam odio nisi, imperdiet efficitur iaculis ac, feugiat ac massa. Aliquam pellentesque libero bibendum nunc volutpat, sit amet pharetra nisl efficitur. Suspendisse malesuada leo mauris. Aenean cursus mi et eros scelerisque, sed efficitur mauris volutpat. Donec volutpat enim id aliquet porttitor. Maecenas nec iaculis tortor.';
 export const sleep = (s) => new Promise((resolve) => setTimeout(resolve, s * 1000));
 export const randSleep = (min, max) => sleep(min + (Math.random() * max - min));
 
@@ -172,7 +173,7 @@ export const pages = {
             const event = await api.event.create({
               enabled: false,
               name: 'The next big thesisfair',
-              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id mauris eget odio euismod ornare. Maecenas cursus tortor mauris, vel gravida lacus venenatis non. Ut euismod semper felis, non rhoncus purus volutpat at. Mauris lorem metus, vestibulum at ornare nec, semper id nisi. Sed luctus, nulla id faucibus accumsan, quam tortor placerat lacus, id varius odio arcu vel neque. Sed rhoncus ex ex, aliquam ultrices diam cursus non. Integer scelerisque at est eget fringilla. Maecenas ornare velit ut sem consectetur dapibus. Nulla id purus pellentesque, blandit augue nec, commodo magna. Nulla sit amet nisl gravida, lobortis justo non, suscipit magna. Nam ultrices tortor vitae tristique vehicula. Maecenas ac eleifend odio, ac convallis massa. Cras placerat dapibus turpis, non pulvinar quam placerat in. Cras libero augue, mattis quis efficitur quis, posuere ut justo. Donec sem turpis, iaculis quis nibh eu, suscipit auctor augue. Praesent vitae imperdiet lectus, in mattis quam.',
+              description: longDescription,
               start: Date.now(),
               location: 'UvA',
               studentSubmitDeadline: new Date() + 7,
@@ -186,7 +187,7 @@ export const pages = {
             await api.event.update({
               evid: evid,
               name: 'The name is now different!',
-              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at vehicula neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam sagittis magna vitae interdum vehicula. Duis mi neque, accumsan vel lacus ac, pretium pellentesque est. Donec tellus purus, sodales sit amet eros nec, consectetur mattis quam. Ut pretium, est eu lacinia accumsan, quam nunc euismod mi, sit amet viverra dui lorem nec velit. In tempus, leo eu aliquet pretium, urna tellus rutrum quam, eget accumsan odio mauris imperdiet massa. Sed ut faucibus arcu. Fusce vel tortor vitae risus pulvinar luctus. Etiam at dui metus. Etiam odio nisi, imperdiet efficitur iaculis ac, feugiat ac massa. Aliquam pellentesque libero bibendum nunc volutpat, sit amet pharetra nisl efficitur. Suspendisse malesuada leo mauris. Aenean cursus mi et eros scelerisque, sed efficitur mauris volutpat. Donec volutpat enim id aliquet porttitor. Maecenas nec iaculis tortor.'
+              description: longDescription,
             }).exec();
           },
           deleteEvent: async (evid) => {
@@ -223,13 +224,47 @@ export const pages = {
             await api.entity.create({
               evid: evid,
               name: 'The name is now different!',
-              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at vehicula neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam sagittis magna vitae interdum vehicula. Duis mi neque, accumsan vel lacus ac, pretium pellentesque est. Donec tellus purus, sodales sit amet eros nec, consectetur mattis quam. Ut pretium, est eu lacinia accumsan, quam nunc euismod mi, sit amet viverra dui lorem nec velit. In tempus, leo eu aliquet pretium, urna tellus rutrum quam, eget accumsan odio mauris imperdiet massa. Sed ut faucibus arcu. Fusce vel tortor vitae risus pulvinar luctus. Etiam at dui metus. Etiam odio nisi, imperdiet efficitur iaculis ac, feugiat ac massa. Aliquam pellentesque libero bibendum nunc volutpat, sit amet pharetra nisl efficitur. Suspendisse malesuada leo mauris. Aenean cursus mi et eros scelerisque, sed efficitur mauris volutpat. Donec volutpat enim id aliquet porttitor. Maecenas nec iaculis tortor.',
+              description: longDescription,
               type: 'company',
             }).exec();
           },
           deleteEntity: async (evid) => {
             await api.entity.delete(evid).exec();
           },
+        }
+      };
+    },
+    projectsDashboard: async (evid) => {
+      return {
+        projects: await api.project.getOfEvent(evid).exec(),
+
+        actions: {
+          createProject: async () => {
+            const event = await api.event.get(evid, { entities: 1 }).exec();
+
+            const project = await api.project.create({
+              enid: event.entities[0],
+              evid: evid,
+              name: 'The most epic project ever',
+              description: longDescription,
+              datanoseLink: 'https://datanose.nl/epidProject',
+            }).exec();
+
+            return {
+              project: project,
+            }
+          },
+          updateProject: async (pid) => {
+            await api.project.update({
+              pid: pid,
+              name: 'The new name of the project!',
+              description: longDescription,
+              datanoseLink: 'https://datanose.nl/epidProject',
+            }).exec();
+          },
+          deleteProject: async (pid) => {
+            await api.project.delete(pid).exec();
+          }
         }
       };
     },
