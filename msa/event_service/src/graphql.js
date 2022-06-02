@@ -140,7 +140,6 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       const res = await rgraphql('API_entity', 'query($enid:ID!) { entity(enid:$enid) { enid } } ', { enid: args.enid });
-      console.log(res);
       if (res.errors) {
         console.error('Checking entity failed:', res.errors);
         throw new Error('Unexpected error while checking if entity exists');
