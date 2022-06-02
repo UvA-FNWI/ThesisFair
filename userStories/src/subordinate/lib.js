@@ -127,6 +127,27 @@ export const pages = {
               description: 'Lorem ipsum.',
               contact: [{ type: 'website', content: 'Lorem ipsum.'}, { type: 'phone', content: '+31 000000000' }, { type: 'email', content: 'contact@company.nl' }],
             }).exec();
+          },
+
+          createUser: () => {
+            return api.user.representative.create({
+              enid: apiTokenData.enid,
+              firstname: 'Employee firstname',
+              lastname: 'Employee lastname',
+              email: `${apiTokenData.enid} - ${Date.now()} - ${Math.random()*100}@company.nl`,
+              phone: '06 83277881'
+            }).exec();
+          },
+
+          updateUser: async (uid, admin) => {
+            await api.user.representative.update({
+              uid: uid,
+              repAdmin: admin
+            }).exec();
+          },
+
+          deleteUser: async (uid) => {
+            await api.user.delete(uid).exec();
           }
         }
       };
