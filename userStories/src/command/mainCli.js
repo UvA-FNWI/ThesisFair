@@ -82,7 +82,7 @@ const exec = (type, url, db, run, id, ...options) => {
           data: {
             type,
             options,
-            stderr: proc.stderr.read(),
+            stderr: proc.stderr.read().toString(),
           }
         });
       }
