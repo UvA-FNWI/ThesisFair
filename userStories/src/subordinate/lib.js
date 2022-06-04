@@ -2,7 +2,7 @@ import { readFile } from 'fs/promises';
 
 const longDescription = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed at vehicula neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam sagittis magna vitae interdum vehicula. Duis mi neque, accumsan vel lacus ac, pretium pellentesque est. Donec tellus purus, sodales sit amet eros nec, consectetur mattis quam. Ut pretium, est eu lacinia accumsan, quam nunc euismod mi, sit amet viverra dui lorem nec velit. In tempus, leo eu aliquet pretium, urna tellus rutrum quam, eget accumsan odio mauris imperdiet massa. Sed ut faucibus arcu. Fusce vel tortor vitae risus pulvinar luctus. Etiam at dui metus. Etiam odio nisi, imperdiet efficitur iaculis ac, feugiat ac massa. Aliquam pellentesque libero bibendum nunc volutpat, sit amet pharetra nisl efficitur. Suspendisse malesuada leo mauris. Aenean cursus mi et eros scelerisque, sed efficitur mauris volutpat. Donec volutpat enim id aliquet porttitor. Maecenas nec iaculis tortor.';
 export const sleep = (s) => new Promise((resolve) => setTimeout(resolve, s * 1000));
-export const randSleep = () => {}; //(min, max) => sleep(min + (Math.random() * max - min));
+export const randSleep = () => (min, max) => sleep(min + (Math.random() * max - min));
 
 export const loginStudent = async (api, event, student) => {
   await api.user.login(`student.${event}-${student}@student.uva.nl`, 'student');
