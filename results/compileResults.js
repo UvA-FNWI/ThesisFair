@@ -184,9 +184,9 @@ const genQuestions = async () => {
 }
 
 const main = async () => {
-  // if (existsSync(outputFile)) {
-  //   throw new Error('Output file already exists!');
-  // }
+  if (existsSync(outputFile)) {
+    console.error('Output file already exists. It will be overwritten if you continue!');
+  }
 
   const setupQuestions = await inquirer.prompt({
     type: 'input',
