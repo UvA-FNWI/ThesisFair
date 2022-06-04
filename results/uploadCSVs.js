@@ -54,9 +54,17 @@ const uploadDir = async (csvDir, db, run) => {
       continue;
     }
 
-    console.log('Loading', file);
+    const found = await Result.findOne({
+      proc: file,
+    });
+
+    if (found) {
+      console.log(`[x] File ${file} already uploaded!`);
+      continue;
+    }
+
     await uploadFile(path.join(csvDir, file), run);
-    console.log('Uploaded', file);
+    console.log('[+] Uploaded', file);
   }
 
   await mongoose.disconnect();
