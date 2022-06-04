@@ -10,7 +10,7 @@ helmInstalled=$(helm list -A)
 if [[ "$helmInstalled" == *"\nprometheus"* ]]; then
   kubectl create namespace monitoring
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  helm install prometheus prometheus-community/prometheus --namespace monitoring
+  helm install prometheus prometheus-community/prometheus --namespace monitoring --set server.global.scrape_interval=10s
 else
   echo "Prometheus already installed. Not re-installing"
 fi
@@ -20,7 +20,7 @@ if [[ "$helmInstalled" == *"\ntraefik"* ]]; then
   helm repo add traefik https://helm.traefik.io/traefik # Source code: https://github.com/traefik/traefik-helm-chart/
   helm install traefik traefik/traefik --set service.type=NodePort --set nodePort=true --set ports.web.nodePort=32080 --set ports.websecure.nodePort=32443 --set ports.traefik.expose=true
 else
-  echo "Prometheus already installed. Not re-installing"
+  echo "Traefik already installed. Not re-installing"
 fi
 
 ./build.sh

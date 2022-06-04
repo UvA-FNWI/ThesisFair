@@ -43,12 +43,6 @@ Execute `init.sh` on the server. This can be done by doing:
 1. Point the ssh command in `server/initKubernetes/build.sh`(line 12) to your server.
 1. Run `make init`
 
-## Configuring kubernetes
-To improve the accuricy of the prometheus monitoring we need to lower the scrape interval. To do this, execute the following command and set the scrape interval in the global section to 10s.
-```
-kubectl edit cm prometheus-server -n monitoring -o yaml
-```
-
 ## Running the ThesisFair software
 To deploy run `make up`.
 
