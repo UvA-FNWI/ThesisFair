@@ -9,7 +9,7 @@ loginRouter.post('/', async (req, res, next) => {
     return;
   }
 
-  const result = await rgraphql('API_user', 'query($email:String!,$password:String!) { apiToken(email:$email, password:$password) } ', { email: req.body.email, password: req.body.password });
+  const result = await rgraphql('api-user', 'query($email:String!,$password:String!) { apiToken(email:$email, password:$password) } ', { email: req.body.email, password: req.body.password });
 
   res.send(result);
 });

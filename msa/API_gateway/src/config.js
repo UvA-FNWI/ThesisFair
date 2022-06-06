@@ -1,3 +1,3 @@
 export const graphqlConfig = {
-    queues: ['API_event', 'API_entity', 'API_project', 'API_user', 'API_vote'],
+    queues: ['api-event', 'api-entity', 'api-project', 'api-user', 'api-vote'],
 }

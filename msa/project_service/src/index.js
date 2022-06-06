@@ -10,7 +10,7 @@ const main = async () => {
   await connectDB();
   await connect();
   await initSending();
-  receive('API_project', graphql);
+  receive('api-project', graphql);
   debug('Initialized, waiting for requests');
 }
 

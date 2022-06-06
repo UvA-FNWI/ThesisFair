@@ -6,7 +6,7 @@ import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Event } from './database.js';
 
 const checkEntitiesExist = async (entities) => {
-  const res = await rgraphql('API_entity', 'query($enids: [ID!]!){entities(enids:$enids){enid}}', { enids: entities });
+  const res = await rgraphql('api-entity', 'query($enids: [ID!]!){entities(enids:$enids){enid}}', { enids: entities });
   if (res.errors) {
     console.error('Checking entities failed', res.errors);
     throw new Error('Unexpected error occured while checking if entities exist');
@@ -139,7 +139,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED add an entity to an event');
       }
 
-      const res = await rgraphql('API_entity', 'query($enid:ID!) { entity(enid:$enid) { enid } } ', { enid: args.enid });
+      const res = await rgraphql('api-entity', 'query($enid:ID!) { entity(enid:$enid) { enid } } ', { enid: args.enid });
       if (res.errors) {
         console.error('Checking entity failed:', res.errors);
         throw new Error('Unexpected error while checking if entity exists');
