@@ -1,6 +1,8 @@
 import axios from 'axios';
 import http from 'http';
 
+export const channel = null; // Polyfill
+
 let handler;
 const server = http.createServer(async (req, res) => {
   const handler = queues[req.url];
@@ -35,7 +37,7 @@ export const receive = async (_, callback) => {
 }
 
 //* Sending
-export const initSending = async () => {}
+export const initSending = async () => {} // Polyfill
 
 export const rpc = (queue, data) => {
   return axios.post(`http://thesisfair-${queue}:8000`, data);

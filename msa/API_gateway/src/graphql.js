@@ -16,9 +16,11 @@ const getMiddleware = async () => {
     const subschemas = [];
     for (const queue of graphqlConfig.queues) {
         debug('Loading queue %s', queue);
-        await channel.assertQueue(queue, {
-            durable: false,
-        });
+        if (channel) {
+          await channel.assertQueue(queue, {
+              durable: false,
+          });
+        }
 
         const subexecutor = (args) => executor(queue, args);
         subschemas.push({
