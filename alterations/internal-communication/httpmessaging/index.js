@@ -1,7 +1,10 @@
 import axios from 'axios';
 import http from 'http';
 
+const RETRY_COUNT = 10;
 export const channel = null; // Polyfill
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 let handler;
 const server = http.createServer(async (req, res) => {
@@ -38,11 +41,17 @@ export const receive = async (_, callback) => {
 //* Sending
 export const initSending = async () => {} // Polyfill
 
-export const rpc = (queue, data) => {
-  try {
-    return axios.post(`http://${queue}:8000`, data).then((response) => response.data);
-  } catch (error) {
-    throw error;
+export const rpc = async (queue, data) => {
+  for (let tries = 0; tries < RETRY_COUNT; tries++) {
+    try {
+      const response = await axios.post(`http://${queue}:8000`, data);
+      return response.data;
+    } catch (error) {
+      if (tries === RETRY_COUNT) {
+        throw error;
+      }
+      await sleep(500);
+    }
   }
 }
 

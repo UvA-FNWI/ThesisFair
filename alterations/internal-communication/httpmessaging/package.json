@@ -1,6 +1,6 @@
 {
   "name": "@amicopo/httpmessaging",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A library which implements http messaging withing a microservice architecture",
   "main": "index.js",
   "type": "module",

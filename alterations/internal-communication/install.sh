@@ -17,7 +17,7 @@ find $targetDir/msa -name node_modules -prune -execdir rm -r {} +
 # End initializing build dir
 
 amqpPackageLine='"@amicopo/amqpmessaging": "^1.0.3"'
-newPackageLine='"@amicopo/httpmessaging": "^1.0.4"'
+newPackageLine='"@amicopo/httpmessaging": "^1.0.5"'
 
 # Replace library
 cp -r ./kubernetes $targetDir
