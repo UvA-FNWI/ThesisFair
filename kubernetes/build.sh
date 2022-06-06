@@ -12,6 +12,8 @@ for service in "${services[@]}"; do
   cp "./template.yaml" "build/$service.yaml"
 
   name=${service//\_/\-}
+  queueName="api-${service//\_service/}"
   sed -i "s/\$serviceName/$name/g" "build/$service.yaml"
   sed -i "s/\$imagePostFix/$service/g" "build/$service.yaml"
+  sed -i "s/\$queueName/$queueName/g" "build/$service.yaml"
 done
