@@ -9,7 +9,7 @@ spec:
   - ReadWriteOnce
   - ReadOnlyMany
   - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Recycle
   storageClassName: local-storage
   local:
     path: /data/volumes/storage$i
