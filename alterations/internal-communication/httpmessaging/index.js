@@ -5,7 +5,6 @@ export const channel = null; // Polyfill
 
 let handler;
 const server = http.createServer(async (req, res) => {
-  const handler = queues[req.url];
   if (!handler) {
     console.error('Received message for unexisting queue', req.url);
     return;
@@ -40,7 +39,11 @@ export const receive = async (_, callback) => {
 export const initSending = async () => {} // Polyfill
 
 export const rpc = (queue, data) => {
-  return axios.post(`http://thesisfair-${queue}:8000`, data);
+  try {
+    return axios.post(`http://${queue}:8000`, data).then((response) => response.data);
+  } catch (error) {
+    throw error;
+  }
 }
 
 export const rgraphql = (queue, query, variables = null , context = { user: { type: 'a' } }) => {
