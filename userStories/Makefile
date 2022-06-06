@@ -14,7 +14,7 @@ dev:
 	docker compose up
 
 run:
-	node src/subordinate/run.js 1 4 500 40 2 8
+	node src/subordinate/run.js 1 4 500 40 2 8 http://192.168.1.120:32080/
 
 test:
-	node src/subordinate/run.js 1 4 100 2 2 8
+	node src/subordinate/run.js 1 4 100 2 2 8 http://192.168.1.120:32080/
