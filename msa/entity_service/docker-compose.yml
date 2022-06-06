@@ -1,6 +1,6 @@
 version: "3"
 services:
-  entity_service:
+  api-entity:
     build:
       context: ./entity_service
       args:

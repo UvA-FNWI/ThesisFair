@@ -1,6 +1,6 @@
 version: "3"
 services:
-  vote_service:
+  api-vote:
     build:
       context: ./vote_service
       args:

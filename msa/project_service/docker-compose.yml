@@ -1,6 +1,6 @@
 version: "3"
 services:
-  project_service:
+  api-project:
     build:
       context: ./project_service
       args:

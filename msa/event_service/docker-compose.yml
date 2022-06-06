@@ -1,6 +1,6 @@
 version: "3"
 services:
-  event_service:
+  api-event:
     build:
       context: ./event_service
       args:
