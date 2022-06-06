@@ -7,7 +7,6 @@ fi
 mkdir -p build
 
 cp static/*.yaml build
-# curl -L -o build/rabbitmq-cluster-operator.yml "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
 
 for service in "${services[@]}"; do
   cp "./template.yaml" "build/$service.yaml"
