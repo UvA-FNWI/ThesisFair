@@ -46,6 +46,3 @@ export const rpc = (queue, data) => {
 export const rgraphql = (queue, query, variables = null , context = { user: { type: 'a' } }) => {
   return rpc(queue, { query, variables, context });
 }
-
-connect();
-process.on('SIGINT', disconnect);
