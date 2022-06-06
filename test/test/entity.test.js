@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { fail } from './lib.js';
-import api from '../../userStories/src/api.js';
+import api from './api.js';
 import initDB, { init, disconnect, db, models } from './db.js';
 
 const entity_import = {

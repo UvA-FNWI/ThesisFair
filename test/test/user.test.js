@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { fail } from './lib.js';
-import api, { apiTokenData } from '../../userStories/src/api.js';
+import api from './api.js';
 import initDB, { init, disconnect, db } from './db.js';
 
 describe('User', () => {
@@ -13,8 +13,8 @@ describe('User', () => {
     expect(db.users[5].email).to.equal('admin');
     await api.user.login('admin', 'admin');
 
-    expect(apiTokenData.uid).to.equal(db.users[5].uid);
-    expect(apiTokenData.type).to.equal('a');
+    expect(api.getApiTokenData().uid).to.equal(db.users[5].uid);
+    expect(api.getApiTokenData().type).to.equal('a');
   });
 
   //* Admin
