@@ -10,6 +10,17 @@ for dir in $root/*; do
     continue
   fi
 
-  make -C $dir build
-  make -C $dir push
+  make -C $dir build &
 done
+
+wait
+
+for dir in $root/*; do
+  if [[ ! -e $dir/Makefile ]]; then
+    continue
+  fi
+
+  make -C $dir push &
+done
+
+wait
