@@ -54,6 +54,7 @@ def makeGraph(query: str, start: datetime, end: datetime, name: str = 'out.jpg',
   plt.ylabel(ylabel)
   plt.xlabel(xlabel)
   plt.savefig(name)
+  plt.close()
 
 def makeRamGraph(experiment_name, start, end, averages_file: TextIOWrapper = None):
   used = getRange(f'node_memory_MemTotal_bytes{{instance="{node}"}} - node_memory_MemFree_bytes{{instance="{node}"}} - (node_memory_Cached_bytes{{instance="{node}"}} + node_memory_Buffers_bytes{{instance="{node}"}} + node_memory_SReclaimable_bytes{{instance="{node}"}})', start, end)['result'][0]
@@ -89,9 +90,14 @@ def makeRamGraph(experiment_name, start, end, averages_file: TextIOWrapper = Non
   plt.xlabel('Time since experiment start (seconds)')
   plt.legend(loc='lower right')
   plt.savefig(f'{experiment_name}/RAM_usage.jpg')
+  plt.close()
 
 def makeResults(experiment_name: str, start: datetime, end: datetime, rabbitMQ: bool = True):
-  # os.mkdir(f'./{experiment_name}') #! Uncomment me
+  if os.path.isdir(f'./{experiment_name}'):
+    print(f'Graphs for {experiment_name} alreay exist. Not recreating.')
+    return
+
+  os.mkdir(f'./{experiment_name}')
   averages_file = open(f'{experiment_name}/averages.txt', 'w')
 
   # Traefik
@@ -167,3 +173,9 @@ def makeResults(experiment_name: str, start: datetime, end: datetime, rabbitMQ: 
 
 if __name__ == '__main__':
   makeResults('BaseArchitectureScalabilityImproved - 1 4 50 2 2 8', datetime(2022, 6, 7, 10, 26, 00), datetime(2022, 6, 7, 10, 56, 00))
+  makeResults('ThesisFair BaseArchitectureScalabilityImproved2x - 1 4 100 4 2 8', datetime(2022, 6, 7, 11, 28, 00), datetime(2022, 6, 7, 11, 58, 00))
+  makeResults('ThesisFair BaseArchitectureScalabilityImproved3x - 1 4 150 6 2 8', datetime(2022, 6, 7, 12, 25, 00), datetime(2022, 6, 7, 12, 55, 00))
+  makeResults('ThesisFair BaseArchitectureScalabilityImproved4x - 1 4 200 8 2 8', datetime(2022, 6, 7, 12, 5, 00), datetime(2022, 6, 7, 12, 15, 00))
+  makeResults('ThesisFair httpCommunication1x - 1 4 50 2 2 8', datetime(2022, 6, 7, 13, 36, 00), datetime(2022, 6, 7, 14, 6, 00), rabbitMQ=False)
+  makeResults('ThesisFair httpCommunication2x - 1 4 100 4 2 8', datetime(2022, 6, 7, 14, 30, 00), datetime(2022, 6, 7, 15, 00, 00), rabbitMQ=False)
+  makeResults('ThesisFair httpCommunication3x - 1 4 150 6 2 8', datetime(2022, 6, 7, 15, 5, 00), datetime(2022, 6, 7, 15, 35, 00), rabbitMQ=False)
