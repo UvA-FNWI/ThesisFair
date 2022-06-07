@@ -29,7 +29,7 @@ find $targetDir/msa -type f -not -name package-lock.json -exec sed -i "s/amqpmes
 
 # Rename docker images
 find $targetDir/msa -name Makefile -exec sed -i -E "s/(imageName=ghcr.io\/quinten1333\/thesisfair-.+)/\1:httpcommunication/" {} \;
-find $targetDir/kubernetes/build -type f -exec sed -i -E "s/(image: ghcr.io\/quinten1333\/thesisfair-.+)/\1:httpcommunication/" {} \;
+find $targetDir/kubernetes -type f -not -name dbInit.yaml -exec sed -i -E "s/(image: ghcr.io\/quinten1333\/thesisfair-.+)/\1:httpcommunication/" {} \;
 
 # npm install in all directories
 for service in $targetDir/msa/*; do
