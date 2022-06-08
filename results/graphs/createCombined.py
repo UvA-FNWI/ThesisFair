@@ -25,7 +25,8 @@ def getRange(query: str, start: datetime, end: datetime, step: str = '20s'):
   return result['data']
 
 def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.jpg', ylabel: str = '', xlabel: str = '', process_data: callable = None, process_value: callable = None):
-  averages_file = open(os.path.join(output_dir, 'averages.txt'), 'w')
+  averages_file = open(os.path.join(output_dir, 'averages.txt'), 'a')
+  print(f'\n\n{filename}', file=averages_file)
   plt.figure()
 
   for experiment_name in experiments:
@@ -49,9 +50,12 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
 
       datapoint_values.append(values)
 
+    if len(result) == 0:
+      raise BaseException(f'No data found for experiment {experiment_name}  {name} {start} {end}')
+
     datapoint_values = np.array(datapoint_values).sum(axis=0)
     plt.plot(timestamps, datapoint_values, label=name)
-    print(f'{name} average value for {name}: {datapoint_values.mean()}', file=averages_file)
+    print(f'{name} average value: {datapoint_values.mean()}', file=averages_file)
 
   plt.legend()
   plt.ylabel(ylabel)
@@ -63,6 +67,9 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
 def makeResults(experiments, output_dir: str = 'out'):
   if not os.path.isdir(f'./{output_dir}'):
     os.mkdir(f'./{output_dir}')
+
+  if os.path.isfile(os.path.join(output_dir, 'averages.txt')):
+    os.remove(os.path.join(output_dir, 'averages.txt'))
 
   # Traefik
   makeGraph('sum(rate(traefik_service_requests_total{ code="200" }[20s]))', experiments,
@@ -135,49 +142,84 @@ def makeResults(experiments, output_dir: str = 'out'):
   )
 
 if __name__ == '__main__':
-  baseLoad = {
-    'ThesisFair BaseArchitectureScalabilityImproved - 1 4 50 2 2 8': {
+  baseLoad = { # 1 4 50 2 2 8
+    'ThesisFair BaseArchitectureScalabilityImproved': {
       'start': datetime(2022, 6, 7, 10, 26, 00),
       'end': datetime(2022, 6, 7, 10, 56, 00),
       'rabbitmq': True,
-      'name': 'base 1x'
+      'name': 'base'
     },
-    'ThesisFair httpCommunication1x - 1 4 50 2 2 8': {
+    'ThesisFair sidecarCommunication': {
+      'start': datetime(2022, 6, 8, 10, 41, 00),
+      'end': datetime(2022, 6, 8, 11, 11, 00),
+      'rabbitmq': True,
+      'name': 'sidecar'
+    },
+    'ThesisFair httpCommunication1x': {
       'start': datetime(2022, 6, 7, 13, 36, 00),
       'end': datetime(2022, 6, 7, 14, 6, 00),
       'rabbitmq': False,
-      'name': 'http 1x'
+      'name': 'http'
     },
-
+    'ThesisFair clienCaching': {
+      'start': datetime(2022, 6, 8, 20, 10, 00),
+      'end': datetime(2022, 6, 8, 20, 40, 00),
+      'rabbitmq': True,
+      'name': 'client caching'
+    },
   }
 
-  twoLoad = {
-    'ThesisFair BaseArchitectureScalabilityImproved2x - 1 4 100 4 2 8': {
+  twoLoad = { # 1 4 100 4 2 8
+    'ThesisFair BaseArchitectureScalabilityImproved2x': {
       'start': datetime(2022, 6, 7, 11, 28, 00),
       'end': datetime(2022, 6, 7, 11, 58, 00),
       'rabbitmq': True,
-      'name': 'base 2x'
+      'name': 'base'
     },
-    'ThesisFair httpCommunication2x - 1 4 100 4 2 8': {
+    'ThesisFair sidecarCommunication': {
+      'start': datetime(2022, 6, 8, 12, 2, 00),
+      'end': datetime(2022, 6, 8, 12, 32, 00),
+      'rabbitmq': True,
+      'name': 'sidecar'
+    },
+    'ThesisFair httpCommunication2x': {
       'start': datetime(2022, 6, 7, 14, 29, 50),
       'end': datetime(2022, 6, 7, 14, 59, 50),
       'rabbitmq': False,
-      'name': 'http 2x'
+      'name': 'http'
+    },
+    'ThesisFair clienCaching': {
+      'start': datetime(2022, 6, 8, 20, 48, 00),
+      'end': datetime(2022, 6, 8, 21, 18, 00),
+      'rabbitmq': True,
+      'name': 'client caching'
     },
   }
 
-  threeLoad = {
-    'ThesisFair BaseArchitectureScalabilityImproved3x - 1 4 150 6 2 8': {
+  threeLoad = { # 1 4 150 6 2 8
+    'ThesisFair BaseArchitectureScalabilityImproved3x': {
       'start': datetime(2022, 6, 7, 12, 25, 00),
       'end': datetime(2022, 6, 7, 12, 55, 00),
       'rabbitmq': True,
-      'name': 'base 3x'
+      'name': 'base'
     },
-    'ThesisFair httpCommunication3x - 1 4 150 6 2 8': {
+      'ThesisFair sidecarCommunication': {
+      'start': datetime(2022, 6, 8, 13, 3, 00),
+      'end': datetime(2022, 6, 8, 13, 33, 00),
+      'rabbitmq': True,
+      'name': 'sidecar'
+    },
+    'ThesisFair httpCommunication3x': {
       'start': datetime(2022, 6, 7, 15, 4, 50),
       'end': datetime(2022, 6, 7, 15, 34, 50),
       'rabbitmq': False,
-      'name': 'http 3x'
+      'name': 'http'
+    },
+    'ThesisFair clienCaching': {
+      'start': datetime(2022, 6, 8, 21, 25, 00),
+      'end': datetime(2022, 6, 8, 21, 55, 00),
+      'rabbitmq': True,
+      'name': 'client caching'
     },
   }
 
