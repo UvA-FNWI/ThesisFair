@@ -1,4 +1,4 @@
-storageVolumes=60
+storageVolumes=120
 
 if [[ -e build ]]; then
   rm -r build
