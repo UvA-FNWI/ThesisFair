@@ -1,5 +1,6 @@
 import axios from 'axios';
 import GraphQLBuilder from './GraphQLBuilder.js';
+import NodeCache from 'node-cache';
 
 let tracing = false;
 
@@ -97,6 +98,8 @@ const bodies = {
 export default (url) => {
   url ||= typeof window !== 'undefined' ? '/' : 'http://localhost:3000/';
   let trace = [];
+  let caching = false;
+  let cache;
 
   let apiToken = typeof localStorage !== 'undefined' ? localStorage.getItem('apiToken') : null;
   let apiTokenData = unpackToken(apiToken) || {};
@@ -178,6 +181,15 @@ export default (url) => {
   return {
     clearTrace: () => { trace = []; },
     getTrace: () => trace,
+    enableCaching: (ttl) => {
+      if (caching) {
+        console.error('Tried to enable caching twice!');
+        return;
+      }
+      caching = true;
+
+      cache = new NodeCache({ deleteOnExpire: true, checkperiod: ttl + 1, stdTTL: ttl, useClones: false });
+    },
     api: {
       getApiTokenData: () => apiTokenData,
       user: {
@@ -198,6 +210,7 @@ export default (url) => {
             args: {
               uid: { value: uid, type: 'ID!' },
             },
+            cache: caching ? { instance: cache, type: 'user', key: 'uid' } : false,
           }),
 
         getMultiple: (uids, projection) =>
@@ -208,6 +221,7 @@ export default (url) => {
             args: {
               uids: { value: uids, type: '[ID!]!' },
             },
+            cache: caching ? { instance: cache, type: 'user', key: 'uid', keys: 'uids', } : false,
           }),
 
 
@@ -220,6 +234,7 @@ export default (url) => {
             args: {
               uid: { value: uid, type: 'ID!' },
             },
+            cache: caching ? { instance: cache, type: 'user', key: 'uid', delete: true } : false,
           }
           ),
 
@@ -248,6 +263,7 @@ export default (url) => {
                 phone: { value: representative.phone, type: 'String' },
                 repAdmin: { value: representative.repAdmin, type: 'Boolean' },
               },
+              cache: caching ? { instance: cache, type: 'user', key: 'uid' } : false,
             }),
 
           /**
@@ -278,6 +294,7 @@ export default (url) => {
                 repAdmin: { value: representative.repAdmin, type: 'Boolean' },
                 password: { value: representative.password, type: 'String' },
               },
+              cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
             }),
         },
 
@@ -289,6 +306,7 @@ export default (url) => {
               args: {
                 uid: { value: uid, type: 'ID!' },
               },
+              cache: caching ? { instance: cache, type: 'userCV', key: 'uid' } : false,
             }),
           /**
            * @param {Object} student
@@ -314,6 +332,7 @@ export default (url) => {
                 phone: { value: student.phone, type: 'String' },
                 websites: { value: student.websites, type: '[String!]' },
               },
+              cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
             }),
           uploadCV: (uid, file) =>
             genGraphQLBuilder({
@@ -324,6 +343,7 @@ export default (url) => {
                 uid: { value: uid, type: 'ID!' },
                 file: { value: file, type: 'String!' },
               },
+              cache: caching ? { instance: cache, type: 'userCV', key: 'uid', update: true } : false,
             }),
           shareInfo: (uid, enid, share, projection) =>
             genGraphQLBuilder({
@@ -347,13 +367,15 @@ export default (url) => {
             body: bodies.Entity(projection),
             args: {
               enid: { value: enid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
           }),
         getAll: (evid, projection) =>
           genGraphQLBuilder({
             name: 'getAllEntity',
             functionPath: 'entitiesAll',
             body: bodies.Entity(projection),
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid', multiple: true } : false,
           }),
         getMultiple: (enids, projection) =>
           genGraphQLBuilder({
@@ -362,7 +384,8 @@ export default (url) => {
             body: bodies.Entity(projection),
             args: {
               enids: { value: enids, type: '[ID!]!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid', keys: 'enids' } : false,
           }),
 
         create: (entity, projection) =>
@@ -377,7 +400,8 @@ export default (url) => {
               type: { value: entity.type, type: 'String!' },
               contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
               external_id: { value: entity.external_id, type: 'Int' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
           }),
         update: (entity, projection) =>
           genGraphQLBuilder({
@@ -392,7 +416,8 @@ export default (url) => {
               type: { value: entity.type, type: 'String' },
               contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
               external_id: { value: entity.external_id, type: 'Int' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid', update: true } : false,
           }),
         delete: (enid, projection) =>
           genGraphQLBuilder({
@@ -402,7 +427,8 @@ export default (url) => {
             body: bodies.Entity(projection),
             args: {
               enid: { value: enid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid', delete: true } : false,
           }),
         import: (file, projection) =>
           genGraphQLBuilder({
@@ -412,7 +438,8 @@ export default (url) => {
             body: bodies.Entity(projection),
             args: {
               file: { value: file, type: 'String!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid', multiple: true } : false,
           }),
       },
       event: {
@@ -423,7 +450,8 @@ export default (url) => {
             body: bodies.Event(projection),
             args: {
               evid: { value: evid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'event', key: 'evid' } : false,
           }),
         getAll: (all = false, projection) =>
           genGraphQLBuilder({
@@ -432,7 +460,8 @@ export default (url) => {
             body: bodies.Event(projection),
             args: {
               all: { value: all, type: 'Boolean' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'event', key: 'evid', multiple: true } : false,
           }),
         create: (event, projection) =>
           genGraphQLBuilder({
@@ -448,7 +477,8 @@ export default (url) => {
               location: { value: event.location, type: 'String' },
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'event', key: 'evid' } : false,
           }),
         update: (event, projection) =>
           genGraphQLBuilder({
@@ -465,7 +495,8 @@ export default (url) => {
               location: { value: event.location, type: 'String' },
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
           }),
         delete: (evid, projection) =>
           genGraphQLBuilder({
@@ -475,7 +506,8 @@ export default (url) => {
             body: bodies.Event(projection),
             args: {
               evid: { value: evid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'event', key: 'evid', delete: true } : false,
           }),
         entity: {
           add: (evid, enid, projection) =>
@@ -487,7 +519,8 @@ export default (url) => {
               args: {
                 evid: { value: evid, type: 'ID!' },
                 enid: { value: enid, type: 'ID!' },
-              }
+              },
+              cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
             }),
           del: (evid, enid, projection) =>
             genGraphQLBuilder({
@@ -498,7 +531,8 @@ export default (url) => {
               args: {
                 evid: { value: evid, type: 'ID!' },
                 enid: { value: enid, type: 'ID!' },
-              }
+              },
+              cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
             }),
         }
       },
@@ -510,7 +544,8 @@ export default (url) => {
             body: bodies.Project(projection),
             args: {
               pid: { value: pid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid' } : false,
           }),
         getMultiple: (pids, projection) =>
           genGraphQLBuilder({
@@ -519,7 +554,8 @@ export default (url) => {
             body: bodies.Project(projection),
             args: {
               pids: { value: pids, type: '[ID!]!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', keys: 'pids' } : false,
           }),
         getOfEntity: (evid, enid, projection) =>
           genGraphQLBuilder({
@@ -529,7 +565,8 @@ export default (url) => {
             args: {
               evid: { value: evid, type: 'ID!' },
               enid: { value: enid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
         getOfEvent: (evid, projection) =>
           genGraphQLBuilder({
@@ -538,7 +575,8 @@ export default (url) => {
             body: bodies.Project(projection),
             args: {
               evid: { value: evid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
 
         create: (project, projection) =>
@@ -553,7 +591,8 @@ export default (url) => {
               name: { value: project.name, type: 'String!' },
               description: { value: project.description, type: 'String' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid' } : false,
           }),
         update: (project, projection) =>
           genGraphQLBuilder({
@@ -568,7 +607,8 @@ export default (url) => {
               name: { value: project.name, type: 'String' },
               description: { value: project.description, type: 'String' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,
           }),
         delete: (pid, projection) =>
           genGraphQLBuilder({
@@ -578,7 +618,8 @@ export default (url) => {
             body: bodies.Project(projection),
             args: {
               pid: { value: pid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', delete: true } : false,
           }),
         deleteOfEntity: (enid) =>
           genGraphQLBuilder({

@@ -15,6 +15,7 @@
     "bcrypt": "^5.0.1",
     "commander": "^9.2.0",
     "debug": "^4.3.4",
-    "mongoose": "^6.3.4"
+    "mongoose": "^6.3.4",
+    "node-cache": "^5.1.2"
   }
 }

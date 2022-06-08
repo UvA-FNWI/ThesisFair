@@ -4,8 +4,11 @@ export const initialize = () => {
   enableTrace();
 }
 
-export default async (url, running, callback, name, stories, args) => {
+export default async (url, running, caching, callback, name, stories, args) => {
   const api = genApi(url);
+  if (caching > 0) {
+    api.enableCaching(caching);
+  }
   let fn;
   while (running.running) {
     fn = stories[Math.floor(Math.random() * stories.length)];

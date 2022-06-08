@@ -11,7 +11,7 @@ const roles = { admin, adminRepresentative, representative, student }
 
 const simulations = [];
 const running = { running: true };
-let url, db, id, runName;
+let url, db, id, runName, caching;
 
 const Result = mongoose.model('Result', new mongoose.Schema({
   run: String,
@@ -45,7 +45,7 @@ const runSimulation = (type, url, ...options) => {
     }
   }
 
-  const sim = roles[type](url, running, callback, ...options);
+  const sim = roles[type](url, running, caching, callback, ...options);
   simulations.push(sim.then(() => { simulations.splice(simulations.indexOf(sim), 1); }));
 }
 
@@ -85,6 +85,7 @@ const run = async (events, admins, students, entities, adminRepresentatives, rep
 
   runName = options.run;
   db = !!options.db;
+  caching = options.caching;
   url = urlParam;
   id = mongoose.Types.ObjectId();
   if (db) {
@@ -146,6 +147,7 @@ const main = () => {
     .argument('[serverIndex]', 'The index of this server', (v) => parseInt(v), 0)
     .option('--db [dburi]', 'Dump the results to the mongodb database available at this url', false)
     .option('--run [name]', 'Name this run in the mongodb database', '')
+    .option('--caching <cache_ttl>', 'Enable the caching functionality in api.js', (v) => parseInt(v), 0)
     .action(run);
 
   program.parse();

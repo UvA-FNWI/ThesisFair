@@ -6,4 +6,4 @@ import manageAccounts from './manageAccounts.js';
 
 const stories = [updateAccount, updateEntity, manageAccounts];
 
-export default (url, running, callback, event, entity, adminRepresentative) => simulate(url, running, callback, 'adminRepresentative', stories, [event, entity, adminRepresentative])
+export default (url, running, caching, callback, event, entity, adminRepresentative) => simulate(url, running, caching, callback, 'adminRepresentative', stories, [event, entity, adminRepresentative])

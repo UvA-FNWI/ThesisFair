@@ -6,4 +6,4 @@ import manageProjects from './manageProjects.js';
 
 const stories = [manageEntities, manageEvents, manageProjects];
 
-export default (url, running, callback, event, admin) => simulate(url, running, callback, 'admin', stories, [event, admin])
+export default (url, running, caching, callback, event, admin) => simulate(url, running, caching, callback, 'admin', stories, [event, admin])
