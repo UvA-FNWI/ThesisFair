@@ -263,7 +263,7 @@ export default (url) => {
                 phone: { value: representative.phone, type: 'String' },
                 repAdmin: { value: representative.repAdmin, type: 'Boolean' },
               },
-              cache: caching ? { instance: cache, type: 'user', key: 'uid' } : false,
+              cache: caching ? { instance: cache, type: 'user', key: 'uid', create: true } : false,
             }),
 
           /**
@@ -401,7 +401,7 @@ export default (url) => {
               contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
               external_id: { value: entity.external_id, type: 'Int' },
             },
-            cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid', create: true } : false,
           }),
         update: (entity, projection) =>
           genGraphQLBuilder({
@@ -478,7 +478,7 @@ export default (url) => {
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
             },
-            cache: caching ? { instance: cache, type: 'event', key: 'evid' } : false,
+            cache: caching ? { instance: cache, type: 'event', key: 'evid', create: true } : false,
           }),
         update: (event, projection) =>
           genGraphQLBuilder({
@@ -592,7 +592,7 @@ export default (url) => {
               description: { value: project.description, type: 'String' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid' } : false,
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', create: true } : false,
           }),
         update: (project, projection) =>
           genGraphQLBuilder({

@@ -13,6 +13,7 @@ export default class GraphQLBuilder {
    * @param {String} [options.cache.key] The key which should be used for identifying resources
    * @param {Boolean} [options.cache.keys] The name of the array with which multiple documents are queried at once.
    * @param {Boolean} [options.cache.multiple] Indicate that multiple resources with request-time unkown ID's are requested
+   * @param {Boolean} [options.cache.create] Indicate that the resource is beign create and the id is not present in the arguments
    * @param {Boolean} [options.cache.update] Indicate that the resource is beign updated and the cache should be updated accordingly
    * @param {Boolean} [options.cache.delete] Indicate that the resource is beign deleted and the cache should be updated accordingly
    */
@@ -70,7 +71,7 @@ export default class GraphQLBuilder {
 
   exec = async (cache = true) => {
     const result = [];
-    if (this.cache && !this.cache.multiple && !this.cache.update && !this.cache.delete && cache) {
+    if (this.cache && !this.cache.multiple && !this.cache.create && !this.cache.update && !this.cache.delete && cache) {
 
       if (this.cache.keys) {
         const keys = this.args[this.cache.keys].value;
