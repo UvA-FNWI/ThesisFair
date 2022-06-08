@@ -36,6 +36,9 @@ spec:
           value: amqp://guest:guest@rabbitmq
         - name: queue
           value: api-gateway
+        resources:
+          requests:
+            cpu: 0.05
         imagePullPolicy: Always
       imagePullSecrets:
       - name: regghcr

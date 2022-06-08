@@ -49,6 +49,9 @@ spec:
           value: amqp://guest:guest@rabbitmq
         - name: queue
           value: api-user
+        resources:
+          requests:
+            cpu: 0.05
         imagePullPolicy: Always
       volumes:
       - name: cv-storage
