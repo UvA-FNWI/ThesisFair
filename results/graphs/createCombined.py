@@ -159,8 +159,8 @@ if __name__ == '__main__':
       'name': 'base 2x'
     },
     'ThesisFair httpCommunication2x - 1 4 100 4 2 8': {
-      'start': datetime(2022, 6, 7, 14, 30, 00),
-      'end': datetime(2022, 6, 7, 15, 00, 00),
+      'start': datetime(2022, 6, 7, 14, 29, 50),
+      'end': datetime(2022, 6, 7, 14, 59, 50),
       'rabbitmq': False,
       'name': 'http 2x'
     },
@@ -174,8 +174,8 @@ if __name__ == '__main__':
       'name': 'base 3x'
     },
     'ThesisFair httpCommunication3x - 1 4 150 6 2 8': {
-      'start': datetime(2022, 6, 7, 15, 5, 00),
-      'end': datetime(2022, 6, 7, 15, 35, 00),
+      'start': datetime(2022, 6, 7, 15, 4, 50),
+      'end': datetime(2022, 6, 7, 15, 34, 50),
       'rabbitmq': False,
       'name': 'http 3x'
     },
