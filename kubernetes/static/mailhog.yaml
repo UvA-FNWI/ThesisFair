@@ -17,6 +17,7 @@ spec:
         image: mailhog/mailhog
         ports:
         - containerPort: 8025
+        imagePullPolicy: IfNotPresent
       - name: clear-mails
         image: archlinux
         command:
@@ -24,6 +25,7 @@ spec:
         args:
         - -c
         - while true; do curl -X DELETE http://localhost:8025/api/v1/messages && sleep 10; done
+        imagePullPolicy: IfNotPresent
 
 ---
 

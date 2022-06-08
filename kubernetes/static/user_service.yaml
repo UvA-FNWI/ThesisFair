@@ -114,6 +114,7 @@ spec:
         volumeMounts:
         - name: data-user-service-mongodb
           mountPath: /data/db
+        imagePullPolicy: IfNotPresent
 
   volumeClaimTemplates:
   - metadata:

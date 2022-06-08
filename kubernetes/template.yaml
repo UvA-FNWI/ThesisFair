@@ -93,6 +93,7 @@ spec:
         volumeMounts:
         - name: data-$serviceName-mongodb
           mountPath: /data/db
+        imagePullPolicy: IfNotPresent
 
   volumeClaimTemplates:
   - metadata:
