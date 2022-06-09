@@ -9,6 +9,7 @@ from typing import List
 prometheus_server = 'http://localhost:8001/api/v1/namespaces/monitoring/services/prometheus-server:80/proxy/api/v1'
 service = 'default-service-api-gateway-80@kubernetes'
 node = '192.168.1.120:9100'
+line_styles = ['-.', '-', ':', '--']
 
 def getRange(query: str, start: datetime, end: datetime, step: str = '20s'):
   result = requests.get(f'{prometheus_server}/query_range', {
@@ -29,7 +30,7 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
   print(f'\n\n{filename}', file=averages_file)
   plt.figure()
 
-  for experiment_name in experiments:
+  for exp_id, experiment_name in enumerate(experiments):
     start = experiments[experiment_name]['start']
     end = experiments[experiment_name]['end']
     name = experiments[experiment_name]['name']
@@ -54,8 +55,9 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
       raise BaseException(f'No data found for experiment {experiment_name}  {name} {start} {end}')
 
     datapoint_values = np.array(datapoint_values).sum(axis=0)
-    plt.plot(timestamps, datapoint_values, label=name)
+    plt.plot(timestamps, datapoint_values, line_styles[exp_id], label=name)
     print(f'{name} average value: {datapoint_values.mean()}', file=averages_file)
+    print(f'{name} STD value: {datapoint_values.std()}', file=averages_file)
 
   plt.legend()
   plt.ylabel(ylabel)
