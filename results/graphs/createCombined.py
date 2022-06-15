@@ -28,6 +28,7 @@ def getRange(query: str, start: datetime, end: datetime, step: str = '20s'):
 def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.jpg', ylabel: str = '', xlabel: str = '', process_data: callable = None, process_value: callable = None):
   averages_file = open(os.path.join(output_dir, 'averages.txt'), 'a')
   print(f'\n\n{filename}', file=averages_file)
+  averages = {}
   plt.figure()
 
   for exp_id, experiment_name in enumerate(experiments):
@@ -56,15 +57,24 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
 
     datapoint_values = np.array(datapoint_values).sum(axis=0)
     plt.plot(timestamps, datapoint_values, line_styles[exp_id], label=name)
-    print(f'{name} average value: {datapoint_values.mean()}', file=averages_file)
-    print(f'{name} STD value: {datapoint_values.std()}', file=averages_file)
+
+    instances = np.array(getRange('count(kube_pod_container_status_ready{ namespace="default", container=~"api-gateway|.+-service" }) by (container)', start, end)['result'][0]['values'], object)[:, 1].astype(float)[:datapoint_values.shape[0]]
+    datapoint_values_per_instance = datapoint_values / instances
+
+    averages[name] = {
+      'mean': datapoint_values.mean(),
+      'std': datapoint_values.std(),
+      'mean_per_instance': datapoint_values_per_instance.mean(),
+      'std_per_instance': datapoint_values_per_instance.std()
+    }
+
 
   plt.legend()
   plt.ylabel(ylabel)
   plt.xlabel(xlabel)
   plt.savefig(os.path.join(output_dir, filename))
   plt.close()
-  averages_file.close()
+  return averages
 
 def makeResults(experiments, output_dir: str = 'out'):
   if not os.path.isdir(f'./{output_dir}'):
@@ -73,15 +83,17 @@ def makeResults(experiments, output_dir: str = 'out'):
   if os.path.isfile(os.path.join(output_dir, 'averages.txt')):
     os.remove(os.path.join(output_dir, 'averages.txt'))
 
+  averages = {}
+
   # Traefik
-  makeGraph('sum(rate(traefik_service_requests_total{ code="200" }[20s]))', experiments,
+  averages['Requests per second'] = makeGraph('sum(rate(traefik_service_requests_total{ code="200" }[20s]))', experiments,
     ylabel = 'Requests per second',
     xlabel='Time since experiment start (seconds)',
     filename = 'requests_per_second.jpg',
     output_dir= output_dir
   )
 
-  makeGraph('sum(rate(traefik_service_requests_total{ code!="200" }[20s]))', experiments,
+  averages['Errors per second'] = makeGraph('sum(rate(traefik_service_requests_total{ code!="200" }[20s]))', experiments,
     ylabel = 'Errors per second',
     xlabel='Time since experiment start (seconds)',
     filename = 'errors_per_second.jpg',
@@ -96,7 +108,7 @@ def makeResults(experiments, output_dir: str = 'out'):
   #   process_value= lambda values: values * 100,
   # )
 
-  makeGraph(f'sum(traefik_service_request_duration_seconds_sum{{service="{service}"}}) / sum(traefik_service_requests_total{{service="{service}"}}) * 1000', experiments,
+  averages['API Response time (ms)'] = makeGraph(f'sum(traefik_service_request_duration_seconds_sum{{service="{service}"}}) / sum(traefik_service_requests_total{{service="{service}"}}) * 1000', experiments,
     ylabel = 'API Response time (ms)',
     xlabel='Time since experiment start (seconds)',
     filename = 'API_response_time.jpg',
@@ -105,7 +117,7 @@ def makeResults(experiments, output_dir: str = 'out'):
 
 
   # # Kubernetes
-  makeGraph('count(kube_pod_container_status_ready{ namespace="default", container=~"api-gateway|.+-service" }) by (container)', experiments,
+  averages['Service instances'] = makeGraph('count(kube_pod_container_status_ready{ namespace="default", container=~"api-gateway|.+-service" }) by (container)', experiments,
     ylabel = 'Service instances',
     xlabel='Time since experiment start (seconds)',
     filename = 'service_instences_per_service.jpg',
@@ -114,7 +126,7 @@ def makeResults(experiments, output_dir: str = 'out'):
 
 
   # # Node
-  makeGraph(f'sum by (instance)(rate(node_cpu_seconds_total{{ mode="idle", instance="{node}"}}[20s])) * 100', experiments,
+  averages['CPU usage'] = makeGraph(f'sum by (instance)(rate(node_cpu_seconds_total{{ mode="idle", instance="{node}"}}[20s])) * 100', experiments,
     ylabel = 'CPU usage percentage',
     xlabel='Time since experiment start (seconds)',
     filename = 'CPU_usage.jpg',
@@ -122,7 +134,7 @@ def makeResults(experiments, output_dir: str = 'out'):
     output_dir= output_dir
   ) # Calculate average performance gain per extra CPU
 
-  makeGraph(f'node_memory_MemTotal_bytes{{instance="{node}"}} - node_memory_MemFree_bytes{{instance="{node}"}}', experiments,
+  averages['Memory usage'] = makeGraph(f'node_memory_MemTotal_bytes{{instance="{node}"}} - node_memory_MemFree_bytes{{instance="{node}"}}', experiments,
     ylabel = 'Memory usage (GiB)',
     xlabel='Time since experiment start (seconds)',
     filename = 'RAM_usage.jpg',
@@ -142,6 +154,26 @@ def makeResults(experiments, output_dir: str = 'out'):
     filename = 'RabbitMQ_queue.jpg',
     output_dir= output_dir
   )
+
+  return averages
+
+def makeCSV(table_columns, loads, loads_names, sep, file, per_instance=False):
+  mean = 'mean_per_instance' if per_instance else 'mean'
+  std = 'std_per_instance' if per_instance else 'std'
+
+  print('', *table_columns, sep=sep, file=file)
+  for dataType in loads[0]:
+    for load_index, load in enumerate(loads):
+      print(dataType + loads_names[load_index], end=sep, file=file)
+      for column in table_columns:
+        data = load[dataType][column]
+        if column == 'base':
+          print(f"{np.round(data[mean], 2)} ({np.round(data[std], 2)})", end=sep, file=file)
+          base = data
+        else:
+          print(f"{np.round(data[mean]/base[mean] * 100-100, 2)}% ({np.round(data[std], 2)})", end=sep, file=file)
+      print(file=file)
+
 
 if __name__ == '__main__':
   baseLoad = { # 1 4 50 2 2 8
@@ -225,6 +257,24 @@ if __name__ == '__main__':
     },
   }
 
-  makeResults(baseLoad, '1xLoad')
-  makeResults(twoLoad, '2xLoad')
-  makeResults(threeLoad, '3xLoad')
+  averages_1xload = makeResults(baseLoad, '1xLoad')
+  averages_2xload = makeResults(twoLoad, '2xLoad')
+  averages_3xload = makeResults(threeLoad, '3xLoad')
+
+  with open('averages.txt', 'w') as file:
+    makeCSV(
+      table_columns = ['base', 'http', 'sidecar', 'client caching'],
+      loads_names = [' 1x load', ' 2x load', ' 3x load'],
+      loads = [averages_1xload, averages_2xload, averages_3xload],
+      sep = ',',
+      file=file
+    )
+    print('\n', file=file)
+    makeCSV(
+      table_columns = ['base', 'http', 'sidecar', 'client caching'],
+      loads_names = [' 1x load', ' 2x load', ' 3x load'],
+      loads = [averages_1xload, averages_2xload, averages_3xload],
+      sep = ',',
+      file=file,
+      per_instance=True
+    )
