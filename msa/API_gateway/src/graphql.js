@@ -38,7 +38,7 @@ const getMiddleware = async () => {
         schema,
         graphiql: !!process.env.DEBUG,
         customFormatErrorFn: (err) => {
-          if (!process.env.DEBUG) {
+          if (!process.env.DEBUG && err.message) {
             const split = err.message.split(' ');
             if (split.length > 0 && errors[split[0]]) {
               const error = errors[split[0]];
