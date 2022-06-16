@@ -93,10 +93,10 @@ def makeResults(experiments, output_dir: str = 'out'):
     output_dir= output_dir
   )
 
-  averages['Errors per second'] = makeGraph('sum(rate(traefik_service_requests_total{ code!="200" }[20s]))', experiments,
-    ylabel = 'Errors per second',
+  averages['Errors'] = makeGraph('sum(increase(traefik_service_requests_total{ code!="200" }[20s]))', experiments,
+    ylabel = 'Errors over time',
     xlabel='Time since experiment start (seconds)',
-    filename = 'errors_per_second.jpg',
+    filename = 'errors.jpg',
     output_dir= output_dir
   )
 
