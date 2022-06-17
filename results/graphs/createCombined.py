@@ -1,10 +1,9 @@
-from io import TextIOWrapper
 import os
 import requests
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import List
+from scipy.stats import ttest_ind
 
 prometheus_server = 'http://localhost:8001/api/v1/namespaces/monitoring/services/prometheus-server:80/proxy/api/v1'
 service = 'default-service-api-gateway-80@kubernetes'
@@ -64,9 +63,15 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
     averages[name] = {
       'mean': datapoint_values.mean(),
       'std': datapoint_values.std(),
+      'significance': ttest_ind(base, datapoint_values) if name != 'base' else None,
       'mean_per_instance': datapoint_values_per_instance.mean(),
-      'std_per_instance': datapoint_values_per_instance.std()
+      'std_per_instance': datapoint_values_per_instance.std(),
+      'significance_per_instance': ttest_ind(base_per_instance, datapoint_values_per_instance) if name != 'base' else None
     }
+
+    if name == 'base':
+      base = datapoint_values
+      base_per_instance = datapoint_values_per_instance
 
 
   plt.legend()
@@ -157,11 +162,12 @@ def makeResults(experiments, output_dir: str = 'out'):
 
   return averages
 
-def makeCSV(table_columns, loads, loads_names, sep, file, per_instance=False):
+def makeCSV(table_columns, loads, loads_names, sep, file, per_instance=False, end = '\n', sectionSep=''):
   mean = 'mean_per_instance' if per_instance else 'mean'
   std = 'std_per_instance' if per_instance else 'std'
+  significance = 'significance_per_instance' if per_instance else 'significance'
 
-  print('', *table_columns, sep=sep, file=file)
+  print('', *table_columns, sep=sep, end=end + sectionSep, file=file)
   for dataType in loads[0]:
     for load_index, load in enumerate(loads):
       print(dataType + loads_names[load_index], end=sep, file=file)
@@ -171,8 +177,16 @@ def makeCSV(table_columns, loads, loads_names, sep, file, per_instance=False):
           print(f"{np.round(data[mean], 2)} ({np.round(data[std], 2)})", end=sep, file=file)
           base = data
         else:
-          print(f"{np.round(data[mean]/base[mean] * 100-100, 2)}% ({np.round(data[std], 2)})", end=sep, file=file)
-      print(file=file)
+          # pstr = "{:.2f}".format(data[significance].pvalue)
+          cellData = f"{np.round(data[mean]/base[mean] * 100-100, 2)}\\% ({np.round(data[std], 2)})"
+          if data[significance].pvalue > 0.05:
+            cellData = '\\textcolor{gray}{' + cellData + '}'
+          elif data[significance].pvalue < 0.001:
+            cellData = '\\textbf{' + cellData + '}'
+
+          print(cellData, end=(sep if column != table_columns[-1] else ''), file=file)
+      print(end=end, file=file)
+    print(end=sectionSep, file=file)
 
 
 if __name__ == '__main__':
@@ -184,8 +198,8 @@ if __name__ == '__main__':
       'name': 'base'
     },
     'ThesisFair sidecarCommunication': {
-      'start': datetime(2022, 6, 8, 10, 41, 00),
-      'end': datetime(2022, 6, 8, 11, 11, 00),
+      'start': datetime(2022, 6, 17, 15, 37, 00),
+      'end': datetime(2022, 6, 17, 16, 7, 00),
       'rabbitmq': True,
       'name': 'sidecar'
     },
@@ -211,8 +225,8 @@ if __name__ == '__main__':
       'name': 'base'
     },
     'ThesisFair sidecarCommunication': {
-      'start': datetime(2022, 6, 8, 12, 2, 00),
-      'end': datetime(2022, 6, 8, 12, 32, 00),
+      'start': datetime(2022, 6, 17, 11, 27, 00),
+      'end': datetime(2022, 6, 17, 11, 57, 00),
       'rabbitmq': True,
       'name': 'sidecar'
     },
@@ -237,9 +251,9 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'base'
     },
-      'ThesisFair sidecarCommunication': {
-      'start': datetime(2022, 6, 8, 13, 3, 00),
-      'end': datetime(2022, 6, 8, 13, 33, 00),
+    'ThesisFair sidecarCommunication': {
+      'start': datetime(2022, 6, 17, 12, 29, 00),
+      'end': datetime(2022, 6, 17, 12, 59, 00),
       'rabbitmq': True,
       'name': 'sidecar'
     },
@@ -262,19 +276,24 @@ if __name__ == '__main__':
   averages_3xload = makeResults(threeLoad, '3xLoad')
 
   with open('averages.txt', 'w') as file:
+    print('\\hline', file=file)
     makeCSV(
       table_columns = ['base', 'http', 'sidecar', 'client caching'],
       loads_names = [' 1x load', ' 2x load', ' 3x load'],
       loads = [averages_1xload, averages_2xload, averages_3xload],
-      sep = ',',
-      file=file
-    )
-    print('\n', file=file)
-    makeCSV(
-      table_columns = ['base', 'http', 'sidecar', 'client caching'],
-      loads_names = [' 1x load', ' 2x load', ' 3x load'],
-      loads = [averages_1xload, averages_2xload, averages_3xload],
-      sep = ',',
+      sep = '&',
       file=file,
-      per_instance=True
+      end='\\\\ \\hline\n',
+      sectionSep='\hline\n'
+    )
+    print('\n\\hline', file=file)
+    makeCSV(
+      table_columns = ['base', 'http', 'sidecar', 'client caching'],
+      loads_names = [' 1x load', ' 2x load', ' 3x load'],
+      loads = [averages_1xload, averages_2xload, averages_3xload],
+      sep = '&',
+      file=file,
+      per_instance=True,
+      end='\\\\ \\hline\n',
+      sectionSep='\hline\n'
     )
