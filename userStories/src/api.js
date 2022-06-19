@@ -356,6 +356,7 @@ export default (url) => {
                 enid: { value: enid, type: 'ID!' },
                 share: { value: share, type: 'Boolean!' },
               },
+              cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
             }),
         },
       },
@@ -639,7 +640,8 @@ export default (url) => {
             args: {
               file: { value: file, type: 'String!' },
               enid: { value: enid, type: 'ID!' },
-            }
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
       },
       votes: {
