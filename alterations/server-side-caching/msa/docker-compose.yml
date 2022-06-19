@@ -1,0 +1,29 @@
+version: "3"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: 'rabbitmq'
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
+    ports:
+      - 15672:15672
+    networks:
+      - thesisfair
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025
+    networks:
+      - thesisfair
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+    networks:
+      - thesisfair
+
+networks:
+  thesisfair:
+    name: thesisfair
