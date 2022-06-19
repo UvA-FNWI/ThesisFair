@@ -18,6 +18,7 @@ find $targetDir/msa -name node_modules -prune -execdir rm -r {} +
 
 # Update kubernetes configuration
 cp -r ./kubernetes $targetDir
+cp -r ./msa $targetDir
 
 # Install new dependency
 (cd $targetDir/msa/API_gateway && npm install redis@^4.1.0 )
