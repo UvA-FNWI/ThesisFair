@@ -6,6 +6,7 @@ import { parse as csvParser } from 'csv-parse';
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Entity } from './database.js';
 import config from './config.js';
+import { canGetAllEntities } from './permissions.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -19,11 +20,9 @@ schemaComposer.Query.addNestedFields({
   },
   entitiesAll: {
     type: '[Entity!]',
+    description: canGetAllEntities.toString(),
     resolve: (obj, args, req) => {
-      if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED get all entities');
-      }
-
+      canGetAllEntities(req);
       return Entity.find();
     },
   },

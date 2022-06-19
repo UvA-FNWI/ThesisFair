@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 
 import { User, Student, Representative, isValidObjectId } from './database.js';
+import { canGetUser, canGetUsers } from './permissions.js';
 
 const saltRounds = process.env.DEBUG ? 0 : 10;
 const hash = (password) => bcrypt.hash(password, saltRounds);
@@ -46,19 +47,12 @@ schemaComposer.Query.addNestedFields({
     args: {
       uid: 'ID!',
     },
+    description: canGetUser.toString(),
     resolve: async (obj, args, req) => {
       const user = await User.findById(args.uid);
-      if (!user) {
-        return null;
-      }
+      if (!user) { return null; }
 
-      if (!(req.user.type === 'a' ||
-        req.user.uid === args.uid ||
-        (user instanceof Student && req.user.type === 'r' && user.share.includes(req.user.enid)) ||
-        (user instanceof Representative && req.user.type === 'r' && req.user.repAdmin === true && req.user.enid == user.enid))) {
-        throw new Error('UNAUTHORIZED to get this ' + (user instanceof Student ? 'student' : 'representative'));
-      }
-
+      canGetUser(req, args, user);
       return user;
     },
   },
@@ -67,19 +61,10 @@ schemaComposer.Query.addNestedFields({
     args: {
       uids: '[ID!]!',
     },
+    description: canGetUsers.toString(),
     resolve: async (obj, args, req) => {
       const users = await User.find({ _id: { $in: args.uids } });
-
-      if (req.user.type !== 'a') {
-        for (const user of users) {
-          if (!(
-            (user instanceof Student && req.user.type === 'r' && user.share.includes(req.user.enid)) ||
-            (user instanceof Representative && req.user.type === 'r' && req.user.repAdmin === true && req.user.enid == user.enid))) {
-              throw new Error('UNAUTHORIZED to get ' + (user instanceof Student ? 'student' : 'representative') + ' with uid ' + user.uid);
-          }
-        }
-      }
-
+      canGetUsers(req, args, users);
       return users;
     },
   },
@@ -88,6 +73,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       uid: 'ID!',
     },
+    description: canGetUser.toString(),
     resolve: async (obj, args, req) => {
       if (!isValidObjectId(args.uid)) {
         throw new Error('Invalid uid supplied');
@@ -98,12 +84,7 @@ schemaComposer.Query.addNestedFields({
         return null;
       }
 
-      if (!(req.user.type === 'a' ||
-        req.user.uid === args.uid ||
-        (user instanceof Student && req.user.type === 'r' && user.share.includes(req.user.enid)) ||
-        (user instanceof Representative && req.user.type === 'r' && req.user.repAdmin === true && req.user.enid == user.enid))) {
-        throw new Error('UNAUTHORIZED to get this students CV');
-      }
+      canGetUser(req, args, user);
 
       const file = `./data/${args.uid}`;
       try {
@@ -114,8 +95,11 @@ schemaComposer.Query.addNestedFields({
 
       return readFile(file).then((content) => content.toString());
     }
-  },
-  'apiToken': {
+  }
+});
+
+schemaComposer.Mutation.addNestedFields({
+  'user.genApiToken': {
     type: 'String!',
     args: {
       email: 'String!',
@@ -159,9 +143,6 @@ schemaComposer.Query.addNestedFields({
       });
     },
   },
-});
-
-schemaComposer.Mutation.addNestedFields({
   'user.representative.create': {
     type: 'Representative',
     args: {

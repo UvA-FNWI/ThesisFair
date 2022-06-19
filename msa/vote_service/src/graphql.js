@@ -5,6 +5,7 @@ import { readFileSync } from 'fs';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Vote } from './database.js';
+import { canGetStudentVotes, canGetEntityVotes, canGetProjectVotes } from './permissions.js';
 // import config from './config.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
@@ -16,11 +17,9 @@ schemaComposer.Query.addNestedFields({
       uid: 'ID!',
       evid: 'ID!'
     },
+    description: canGetStudentVotes.toString(),
     resolve: (obj, args, req) => {
-      if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
-        throw new Error('UNAUTHORIZED get this students votes');
-      }
-
+      canGetStudentVotes(req, args);
       return Vote.findOne({ evid: args.evid, uid: args.uid }).then((result) => result ? result.votes.map((v) => v.pid) : null);
     }
   },
@@ -30,10 +29,9 @@ schemaComposer.Query.addNestedFields({
       enid: 'ID!',
       evid: 'ID!'
     },
+    description: canGetEntityVotes.toString(),
     resolve: async (obj, args, req) => {
-      if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enid === args.enid))) {
-        throw new Error('UNAUTHORIZED get this entities votes');
-      }
+      canGetEntityVotes(req, args);
 
       const votes = await Vote.find({ evid: args.evid, 'votes.enid': args.enid });
       if (!votes) { return null; }
@@ -56,10 +54,9 @@ schemaComposer.Query.addNestedFields({
       pid: 'ID!',
       evid: 'ID!'
     },
+    description: canGetProjectVotes.toString(),
     resolve: async (obj, args, req) => {
-      if (req.user.type === 's') {
-        throw new Error('UNAUTHORIZED get votes of projects');
-      }
+      canGetProjectVotes(req, args);
 
       const query = { evid: args.evid };
       if (req.user.type === 'a') {

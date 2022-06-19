@@ -4,6 +4,7 @@ import { readFileSync } from 'fs';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Event } from './database.js';
+import { canGetEvent, canGetEvents } from './permissions.js';
 
 const checkEntitiesExist = async (entities) => {
   const res = await rgraphql('api-entity', 'query($enids: [ID!]!){entities(enids:$enids){enid}}', { enids: entities });
@@ -28,14 +29,11 @@ schemaComposer.Query.addNestedFields({
     args: {
       evid: 'ID!',
     },
+    description: canGetEvent.toString(),
     resolve: async (obj, args, req) => {
       const event = await Event.findById(args.evid);
       if (!event) { return null; }
-
-      if (!event.enabled && req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED list disabled event');
-      }
-
+      canGetEvent(req, args, event);
       return event;
     },
   },
@@ -44,10 +42,9 @@ schemaComposer.Query.addNestedFields({
     args: {
       all: 'Boolean',
     },
+    description: canGetEvents.toString(),
     resolve: (obj, args, req) => {
-      if (args.all && req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED list all events');
-      }
+      canGetEvents(req, args);
 
       const filter = {};
       if (!args.all) {
