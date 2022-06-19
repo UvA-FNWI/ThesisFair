@@ -62,7 +62,6 @@ const getSelections = (type) => {
         }
       }
       return fields;
-      // return Object.keys(typeObj._fields).map(_getField);
     } else if (typeObj instanceof GraphQLUnionType) {
       return typeObj._types.reduce((arr, field) => {
         arr.push({
