@@ -104,11 +104,8 @@ schemaComposer.Query.addNestedFields({
 
       return readFile(file).then((content) => content.toString());
     }
-  }
-});
-
-schemaComposer.Mutation.addNestedFields({
-  'user.genApiToken': { // TODO: Move back to query part
+  },
+  'apiToken': {
     type: 'String!',
     args: {
       email: 'String!',
@@ -154,6 +151,9 @@ schemaComposer.Mutation.addNestedFields({
       });
     },
   },
+});
+
+schemaComposer.Mutation.addNestedFields({
   'user.representative.create': {
     type: 'Representative',
     args: {
