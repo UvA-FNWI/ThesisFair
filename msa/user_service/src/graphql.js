@@ -47,7 +47,10 @@ schemaComposer.Query.addNestedFields({
     args: {
       uid: 'ID!',
     },
-    description: canGetUser.toString(),
+    description: JSON.stringify({
+      checkPermissions: canGetUser.toString(),
+      caching: { type: 'user', key: 'uid' },
+    }),
     resolve: async (obj, args, req) => {
       const user = await User.findById(args.uid);
       if (!user) { return null; }
@@ -61,7 +64,10 @@ schemaComposer.Query.addNestedFields({
     args: {
       uids: '[ID!]!',
     },
-    description: canGetUsers.toString(),
+    description: JSON.stringify({
+      checkPermissions: canGetUsers.toString(),
+      caching: { type: 'user', key: 'uid', keys: 'uids' },
+    }),
     resolve: async (obj, args, req) => {
       const users = await User.find({ _id: { $in: args.uids } });
       canGetUsers(req, args, users);
@@ -73,7 +79,10 @@ schemaComposer.Query.addNestedFields({
     args: {
       uid: 'ID!',
     },
-    description: canGetUser.toString(),
+    description: JSON.stringify({
+      checkPermissions: canGetUser.toString(),
+      caching: { type: 'userCV', key: 'uid' },
+    }),
     resolve: async (obj, args, req) => {
       if (!isValidObjectId(args.uid)) {
         throw new Error('Invalid uid supplied');
@@ -99,12 +108,14 @@ schemaComposer.Query.addNestedFields({
 });
 
 schemaComposer.Mutation.addNestedFields({
-  'user.genApiToken': {
+  'user.genApiToken': { // TODO: Move back to query part
     type: 'String!',
     args: {
       email: 'String!',
       password: 'String!',
     },
+    description: JSON.stringify({
+    }),
     resolve: async (obj, args) => {
       const user = await User.findOne({ email: args.email });
       if (!user) { throw new Error('No user with that email found.'); }
@@ -153,6 +164,9 @@ schemaComposer.Mutation.addNestedFields({
       phone: 'String',
       repAdmin: 'Boolean',
     },
+    description: JSON.stringify({
+      caching: { type: 'user', key: 'uid', create: true },
+    }),
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' ||
         (req.user.type === 'r' &&
@@ -196,6 +210,9 @@ Password: ${password}
       repAdmin: 'Boolean',
       password: 'String',
     },
+    description: JSON.stringify({
+      caching: { type: 'user', key: 'uid', update: true },
+    }),
     resolve: async (obj, args, req) => {
       const uid = args.uid;
       delete args.uid;
@@ -233,6 +250,9 @@ Password: ${password}
       phone: 'String',
       websites: '[String!]',
     },
+    description: JSON.stringify({
+      caching: { type: 'user', key: 'uid', update: true },
+    }),
     resolve: async (obj, args, req) => {
       const uid = args.uid;
       delete args.uid;
@@ -250,6 +270,9 @@ Password: ${password}
       uid: 'ID!',
       file: 'String!',
     },
+    description: JSON.stringify({
+      caching: { type: 'userCV', key: 'uid', update: true },
+    }),
     resolve: async (obj, args, req) => {
       if (!isValidObjectId(args.uid)) {
         throw new Error('Invalid uid supplied');
@@ -270,6 +293,9 @@ Password: ${password}
       enid: 'ID!',
       share: 'Boolean!'
     },
+    description: JSON.stringify({
+      caching: { type: 'user', key: 'uid', update: true },
+    }),
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
         throw new Error('UNAUTHORIZED update share information');
@@ -290,6 +316,9 @@ Password: ${password}
     args: {
       uid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'user', key: 'uid', delete: true },
+    }),
     resolve: async (obj, args, req) => {
       const checkEnid = async () => {
         const user = await Representative.findById(args.uid, { enid: 1 });

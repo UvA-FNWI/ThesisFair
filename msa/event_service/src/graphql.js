@@ -29,7 +29,10 @@ schemaComposer.Query.addNestedFields({
     args: {
       evid: 'ID!',
     },
-    description: canGetEvent.toString(),
+    description: JSON.stringify({
+      permissionCheck: canGetEvent.toString(),
+      caching: { type: 'event', key: 'evid' }
+    }),
     resolve: async (obj, args, req) => {
       const event = await Event.findById(args.evid);
       if (!event) { return null; }
@@ -42,7 +45,10 @@ schemaComposer.Query.addNestedFields({
     args: {
       all: 'Boolean',
     },
-    description: canGetEvents.toString(),
+    description: JSON.stringify({
+      permissionCheck: canGetEvents.toString(),
+      caching: { type: 'event', key: 'evid', multiple: true }
+    }),
     resolve: (obj, args, req) => {
       canGetEvents(req, args);
 
@@ -73,6 +79,9 @@ schemaComposer.Mutation.addNestedFields({
       studentSubmitDeadline: 'Date',
       entities: '[ID!]'
     },
+    description: JSON.stringify({
+      caching: { type: 'event', key: 'evid', create: true }
+    }),
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED create a new event');
@@ -97,6 +106,9 @@ schemaComposer.Mutation.addNestedFields({
       studentSubmitDeadline: 'Date',
       entities: '[ID!]'
     },
+    description: JSON.stringify({
+      caching: { type: 'event', key: 'evid', update: true }
+    }),
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED update an event');
@@ -116,6 +128,9 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       evid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'event', key: 'evid', delete: true }
+    }),
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED create delete an event');
@@ -131,6 +146,9 @@ schemaComposer.Mutation.addNestedFields({
       evid: 'ID!',
       enid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'event', key: 'evid', update: true }
+    }),
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED add an entity to an event');
@@ -154,6 +172,9 @@ schemaComposer.Mutation.addNestedFields({
       evid: 'ID!',
       enid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'event', key: 'evid', update: true }
+    }),
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete an entity from an event');

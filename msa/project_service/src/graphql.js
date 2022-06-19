@@ -15,6 +15,9 @@ schemaComposer.Query.addNestedFields({
     args: {
       pid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid' }
+    }),
     resolve: (obj, args) => Project.findById(args.pid),
   },
   projects: {
@@ -22,6 +25,9 @@ schemaComposer.Query.addNestedFields({
     args: {
       pids: '[ID!]!'
     },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', keys: 'pids' }
+    }),
     resolve: (obj, args) => Project.find({ _id: { $in: args.pids } }),
   },
   projectsOfEntity: {
@@ -30,6 +36,9 @@ schemaComposer.Query.addNestedFields({
       evid: 'ID!',
       enid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', multiple: true }
+    }),
     resolve: (obj, args) => Project.find({ evid: args.evid, enid: args.enid }),
   },
   projectsOfEvent: {
@@ -37,6 +46,9 @@ schemaComposer.Query.addNestedFields({
     args: {
       evid: 'ID!'
     },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', multiple: true }
+    }),
     resolve: (obj, args) => Project.find({ evid: args.evid }),
   },
 });
@@ -51,6 +63,9 @@ schemaComposer.Mutation.addNestedFields({
       description: 'String',
       datanoseLink: 'String',
     },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', create: true }
+    }),
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED create project');
@@ -90,6 +105,9 @@ schemaComposer.Mutation.addNestedFields({
       description: 'String',
       datanoseLink: 'String',
     },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', update: true }
+    }),
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED update project');
@@ -129,6 +147,9 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       pid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', delete: true }
+    }),
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete project');
@@ -142,6 +163,9 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
+    description: JSON.stringify({
+
+    }),
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete project');
@@ -157,6 +181,9 @@ schemaComposer.Mutation.addNestedFields({
       file: 'String!',
       enid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', multiple: true }
+    }),
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED import projects');

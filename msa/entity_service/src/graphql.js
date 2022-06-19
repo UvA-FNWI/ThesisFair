@@ -16,11 +16,17 @@ schemaComposer.Query.addNestedFields({
     args: {
       enid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'entity', key: 'enid' },
+    }),
     resolve: (obj, args) => Entity.findById(args.enid),
   },
   entitiesAll: {
     type: '[Entity!]',
-    description: canGetAllEntities.toString(),
+    description: JSON.stringify({
+      checkPermissions: canGetAllEntities.toString(),
+      caching: { type: 'entity', key: 'enid', multiple: true },
+    }),
     resolve: (obj, args, req) => {
       canGetAllEntities(req);
       return Entity.find();
@@ -31,6 +37,9 @@ schemaComposer.Query.addNestedFields({
     args: {
       enids: '[ID!]!'
     },
+    description: JSON.stringify({
+      caching: { type: 'entity', key: 'enid', keys: 'enids' },
+    }),
     resolve: (obj, args) => Entity.find({ _id: { $in: args.enids } }),
   }
 });
@@ -45,6 +54,9 @@ schemaComposer.Mutation.addNestedFields({
       contact: '[EntityContactInfoIn!]',
       external_id: 'Int',
     },
+    description: JSON.stringify({
+      caching: { type: 'entity', key: 'enid', create: true },
+    }),
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED create entities');
@@ -63,6 +75,9 @@ schemaComposer.Mutation.addNestedFields({
       contact: '[EntityContactInfoIn!]',
       external_id: 'Int',
     },
+    description: JSON.stringify({
+      caching: { type: 'entity', key: 'enid', update: true },
+    }),
     resolve: (obj, args, req) => {
       const enid = args.enid;
       delete args.enid;
@@ -83,6 +98,9 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
+    description: JSON.stringify({
+      caching: { type: 'entity', key: 'enid', delete: true },
+    }),
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete entities');
@@ -110,6 +128,9 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       file: 'String!',
     },
+    description: JSON.stringify({
+      caching: { type: 'entity', key: 'enid', multiple: true },
+    }),
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED import entities');

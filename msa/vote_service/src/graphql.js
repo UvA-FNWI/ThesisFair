@@ -17,7 +17,9 @@ schemaComposer.Query.addNestedFields({
       uid: 'ID!',
       evid: 'ID!'
     },
-    description: canGetStudentVotes.toString(),
+    description: JSON.stringify({
+      checkPermissions: canGetStudentVotes.toString(),
+    }),
     resolve: (obj, args, req) => {
       canGetStudentVotes(req, args);
       return Vote.findOne({ evid: args.evid, uid: args.uid }).then((result) => result ? result.votes.map((v) => v.pid) : null);
@@ -29,7 +31,9 @@ schemaComposer.Query.addNestedFields({
       enid: 'ID!',
       evid: 'ID!'
     },
-    description: canGetEntityVotes.toString(),
+    description: JSON.stringify({
+      checkPermissions: canGetEntityVotes.toString(),
+    }),
     resolve: async (obj, args, req) => {
       canGetEntityVotes(req, args);
 
@@ -54,7 +58,9 @@ schemaComposer.Query.addNestedFields({
       pid: 'ID!',
       evid: 'ID!'
     },
-    description: canGetProjectVotes.toString(),
+    description: JSON.stringify({
+      checkPermissions: canGetProjectVotes.toString(),
+    }),
     resolve: async (obj, args, req) => {
       canGetProjectVotes(req, args);
 
