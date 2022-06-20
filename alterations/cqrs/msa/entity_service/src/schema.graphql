@@ -1,0 +1,18 @@
+input EntityContactInfoIn {
+  type: String!
+  content: String!
+}
+
+type EntityContactInfo {
+  type: String!
+  content: String!
+}
+
+type Entity {
+    enid: ID!
+    name: String!
+    description: String
+    type: String!
+    contact: [EntityContactInfo!]
+    external_id: Int
+}

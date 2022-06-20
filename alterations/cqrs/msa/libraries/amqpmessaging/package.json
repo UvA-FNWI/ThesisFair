@@ -1,0 +1,21 @@
+{
+  "name": "@amicopo/amqpmessaging",
+  "version": "1.0.3",
+  "description": "A library which implements amqp messaging withing a microservice architecture",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "amqp",
+    "messaging",
+    "thesisfair"
+  ],
+  "author": "Quinten Coltof",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.8.0",
+    "debug": "^4.3.4"
+  }
+}

@@ -1,0 +1,23 @@
+version: "3"
+services:
+  api_gateway:
+    build:
+      context: ./API_gateway
+      args:
+        NODE_ENV: ${NODE_ENV}
+    entrypoint: npm run ${NODE_CMD}
+    environment:
+      - jwtKey=${JWT_SECRET}
+    ports:
+      - "3000:80"
+    volumes:
+      - ./API_gateway/src:/app/src
+      - ./API_gateway/test:/app/test
+      - ./libraries:/libraries
+    networks:
+      - thesisfair
+
+networks:
+  thesisfair:
+    name: thesisfair
+    external: true

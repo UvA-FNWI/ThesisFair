@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-dbs
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-dbs
+        image: ghcr.io/quinten1333/thesisfair-user_stories
+        imagePullPolicy: Always
+        env:
+        - name: events
+          value: "1"
+        - name: admins
+          value: "4"
+        - name: students
+          value: "500"
+        - name: studentVotes
+          value: "5"
+        - name: entities
+          value: "40"
+        - name: adminRepresentatives
+          value: "2"
+        - name: representatives
+          value: "8"
+        - name: projects
+          value: "15"
+
+        - name: mongodbConStrEntity
+          value: mongodb://service-entity-service-mongodb/entity_service
+        - name: mongodbConStrEvent
+          value: mongodb://service-event-service-mongodb/event_service
+        - name: mongodbConStrProject
+          value: mongodb://service-project-service-mongodb/project_service
+        - name: mongodbConStrUser
+          value: mongodb://service-user-service-mongodb/user_service
+        - name: mongodbConStrVote
+          value: mongodb://service-vote-service-mongodb/vote_service
+      restartPolicy: Never
+      imagePullSecrets:
+      - name: regghcr
+  backoffLimit: 1

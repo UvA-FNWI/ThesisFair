@@ -1,0 +1,23 @@
+{
+  "name": "event_service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "DEBUG=API_gateway:* DEBUG_COLORS=true nodemon ./src/index.js",
+    "production": "node ./src/index.js"
+  },
+  "author": "Quinten Coltof",
+  "license": "ISC",
+  "dependencies": {
+    "@amicopo/amqpmessaging": "^1.0.3",
+    "debug": "^4.3.4",
+    "graphql": "^16.3.0",
+    "graphql-compose": "^9.0.8",
+    "mongoose": "^6.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
