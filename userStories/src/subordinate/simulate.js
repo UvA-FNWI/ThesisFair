@@ -26,7 +26,7 @@ export default async (url, running, caching, callback, name, stories, args) => {
         fn: fn.name,
         args: args,
         trace: api.getTrace(),
-        error: JSON.stringify(error),
+        error: error.message,
       });
     }
 
