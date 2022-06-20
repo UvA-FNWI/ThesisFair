@@ -1,4 +1,4 @@
-imageName=ghcr.io/quinten1333/thesisfair-entity_service
+imageName=ghcr.io/quinten1333/thesisfair-entity_service:base
 
 .phony: build push dev
 

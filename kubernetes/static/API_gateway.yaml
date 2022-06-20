@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: ghcr.io/quinten1333/thesisfair-api_gateway
+        image: ghcr.io/quinten1333/thesisfair-api_gateway:base
         ports:
         - containerPort: 80
         env:

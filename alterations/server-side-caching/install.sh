@@ -24,8 +24,8 @@ cp -r ./msa $targetDir
 (cd $targetDir/msa/API_gateway && npm install redis@^4.1.0 )
 
 # Rename docker images
-find $targetDir/msa -name Makefile -exec sed -i -E "s/(imageName=ghcr.io\/quinten1333\/thesisfair-.+)/\1:server-side-caching/" {} \;
-find $targetDir/kubernetes -type f -not -name dbInit.yaml -exec sed -i -E "s/(image: ghcr.io\/quinten1333\/thesisfair-.+)/\1:server-side-caching/" {} \;
+find $targetDir/msa -name Makefile -exec sed -i -E "s/(imageName=ghcr.io\/quinten1333\/thesisfair-.+):base/\1:server-side-caching/" {} \;
+find $targetDir/kubernetes -type f -not -name dbInit.yaml -exec sed -i -E "s/(image: ghcr.io\/quinten1333\/thesisfair-.+):base/\1:server-side-caching/" {} \;
 
 # npm install in all directories
 for service in $targetDir/msa/*; do

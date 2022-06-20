@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: $serviceName
-        image: ghcr.io/quinten1333/thesisfair-$imagePostFix
+        image: ghcr.io/quinten1333/thesisfair-$imagePostFix:base
         env:
           - name: mongodbConStr
             value: mongodb://service-$serviceName-mongodb/$imagePostFix

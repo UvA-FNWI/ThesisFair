@@ -30,8 +30,8 @@ find $targetDir/msa -maxdepth 2 -type f -name package.json -exec sed -i "s/${amq
 find $targetDir/msa -type f -not -name package-lock.json -exec sed -i "s/amqpmessaging/sidecarclient/g" {} \;
 
 # Rename docker images
-find $targetDir/msa -name Makefile -exec sed -i -E "s/(imageName=ghcr.io\/quinten1333\/thesisfair-.+)/\1:sidecarmessaging/" {} \;
-find $targetDir/kubernetes -type f -not -name dbInit.yaml -exec sed -i -E "s/(image: ghcr.io\/quinten1333\/thesisfair-.+)/\1:sidecarmessaging/" {} \;
+find $targetDir/msa -name Makefile -exec sed -i -E "s/(imageName=ghcr.io\/quinten1333\/thesisfair-.+):base/\1:sidecarmessaging/" {} \;
+find $targetDir/kubernetes -type f -not -name dbInit.yaml -exec sed -i -E "s/(image: ghcr.io\/quinten1333\/thesisfair-.+):base/\1:sidecarmessaging/" {} \;
 
 # npm install in all directories
 for service in $targetDir/msa/*; do
