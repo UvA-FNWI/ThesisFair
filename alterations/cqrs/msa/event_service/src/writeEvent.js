@@ -1,20 +1,20 @@
 import { Event } from './database.js';
 
 const events = {
-  create: (data, identifier) => {
-    Event.create(data);
+  create: async (data, identifier) => {
+    await Event.create(data);
   },
-  update: (data, identifier) => {
-    Event.updateOne({ _id: identifier }, data);
+  update: async (data, identifier) => {
+    await Event.updateOne({ _id: identifier }, data);
   },
-  delete: (data, identifier) => {
-    Event.deleteOne(identifier);
+  delete: async (data, identifier) => {
+    await Event.deleteOne(identifier);
   },
-  'entity.add': (data, identifier) => {
-    Event.updateOne({ _id: identifier }, { $push: { entities: data } });
+  'entity.add': async (data, identifier) => {
+    await Event.updateOne({ _id: identifier }, { $push: { entities: data } });
   },
-  'entity.del': (data, identifier) => {
-    Event.updateOne({ _id: identifier }, { $pull: { entities: data } });
+  'entity.del': async (data, identifier) => {
+    await Event.updateOne({ _id: identifier }, { $pull: { entities: data } });
   }
 }
 

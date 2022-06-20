@@ -1,14 +1,14 @@
 import { Entity } from './database.js';
 
 const events = {
-  create: (data, identifier) => {
-    Entity.create(data);
+  create: async (data, identifier) => {
+    await Entity.create(data);
   },
-  update: (data, identifier) => {
-    Entity.updateOne({ _id: identifier }, data);
+  update: async (data, identifier) => {
+    await Entity.updateOne({ _id: identifier }, data);
   },
-  delete: (data, identifier) => {
-    Entity.deleteOne({ _id: identifier });
+  delete: async (data, identifier) => {
+    await Entity.deleteOne({ _id: identifier });
   },
 }
 
