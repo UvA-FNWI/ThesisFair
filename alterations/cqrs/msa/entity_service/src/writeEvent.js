@@ -1,35 +1,21 @@
 import { Entity } from './database.js';
 
-const create = (data, identifier) => {
-  console.log('creating', data, identifier);
-  Entity.create(data);
-}
-
-const update = (data, identifier) => {
-  console.log('updating', data, identifier);
-  Entity.updateOne(identifier, data);
-}
-
-const del = (data, identifier) => {
-  console.log('deleting', data, identifier);
-  Entity.deleteOne(identifier);
+const events = {
+  create: (data, identifier) => {
+    Entity.create(data);
+  },
+  update: (data, identifier) => {
+    Entity.updateOne({ _id: identifier }, data);
+  },
+  delete: (data, identifier) => {
+    Entity.deleteOne({ _id: identifier });
+  },
 }
 
 export default (payload) => {
-  switch (payload.operation) {
-    case 'create':
-      create(payload.data, payload.identifier);
-      break;
-
-    case 'update':
-      update(payload.data, payload.identifier);
-      break;
-
-    case 'delete':
-      del(payload.data, payload.identifier);
-      break;
-
-    default:
-      throw new Error('Unkown operation: ' + payload.operation);
+  if (!(payload.operation in events)) {
+    throw new Error('Unkown operation: ' + payload.operation);
   }
+
+  return events[payload.operation](payload.data, payload.identifier);
 }

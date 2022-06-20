@@ -15,8 +15,7 @@ const main = async () => {
     if (payload.event === 'graphql') {
       return graphql(payload);
     } else if (payload.event === 'write') {
-      console.log(payload);
-      // write(payload);
+      write(payload);
     }
   });
   debug('Initialized, waiting for requests');
