@@ -358,5 +358,5 @@ if (!existsSync('./data')) {
 
 const schema = schemaComposer.buildSchema();
 
-const executeGraphql = (query, variableValues = {}, contextValue = {}) => graphql({ schema, source: query, variableValues, contextValue });
+const executeGraphql = ({ query, variables = {}, context = {} }) => graphql({ schema, source: query, variableValues: variables, contextValue: context });
 export default executeGraphql;

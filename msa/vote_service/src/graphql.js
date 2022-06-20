@@ -133,5 +133,5 @@ schemaComposer.Mutation.addNestedFields({
 
 const schema = schemaComposer.buildSchema();
 
-const executeGrahpql = (query, variableValues = {}, contextValue = {}) => graphql({ schema, source: query, variableValues, contextValue });
-export default executeGrahpql;
+const executeGraphql = ({ query, variables = {}, context = {} }) => graphql({ schema, source: query, variableValues: variables, contextValue: context });
+export default executeGraphql;
