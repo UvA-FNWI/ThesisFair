@@ -1,0 +1,41 @@
+interface UserBase {
+  uid: ID!
+  firstname: String
+  lastname: String
+  email: String!
+  phone: String
+}
+
+type Student implements UserBase {
+  uid: ID!
+  firstname: String
+  lastname: String
+  email: String!
+  phone: String
+
+  studentnumber: String!
+  websites: [String!]
+  studies: [String!]
+  share: [ID!]
+}
+
+type Representative implements UserBase {
+  uid: ID!
+  firstname: String
+  lastname: String
+  email: String!
+  phone: String
+
+  enid: ID!
+  repAdmin: Boolean!
+}
+
+type Admin implements UserBase {
+  uid: ID!
+  firstname: String
+  lastname: String
+  email: String!
+  phone: String
+}
+
+union User = Student | Representative | Admin
