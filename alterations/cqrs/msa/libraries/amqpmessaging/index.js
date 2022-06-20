@@ -53,9 +53,11 @@ export const receive = async (queue, callback) => {
     debug('Recv corr: %ds, reply:To %s', msg.properties.correlationId, msg.properties.replyTo)
 
     const payload = JSON.parse(msg.content.toString());
-    const reply = await callback(payload.query, payload.variables, payload.context);
+    const reply = await callback(payload);
 
-    channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(reply)), { correlationId: msg.properties.correlationId });
+    if (msg.properties.replyTo) {
+      channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(reply)), { correlationId: msg.properties.correlationId });
+    }
     channel.ack(msg);
   });
 }
@@ -100,5 +102,5 @@ export const rpc = (queue, data) => {
 }
 
 export const rgraphql = (queue, query, variables = null , context = { user: { type: 'a' } }) => {
-  return rpc(queue, { query, variables, context });
+  return rpc(queue, { event: 'graphql', query, variables, context });
 }
