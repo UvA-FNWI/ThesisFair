@@ -16,7 +16,6 @@ const events = {
 }
 
 export default (payload) => {
-  console.log(payload);
   if (!(payload.operation in events)) {
     throw new Error('Unkown operation: ' + payload.operation);
   }
