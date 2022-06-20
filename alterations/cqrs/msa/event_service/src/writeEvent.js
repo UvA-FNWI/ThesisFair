@@ -8,7 +8,7 @@ const events = {
     await Event.updateOne({ _id: identifier }, data);
   },
   delete: async (data, identifier) => {
-    await Event.deleteOne(identifier);
+    await Event.deleteOne({ _id: identifier });
   },
   'entity.add': async (data, identifier) => {
     await Event.updateOne({ _id: identifier }, { $push: { entities: data } });
