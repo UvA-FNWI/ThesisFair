@@ -1,0 +1,8 @@
+type Project {
+  pid: ID!
+  enid: ID!
+  evid: ID!
+  name: String!
+  description: String
+  datanoseLink: String
+}
