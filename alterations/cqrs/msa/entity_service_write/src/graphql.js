@@ -97,8 +97,8 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       const [projects, users] = await Promise.all([
-        rgraphql('api-project', 'mutation deleteLinkedProjects($enid: ID!) { project { deleteOfEntity(enid: $enid) } }', { enid: args.enid }),
-        rgraphql('api-user', 'mutation deleteLinkedUsers($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: args.enid }),
+        rgraphql('api-project-write', 'mutation deleteLinkedProjects($enid: ID!) { project { deleteOfEntity(enid: $enid) } }', { enid: args.enid }),
+        rgraphql('api-user-write', 'mutation deleteLinkedUsers($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: args.enid }),
       ]);
       if (projects.errors || !projects.data.project || !projects.data.project.deleteOfEntity) {
         console.error('Deleting linked projects failed', projects.errors);
