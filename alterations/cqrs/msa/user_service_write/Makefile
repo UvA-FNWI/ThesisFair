@@ -1,4 +1,4 @@
-imageName=ghcr.io/quinten1333/thesisfair-user_service:cqrs
+imageName=ghcr.io/quinten1333/thesisfair-user_service:cqrs-write
 
 .phony: build push dev
 
