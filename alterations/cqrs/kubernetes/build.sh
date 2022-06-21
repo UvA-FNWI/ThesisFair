@@ -1,4 +1,4 @@
-services=("entity_service" "event_service" "project_service" "vote_service")
+services=("entity_service" "event_service" "project_service")
 
 if [[ -e build ]]; then
   rm -r build
