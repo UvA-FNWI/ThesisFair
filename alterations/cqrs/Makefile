@@ -1,5 +1,5 @@
 update:
-	../../scripts/updateContainerRepo.sh ./msa
+	../scripts/updateContainerRepo.sh ./msa
 
 up:
 	cd kubernetes && ./build.sh
