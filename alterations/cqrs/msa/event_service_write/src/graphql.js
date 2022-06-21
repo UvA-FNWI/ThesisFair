@@ -97,7 +97,7 @@ schemaComposer.Mutation.addNestedFields({
 
       CQRSEvent.create({
         operation: 'update',
-        data: event.toObject(),
+        data: args,
         identifier: evid,
       });
 

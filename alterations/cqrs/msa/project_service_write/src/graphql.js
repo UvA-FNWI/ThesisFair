@@ -117,7 +117,7 @@ schemaComposer.Mutation.addNestedFields({
 
       await Event.create({
         operation: 'update',
-        data: project.toObject(),
+        data: args,
         identifier: pid,
       });
 
