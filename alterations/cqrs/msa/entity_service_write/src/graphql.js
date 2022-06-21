@@ -1,11 +1,9 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
-import { parse as csvParser } from 'csv-parse';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Entity, Event } from './database.js';
-import config from './config.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
