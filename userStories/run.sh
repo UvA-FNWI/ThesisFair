@@ -11,7 +11,10 @@ companies=$(( 2 * $workload ))
 caching=''
 if [[ $3 == 'caching' ]]; then
   caching='--caching 60'
+  echo "Caching enabled"
 fi
+
+date
 
 # 50 students and 2 companies is 1 unit
 for ((i = 0 ; i < processes ; i++)); do
