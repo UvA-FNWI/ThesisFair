@@ -8,7 +8,8 @@ from scipy.stats import ttest_ind
 prometheus_server = 'http://localhost:8001/api/v1/namespaces/monitoring/services/prometheus-server:80/proxy/api/v1'
 service = 'default-service-api-gateway-80@kubernetes'
 node = '192.168.1.120:9100'
-line_styles = ['-.', '-', ':', '--']
+# line_styles = ['-.', '-', ':', '--', (0, (3, 5, 1, 5, 1, 5)), (0, (3, 10, 1, 10)), (0, (5, 10))] # linestyle=<- that
+line_styles = ['-.', '-', ':', '--', 'r', 'g', 'b']
 
 def getRange(query: str, start: datetime, end: datetime, step: str = '20s'):
   result = requests.get(f'{prometheus_server}/query_range', {
@@ -215,6 +216,24 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'client caching'
     },
+    'ThesisFair serverCaching': {
+      'start': datetime(2022, 6, 20, 12, 6, 00),
+      'end': datetime(2022, 6, 20, 12, 36, 00),
+      'rabbitmq': True,
+      'name': 'server caching'
+    },
+    'ThesisFair clientServerCaching': {
+      'start': datetime(2022, 6, 21, 9, 52, 00),
+      'end': datetime(2022, 6, 21, 10, 22, 00),
+      'rabbitmq': True,
+      'name': 'client + server caching'
+    },
+    'ThesisFair cqrs': {
+      'start': datetime(2022, 6, 21, 18, 6, 00),
+      'end': datetime(2022, 6, 21, 18, 36, 00),
+      'rabbitmq': True,
+      'name': 'cqrs'
+    },
   }
 
   twoLoad = { # 1 4 100 4 2 8
@@ -242,6 +261,24 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'client caching'
     },
+    'ThesisFair serverCaching': {
+      'start': datetime(2022, 6, 20, 12, 41, 00),
+      'end': datetime(2022, 6, 20, 13, 11, 00),
+      'rabbitmq': True,
+      'name': 'server caching'
+    },
+    'ThesisFair clientServerCaching': {
+      'start': datetime(2022, 6, 21, 11, 19, 00),
+      'end': datetime(2022, 6, 21, 11, 49, 00),
+      'rabbitmq': True,
+      'name': 'client + server caching'
+    },
+    'ThesisFair cqrs': {
+      'start': datetime(2022, 6, 21, 19, 1, 00),
+      'end': datetime(2022, 6, 21, 19, 31, 00),
+      'rabbitmq': True,
+      'name': 'cqrs'
+    },
   }
 
   threeLoad = { # 1 4 150 6 2 8
@@ -268,6 +305,24 @@ if __name__ == '__main__':
       'end': datetime(2022, 6, 8, 21, 55, 00),
       'rabbitmq': True,
       'name': 'client caching'
+    },
+    'ThesisFair serverCaching': {
+      'start': datetime(2022, 6, 20, 13, 19, 00),
+      'end': datetime(2022, 6, 20, 13, 49, 00),
+      'rabbitmq': True,
+      'name': 'server caching'
+    },
+    'ThesisFair clientServerCaching': {
+      'start': datetime(2022, 6, 21, 11, 58, 00),
+      'end': datetime(2022, 6, 21, 12, 28, 00),
+      'rabbitmq': True,
+      'name': 'client + server caching'
+    },
+    'ThesisFair cqrs': {
+      'start': datetime(2022, 6, 21, 21, 22, 00),
+      'end': datetime(2022, 6, 21, 21, 52, 00),
+      'rabbitmq': True,
+      'name': 'cqrs'
     },
   }
 
