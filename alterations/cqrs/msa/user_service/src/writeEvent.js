@@ -34,7 +34,7 @@ const events = {
     await User.deleteOne({ _id: identifier });
   },
   deleteOfEntity: async (data, identifier) => {
-    await User.deleteMany({ enid: data.enid });
+    await Representative.deleteMany({ enid: data.enid });
   },
 }
 
