@@ -232,7 +232,7 @@ if __name__ == '__main__':
       'start': datetime(2022, 6, 21, 18, 6, 00),
       'end': datetime(2022, 6, 21, 18, 36, 00),
       'rabbitmq': True,
-      'name': 'cqrs'
+      'name': 'CQRS'
     },
   }
 
@@ -277,7 +277,7 @@ if __name__ == '__main__':
       'start': datetime(2022, 6, 21, 19, 1, 00),
       'end': datetime(2022, 6, 21, 19, 31, 00),
       'rabbitmq': True,
-      'name': 'cqrs'
+      'name': 'CQRS'
     },
   }
 
@@ -322,7 +322,7 @@ if __name__ == '__main__':
       'start': datetime(2022, 6, 21, 21, 22, 00),
       'end': datetime(2022, 6, 21, 21, 52, 00),
       'rabbitmq': True,
-      'name': 'cqrs'
+      'name': 'CQRS'
     },
   }
 
@@ -333,7 +333,7 @@ if __name__ == '__main__':
   with open('averages.txt', 'w') as file:
     print('\\hline', file=file)
     makeCSV(
-      table_columns = ['base', 'http', 'sidecar', 'client caching'],
+      table_columns = ['base', 'http', 'sidecar', 'client caching', 'server caching', 'client + server caching', 'CQRS'],
       loads_names = [' 1x load', ' 2x load', ' 3x load'],
       loads = [averages_1xload, averages_2xload, averages_3xload],
       sep = '&',
@@ -343,7 +343,7 @@ if __name__ == '__main__':
     )
     print('\n\\hline', file=file)
     makeCSV(
-      table_columns = ['base', 'http', 'sidecar', 'client caching'],
+      table_columns = ['base', 'http', 'sidecar', 'client caching', 'server caching', 'client + server caching', 'CQRS'],
       loads_names = [' 1x load', ' 2x load', ' 3x load'],
       loads = [averages_1xload, averages_2xload, averages_3xload],
       sep = '&',
