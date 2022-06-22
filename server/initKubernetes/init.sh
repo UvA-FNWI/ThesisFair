@@ -10,7 +10,7 @@ helmInstalled=$(helm list -A)
 if [[ "$helmInstalled" == *"\nprometheus"* ]]; then
   kubectl create namespace monitoring
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  helm install prometheus prometheus-community/prometheus --namespace monitoring --set server.global.scrape_interval=10s
+  helm install prometheus prometheus-community/prometheus --namespace monitoring --set server.global.scrape_interval=10s --set server.retention=365d
 else
   echo "Prometheus already installed. Not re-installing"
 fi
