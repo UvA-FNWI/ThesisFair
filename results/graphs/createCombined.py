@@ -229,8 +229,8 @@ if __name__ == '__main__':
       'name': 'client + server caching'
     },
     'ThesisFair cqrs': {
-      'start': datetime(2022, 6, 21, 18, 6, 00),
-      'end': datetime(2022, 6, 21, 18, 36, 00),
+      'start': datetime(2022, 6, 22, 11, 19, 00),
+      'end': datetime(2022, 6, 22, 11, 49, 00),
       'rabbitmq': True,
       'name': 'CQRS'
     },
