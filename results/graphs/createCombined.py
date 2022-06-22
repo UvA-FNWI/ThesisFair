@@ -114,7 +114,7 @@ def makeResults(experiments, output_dir: str = 'out'):
   #   process_value= lambda values: values * 100,
   # )
 
-  averages['API Response time (ms)'] = makeGraph(f'sum(traefik_service_request_duration_seconds_sum{{service="{service}"}}) / sum(traefik_service_requests_total{{service="{service}"}}) * 1000', experiments,
+  averages['API Response time (ms)'] = makeGraph(f'sum(rate(traefik_service_request_duration_seconds_sum{{service="{service}"}}[20s])) / sum(rate(traefik_service_requests_total{{service="{service}"}}[20s])) * 1000', experiments,
     ylabel = 'API Response time (ms)',
     xlabel='Time since experiment start (seconds)',
     filename = 'API_response_time.jpg',
