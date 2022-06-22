@@ -47,6 +47,9 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
       timestamps = datapoints[:, 0].astype(int) - start.timestamp()
       values = datapoints[:, 1].astype(float)
 
+      if (np.isnan(values[0])):
+        values[0] = values[1]
+
       if process_value:
         values = process_value(values)
 
