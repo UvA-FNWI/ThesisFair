@@ -8,8 +8,9 @@ from scipy.stats import ttest_ind
 prometheus_server = 'http://localhost:8001/api/v1/namespaces/monitoring/services/prometheus-server:80/proxy/api/v1'
 service = 'default-service-api-gateway-80@kubernetes'
 node = '192.168.1.120:9100'
-# line_styles = ['-.', '-', ':', '--', (0, (3, 5, 1, 5, 1, 5)), (0, (3, 10, 1, 10)), (0, (5, 10))] # linestyle=<- that
-line_styles = ['-.', '-', ':', '--', 'r', 'g', 'b']
+line_styles = ['-.', '-', ':', '--', (0, (1, 2, 3)), (0, (3, 3, 1, 1, 1)), (0, (5, 5))] # set this via linestyle kwarg
+colors = ['#0066ff', '#ff6600', '#808080', '#e6b800', '#994d00', '#808080', '#000099']
+# line_styles = ['-.', '-', ':', '--', 'r', 'g', 'b']
 
 def getRange(query: str, start: datetime, end: datetime, step: str = '20s'):
   result = requests.get(f'{prometheus_server}/query_range', {
@@ -59,7 +60,7 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
       raise BaseException(f'No data found for experiment {experiment_name}  {name} {start} {end}')
 
     datapoint_values = np.array(datapoint_values).sum(axis=0)
-    plt.plot(timestamps, datapoint_values, line_styles[exp_id], label=name)
+    plt.plot(timestamps, datapoint_values, linestyle=line_styles[exp_id], linewidth=1.2, color=colors[exp_id], label=name)
 
     instances = np.array(getRange('count(kube_pod_container_status_ready{ namespace="default", container=~"api-gateway|.+-service" }) by (container)', start, end)['result'][0]['values'], object)[:, 1].astype(float)[:datapoint_values.shape[0]]
     datapoint_values_per_instance = datapoint_values / instances
