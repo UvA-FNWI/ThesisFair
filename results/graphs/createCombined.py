@@ -82,6 +82,8 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
   plt.legend()
   plt.ylabel(ylabel)
   plt.xlabel(xlabel)
+  plt.ylim(bottom=0)
+  plt.xlim(left=0)
   plt.savefig(os.path.join(output_dir, filename))
   plt.close()
   return averages
