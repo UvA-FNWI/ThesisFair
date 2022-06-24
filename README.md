@@ -1,3 +1,6 @@
+# Results from the thesis
+The results from the thesis can not be uploaded to Github because of their file size. Instead they are zipped and uploaded to: https://drive.google.com/file/d/1r-DbMiRJAOAF3xjA-t0pOvYENAZvQW_Y/view?usp=sharing
+
 # Docker compose
 The docker-files in the different service folders should be executed from the git root.
 
