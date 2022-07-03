@@ -12,7 +12,6 @@ services:
       - "3000:80"
     volumes:
       - ./API_gateway/src:/app/src
-      - ./API_gateway/test:/app/test
       - ./libraries:/libraries
     networks:
       - thesisfair
