@@ -1,4 +1,4 @@
-import genApi, { enableTrace } from '../api.js';
+import genApi, { enableTrace } from '../../../msa/libraries/thesisfair-api/api.js';
 
 export const initialize = () => {
   enableTrace();
