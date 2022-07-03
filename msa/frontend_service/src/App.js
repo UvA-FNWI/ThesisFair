@@ -6,7 +6,22 @@ import api from './api';
 import LoginPage from './pages/LoginPage';
 import NotFound from './pages/NotFound';
 
+import StudentHome from './pages/student/StudentHome';
+
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      tokenData: api.getApiTokenData(),
+    };
+    api.setTokenChangeCallback(this.onTokenChange);
+  }
+
+  onTokenChange = (tokenData) => {
+    this.setState({ tokenData });
+  }
+
   guestRoutes() {
     return (
       <>
@@ -20,7 +35,11 @@ class App extends React.Component {
   }
 
   studentRoutes() {
-    return [];
+    return (
+      <>
+        <Route path='*' element={<StudentHome />} />
+      </>
+    );
   }
 
   repRoutes() {
