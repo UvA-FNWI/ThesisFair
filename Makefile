@@ -1,7 +1,6 @@
 start:
 	minikube start --driver=kvm2 --memory=6g --disk-size=50g --cpus=8
 	minikube addons enable metrics-server
-	kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
 
 stop:
 	minikube stop
@@ -33,17 +32,16 @@ up:
 	kubectl apply -f ./kubernetes/build/
 
 init:
-	cd server/initKubernetes && ./init.sh
+	cd kubernetes && ./init.sh
 
 seed:
 	kubectl apply -f kubernetes/dbInit.yaml
 
 down:
-	kubectl delete -f ./kubernetes/build/
-	kubectl delete -f kubernetes/dbInit.yaml
+	kubectl delete -f ./kubernetes/build/ kubernetes/dbInit.yaml
 
 azureCLI:
 	docker start -ai ThesisFair_azureCLI || docker run -it --network host -v $$HOME/.kube:/root/.kube --name ThesisFair_azureCLI mcr.microsoft.com/azure-cli
 
-dashboardToken: # kubectl edit -n kubernetes-dashboard deployment/kubernetes-dashboard # --token-ttl=0
-	kubectl create token admin -n kubernetes-dashboard --duration 24h
+dashboardToken:
+	kubectl create token admin -n kubernetes-dashboard --duration 7d

@@ -1,6 +1,0 @@
-scalar Pid
-
-type StudentVote {
-  uid: ID!
-  pid: ID!
-}
