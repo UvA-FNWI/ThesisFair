@@ -3,6 +3,7 @@ import GraphQLBuilder from './GraphQLBuilder.js';
 import NodeCache from 'node-cache';
 
 let tracing = false;
+const browser = typeof localStorage !== 'undefined';
 
 /**
  * Enable tracing for *ALL* instances of the API
@@ -34,7 +35,7 @@ const unpackToken = (token) => {
     throw new Error(`Received invalid token. Token has ${split.length} parts, expected 3.`);
   }
 
-  const payload = (new Buffer.from(split[1], 'base64')).toString();
+  const payload = browser ? atob(split[1]) : (new Buffer.from(split[1], 'base64')).toString();
   return JSON.parse(payload);
 }
 
@@ -100,6 +101,7 @@ export default (url) => {
   let trace = [];
   let caching = false;
   let cache;
+  let tokenChangeCallback = () => {};
 
   let apiToken = typeof localStorage !== 'undefined' ? localStorage.getItem('apiToken') : null;
   let apiTokenData = unpackToken(apiToken) || null;
@@ -128,10 +130,11 @@ export default (url) => {
     }
 
     apiToken = res.data.data.apiToken;
-    if (typeof localStorage !== 'undefined') {
+    if (browser) {
       localStorage.setItem('apiToken', apiToken);
     }
     apiTokenData = unpackToken(apiToken);
+    tokenChangeCallback(apiTokenData);
   };
 
   const graphql = async (functionPath, query, variables) => {
@@ -192,6 +195,7 @@ export default (url) => {
     },
     api: {
       getApiTokenData: () => apiTokenData,
+      setTokenChangeCallback: (cb) => { tokenChangeCallback = cb; },
       user: {
         login: login,
         logout: () => {
