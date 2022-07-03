@@ -1,6 +1,6 @@
 {
   "name": "@amicopo/thesisfair-api",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "api.js",
   "type": "module",
@@ -10,6 +10,7 @@
   "author": "Quinten Coltof",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.27.2",
     "node-cache": "^5.1.2"
   }
 }

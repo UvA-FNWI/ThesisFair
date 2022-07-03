@@ -102,7 +102,7 @@ export default (url) => {
   let cache;
 
   let apiToken = typeof localStorage !== 'undefined' ? localStorage.getItem('apiToken') : null;
-  let apiTokenData = unpackToken(apiToken) || {};
+  let apiTokenData = unpackToken(apiToken) || null;
   const login = async (email, password) => {
     const res = await axios.post(url + 'login',
       { email, password },

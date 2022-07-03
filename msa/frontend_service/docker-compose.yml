@@ -7,8 +7,12 @@ services:
       args:
         NODE_ENV: ${NODE_ENV}
     entrypoint: npm run ${NODE_CMD}
+    environment:
+      - PORT=3001
+    ports:
+      - 3001:3001
     volumes:
       - ./frontend_service/node_modules:/app/node_modules
-      - ./frontend_service/public:/app/public
-      - ./frontend_service/src:/app/src
-      - ./libraries:/libraries
+      - ./frontend_service/public:/app/public:ro
+      - ./frontend_service/src:/app/src:ro
+      - ./libraries/thesisfair-api/:/app/node_modules/@amicopo/thesisfair-api/:ro
