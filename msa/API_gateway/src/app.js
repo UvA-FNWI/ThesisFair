@@ -13,6 +13,17 @@ const createApp = async () => {
   newApp.use(express.json({ limit: '10mb' }));
   newApp.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
+  if (process.env.NODE_ENV === 'development') {
+    newApp.use((req, res, next) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', '*');
+      res.setHeader('Access-Control-Allow-Headers', '*');
+      res.setHeader('Access-Control-Max-Age', '86400');
+
+      if (req.method === 'OPTIONS') { res.end(); return; }
+      next();
+    });
+  }
 
   newApp.use('/login', login);
   newApp.use(auth);
