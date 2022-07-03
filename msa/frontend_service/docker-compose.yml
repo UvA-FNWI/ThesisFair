@@ -1,0 +1,14 @@
+version: "3"
+services:
+  frontend:
+    build:
+      context: ./frontend_service
+      dockerfile: Dockerfile-dev
+      args:
+        NODE_ENV: ${NODE_ENV}
+    entrypoint: npm run ${NODE_CMD}
+    volumes:
+      - ./frontend_service/node_modules:/app/node_modules
+      - ./frontend_service/public:/app/public
+      - ./frontend_service/src:/app/src
+      - ./libraries:/libraries
