@@ -11,7 +11,6 @@ class LoginPage extends React.Component {
       password: '',
       loading: false,
       error: null,
-      redirect: true,
     };
   }
 
@@ -21,7 +20,6 @@ class LoginPage extends React.Component {
     this.setState({ loading: true });
     try {
       await api.user.login(this.state.email, this.state.password);
-      this.setState({ redirect: true });
     } catch (error) {
       console.log('error: ', error, error.message);
       this.setState({ loading: false, error: error.message });
