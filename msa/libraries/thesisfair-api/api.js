@@ -203,6 +203,7 @@ export default (url) => {
             localStorage.clear();
             apiToken = null;
             apiTokenData = null;
+            tokenChangeCallback();
           }
         },
 

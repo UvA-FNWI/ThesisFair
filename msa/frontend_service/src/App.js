@@ -6,6 +6,8 @@ import api from './api';
 import LoginPage from './pages/LoginPage';
 import NotFound from './pages/NotFound';
 
+import Page from './pages/Page';
+
 import StudentHome from './pages/student/StudentHome';
 
 class App extends React.Component {
@@ -37,7 +39,7 @@ class App extends React.Component {
   studentRoutes() {
     return (
       <>
-        <Route path='*' element={<StudentHome />} />
+        <Route path='*' element={<Page page={<StudentHome />} />} />
       </>
     );
   }
