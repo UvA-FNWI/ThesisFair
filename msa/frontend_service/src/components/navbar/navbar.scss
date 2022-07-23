@@ -63,5 +63,6 @@ $navbarWidth: 84px;
 // @include media-breakpoint-up(md) { //TODO: For making mobile friendly
   .page-content {
     padding-left: $navbarWidth;
+    width: 100%;
   }
 // }

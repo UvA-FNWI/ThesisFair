@@ -115,54 +115,56 @@ class StudentHome extends React.Component {
   render() { // TODO: save automatically by deferring
     return (
       <Container className='mt-2'>
-        <div className='d-flex' >
-          <div>
-            <img width='128px' height='128px' src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=192&h=192&q=80" alt='Profile' />
-          </div>
-          <div className='d-flex flex-column justify-content-center ms-4 gap-2'>
-            <Button>Upload profile picture</Button>
-            <Button>Delete profile picture</Button>
-          </div>
-        </div>
-
-        <div>
-          <h2>Your Personal Info</h2>
-          <Form onSubmit={this.updatePersonalInfo}>
-            <Row className='mb-2'>
-              <Col>
-                <Form.Group>
-                  <Form.Label>Firstname</Form.Label>
-                  <Form.Control placeholder='Enter firstname' value={this.state.firstname} onChange={(e) => this.setState({ firstname: e.target.value })} />
-                </Form.Group>
-              </Col>
-              <Col>
-                <Form.Group>
-                  <Form.Label>Lastname</Form.Label>
-                  <Form.Control placeholder='Enter lastname' value={this.state.lastname} onChange={(e) => this.setState({ lastname: e.target.value })} />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row className='mb-2'>
-              <Col>
-                <Form.Group>
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control placeholder='Enter you email' value={this.state.email} onChange={(e) => this.setState({ email: e.target.value })} />
-                </Form.Group>
-              </Col>
-              <Col>
-                <Form.Group>
-                  <Form.Label>Phone number</Form.Label>
-                  <Form.Control placeholder='Enter you phonenumber' value={this.state.phone} onChange={(e) => this.setState({ phone: e.target.value })} />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <div className='d-flex gap-2 align-items-center'>
-              <Button type='submit' disabled={this.savingInfo}>{this.savingInfo ? 'Saving...' : 'Update personal info'}</Button>
-              {this.state.showInfoSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
+        <h2>Your Personal Info</h2>
+        <div className='mb-4'>
+          {/* <div className='me-4'>
+            <div className='d-flex'>
+              <img width='128px' height='128px' src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=192&h=192&q=80" alt='Profile' style={{ marginLeft: 'auto', marginRight: 'auto' }} />
             </div>
-          </Form>
+            <div className='d-flex justify-content-center gap-2 mt-2'>
+              <Button>Upload</Button>
+              <Button>Delete</Button>
+            </div>
+          </div> */}
+
+          <div>
+            <Form onSubmit={this.updatePersonalInfo}>
+              <Row className='mb-2'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Firstname</Form.Label>
+                    <Form.Control placeholder='Enter firstname' value={this.state.firstname} onChange={(e) => this.setState({ firstname: e.target.value })} />
+                  </Form.Group>
+                </Col>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Lastname</Form.Label>
+                    <Form.Control placeholder='Enter lastname' value={this.state.lastname} onChange={(e) => this.setState({ lastname: e.target.value })} />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row className='mb-2'>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control placeholder='Enter you email' value={this.state.email} onChange={(e) => this.setState({ email: e.target.value })} />
+                  </Form.Group>
+                </Col>
+                <Col>
+                  <Form.Group>
+                    <Form.Label>Phone number</Form.Label>
+                    <Form.Control placeholder='Enter you phonenumber' value={this.state.phone} onChange={(e) => this.setState({ phone: e.target.value })} />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <div className='d-flex gap-2 align-items-center'>
+                <Button type='submit' disabled={this.savingInfo}>{this.savingInfo ? 'Saving...' : 'Update personal info'}</Button>
+                {this.state.showInfoSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
+              </div>
+            </Form>
+          </div>
         </div>
 
         <div>
@@ -174,9 +176,9 @@ class StudentHome extends React.Component {
 
         <div>
           <h2>Your Curriculum Vitae</h2>
-          <Button onClick={this.uploadCV} className='me-1' disabled={this.savingCV}>{ this.savingCV ? 'Saving CV...' : 'Upload CV' }</Button>
+          <Button onClick={this.uploadCV} className='me-1' disabled={this.savingCV}>{this.savingCV ? 'Saving CV...' : 'Upload CV'}</Button>
           {this.state.cvPresence ? <Button onClick={this.downloadCV} >Download your CV</Button> : null}
-          <h6><em>By uploading your CV you agree to share your CV with the participating organisations</em></h6>
+          <p className='fs-6'><em>By uploading your CV you agree to share your CV with the participating organisations</em></p>
         </div>
 
         <div>
