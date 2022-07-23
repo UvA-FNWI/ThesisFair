@@ -1,14 +1,30 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, useParams, Outlet } from "react-router-dom";
 
 import api from './api';
 
 import LoginPage from './pages/LoginPage';
 import NotFound from './pages/NotFound';
+import EventPicker from './pages/EventPicker';
 
 import Page from './pages/Page';
 
 import StudentHome from './pages/student/StudentHome';
+import Organisations from './pages/student/Organisations';
+
+function EventChecker(props) {
+  const params = useParams();
+  const [found, setFound] = useState(true);
+
+  api.event.get(params.evid).exec().then((event) => {
+    setFound(!!event);
+  }).catch(() => {
+    setFound(false);
+  });
+
+
+  return found ? <Outlet /> : 'Event not found!';
+}
 
 class App extends React.Component {
   constructor(props) {
@@ -39,7 +55,12 @@ class App extends React.Component {
   studentRoutes() {
     return (
       <>
-        <Route path='*' element={<Page page={<StudentHome />} />} />
+        <Route path="/" element={<EventPicker />} />
+        <Route path="/events" element={<EventPicker />} />
+        <Route path="/:evid" element={<EventChecker />}>
+          <Route path='dashboard' element={<Page page={<StudentHome />} />} />
+          <Route path='organisations' element={<Page page={<Organisations />} />} />
+        </Route>
       </>
     );
   }
