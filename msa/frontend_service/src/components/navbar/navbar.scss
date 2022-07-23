@@ -1,0 +1,67 @@
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+
+$navbarWidth: 84px;
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  height: 100vh;
+  background-color: #BC0031;
+
+  z-index: 100;
+  width: $navbarWidth;
+
+  .logo {
+    display: block;
+    padding-top: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 0;
+  }
+
+  .nav-item {
+    margin: 10px 0;
+
+    a {
+      text-decoration: none;
+    }
+
+    a, div {
+      width: 84px;
+      height: 64px;
+      display: grid;
+
+      span {
+        color: white;
+        font-size: 0.875rem;
+        text-align: center;
+      }
+      img {
+        color: white; // TODO: Make this work
+        justify-self: center;
+        align-self: center;
+        width: 35px;
+        height: 35px;
+      }
+    }
+  }
+
+  .logout {
+    position: fixed;
+    bottom: 0;
+
+    cursor: pointer;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+// @include media-breakpoint-up(md) { //TODO: For making mobile friendly
+  .page-content {
+    padding-left: $navbarWidth;
+  }
+// }
