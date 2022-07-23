@@ -304,12 +304,13 @@ export default (url) => {
         },
 
         student: {
-          getCV: (uid) =>
+          getCV: (uid, check=false) =>
             genGraphQLBuilder({
               name: 'getCVStudent',
               functionPath: 'cv',
               args: {
                 uid: { value: uid, type: 'ID!' },
+                check: { value: check, type: 'Boolean' },
               },
               cache: caching ? { instance: cache, type: 'userCV', key: 'uid' } : false,
             }),

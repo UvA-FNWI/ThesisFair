@@ -78,6 +78,7 @@ schemaComposer.Query.addNestedFields({
     type: 'String',
     args: {
       uid: 'ID!',
+      check: 'Boolean'
     },
     description: JSON.stringify({
       checkPermissions: canGetUser.toString(),
@@ -100,6 +101,10 @@ schemaComposer.Query.addNestedFields({
         await access(file, constants.R_OK);
       } catch (error) {
         return null;
+      }
+
+      if (args.check) {
+        return 'present';
       }
 
       return readFile(file).then((content) => content.toString());
