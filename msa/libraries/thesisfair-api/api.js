@@ -56,7 +56,7 @@ const genBody = (possibleFields, projection) => {
     fields = [...possibleFields].filter((field) => !fields.includes(field));
   }
 
-  let res = fields.filter((v) => !v.includes('.')).join(' ');
+  let res = fields.filter((v) => !v.includes('.') && possibleFields.includes(v)).join(' ');
 
   const complexFields = {};
   for (const field of fields.filter((v) => v.includes('.'))) {
@@ -87,9 +87,22 @@ const fields = {
 }
 
 const bodies = {
-  User: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ... on Student {${genBody(fields.Student, projection)}} ... on Representative {${genBody(fields.Representative, projection)}}`,
-  Student: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ${genBody(fields.Student, projection)}`,
-  Representative: (projection) => `... on UserBase {${genBody(fields.UserBase, projection)}} ${genBody(fields.Representative, projection)}`,
+  User: (projection) => {
+    const userBase = genBody(fields.UserBase, projection);
+    const student = genBody(fields.Student, projection);
+    const rep = genBody(fields.Representative, projection);
+    return userBase ? `... on UserBase {${userBase}} ` : '' + student ? `... on Student {${student}} ` : '' + rep ? `... on Representative {${rep}}` : '';
+  },
+  Student: (projection) => {
+    const userBase = genBody(fields.UserBase, projection);
+    const student = genBody(fields.Student, projection);
+    return userBase ? `... on UserBase {${userBase}} ` : '' +  student;
+  },
+  Representative: (projection) => {
+    const userBase = genBody(fields.UserBase, projection);
+    const rep = genBody(fields.Representative, projection);
+    return userBase ? `... on UserBase {${userBase}} ` : '' +  rep;
+  },
   Entity: (projection) => genBody(fields.Entity, projection),
   Event: (projection) => genBody(fields.Event, projection),
   Project: (projection) => genBody(fields.Project, projection),
