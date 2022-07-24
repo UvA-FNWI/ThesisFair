@@ -148,7 +148,7 @@ class StudentHome extends React.Component {
                 <Col>
                   <Form.Group>
                     <Form.Label>Email</Form.Label>
-                    <Form.Control placeholder='Enter you email' value={this.state.email} onChange={(e) => this.setState({ email: e.target.value })} />
+                    <Form.Control type='email' placeholder='Enter you email' value={this.state.email} onChange={(e) => this.setState({ email: e.target.value })} />
                   </Form.Group>
                 </Col>
                 <Col>
