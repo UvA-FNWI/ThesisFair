@@ -1,8 +1,10 @@
 import React from 'react';
-import { Container, Accordion, Button, Modal, Spinner } from 'react-bootstrap';
+import { Container, Accordion, Button, Modal, Spinner, Card } from 'react-bootstrap';
+import downloadIcon from 'bootstrap-icons/icons/download.svg';
 import { useParams } from 'react-router-dom';
-import api from '../../api';
+import api, { downloadCV } from '../../api';
 
+const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`;
 
 class Projects extends React.Component {
   constructor(props) {
@@ -83,26 +85,42 @@ class Projects extends React.Component {
     )
   }
 
-  render() {
+  downloadAllCVs = async (project) => {
+    for (const student of this.state.votedFor[project.pid]) {
+      await downloadCV(student.uid, genCVName(student, project));
+    }
+  }
+
+  render() { // TODO: Change order feature
     return (
       <>
         <Container className='mt-2'>
           <h1>Projects</h1>
-          <Accordion>
+          <Accordion defaultActiveKey={0}>
             {this.state.projects.map((project, projectIndex) => (
               <Accordion.Item key={projectIndex} eventKey={projectIndex}>
                 <Accordion.Header>
-                  {project.name}
+                  <div className='d-flex justify-content-between w-100 me-2'>
+                    <span>{project.name}</span>
+                    <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); this.downloadAllCVs(project); }}><img src={downloadIcon} alt='download' /></Button>
+                  </div>
                 </Accordion.Header>
                 <Accordion.Body>
                   <p>{project.description}</p>
 
                   <h4 className='mt-4'>Students</h4>
-                  <div className='d-flex'>
+                  <div>
                     {this.state.votedFor[project.pid] ? this.state.votedFor[project.pid].map((student, studentIndex) => (
-                      <Button key={studentIndex} className='flex-grow-1' onClick={(e) => this.setState({ popup: { projectIndex, studentIndex } })}> {/* TODO: Make a clickable card from this. */}
-                        {student.firstname} {student.lastname}<span className='d-none d-md-inline ps-2 pe-2'>-</span><span className='d-none d-md-inline'>{student.studies.join(' | ')}</span>
-                      </Button>
+                      <Card key={studentIndex} className='mb-2 hoverable' onClick={(e) => this.setState({ popup: { projectIndex, studentIndex } })}>
+                        <Card.Body className='d-flex justify-content-between align-items-center'>
+                          <p className='m-0'>
+                            {student.firstname} {student.lastname}<span className='d-none d-sm-inline ps-2 pe-2'>-</span><span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
+                          </p>
+                          <div>
+                            <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(student.uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
+                          </div>
+                        </Card.Body>
+                      </Card>
                     )) : null}
                   </div>
                 </Accordion.Body>
