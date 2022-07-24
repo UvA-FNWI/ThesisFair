@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Form, Button, CloseButton, Accordion, Modal } from 'react-bootstrap';
+import { Container, Button, Accordion, Modal } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import api from '../../api';
 
@@ -10,6 +10,7 @@ class Organisations extends React.Component {
     super(props);
 
     this.state = {
+      sharedEntities: [],
       entities: [],
       projects: {},
       popup: false,
@@ -17,10 +18,13 @@ class Organisations extends React.Component {
   }
 
   async componentDidMount() {
-    const event = await api.event.get(this.props.params.evid, { entities: true }).exec();
+    const [user, event] = await Promise.all([
+      api.user.get(api.getApiTokenData().uid, { share: true }).exec(),
+      api.event.get(this.props.params.evid, { entities: true }).exec(),
+    ]);
 
     const entities = await api.entity.getMultiple(event.entities).exec();
-    this.setState({ entities });
+    this.setState({ entities, sharedEntities: user.share });
 
     const projects = {};
     for (const { enid } of entities) {
@@ -84,15 +88,42 @@ class Organisations extends React.Component {
     )
   }
 
+  setShare = async (enid, state) => {
+    await api.user.student.shareInfo(api.getApiTokenData().uid, enid, state).exec();
+
+    const sharedEntities = [...this.state.sharedEntities];
+    if (state) {
+      sharedEntities.push(enid);
+    } else {
+      sharedEntities.splice(sharedEntities.indexOf(enid), 1);
+    }
+    this.setState({ sharedEntities });
+  }
+
+  shareAll = async () => {
+    for (const { enid } of this.state.entities) {
+      await this.setShare(enid, true);
+    }
+  }
+
   render() {
     return (
       <Container className='mt-2'>
-        <h1 className='mb-4'>Organisations</h1>
+        <div className='d-flex justify-content-between align-items-baseline mb-4'>
+          <h1>Organisations</h1>
+          <Button onClick={this.shareAll}>Give all companies access</Button>
+        </div>
         <Accordion>
-          {this.state.entities.map((entity, entityIndex) => (
+          {this.state.entities.map((entity, entityIndex) => {
+            const shared = this.state.sharedEntities.includes(entity.enid);
+            return (
             <Accordion.Item key={entityIndex} eventKey={entityIndex}>
               <Accordion.Header>
                 {entity.name}
+
+                <div className='flex-grow-1 d-flex justify-content-end me-4'>
+                  <Button variant={shared ? 'outline-primary' : 'primary'} size='sm' onClick={(e) => {e.stopPropagation(); this.setShare(entity.enid, !shared)}}>{shared ? 'Unshare information' : 'Share information'}</Button>
+                </div>
               </Accordion.Header>
               <Accordion.Body>
 
@@ -113,7 +144,7 @@ class Organisations extends React.Component {
 
               </Accordion.Body>
             </Accordion.Item>
-          ))}
+          )})}
         </Accordion>
 
         { this.state.popup ?
