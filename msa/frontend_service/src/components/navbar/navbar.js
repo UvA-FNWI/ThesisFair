@@ -31,10 +31,10 @@ function CustomNavbar(props) {
         <Link to={`/${params.evid}/dashboard`}><img src={dashboardIcon} alt='' /><span>Dashboard</span></Link>
       </Nav.Item>
       <Nav.Item>
-        <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
+        <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
       </Nav.Item>
       <Nav.Item>
-        <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
+        <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
       </Nav.Item>
 
       <Nav.Item className='logout'>
