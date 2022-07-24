@@ -102,9 +102,12 @@ class EntitiesProjects extends React.Component {
                 <Accordion.Header>
                   {entity.name}
 
-                  <div className='flex-grow-1 d-flex justify-content-end me-4'>
-                    <Button as='div' variant={shared ? 'outline-primary' : 'primary'} size='sm' onClick={(e) => { e.stopPropagation(); this.setShare(entity.enid, !shared) }}>{shared ? 'Unshare information' : 'Share information'}</Button>
-                  </div>
+                  { !this.props.readOnly ?
+                    <div className='flex-grow-1 d-flex justify-content-end me-4'>
+                      <Button as='div' variant={shared ? 'outline-primary' : 'primary'} size='sm' onClick={(e) => { e.stopPropagation(); this.setShare(entity.enid, !shared) }}>{shared ? 'Unshare information' : 'Share information'}</Button>
+                    </div>
+                    : null
+                  }
                 </Accordion.Header>
                 <Accordion.Body>
                   {entity.description}
