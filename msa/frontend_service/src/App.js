@@ -18,6 +18,7 @@ import Account from './pages/representative/account';
 function EventChecker(props) {
   const params = useParams();
   const [found, setFound] = useState(true);
+  const [redirect, setRedirect] = useState(false);
 
   api.event.get(params.evid).exec().then((event) => {
     setFound(!!event);
@@ -25,8 +26,21 @@ function EventChecker(props) {
     setFound(false);
   });
 
+  if (!found) {
+    setTimeout(() => setRedirect(true), 3000);
 
-  return found ? <Outlet /> : 'Event not found!';
+    if (redirect) {
+      return <Navigate to='/events' />;
+    }
+  }
+
+  return found ? <Outlet /> :
+  <div className='d-flex mt-4 justify-content-center'>
+    <div>
+      <h1>Event not found :(</h1>
+      You will be redirected after 3 seconds, or you can <a href='/events'>click here</a>.
+    </div>
+  </div>
 }
 
 class App extends React.Component {
