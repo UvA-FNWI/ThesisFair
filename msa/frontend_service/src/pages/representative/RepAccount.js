@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import api from '../../api';
 
-class Account extends React.Component {
+class RepAccount extends React.Component {
   constructor(props) {
     super(props);
 
@@ -135,4 +135,4 @@ class Account extends React.Component {
   }
 }
 
-export default Account;
+export default RepAccount;

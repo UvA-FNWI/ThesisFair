@@ -30,7 +30,7 @@ function CustomNavbar(props) {
         <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
       </Link>
       <Nav.Item>
-        <Link to={`/${params.evid}/dashboard`}><img src={dashboardIcon} alt='' /><span>Dashboard</span></Link>
+        <Link to={`/${params.evid}/account`}><img src={dashboardIcon} alt='' /><span>Dashboard</span></Link>
       </Nav.Item>
       { type === 's' ?
       <>
@@ -45,9 +45,9 @@ function CustomNavbar(props) {
 
       { type === 'r' ?
         <>
-        <Nav.Item>
-          <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>
-        </Nav.Item>
+          <Nav.Item>
+            <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>
+          </Nav.Item>
         </>
         : null
       }

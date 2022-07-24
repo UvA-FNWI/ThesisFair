@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Row, Col, Form, Button, CloseButton } from 'react-bootstrap';
 import api, { downloadCV } from '../../api';
 
-class StudentHome extends React.Component {
+class StudentAccount extends React.Component {
   constructor(props) {
     super(props);
 
@@ -184,4 +184,4 @@ class StudentHome extends React.Component {
   }
 }
 
-export default StudentHome;
+export default StudentAccount;

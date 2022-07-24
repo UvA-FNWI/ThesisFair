@@ -9,11 +9,11 @@ import EventPicker from './pages/EventPicker';
 
 import Page from './pages/Page';
 
-import StudentHome from './pages/student/StudentHome';
+import StudentAccount from './pages/student/StudentAccount';
 import Organisations from './pages/student/Organisations';
 import Votes from './pages/student/Votes';
 
-import Account from './pages/representative/account';
+import RepAccount from './pages/representative/RepAccount';
 import Projects from './pages/representative/projects';
 
 function EventChecker(props) {
@@ -73,8 +73,8 @@ class App extends React.Component {
   studentRoutes() {
     return (
       <>
-        <Route path='' element={<Navigate to='dashboard' replace={true} />} />
-        <Route path='dashboard' element={<Page page={<StudentHome />} />} />
+        <Route path='' element={<Navigate to='account' replace={true} />} />
+        <Route path='account' element={<Page page={<StudentAccount />} />} />
         <Route path='organisations' element={<Page page={<Organisations />} />} />
         <Route path='votes' element={<Page page={<Votes />} />} />
       </>
@@ -85,7 +85,7 @@ class App extends React.Component {
     return (
       <>
         <Route path='' element={<Navigate to='account' replace={true} />} />
-        <Route path="account" element={<Page page={<Account />} />} />
+        <Route path="account" element={<Page page={<RepAccount />} />} />
         <Route path="projects" element={<Page page={<Projects />} />} />
       </>
     );
