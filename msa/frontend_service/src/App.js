@@ -13,6 +13,8 @@ import StudentHome from './pages/student/StudentHome';
 import Organisations from './pages/student/Organisations';
 import Votes from './pages/student/Votes';
 
+import Account from './pages/representative/account';
+
 function EventChecker(props) {
   const params = useParams();
   const [found, setFound] = useState(true);
@@ -56,19 +58,19 @@ class App extends React.Component {
   studentRoutes() {
     return (
       <>
-        <Route path="/" element={<EventPicker />} />
-        <Route path="/events" element={<EventPicker />} />
-        <Route path="/:evid" element={<EventChecker />}>
-          <Route path='dashboard' element={<Page page={<StudentHome />} />} />
-          <Route path='organisations' element={<Page page={<Organisations />} />} />
-          <Route path='votes' element={<Page page={<Votes />} />} />
-        </Route>
+        <Route path='dashboard' element={<Page page={<StudentHome />} />} />
+        <Route path='organisations' element={<Page page={<Organisations />} />} />
+        <Route path='votes' element={<Page page={<Votes />} />} />
       </>
     );
   }
 
   repRoutes() {
-    return [];
+    return (
+      <>
+        <Route path="account" element={<Page page={<Account />} />} />
+      </>
+    );
   }
 
   adminRepRoutes() {
@@ -81,22 +83,32 @@ class App extends React.Component {
       return this.guestRoutes();
     }
 
+    let routes;
     switch (tokenData.type) {
       case 'a': // Admin
-        return this.adminRoutes();
+        routes = this.adminRoutes();
+        break;
       case 's': // Student
-        return this.studentRoutes();
+        routes = this.studentRoutes();
+        break;
       case 'r': // Representative
-        if (tokenData.repAdmin) {
-          return this.adminRepRoutes();
-        }
-
-        return this.repRoutes();
+        routes = tokenData.repAdmin ? this.adminRepRoutes() : this.repRoutes();
+        break;
 
       default:
         console.error('Role undefined');
         return []
     }
+
+    return (
+      <>
+        <Route path="/" element={<EventPicker />} />
+        <Route path="/events" element={<EventPicker />} />
+        <Route path="/:evid" element={<EventChecker />}>
+          {routes}
+        </Route>
+      </>
+    )
   }
 
   render() {
