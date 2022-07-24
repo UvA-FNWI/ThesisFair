@@ -91,17 +91,17 @@ const bodies = {
     const userBase = genBody(fields.UserBase, projection);
     const student = genBody(fields.Student, projection);
     const rep = genBody(fields.Representative, projection);
-    return userBase ? `... on UserBase {${userBase}} ` : '' + student ? `... on Student {${student}} ` : '' + rep ? `... on Representative {${rep}}` : '';
+    return (userBase ? `... on UserBase {${userBase}} ` : '') + (student ? `... on Student {${student}} ` : '') + (rep ? `... on Representative {${rep}}` : '');
   },
   Student: (projection) => {
     const userBase = genBody(fields.UserBase, projection);
     const student = genBody(fields.Student, projection);
-    return userBase ? `... on UserBase {${userBase}} ` : '' +  student;
+    return (userBase ? `... on UserBase {${userBase}} ` : '') +  student;
   },
   Representative: (projection) => {
     const userBase = genBody(fields.UserBase, projection);
     const rep = genBody(fields.Representative, projection);
-    return userBase ? `... on UserBase {${userBase}} ` : '' +  rep;
+    return (userBase ? `... on UserBase {${userBase}} ` : '') +  rep;
   },
   Entity: (projection) => genBody(fields.Entity, projection),
   Event: (projection) => genBody(fields.Event, projection),
