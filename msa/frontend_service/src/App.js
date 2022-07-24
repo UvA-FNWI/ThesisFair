@@ -11,6 +11,7 @@ import Page from './pages/Page';
 
 import StudentHome from './pages/student/StudentHome';
 import Organisations from './pages/student/Organisations';
+import Votes from './pages/student/Votes';
 
 function EventChecker(props) {
   const params = useParams();
@@ -60,6 +61,7 @@ class App extends React.Component {
         <Route path="/:evid" element={<EventChecker />}>
           <Route path='dashboard' element={<Page page={<StudentHome />} />} />
           <Route path='organisations' element={<Page page={<Organisations />} />} />
+          <Route path='votes' element={<Page page={<Votes />} />} />
         </Route>
       </>
     );
