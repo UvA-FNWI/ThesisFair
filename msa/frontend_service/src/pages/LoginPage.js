@@ -21,8 +21,7 @@ class LoginPage extends React.Component {
     try {
       await api.user.login(this.state.email, this.state.password);
     } catch (error) {
-      console.log('error: ', error, error.message);
-      this.setState({ loading: false, error: error.message });
+      this.setState({ loading: false, error: error.message || error[0].message });
     }
   }
 
@@ -38,11 +37,11 @@ class LoginPage extends React.Component {
             <Form onSubmit={this.submit}>
               <Form.Group className='mb-3'>
                 <Form.Label>Email address</Form.Label>
-                <Form.Control type='text' value={this.state.email} onChange={(e) => this.setState({ email: e.target.value })} required isInvalid={this.state.error} />
+                <Form.Control type='text' value={this.state.email} onChange={(e) => this.setState({ email: e.target.value })} required isInvalid={!!this.state.error} />
               </Form.Group>
               <Form.Group className='mb-3'>
                 <Form.Label>Password</Form.Label>
-                <Form.Control type='password' value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })} required isInvalid={this.state.error} />
+                <Form.Control type='password' value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })} required isInvalid={!!this.state.error} />
                 <Form.Control.Feedback type='invalid'>{ this.state.error }</Form.Control.Feedback>
               </Form.Group>
 
