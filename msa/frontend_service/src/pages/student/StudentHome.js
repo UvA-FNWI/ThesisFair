@@ -1,16 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button, CloseButton } from 'react-bootstrap';
-import api from '../../api';
-
-async function download(content, filename) {
-  const a = document.createElement('a');
-  const blob = await (await fetch(content)).blob();
-  const url = URL.createObjectURL(blob);
-  a.setAttribute('href', url);
-  a.setAttribute('download', filename);
-  a.click();
-  a.remove()
-}
+import api, { downloadCV } from '../../api';
 
 class StudentHome extends React.Component {
   constructor(props) {
@@ -102,15 +92,7 @@ class StudentHome extends React.Component {
     input.click();
   }
 
-  downloadCV = async () => {
-    const cv = await api.user.student.getCV(api.getApiTokenData().uid).exec();
-    if (!cv) {
-      alert('No CV has been uploaded');
-      return;
-    }
 
-    download(cv, 'cv.pdf');
-  }
 
   render() { // TODO: save automatically by deferring
     return (
@@ -177,7 +159,7 @@ class StudentHome extends React.Component {
         <div>
           <h2>Your Curriculum Vitae</h2>
           <Button onClick={this.uploadCV} className='me-1' disabled={this.savingCV}>{this.savingCV ? 'Saving CV...' : 'Upload CV'}</Button>
-          {this.state.cvPresence ? <Button onClick={this.downloadCV} >Download your CV</Button> : null}
+          {this.state.cvPresence ? <Button onClick={() => downloadCV(api.getApiTokenData().uid)} >Download your CV</Button> : null}
           <p className='fs-6'><em>By uploading your CV you agree to share your CV with the participating organisations</em></p>
         </div>
 
