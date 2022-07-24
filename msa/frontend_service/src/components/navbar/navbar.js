@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import dashboardIcon from 'bootstrap-icons/icons/person-circle.svg';
 import likesIcon from 'bootstrap-icons/icons/heart.svg';
 import organisationsIcon from 'bootstrap-icons/icons/building.svg';
+import projectsIcon from 'bootstrap-icons/icons/list-task.svg';
 import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg';
 
 import './navbar.scss';
@@ -12,6 +13,7 @@ import api from '../../api';
 
 function CustomNavbar(props) {
   const params = useParams();
+  const type = api.getApiTokenData().type;
 
   return (
     // <Navbar className='custom-navbar'> // TODO: Make mobile friendly
@@ -30,12 +32,25 @@ function CustomNavbar(props) {
       <Nav.Item>
         <Link to={`/${params.evid}/dashboard`}><img src={dashboardIcon} alt='' /><span>Dashboard</span></Link>
       </Nav.Item>
-      <Nav.Item>
-        <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
-      </Nav.Item>
+      { type === 's' ?
+      <>
+        <Nav.Item>
+          <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
+        </Nav.Item>
+      </>
+      : null }
+
+      { type === 'r' ?
+        <>
+        <Nav.Item>
+          <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>
+        </Nav.Item>
+        </>
+        : null
+      }
 
       <Nav.Item className='logout'>
         <div onClick={api.user.logout}>

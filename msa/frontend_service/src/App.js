@@ -14,6 +14,7 @@ import Organisations from './pages/student/Organisations';
 import Votes from './pages/student/Votes';
 
 import Account from './pages/representative/account';
+import Projects from './pages/representative/projects';
 
 function EventChecker(props) {
   const params = useParams();
@@ -85,6 +86,7 @@ class App extends React.Component {
       <>
         <Route path='' element={<Navigate to='account' replace={true} />} />
         <Route path="account" element={<Page page={<Account />} />} />
+        <Route path="projects" element={<Page page={<Projects />} />} />
       </>
     );
   }
