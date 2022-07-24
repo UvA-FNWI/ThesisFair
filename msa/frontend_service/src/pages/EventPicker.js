@@ -35,7 +35,7 @@ class EventPicker extends React.Component {
               <Accordion.Item key={i} eventKey={i}>
                 <Accordion.Header>
                   {event.name}
-                  <Button className='ms-auto' onClick={() => this.setState({ redirect: `/${event.evid}/dashboard` })}>Select</Button>
+                  <Button className='ms-auto' onClick={() => this.setState({ redirect: `/${event.evid}` })}>Select</Button>
                 </Accordion.Header>
                 <Accordion.Body>
                   {event.description}

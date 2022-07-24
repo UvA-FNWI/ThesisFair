@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, useParams, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, Outlet, Navigate } from "react-router-dom";
 
 import api from './api';
 
@@ -72,6 +72,7 @@ class App extends React.Component {
   studentRoutes() {
     return (
       <>
+        <Route path='' element={<Navigate to='dashboard' replace={true} />} />
         <Route path='dashboard' element={<Page page={<StudentHome />} />} />
         <Route path='organisations' element={<Page page={<Organisations />} />} />
         <Route path='votes' element={<Page page={<Votes />} />} />
@@ -82,6 +83,7 @@ class App extends React.Component {
   repRoutes() {
     return (
       <>
+        <Route path='' element={<Navigate to='account' replace={true} />} />
         <Route path="account" element={<Page page={<Account />} />} />
       </>
     );
