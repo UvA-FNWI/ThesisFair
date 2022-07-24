@@ -107,7 +107,9 @@ class EntitiesProjects extends React.Component {
                   </div>
                 </Accordion.Header>
                 <Accordion.Body>
+                  {entity.description}
 
+                  <h4 className='mt-4'>Projects</h4>
                   <Accordion>
                     {this.props.projects[entity.enid] ? this.props.projects[entity.enid].map((project, projectIndex) => (
                       <Accordion.Item key={projectIndex} eventKey={projectIndex}>
