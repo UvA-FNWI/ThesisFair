@@ -6,6 +6,7 @@ import dashboardIcon from 'bootstrap-icons/icons/person-circle.svg';
 import likesIcon from 'bootstrap-icons/icons/heart.svg';
 import organisationsIcon from 'bootstrap-icons/icons/building.svg';
 import projectsIcon from 'bootstrap-icons/icons/list-task.svg';
+import scheduleIcon from 'bootstrap-icons/icons/calendar.svg';
 import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg';
 
 import './navbar.scss';
@@ -39,6 +40,9 @@ function CustomNavbar(props) {
         </Nav.Item>
         <Nav.Item>
           <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
         </Nav.Item>
       </>
       : null }
