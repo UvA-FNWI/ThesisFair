@@ -1,6 +1,6 @@
 import apiGen from './api/api.js';
 
-const api = apiGen('http://localhost:3000/');
+const api = apiGen(process.env.REACT_APP_API_ENDPOINT);
 export default api.api;
 
 

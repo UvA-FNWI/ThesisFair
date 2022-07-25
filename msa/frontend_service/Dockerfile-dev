@@ -10,6 +10,9 @@ WORKDIR /app
 COPY ./package*.json ./
 RUN npm ci
 
+ARG REACT_APP_API_ENDPOINT=http://localhost:3000/
+ENV REACT_APP_API_ENDPOINT=${REACT_APP_API_ENDPOINT}
+
 COPY public .
 COPY src .
 

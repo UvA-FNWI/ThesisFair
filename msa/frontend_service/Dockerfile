@@ -11,6 +11,9 @@ RUN npm ci
 COPY ./public/ ./public
 COPY ./src/ ./src
 
+ARG REACT_APP_API_ENDPOINT=http://localhost:3000/
+ENV REACT_APP_API_ENDPOINT=${REACT_APP_API_ENDPOINT}
+
 RUN npm run build
 
 FROM nginx:alpine

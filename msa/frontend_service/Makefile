@@ -3,7 +3,11 @@ imageName=ghcr.io/quinten1333/thesisfair-frontend_service:base
 .phony: build push
 
 build:
-	docker build -t ${imageName} .
+	rm -r src/api
+	cp -r ../libraries/thesisfair-api/ src/api/
+	docker build -t ${imageName} --build-arg "REACT_APP_API_ENDPOINT=https://thesisfair.softwareify.nl/api/" .
+	rm -r src/api
+	ln -s ../../libraries/thesisfair-api/ src/api
 
 push:
 	docker push ${imageName}
