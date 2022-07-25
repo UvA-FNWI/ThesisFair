@@ -9,6 +9,7 @@ services:
     entrypoint: npm run ${NODE_CMD}
     environment:
       - PORT=3001
+      - REACT_APP_API_ENDPOINT=http://localhost:3000/
     ports:
       - 3001:3001
     volumes:
