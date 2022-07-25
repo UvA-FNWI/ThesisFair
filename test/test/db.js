@@ -19,8 +19,8 @@ const configs = {
     object: 'Entity',
     get: (db) => [
       {
-        name: 'New name1',
-        description: 'New description1',
+        name: 'New name1 - entity',
+        description: 'New description1 - entity',
         type: 'company',
         contact: [{ type: 'website', content: 'qrcsoftware.nl/1' }, { type: 'email', content: 'info.1@uva.nl' }, { type: 'phonenumber', content: '06 12345671' }],
         external_id: 0,
@@ -41,8 +41,8 @@ const configs = {
     get: (db) => [
       {
         enabled: true,
-        name: 'New name 1',
-        description: 'New description 1',
+        name: 'New name 1 - event',
+        description: 'New description 1 - event',
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 1',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
@@ -50,8 +50,8 @@ const configs = {
       },
       {
         enabled: false,
-        name: 'New name 2',
-        description: 'New description 2',
+        name: 'New name 2 - event',
+        description: 'New description 2 - event',
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 2',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
@@ -59,8 +59,8 @@ const configs = {
       },
       {
         enabled: true,
-        name: 'New name 3',
-        description: 'New description 3',
+        name: 'New name 3 - event',
+        description: 'New description 3 - event',
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 3',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
@@ -68,8 +68,8 @@ const configs = {
       },
       {
         enabled: true,
-        name: 'New name 4',
-        description: 'New description 4',
+        name: 'New name 4 - event',
+        description: 'New description 4 - event',
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 4',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
@@ -85,21 +85,21 @@ const configs = {
       {
         enid: db.entities[0].enid,
         evid: db.events[0].evid,
-        name: 'New name1',
+        name: 'New name1 - project',
         description: 'New description1',
         datanoseLink: 'https://datanose.nl/projects/newName1',
       },
       {
         enid: db.entities[0].enid,
         evid: db.events[0].evid,
-        name: 'New name 2',
+        name: 'New name 2 - project',
         description: 'New description 2',
         datanoseLink: 'https://datanose.nl/projects/newName2',
       },
       {
         enid: db.entities[1].enid,
         evid: db.events[1].evid,
-        name: 'Other company project',
+        name: 'Other company project - project',
         description: 'Belongs to another company',
         datanoseLink: 'https://datanose.nl/projects/newName3',
       },
