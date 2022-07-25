@@ -48,6 +48,12 @@ function CustomNavbar(props) {
           <Nav.Item>
             <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>
           </Nav.Item>
+          { api.getApiTokenData().repAdmin === true ?
+            <Nav.Item>
+              <Link to={`/${params.evid}/company`}><img src={organisationsIcon} alt='' /><span>Company</span></Link>
+            </Nav.Item>
+            : null
+           }
         </>
         : null
       }

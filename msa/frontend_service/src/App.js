@@ -16,6 +16,8 @@ import Votes from './pages/student/Votes';
 import RepAccount from './pages/representative/RepAccount';
 import Projects from './pages/representative/projects';
 
+import CompanyDashboard from './pages/adminRepresentative/CompanyDashboard';
+
 function EventChecker(props) {
   const params = useParams();
   const [found, setFound] = useState(true);
@@ -92,7 +94,13 @@ class App extends React.Component {
   }
 
   adminRepRoutes() {
-    return [];
+    return (
+      <>
+        <Route path='' element={<Navigate to='company' replace={true} />} />
+        <Route path='company' element={<Page page={<CompanyDashboard />} />} />
+        {this.repRoutes()}
+      </>
+    );
   }
 
   getRoutes() {
