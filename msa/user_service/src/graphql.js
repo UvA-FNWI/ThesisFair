@@ -74,6 +74,32 @@ schemaComposer.Query.addNestedFields({
       return users;
     },
   },
+  usersOfEntity: { // TODO: Auto test this
+    type: '[User]',
+    args: {
+      enid: 'ID!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      const users = await Representative.find({ enid: args.enid });
+      canGetUsers(req, args, users);
+      return users;
+    }
+  },
+  usersAll: { // TODO: Auto test this
+    type: '[User]',
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED to get all users');
+      }
+
+      const users = await User.find();
+      return users;
+    }
+  },
   cv: {
     type: 'String',
     args: {

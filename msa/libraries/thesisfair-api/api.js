@@ -242,6 +242,24 @@ export default (url) => {
             cache: caching ? { instance: cache, type: 'user', key: 'uid', keys: 'uids', } : false,
           }),
 
+        getOfEntity: (enid, projection) =>
+          genGraphQLBuilder({
+            name: 'getUsersOfEntity',
+            functionPath: 'usersOfEntity',
+            body: bodies.User(projection),
+            args: {
+              enid: { value: enid, type: 'ID!' },
+            },
+          }),
+
+        getAll: (projection) =>
+          genGraphQLBuilder({
+            name: 'getAllUsers',
+            functionPath: 'usersAll',
+            body: bodies.User(projection),
+            args: {
+            },
+          }),
 
         delete: (uid, projection) =>
           genGraphQLBuilder({
