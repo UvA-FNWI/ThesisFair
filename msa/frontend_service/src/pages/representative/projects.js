@@ -34,7 +34,7 @@ class Projects extends React.Component {
     const project = this.state.projects[projectIndex];
     const student = this.state.votedFor[project.pid][studentIndex];
 
-    if (!cv) {
+    if (cv === false) {
       api.user.student.getCV(student.uid).exec().then((cv) => {
         this.setState({ popup: { projectIndex, studentIndex, cv } });
       })
@@ -75,9 +75,14 @@ class Projects extends React.Component {
             {cv ?
               <embed style={{ width: '100%', minHeight: '95vh' }} src={cv} />
             :
+              cv === false ?
               <div style={{ width: '100%', minHeight: '95vh' }} className='d-flex justify-content-center align-items-center'>
                 <Spinner animation="border" />
               </div>
+              :
+              <h6>
+                This student has not uploaded a CV.
+              </h6>
             }
           </div>
         </Modal.Body>
@@ -111,7 +116,7 @@ class Projects extends React.Component {
                   <h4 className='mt-4'>Students</h4>
                   <div>
                     {this.state.votedFor[project.pid] ? this.state.votedFor[project.pid].map((student, studentIndex) => (
-                      <Card key={studentIndex} className='mb-2 hoverable' onClick={(e) => this.setState({ popup: { projectIndex, studentIndex } })}>
+                      <Card key={studentIndex} className='mb-2 hoverable' onClick={(e) => this.setState({ popup: { projectIndex, studentIndex, cv: false } })}>
                         <Card.Body className='d-flex justify-content-between align-items-center'>
                           <p className='m-0'>
                             {student.firstname} {student.lastname}<span className='d-none d-sm-inline ps-2 pe-2'>-</span><span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
