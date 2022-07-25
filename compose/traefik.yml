@@ -1,0 +1,26 @@
+entrypoints:
+  web:
+    address: ":80"
+  webSec:
+    address: ":443"
+    http:
+      tls:
+        certResolver: "letsencrypt"
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: quintencoltof1@gmail.com
+      storage: /data/acme.json
+      httpChallenge:
+        entryPoint: web
+
+providers:
+  docker:
+    watch: true
+    exposedByDefault: false
+
+accessLog: {}
+
+api:
+  insecure: true

@@ -1,0 +1,108 @@
+version: "3"
+services:
+  traefik:
+    image: traefik:2.8
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - /home/quinten/data/traefik:/data
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    ports:
+      - 15672:15672
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025
+
+  mongodb:
+    image: mongo
+    restart: unless-stopped
+    volumes:
+      - /home/quinten/data/db:/data/db
+
+    ports:
+      - 27017:27017
+
+
+  api_gateway:
+    image: ghcr.io/quinten1333/thesisfair-api_gateway:base
+    restart: unless-stopped
+    environment:
+      - jwtKey=${JWT_SECRET}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.apiGateway.rule: Host(`thesisfair.softwareify.nl`) && PathPrefix(`/api`)
+      traefik.http.routers.apiGateway.middlewares: apiGatewayStrip
+      traefik.http.middlewares.apiGatewayStrip.stripprefix.prefixes: /api
+    depends_on:
+      - rabbitmq
+
+
+  api-entity:
+    image: ghcr.io/quinten1333/thesisfair-entity_service:base
+    restart: unless-stopped
+    environment:
+      - mongodbConStr=mongodb://mongodb/entity_service
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+
+  api-event:
+    image: ghcr.io/quinten1333/thesisfair-event_service:base
+    restart: unless-stopped
+    environment:
+      - mongodbConStr=mongodb://mongodb/event_service
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+
+  frontend:
+    image: ghcr.io/quinten1333/thesisfair-frontend_service:base
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.frontend.rule: Host(`thesisfair.softwareify.nl`)
+
+  api-project:
+    image: ghcr.io/quinten1333/thesisfair-project_service:base
+    restart: unless-stopped
+    environment:
+      - mongodbConStr=mongodb://mongodb/project_service
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+
+  api-user:
+    image: ghcr.io/quinten1333/thesisfair-user_service:base
+    restart: unless-stopped
+    environment:
+      - mongodbConStr=mongodb://mongodb/user_service
+      - jwtKey=${JWT_SECRET}
+    volumes:
+      - /home/quinten/data/userService:/app/data
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+
+  api-vote:
+    image: ghcr.io/quinten1333/thesisfair-vote_service:base
+    restart: unless-stopped
+    environment:
+      - mongodbConStr=mongodb://mongodb/vote_service
+    depends_on:
+      - rabbitmq
+      - mongodb
