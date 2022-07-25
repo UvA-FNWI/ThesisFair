@@ -136,7 +136,7 @@ class StudentAccount extends React.Component {
                 <Col>
                   <Form.Group>
                     <Form.Label>Phone number</Form.Label>
-                    <Form.Control placeholder='Enter you phonenumber' value={this.state.phone} onChange={(e) => this.setState({ phone: e.target.value })} />
+                    <Form.Control placeholder='Enter you phone number' value={this.state.phone} onChange={(e) => this.setState({ phone: e.target.value })} />
                   </Form.Group>
                 </Col>
               </Row>
