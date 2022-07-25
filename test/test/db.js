@@ -132,7 +132,7 @@ const configs = {
         studentnumber: '22345678',
         websites: ['https://johannes.nl', 'https://sebastiaan.nl'],
         studies: ['UvA Kunstmatige Intellegentie', 'VU Rechten'],
-        share: [db.entities[1].enid],
+        share: [db.entities[0].enid, db.entities[1].enid],
         __t: "Student",
       },
       {
@@ -188,7 +188,7 @@ const configs = {
       },
       {
         uid: db.users[1].uid,
-        evid: db.events[1].evid,
+        evid: db.events[0].evid,
         votes: [
           { enid: db.projects[0].enid, pid: db.projects[0].pid },
           { enid: db.projects[2].enid, pid: db.projects[2].pid },
