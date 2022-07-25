@@ -85,7 +85,7 @@ class StudentAccount extends React.Component {
 
         input.remove();
         await api.user.student.uploadCV(api.getApiTokenData().uid, reader.result).exec();
-        this.setState({ savingCV: false });
+        this.setState({ savingCV: false, cvPresence: true });
       }
       reader.readAsDataURL(blob);
     }
