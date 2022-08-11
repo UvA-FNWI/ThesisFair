@@ -26,7 +26,7 @@ def getRange(query: str, start: datetime, end: datetime, step: str = '20s'):
 
   return result['data']
 
-def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.jpg', ylabel: str = '', xlabel: str = '', process_data: callable = None, process_value: callable = None):
+def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.jpg', ylabel: str = '', xlabel: str = '', process_data: callable = None, process_value: callable = None, max: int = None):
   averages_file = open(os.path.join(output_dir, 'averages.txt'), 'a')
   print(f'\n\n{filename}', file=averages_file)
   averages = {}
@@ -82,7 +82,7 @@ def makeGraph(query, experiments, output_dir: str= 'out', filename: str = 'out.j
   plt.legend()
   plt.ylabel(ylabel)
   plt.xlabel(xlabel)
-  plt.ylim(bottom=0)
+  plt.ylim(bottom=0, top=max)
   plt.xlim(left=0)
   plt.savefig(os.path.join(output_dir, filename))
   plt.close()
@@ -109,7 +109,8 @@ def makeResults(experiments, output_dir: str = 'out'):
     ylabel = 'Errors over time',
     xlabel='Time since experiment start (seconds)',
     filename = 'errors.jpg',
-    output_dir= output_dir
+    output_dir= output_dir,
+    max = 130,
   )
 
   # makeGraph(f'sum(traefik_service_request_duration_seconds_bucket{{service="{service}"}}) by (le) / scalar(sum(traefik_service_request_duration_seconds_count{{service="{service}"}}) by (service))', experiments,
@@ -124,7 +125,8 @@ def makeResults(experiments, output_dir: str = 'out'):
     ylabel = 'API Response time (ms)',
     xlabel='Time since experiment start (seconds)',
     filename = 'API_response_time.jpg',
-    output_dir= output_dir
+    output_dir= output_dir,
+    max = 750
   )
 
 
@@ -133,7 +135,8 @@ def makeResults(experiments, output_dir: str = 'out'):
     ylabel = 'Service instances',
     xlabel='Time since experiment start (seconds)',
     filename = 'service_instences_per_service.jpg',
-    output_dir= output_dir
+    output_dir= output_dir,
+    max = 32
   )
 
 
@@ -204,12 +207,12 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'base'
     },
-    'ThesisFair sidecarCommunication': {
-      'start': datetime(2022, 6, 17, 15, 37, 00),
-      'end': datetime(2022, 6, 17, 16, 7, 00),
-      'rabbitmq': True,
-      'name': 'sidecar'
-    },
+    # 'ThesisFair sidecarCommunication': {
+    #   'start': datetime(2022, 6, 17, 15, 37, 00),
+    #   'end': datetime(2022, 6, 17, 16, 7, 00),
+    #   'rabbitmq': True,
+    #   'name': 'sidecar'
+    # },
     'ThesisFair httpCommunication1x': {
       'start': datetime(2022, 6, 7, 13, 36, 00),
       'end': datetime(2022, 6, 7, 14, 6, 00),
@@ -228,12 +231,12 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'server caching'
     },
-    'ThesisFair clientServerCaching': {
-      'start': datetime(2022, 6, 21, 9, 52, 00),
-      'end': datetime(2022, 6, 21, 10, 22, 00),
-      'rabbitmq': True,
-      'name': 'client + server caching'
-    },
+    # 'ThesisFair clientServerCaching': {
+    #   'start': datetime(2022, 6, 21, 9, 52, 00),
+    #   'end': datetime(2022, 6, 21, 10, 22, 00),
+    #   'rabbitmq': True,
+    #   'name': 'client + server caching'
+    # },
     'ThesisFair cqrs': {
       'start': datetime(2022, 6, 22, 11, 19, 00),
       'end': datetime(2022, 6, 22, 11, 49, 00),
@@ -249,12 +252,12 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'base'
     },
-    'ThesisFair sidecarCommunication': {
-      'start': datetime(2022, 6, 17, 11, 27, 00),
-      'end': datetime(2022, 6, 17, 11, 57, 00),
-      'rabbitmq': True,
-      'name': 'sidecar'
-    },
+    # 'ThesisFair sidecarCommunication': {
+    #   'start': datetime(2022, 6, 17, 11, 27, 00),
+    #   'end': datetime(2022, 6, 17, 11, 57, 00),
+    #   'rabbitmq': True,
+    #   'name': 'sidecar'
+    # },
     'ThesisFair httpCommunication2x': {
       'start': datetime(2022, 6, 7, 14, 29, 50),
       'end': datetime(2022, 6, 7, 14, 59, 50),
@@ -273,12 +276,12 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'server caching'
     },
-    'ThesisFair clientServerCaching': {
-      'start': datetime(2022, 6, 21, 11, 19, 00),
-      'end': datetime(2022, 6, 21, 11, 49, 00),
-      'rabbitmq': True,
-      'name': 'client + server caching'
-    },
+    # 'ThesisFair clientServerCaching': {
+    #   'start': datetime(2022, 6, 21, 11, 19, 00),
+    #   'end': datetime(2022, 6, 21, 11, 49, 00),
+    #   'rabbitmq': True,
+    #   'name': 'client + server caching'
+    # },
     'ThesisFair cqrs': {
       'start': datetime(2022, 6, 21, 19, 1, 00),
       'end': datetime(2022, 6, 21, 19, 31, 00),
@@ -294,12 +297,12 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'base'
     },
-    'ThesisFair sidecarCommunication': {
-      'start': datetime(2022, 6, 17, 12, 29, 00),
-      'end': datetime(2022, 6, 17, 12, 59, 00),
-      'rabbitmq': True,
-      'name': 'sidecar'
-    },
+    # 'ThesisFair sidecarCommunication': {
+    #   'start': datetime(2022, 6, 17, 12, 29, 00),
+    #   'end': datetime(2022, 6, 17, 12, 59, 00),
+    #   'rabbitmq': True,
+    #   'name': 'sidecar'
+    # },
     'ThesisFair httpCommunication3x': {
       'start': datetime(2022, 6, 7, 15, 4, 50),
       'end': datetime(2022, 6, 7, 15, 34, 50),
@@ -318,12 +321,12 @@ if __name__ == '__main__':
       'rabbitmq': True,
       'name': 'server caching'
     },
-    'ThesisFair clientServerCaching': {
-      'start': datetime(2022, 6, 21, 11, 58, 00),
-      'end': datetime(2022, 6, 21, 12, 28, 00),
-      'rabbitmq': True,
-      'name': 'client + server caching'
-    },
+    # 'ThesisFair clientServerCaching': {
+    #   'start': datetime(2022, 6, 21, 11, 58, 00),
+    #   'end': datetime(2022, 6, 21, 12, 28, 00),
+    #   'rabbitmq': True,
+    #   'name': 'client + server caching'
+    # },
     'ThesisFair cqrs': {
       'start': datetime(2022, 6, 21, 21, 22, 00),
       'end': datetime(2022, 6, 21, 21, 52, 00),
@@ -339,7 +342,7 @@ if __name__ == '__main__':
   with open('averages.txt', 'w') as file:
     print('\\hline', file=file)
     makeCSV(
-      table_columns = ['base', 'http', 'sidecar', 'client caching', 'server caching', 'client + server caching', 'CQRS'],
+      table_columns = ['base', 'http', 'client caching', 'server caching', 'CQRS'],
       loads_names = [' 1x load', ' 2x load', ' 3x load'],
       loads = [averages_1xload, averages_2xload, averages_3xload],
       sep = '&',
@@ -349,7 +352,7 @@ if __name__ == '__main__':
     )
     print('\n\\hline', file=file)
     makeCSV(
-      table_columns = ['base', 'http', 'sidecar', 'client caching', 'server caching', 'client + server caching', 'CQRS'],
+      table_columns = ['base', 'http', 'client caching', 'server caching', 'CQRS'],
       loads_names = [' 1x load', ' 2x load', ' 3x load'],
       loads = [averages_1xload, averages_2xload, averages_3xload],
       sep = '&',
