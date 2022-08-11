@@ -14,8 +14,6 @@ services:
     networks:
       - default
       - thesisfair
-    depends_on:
-      - event_service_mongodb
 
   mongodb:
     image: mongo
