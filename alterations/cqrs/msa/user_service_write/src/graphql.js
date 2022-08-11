@@ -209,7 +209,7 @@ Password: ${password}
 
       await Event.create({
         operation: 'student.uploadCV',
-        data: args.file,
+        data: { cv: args.file },
         identifier: args.uid,
       })
 
@@ -233,7 +233,7 @@ Password: ${password}
 
       await Event.create({
         operation: 'student.shareInfo',
-        data: { enid: args.enid, share: args.share },
+        data: { enid: args.enid, shareState: args.share },
         identifier: args.uid,
       })
 

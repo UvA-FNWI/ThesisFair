@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 import debugLib from 'debug';
 import { channel } from '../../libraries/amqpmessaging/index.js';
+import protobuf from 'protobufjs';
 
 const debug = debugLib('user_service:database');
 let conn;
+let protobufRoot, protobufEvent;
 
 const userSchema = new mongoose.Schema({
   firstname: String,
@@ -25,12 +27,11 @@ const eventSchema = new mongoose.Schema({
 });
 
 eventSchema.post('save', function (_, next) {
-  channel.sendToQueue('api-user', Buffer.from(JSON.stringify({
-    event: 'write',
+  channel.sendToQueue('api-user-update', protobufEvent.encode(protobufEvent.fromObject({
     operation: this.operation,
     data: this.data,
     identifier: this.identifier
-  })));
+  })).finish());
 
   next();
 });
@@ -56,6 +57,10 @@ export const connect = async (uri) => {
     enid: { type: mongoose.Schema.ObjectId },
     repAdmin: { type: Boolean, default: false },
   }));
+
+  protobufRoot = protobuf.loadSync('./src/userservice.proto');
+  protobufEvent = protobufRoot.lookupType('userservice.Event');
+
   return conn;
 }
 

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package userservice;
+
+
+message Data {
+  string firstname = 1;
+  string lastname = 2;
+  string email = 3;
+  string phone = 4;
+  bool admin = 5;
+  string password = 6;
+
+  string studentnumer = 7;
+  repeated string websites = 8;
+  repeated string studies = 9;
+  repeated string share = 10;
+
+  string enid = 11;
+  bool repAdmin = 12;
+
+  string cv = 13;
+  bool shareState = 14;
+}
+
+message Event {
+  string operation = 1;
+  Data data = 2;
+  string identifier = 3;
+}

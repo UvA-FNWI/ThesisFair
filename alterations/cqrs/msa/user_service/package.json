@@ -18,7 +18,8 @@
     "graphql-compose": "^9.0.8",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.1",
-    "nodemailer": "^6.7.5"
+    "nodemailer": "^6.7.5",
+    "protobufjs": "^7.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

@@ -1,11 +1,15 @@
 import { mkdirSync, existsSync } from 'fs';
 import { writeFile } from 'fs/promises';
+import protobuf from 'protobufjs';
 
 import { User, Representative, Student } from './database.js';
 
 if (!existsSync('./data')) {
   mkdirSync('./data');
 }
+
+const protobufRoot = protobuf.loadSync('src/userservice.proto');
+const protobufEvent = protobufRoot.lookupType('userservice.Event');
 
 const events = {
   'representative.create': async (data, identifier) => {
@@ -18,11 +22,11 @@ const events = {
     await Student.updateOne({ _id: identifier }, data);
   },
   'student.uploadCV': async (data, identifier) => {
-    await writeFile(`./data/${identifier}`, data);
+    await writeFile(`./data/${identifier}`, data.cv);
   },
   'student.shareInfo': async (data, identifier) => {
     let operation;
-    if (data.share) {
+    if (data.shareState) {
       operation = { $push: { share: data.enid } };
     } else {
       operation = { $pull: { share: data.enid } };
@@ -39,9 +43,14 @@ const events = {
 }
 
 export default (payload) => {
-  if (!(payload.operation in events)) {
-    throw new Error('Unkown operation: ' + payload.operation);
+  let event = protobufEvent.toObject(protobufEvent.decode(payload), {
+    enums: String,
+    arrays: true
+  });
+
+  if (!(event.operation in events)) {
+    throw new Error('Unkown operation: ' + event.operation);
   }
 
-  return events[payload.operation](payload.data, payload.identifier);
+  return events[event.operation](event.data, event.identifier);
 }
