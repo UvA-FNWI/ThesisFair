@@ -130,7 +130,7 @@ export const pages = {
               enid: api.getApiTokenData().enid,
               name: 'Lorem ipsum.',
               description: 'Lorem ipsum.',
-              contact: [{ type: 'website', content: 'Lorem ipsum.'}, { type: 'phone', content: '+31 000000000' }, { type: 'email', content: 'contact@company.nl' }],
+              contact: [{ type: 'website', content: 'Lorem ipsum.'}, { type: 'phonenumber', content: '+31 000000000' }, { type: 'email', content: 'contact@company.nl' }],
             }).exec();
           },
 
