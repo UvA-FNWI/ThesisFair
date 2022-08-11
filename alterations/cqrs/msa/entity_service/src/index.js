@@ -11,13 +11,8 @@ const main = async () => {
   await connectDB();
   await connect();
   await initSending();
-  receive('api-entity', (payload) => {
-    if (payload.event === 'graphql') {
-      return graphql(payload);
-    } else if (payload.event === 'write') {
-      write(payload);
-    }
-  });
+  receive('api-entity', graphql);
+  receive('api-entity-update', write, false);
   debug('Initialized, waiting for requests');
 }
 

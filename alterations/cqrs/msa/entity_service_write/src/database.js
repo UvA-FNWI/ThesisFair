@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import debugLib from 'debug';
 import { channel } from '../../libraries/amqpmessaging/index.js';
-
+import protobuf from 'protobufjs';
 
 const debug = debugLib('entity_service:database');
 let conn;
+let protobufRoot, protobufEvent;
 
 const entitySchema = new mongoose.Schema({
   name: String,
@@ -25,12 +26,16 @@ const eventSchema = new mongoose.Schema({
 });
 
 eventSchema.post('save', function (_, next) {
-  channel.sendToQueue('api-entity', Buffer.from(JSON.stringify({
-    event: 'write',
-    operation: this.operation,
-    data: this.data,
-    identifier: this.identifier
-  })));
+  if (this.data) {
+    this.data['externalId'] = this.data['external_id'];
+  }
+
+  channel.sendToQueue('api-entity-update',
+    protobufEvent.encode(protobufEvent.fromObject({
+      operation: this.operation,
+      data: this.data,
+      identifier: this.identifier
+    })).finish());
 
   next();
 });
@@ -45,6 +50,9 @@ export const connect = async (uri) => {
 
   Entity = conn.model('Entity', entitySchema);
   Event = conn.model('Event', eventSchema);
+
+  protobufRoot = protobuf.loadSync('./src/entityservice.proto');
+  protobufEvent = protobufRoot.lookupType('entityservice.Event');
 
   return conn;
 }

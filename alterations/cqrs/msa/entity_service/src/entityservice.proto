@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package entityservice;
+
+message Contact {
+  string type = 1;
+  string content = 2;
+}
+
+enum TypeEnum {
+  company = 0;
+  research = 1;
+}
+
+message Entity {
+  string name = 1;
+  string description = 2;
+  TypeEnum type = 3;
+  repeated Contact contact = 4;
+  int32 external_id = 5;
+}
+
+message Event {
+  string operation = 1;
+  Entity data = 2;
+  string identifier = 3;
+}
