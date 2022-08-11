@@ -3,6 +3,7 @@ syntax = "proto3";
 package eventservice;
 
 message Data {
+  string _id = 9;
   bool enabled = 1;
   string name = 2;
   string description = 3;

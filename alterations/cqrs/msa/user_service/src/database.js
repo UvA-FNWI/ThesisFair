@@ -5,6 +5,7 @@ const debug = debugLib('user_service:database');
 let conn;
 
 const userSchema = new mongoose.Schema({
+  _id: mongoose.Schema.ObjectId,
   firstname: String,
   lastname: String,
   email: { type: String, required: true, unique: true },

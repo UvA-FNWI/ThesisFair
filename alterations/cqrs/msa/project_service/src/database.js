@@ -5,6 +5,7 @@ const debug = debugLib('project_service:database');
 let conn;
 
 const projectSchema = new mongoose.Schema({
+  _id: mongoose.Schema.ObjectId,
   enid: mongoose.Schema.ObjectId,
   evid: mongoose.Schema.ObjectId,
   name: String,

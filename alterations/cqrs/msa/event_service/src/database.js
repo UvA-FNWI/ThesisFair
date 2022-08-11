@@ -5,6 +5,7 @@ const debug = debugLib('event_service:database');
 let conn;
 
 const eventSchema = new mongoose.Schema({
+  _id: mongoose.Schema.ObjectId,
   enabled: Boolean,
   name: String,
   description: String,

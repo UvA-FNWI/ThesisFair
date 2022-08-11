@@ -3,6 +3,7 @@ syntax = "proto3";
 package projectservice;
 
 message Project {
+  string _id = 6;
   string enid = 1;
   string evid = 2;
   string name = 3;
