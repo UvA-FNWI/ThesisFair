@@ -45,7 +45,6 @@ const events = {
 export default (payload) => {
   let event = protobufEvent.toObject(protobufEvent.decode(payload), {
     enums: String,
-    arrays: true
   });
 
   if (!(event.operation in events)) {
