@@ -44,7 +44,7 @@ export const disconnect = () => {
 }
 
 //* Receiving
-export const receive = async (queue, callback) => {
+export const receive = async (queue, callback, json=true) => {
   channel.assertQueue(queue, {
     durable: false,
   });
@@ -52,8 +52,7 @@ export const receive = async (queue, callback) => {
   channel.consume(queue, async (msg) => {
     debug('Recv corr: %ds, reply:To %s', msg.properties.correlationId, msg.properties.replyTo)
 
-    const payload = JSON.parse(msg.content.toString());
-    const reply = await callback(payload);
+    const reply = await callback(json ? JSON.parse(msg.content.toString()) : msg.content);
 
     if (msg.properties.replyTo) {
       channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(reply)), { correlationId: msg.properties.correlationId });
