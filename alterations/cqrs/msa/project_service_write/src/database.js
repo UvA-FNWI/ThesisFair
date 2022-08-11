@@ -1,8 +1,11 @@
 import mongoose from 'mongoose';
-import debugLib from 'debug';import { channel } from '../../libraries/amqpmessaging/index.js';
+import debugLib from 'debug';
+import { channel } from '../../libraries/amqpmessaging/index.js';
+import protobuf from 'protobufjs';
 
 const debug = debugLib('project_service:database');
 let conn;
+let protobufRoot, protobufEvent;
 
 const projectSchema = new mongoose.Schema({
   enid: mongoose.Schema.ObjectId,
@@ -20,12 +23,11 @@ const eventSchema = new mongoose.Schema({
 });
 
 eventSchema.post('save', function (_, next) {
-  channel.sendToQueue('api-project', Buffer.from(JSON.stringify({
-    event: 'write',
+  channel.sendToQueue('api-project-update', protobufEvent.encode(protobufEvent.fromObject({
     operation: this.operation,
     data: this.data,
     identifier: this.identifier
-  })));
+  })).finish());
 
   next();
 });
@@ -40,6 +42,10 @@ export const connect = async (uri) => {
 
   Project = conn.model('Project', projectSchema);
   Event = conn.model('Event', eventSchema);
+
+  protobufRoot = protobuf.loadSync('./src/projectservice.proto');
+  protobufEvent = protobufRoot.lookupType('projectservice.Event');
+
   return conn;
 }
 

@@ -1,4 +1,8 @@
 import { Project } from './database.js';
+import protobuf from 'protobufjs';
+
+const protobufRoot = protobuf.loadSync('src/projectservice.proto');
+const protobufEvent = protobufRoot.lookupType('projectservice.Event');
 
 const events = {
   create: async (data, identifier) => {
@@ -16,9 +20,14 @@ const events = {
 }
 
 export default (payload) => {
-  if (!(payload.operation in events)) {
-    throw new Error('Unkown operation: ' + payload.operation);
+  let event = protobufEvent.toObject(protobufEvent.decode(payload), {
+    enums: String,
+    arrays: true
+  });
+
+  if (!(event.operation in events)) {
+    throw new Error('Unkown operation: ' + event.operation);
   }
 
-  return events[payload.operation](payload.data, payload.identifier);
+  return events[event.operation](event.data, event.identifier);
 }

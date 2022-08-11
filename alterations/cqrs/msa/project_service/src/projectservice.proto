@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package projectservice;
+
+message Project {
+  string enid = 1;
+  string evid = 2;
+  string name = 3;
+  string description = 4;
+  string datanoseLink = 5;
+}
+
+message Event {
+  string operation = 1;
+  Project data = 2;
+  string identifier = 3;
+}
