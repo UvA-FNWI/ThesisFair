@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 import debugLib from 'debug';
 import { channel } from '../../libraries/amqpmessaging/index.js';
+import protobuf from 'protobufjs';
 
 const debug = debugLib('event_service:database');
 let conn;
+let protobufRoot, protobufEvent;
 
 const eventSchema = new mongoose.Schema({
   enabled: Boolean,
@@ -23,12 +25,11 @@ const CQRSeventSchema = new mongoose.Schema({
 });
 
 CQRSeventSchema.post('save', function (_, next) {
-  channel.sendToQueue('api-event', Buffer.from(JSON.stringify({
-    event: 'write',
+  channel.sendToQueue('api-event-update', protobufEvent.encode(protobufEvent.fromObject({
     operation: this.operation,
     data: this.data,
     identifier: this.identifier
-  })));
+  })).finish());
 
   next();
 });
@@ -43,6 +44,10 @@ export const connect = async (uri) => {
 
   Event = conn.model('Event', eventSchema);
   CQRSEvent = conn.model('CQRSEvent', CQRSeventSchema);
+
+  protobufRoot = protobuf.loadSync('./src/eventservice.proto');
+  protobufEvent = protobufRoot.lookupType('eventservice.CQRSEvent');
+
   return conn;
 }
 

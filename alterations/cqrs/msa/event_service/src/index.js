@@ -10,13 +10,8 @@ const debug = debugLib('event_service:index')
 const main = async () => {
   await connectDB();
   await connect();
-  receive('api-event', (payload) => {
-    if (payload.event === 'graphql') {
-      return graphql(payload);
-    } else if (payload.event === 'write') {
-      write(payload);
-    }
-  });
+  receive('api-event', graphql);
+  receive('api-event-update', write, false);
   debug('Initialized, waiting for requests');
 }
 

@@ -151,7 +151,7 @@ schemaComposer.Mutation.addNestedFields({
 
       CQRSEvent.create({
         operation: 'entity.add',
-        data: args.enid,
+        data: { enid: args.enid },
         identifier: args.evid,
       });
 
@@ -174,7 +174,7 @@ schemaComposer.Mutation.addNestedFields({
 
       CQRSEvent.create({
         operation: 'entity.del',
-        data: args.enid,
+        data: { enid: args.enid },
         identifier: args.evid,
       });
 

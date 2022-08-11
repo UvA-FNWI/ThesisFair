@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package eventservice;
+
+message Data {
+  bool enabled = 1;
+  string name = 2;
+  string description = 3;
+  uint64 start = 4;
+  string location = 5;
+  uint64 studentSubmitDeadline = 6;
+  repeated string entities = 7;
+
+
+  string enid = 8;
+}
+
+message CQRSEvent {
+  string operation = 1;
+  Data data = 2;
+  string identifier = 3;
+}
