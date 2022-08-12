@@ -238,8 +238,8 @@ if __name__ == '__main__':
     #   'name': 'client + server caching'
     # },
     'ThesisFair cqrs': {
-      'start': datetime(2022, 6, 22, 11, 19, 00),
-      'end': datetime(2022, 6, 22, 11, 49, 00),
+      'start': datetime(2022, 8, 11, 14, 33, 00),
+      'end': datetime(2022, 8, 11, 15, 3, 00),
       'rabbitmq': True,
       'name': 'CQRS'
     },
@@ -283,8 +283,8 @@ if __name__ == '__main__':
     #   'name': 'client + server caching'
     # },
     'ThesisFair cqrs': {
-      'start': datetime(2022, 6, 21, 19, 1, 00),
-      'end': datetime(2022, 6, 21, 19, 31, 00),
+      'start': datetime(2022, 8, 11, 15, 10, 00),
+      'end': datetime(2022, 8, 11, 15, 40, 00),
       'rabbitmq': True,
       'name': 'CQRS'
     },
@@ -328,8 +328,8 @@ if __name__ == '__main__':
     #   'name': 'client + server caching'
     # },
     'ThesisFair cqrs': {
-      'start': datetime(2022, 6, 21, 21, 22, 00),
-      'end': datetime(2022, 6, 21, 21, 52, 00),
+      'start': datetime(2022, 8, 11, 15, 47, 00),
+      'end': datetime(2022, 8, 11, 16, 17, 00),
       'rabbitmq': True,
       'name': 'CQRS'
     },
