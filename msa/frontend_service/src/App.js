@@ -17,7 +17,7 @@ import Schedule from './pages/student/Schedule';
 import RepAccount from './pages/representative/RepAccount';
 import Projects from './pages/representative/projects';
 
-import CompanyDashboard from './pages/adminRepresentative/CompanyDashboard';
+import OrganisationDashboard from './pages/adminRepresentative/OrganisationDashboard';
 
 function EventChecker(props) {
   const params = useParams();
@@ -98,8 +98,8 @@ class App extends React.Component {
   adminRepRoutes() {
     return (
       <>
-        <Route path='' element={<Navigate to='company' replace={true} />} />
-        <Route path='company' element={<Page page={<CompanyDashboard />} />} />
+        <Route path='' element={<Navigate to='organisation' replace={true} />} />
+        <Route path='organisation' element={<Page page={<OrganisationDashboard />} />} />
         {this.repRoutes()}
       </>
     );

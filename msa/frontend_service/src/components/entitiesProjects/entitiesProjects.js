@@ -27,7 +27,7 @@ class EntitiesProjects extends React.Component {
     return (
       <Modal show={true} onHide={() => this.setState({ popup: false })} size='lg'>
         <Modal.Header closeButton>
-          Project and company information
+          Project and organisation information
         </Modal.Header>
         <Modal.Body>
           <div class='d-flex justify-content-between'>
@@ -42,7 +42,7 @@ class EntitiesProjects extends React.Component {
 
             <div>
               <h1>{entity.name}</h1>
-              <h4>About the company</h4>
+              <h4>About the organisation</h4>
               {entity.description}
 
               <h4 className='mt-4 mb-0'>Interested in this project?</h4>

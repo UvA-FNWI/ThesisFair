@@ -27,7 +27,7 @@ class Schedule extends React.Component {
           <thead>
             <tr>
               <th>Time</th>
-              <th>Company</th>
+              <th>Organisation</th>
               <th>Place</th>
             </tr>
           </thead>

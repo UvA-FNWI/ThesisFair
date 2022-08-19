@@ -6,7 +6,7 @@ import deleteIcon from 'bootstrap-icons/icons/x-lg.svg';
 import api from '../../api';
 import CreateUserPopup from '../../components/createUserPopup/createUserPopup';
 
-class CompanyDashboard extends React.Component {
+class OrganisationDashboard extends React.Component {
   constructor(props) {
     super(props);
 
@@ -107,7 +107,7 @@ class CompanyDashboard extends React.Component {
     return (
       <>
         <Container className='mt-2'>
-          <h2>Company Information</h2>
+          <h2>Organisation Information</h2>
           <h6>This is what the students will see.</h6>
           <div className='mb-4'>
             <div>
@@ -115,7 +115,7 @@ class CompanyDashboard extends React.Component {
                 <div className='mb-2'>
                   <Form.Group>
                     <Form.Label>Name</Form.Label>
-                    <Form.Control placeholder='Enter company name' value={this.state.name} onChange={(e) => this.setState({ name: e.target.value })} required />
+                    <Form.Control placeholder='Enter organisation name' value={this.state.name} onChange={(e) => this.setState({ name: e.target.value })} required />
                   </Form.Group>
                   <Form.Group>
                     <Form.Label>Description</Form.Label>
@@ -132,7 +132,7 @@ class CompanyDashboard extends React.Component {
           </div>
 
           <div className='mb-4'>
-            <h2>Company Contact Information</h2>
+            <h2>Organisation Contact Information</h2>
             <Form onSubmit={this.updateContactInfo}>
               {this.state.contact.map((contact, i) =>
                 <Row key={i}>
@@ -186,4 +186,4 @@ class CompanyDashboard extends React.Component {
   }
 }
 
-export default CompanyDashboard;
+export default OrganisationDashboard;
