@@ -50,7 +50,7 @@ class Projects extends React.Component {
 
           <div className='row'>
             <div className='col-12 col-sm-6 col-lg-4'>
-              <h4 className='mt-4'>Contact info</h4>
+              <h4 className='mt-4'>Contact information</h4>
               <span className='d-block'>Email: {student.email || 'Not given'}</span>
               <span className='d-block'>Phone number: {student.phone || 'Not given'}</span>
             </div>

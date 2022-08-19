@@ -124,7 +124,7 @@ class OrganisationDashboard extends React.Component {
                 </div>
 
                 <div className='d-flex gap-2 align-items-center'>
-                  <Button type='submit' disabled={this.savingInfo}>{this.savingInfo ? 'Saving...' : 'Update personal info'}</Button>
+                  <Button type='submit' disabled={this.savingInfo}>{this.savingInfo ? 'Saving...' : 'Update personal information'}</Button>
                   {this.state.showInfoSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
                 </div>
               </Form>
@@ -151,7 +151,7 @@ class OrganisationDashboard extends React.Component {
               )}
 
               <div className='d-flex gap-2 align-items-center'>
-                <Button type='submit' disabled={this.savingContact}>{this.savingContact ? 'Saving...' : 'Update contact info'}</Button>
+                <Button type='submit' disabled={this.savingContact}>{this.savingContact ? 'Saving...' : 'Update contact information'}</Button>
                 {this.state.showContactSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
               </div>
             </Form>

@@ -74,7 +74,7 @@ class RepAccount extends React.Component {
   render() { // TODO: save automatically by deferring
     return (
       <Container className='mt-2'>
-        <h2>Your Personal Info</h2>
+        <h2>Account information</h2>
         <div className='mb-4'>
           <div>
             <Form onSubmit={this.updatePersonalInfo}>
@@ -109,7 +109,7 @@ class RepAccount extends React.Component {
               </Row>
 
               <div className='d-flex gap-2 align-items-center'>
-                <Button type='submit' disabled={this.savingInfo}>{this.savingInfo ? 'Saving...' : 'Update personal info'}</Button>
+                <Button type='submit' disabled={this.savingInfo}>{this.savingInfo ? 'Saving...' : 'Update personal information'}</Button>
                 {this.state.showInfoSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
               </div>
             </Form>
@@ -126,7 +126,7 @@ class RepAccount extends React.Component {
             </Form.Control.Feedback>
           </div>
           <div className='d-flex gap-2 align-items-center'>
-                <Button type='submit' disabled={this.savingPassword}>{this.savingPassword ? 'Saving...' : 'Update personal info'}</Button>
+                <Button type='submit' disabled={this.savingPassword}>{this.savingPassword ? 'Saving...' : 'Update personal information'}</Button>
                 {this.state.showPasswordSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
               </div>
         </Form>
