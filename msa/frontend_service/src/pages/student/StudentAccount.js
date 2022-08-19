@@ -114,14 +114,14 @@ class StudentAccount extends React.Component {
               <Row className='mb-2'>
                 <Col>
                   <Form.Group>
-                    <Form.Label>Firstname</Form.Label>
-                    <Form.Control placeholder='Enter firstname' value={this.state.firstname} onChange={(e) => this.setState({ firstname: e.target.value })} />
+                    <Form.Label>First Name</Form.Label>
+                    <Form.Control placeholder='Enter your first name' value={this.state.firstname} onChange={(e) => this.setState({ firstname: e.target.value })} />
                   </Form.Group>
                 </Col>
                 <Col>
                   <Form.Group>
-                    <Form.Label>Lastname</Form.Label>
-                    <Form.Control placeholder='Enter lastname' value={this.state.lastname} onChange={(e) => this.setState({ lastname: e.target.value })} />
+                    <Form.Label>Family Name</Form.Label>
+                    <Form.Control placeholder='Enter your family name' value={this.state.lastname} onChange={(e) => this.setState({ lastname: e.target.value })} />
                   </Form.Group>
                 </Col>
               </Row>
