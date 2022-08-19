@@ -122,7 +122,7 @@ class EntitiesProjects extends React.Component {
                         <Accordion.Body>
                           <p>{project.description}</p>
 
-                          <Button onClick={() => this.setState({ popup: { enid: entity.enid, entityIndex, projectIndex } })}>More info</Button>
+                          <Button onClick={() => this.setState({ popup: { enid: entity.enid, entityIndex, projectIndex } })}>More information</Button>
                         </Accordion.Body>
                       </Accordion.Item>
                     )) : null}
