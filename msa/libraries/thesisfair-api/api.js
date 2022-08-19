@@ -150,6 +150,15 @@ export default (url) => {
     tokenChangeCallback(apiTokenData);
   };
 
+  const logout = () => {
+    if (localStorage) {
+      localStorage.clear();
+      apiToken = null;
+      apiTokenData = null;
+      tokenChangeCallback();
+    }
+  };
+
   const graphql = async (functionPath, query, variables) => {
     let response;
     try {
@@ -170,7 +179,16 @@ export default (url) => {
       }
 
       if (error.response.status === 401) {
-        throw new Error('APItoken is invalid');
+        if (!apiTokenData) {
+          throw new Error('APItoken expired and already logged out');
+        }
+
+        if (Date.now() > apiTokenData.exp) {
+          logout();
+          throw new Error('APItoken expired');
+        }
+
+        throw new Error('APItoken does not give rights to access this resource');
       }
 
       throw error.response.data;
@@ -211,14 +229,7 @@ export default (url) => {
       setTokenChangeCallback: (cb) => { tokenChangeCallback = cb; },
       user: {
         login: login,
-        logout: () => {
-          if (localStorage) {
-            localStorage.clear();
-            apiToken = null;
-            apiTokenData = null;
-            tokenChangeCallback();
-          }
-        },
+        logout: logout,
 
         get: (uid, projection) =>
           genGraphQLBuilder({
