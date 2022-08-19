@@ -165,7 +165,7 @@ class StudentAccount extends React.Component {
 
         <div>
           <h2 className='mb-0'>Links</h2>
-          <h6><em>I.e. your Linked In/websites/github/blog posts</em></h6>
+          <p className='fs-6'><em>I.e. your LinkedIn/websites/GitHub/blog posts</em></p>
           {this.state.websites.map((website, i) =>
             <div key={i} style={{ position: 'relative' }}>
               <Form.Control className='mb-2' value={website} onChange={(e) => { const websites = [...this.state.websites]; websites[i] = e.target.value; this.setState({ websites }) }} />
