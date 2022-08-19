@@ -8,6 +8,7 @@ import NotFound from './pages/NotFound';
 import EventPicker from './pages/EventPicker';
 
 import Page from './pages/Page';
+import EventPage from './pages/EventPage';
 
 import StudentAccount from './pages/student/StudentAccount';
 import Organisations from './pages/student/Organisations';
@@ -133,6 +134,7 @@ class App extends React.Component {
         <Route path="/" element={<EventPicker />} />
         <Route path="/events" element={<EventPicker />} />
         <Route path="/:evid" element={<EventChecker />}>
+          <Route path="event" element={<Page page={<EventPage />} />} />
           {routes}
         </Route>
       </>
