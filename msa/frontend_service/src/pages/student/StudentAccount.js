@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button, CloseButton } from 'react-bootstrap';
+import cvUploadedIcon from 'bootstrap-icons/icons/file-earmark-check.svg';
 import api, { downloadCV } from '../../api';
 
 class StudentAccount extends React.Component {
@@ -157,8 +158,8 @@ class StudentAccount extends React.Component {
         </div>
 
         <div>
-          <h2>Your Curriculum Vitae</h2>
-          <Button onClick={this.uploadCV} className='me-1' disabled={this.savingCV}>{this.savingCV ? 'Saving CV...' : 'Upload CV'}</Button>
+          <h2>Your Curriculum Vitae { this.state.cvPresence ? <img src={cvUploadedIcon} alt='' /> : null }</h2>
+          <Button onClick={this.uploadCV} className='me-1' disabled={this.savingCV}>{this.savingCV ? 'Saving CV...' : (this.state.cvPresence ? 'Re-upload CV' : 'Upload CV')}</Button>
           {this.state.cvPresence ? <Button onClick={() => downloadCV(api.getApiTokenData().uid)} >Download your CV</Button> : null}
           <p className='fs-6'><em>By uploading your CV you agree to share your CV with the participating organisations</em></p>
         </div>
