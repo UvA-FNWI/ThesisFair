@@ -22,7 +22,9 @@ class Schedule extends React.Component {
   render() {
     return (
       <Container className='mt-2'>
-        <h1>Your Schedule</h1>
+        <div className='mb-4'>
+          <h1>Your Schedule</h1>
+        </div>
         <Table striped bordered hover>
           <thead>
             <tr>
