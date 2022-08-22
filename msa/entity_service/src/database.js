@@ -12,7 +12,7 @@ const entitySchema = new mongoose.Schema({
     type: { type: String, enum: ['website', 'email', 'phonenumber'] },
     content: String,
   })],
-  external_id: { type: Number, index: true },
+  external_id: { type: Number, index: true, unique: true },
 });
 entitySchema.virtual('enid').get(function () { return this._id; }); // Create _id alias
 

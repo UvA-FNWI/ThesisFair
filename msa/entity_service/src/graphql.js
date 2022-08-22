@@ -132,7 +132,7 @@ schemaComposer.Mutation.addNestedFields({
       caching: { type: 'entity', key: 'enid', multiple: true },
     }),
     resolve: (obj, args, req) => {
-      if (req.user.type !== 'a') {
+      if (!(req.user.type === 'a' || req.user.type === 'service')) {
         throw new Error('UNAUTHORIZED import entities');
       }
 
@@ -140,22 +140,63 @@ schemaComposer.Mutation.addNestedFields({
         csvParser(args.file.trim(), { columns: true }, (err, records, info) => {
           if (err) { reject(err); return; }
 
+          if (!Object.values(config.fields).every((key) => key in records[0])) {
+            reject(new Error('Not all required fields supplied! Required fields are: ' + Object.values(config.fields).join(',')));
+            return;
+          }
+
           resolve(
             Promise.all(
               records.map(async (record) => {
-                const external_id = record[config.entity_external_id];
-                const entity = await Entity.find({ external_id: external_id });
-                if (entity.length > 0) {
+                const enabled = record[config.fields.enabled].trim() !== '0';
+                const external_id = record[config.fields.external_id].trim();
+                let entity = await Entity.findOne({ external_id: external_id });
+                if (entity) {
+                  if (enabled) { // Entity already created.
+                    return null;
+                  }
+
+                  // Delete entity
+                  await rgraphql('api-user', 'mutation deleteUsersOfEntity($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: entity.enid });
+                  await Entity.deleteOne({ external_id: external_id });
                   return null;
                 }
 
-                // TODO: Create admin representative accounts with name and email address
+                if (!enabled) { // Entity already deleted.
+                  return null;
+                }
 
-                return Entity.create({
-                  name: record[config.entity_name],
+                // Create entity and admin accounts
+                const name = record[config.fields.name].trim();
+                const adminNames = record[config.fields.user_names].split(config.array_separator).map((item) => item.trim());
+                const adminEmails = record[config.fields.user_emails].split(config.array_separator).map((item) => item.trim());
+
+                if (adminNames.length !== adminEmails.length) {
+                  return `Fields Admin names and Admin emails need to have the same length!`;
+                }
+
+                entity = await Entity.create({
+                  name: name,
                   external_id,
                   type: 'company',
-                })
+                });
+
+                for (let i = 0; i < adminNames.length; i++) {
+                  const split = adminNames[i].split(' ');
+                  const firstname = split.shift();
+                  const lastname = split.join(' ');
+                  const email = adminEmails[i];
+
+                  const res = await rgraphql('api-user', 'mutation createAdminRepresentative($enid: ID!, $firstname: String, $lastname: String, $email: String!) { user { representative { create(enid: $enid, firstname: $firstname, lastname: $lastname, email: $email, repAdmin: true) { uid } } } }', { enid: entity.enid, firstname, lastname, email });
+                  if (res.errors) {
+                    // Delete all users and, log and return error message.
+                    await rgraphql('api-user', 'mutation deleteUsersOfEntity($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: entity.enid });
+
+                    console.error('Unexpected error while creating users: ', res);
+                    return 'Unexpected error has occured';
+                  }
+                }
+                return entity;
               })
             )
           );

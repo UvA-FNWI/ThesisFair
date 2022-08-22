@@ -35,3 +35,24 @@ To deploy run `make up`.
 To remove the deployment run `make down`
 
 To seed the database for stress testing run `make seed`. Config for this can be found in `kubernetes/dbInit.yaml`.
+
+
+# Imports
+## Entity import
+GraphQL path: `entity.import`
+Supply a CSV file as the `file` parameter.
+
+The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
+- `Name` - The name of the organisation
+- `ID` - A unique identifier from the system that is sending the data
+- `Admin names` - The names of the administrators, separated by a `;` within the field.
+- `Admin emails` - The email addresses of the organisation administrators, separated by a `;` within the field.
+- `Enabled` - When `0` the organisation will be deleted, otherwise it will be upserted.
+
+
+Example CSV:
+```
+Name,ID,Admin names,Admin emails,Enabled
+UvA,1,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
+ASML,2,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,0
+```

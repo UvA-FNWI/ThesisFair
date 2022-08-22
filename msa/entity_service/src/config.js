@@ -1,6 +1,10 @@
 export default {
-  entity_name: 'Name',
-  entity_external_id: 'ID',
-  entity_user_names: 'Column1',
-  entity_user_emails: 'Contact e-mail addresses',
+  fields: {
+    name: 'Name',
+    external_id: 'ID',
+    user_names: 'Admin names',
+    user_emails: 'Admin emails',
+    enabled: 'Enabled',
+  },
+  array_separator: ';',
 }

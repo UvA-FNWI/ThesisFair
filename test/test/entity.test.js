@@ -5,15 +5,21 @@ import api from './api.js';
 import initDB, { init, disconnect, db, models } from './db.js';
 
 const entity_import = {
-  csv: `Name,Column1,Last login,Fairs paid,Contact e-mail addresses,Votes,Representatives,ID
-Entity 1,Elodie Snel,01/01/2022,,elodie@snel.nl;,0,0,84336
-Entity 2,Christian de lange,01/12/2021,,christian@lange.nl;,0,0,84202
-University of Amsterdam: Graduate School of Informatics (Senior TAs),"dr. ing. Cristian Hugo Echbert, dr. Jochem Emo Sloom",,,c.h.echbert@uva.nl;j.esloom@uva.nl;,0,0,80854
-`,
+  csv: `
+  Name,ID,Admin names,Admin emails,Enabled
+  UvA,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
+  ASML,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,1`,
+  csvDelete: `
+  Name,ID,Admin names,Admin emails,Enabled
+  UvA,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,0
+  ASML,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,0`,
+  csvInvalidFields: `
+  Name,ID,Admin names,Admin emails
+  UvA,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl
+  ASML,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl`,
   data: [
-    { name: 'Entity 1', external_id: 84336 },
-    { name: 'Entity 2', external_id: 84202 },
-    { name: 'University of Amsterdam: Graduate School of Informatics (Senior TAs)', external_id: 80854 }
+    { name: 'UvA', external_id: 10101 },
+    { name: 'ASML', external_id: 20202 },
   ]
 };
 
@@ -131,22 +137,43 @@ describe('Entity', () => {
       expect(projects).to.have.length(0);
     });
 
-    it('mutation entity.import should import entities', async () => {
+    it('mutation entity.import should import entities and create users', async () => {
+      const userCountBefore = (await models.User.find()).length;
       const res = await api.entity.import(entity_import.csv).exec();
 
       expect(res.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
       expect(res.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
 
-      // TODO: Test if users were made properly
+      const userCountAfter = (await models.User.find()).length;
+
+      expect(userCountAfter).to.equal(userCountBefore + 4);
+    });
+
+    it('mutation entity.import should conditonally delete entities and users', async () => {
+      const userCountBefore = (await models.User.find()).length;
+
+      await api.entity.import(entity_import.csv).exec();
+
+      const res = await api.entity.import(entity_import.csvDelete).exec();
+      expect(res).to.deep.equal([null, null]);
+      const userCountAfter = (await models.User.find()).length;
+
+      expect(userCountAfter).to.equal(userCountBefore);
     });
 
     it('mutation entity.import should not double import entities', async () => {
       await api.entity.import(entity_import.csv).exec();
       const res = await api.entity.import(entity_import.csv).exec();
+      const userCountBefore = models.User.find().length;
 
       expect(res.every((v) => v === null), 'All returned entities are null').to.be.true;
 
-      // TODO: Test if users were not made
+      const userCountAfter = models.User.find().length;
+      expect(userCountAfter).to.equal(userCountBefore);
+    });
+
+    it('mutation entity.import should check for required fields', async () => {
+      await fail(api.entity.import(entity_import.csvInvalidFields).exec);
     });
   });
 
