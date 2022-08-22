@@ -96,8 +96,6 @@ class OrganisationDashboard extends React.Component {
       ...user
     }).exec();
 
-    console.log(newUser);
-
     const newUsers = [...this.state.users];
     newUsers.push(newUser);
     this.setState({ users: newUsers });
@@ -108,7 +106,7 @@ class OrganisationDashboard extends React.Component {
       <>
         <Container className='mt-2'>
           <h2>Organisation Information</h2>
-          <h6>This is what the students will see.</h6>
+          <h6><em>This is what the students will see.</em></h6>
           <div className='mb-4'>
             <div>
               <Form onSubmit={this.updatePersonalInfo}>
@@ -124,7 +122,7 @@ class OrganisationDashboard extends React.Component {
                 </div>
 
                 <div className='d-flex gap-2 align-items-center'>
-                  <Button type='submit' disabled={this.savingInfo}>{this.savingInfo ? 'Saving...' : 'Update personal information'}</Button>
+                  <Button type='submit' disabled={this.savingInfo}>{this.savingInfo ? 'Saving...' : 'Update information'}</Button>
                   {this.state.showInfoSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
                 </div>
               </Form>
@@ -159,7 +157,7 @@ class OrganisationDashboard extends React.Component {
 
 
           <div>
-            <h2>Comany Accounts</h2>
+            <h2>Company Accounts</h2>
             <div>
               {this.state.users.map((user, userIndex) => (
                 <Card key={userIndex} className='mb-2'>
