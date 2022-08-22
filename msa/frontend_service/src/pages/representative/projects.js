@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Accordion, Button, Modal, Spinner, Card } from 'react-bootstrap';
+import { Container, Accordion, Button, Modal, Spinner, Card, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import downloadIcon from 'bootstrap-icons/icons/download.svg';
 import { useParams } from 'react-router-dom';
 import api, { downloadCV } from '../../api';
@@ -100,14 +100,18 @@ class Projects extends React.Component {
     return (
       <>
         <Container className='mt-2'>
-          <h1>Projects</h1>
+          <div className='mb-4'>
+            <h1>Projects</h1>
+          </div>
           <Accordion defaultActiveKey={0}>
             {this.state.projects.map((project, projectIndex) => (
               <Accordion.Item key={projectIndex} eventKey={projectIndex}>
                 <Accordion.Header>
                   <div className='d-flex justify-content-between w-100 me-2'>
                     <span>{project.name}</span>
-                    <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); this.downloadAllCVs(project); }}><img src={downloadIcon} alt='download' /></Button>
+                    <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
+                      <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); this.downloadAllCVs(project); }}><img src={downloadIcon} alt='download' /></Button>
+                    </OverlayTrigger>
                   </div>
                 </Accordion.Header>
                 <Accordion.Body>
@@ -122,7 +126,9 @@ class Projects extends React.Component {
                             {student.firstname} {student.lastname}<span className='d-none d-sm-inline ps-2 pe-2'>-</span><span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
                           </p>
                           <div>
-                            <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(student.uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
+                            <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
+                              <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(student.uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
+                            </OverlayTrigger>
                           </div>
                         </Card.Body>
                       </Card>
