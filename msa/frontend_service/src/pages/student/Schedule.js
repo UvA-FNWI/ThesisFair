@@ -23,7 +23,7 @@ class Schedule extends React.Component {
     return (
       <Container className='mt-2'>
         <div className='mb-4'>
-          <h1>Your Schedule</h1>
+          <h1>Your Schedule on {new Date(this.state.event.start).toLocaleString('NL-nl').split(' ')[0]}</h1>
         </div>
         <Table striped bordered hover>
           <thead>
