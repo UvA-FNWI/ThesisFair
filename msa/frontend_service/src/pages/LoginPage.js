@@ -29,10 +29,10 @@ class LoginPage extends React.Component {
     return (
       <Container fluid>
         <Row>
-          <Col xs={0} md={9} style={{ paddingLeft: 0, overflow: 'hidden' }}>
+          <div className='col-md-7 col-lg-8 d-none d-md-block' style={{ paddingLeft: 0, overflow: 'hidden' }}>
             <img style={{ height: '100vh' }} src='/images/loginHeader.jpg' alt='' />
-          </Col>
-          <Col xs={12} md={3}>
+          </div>
+          <Col xs={12} md={5} lg={4}>
             <img width='100%' src='/images/en-informatics-institute.jpg' alt='' />
             <Form onSubmit={this.submit}>
               <Form.Group className='mb-3'>
