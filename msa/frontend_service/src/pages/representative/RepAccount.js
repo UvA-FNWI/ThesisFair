@@ -120,13 +120,13 @@ class RepAccount extends React.Component {
         <Form onSubmit={this.updatePassword}>
           <div className='mb-2'>
             <Form.Control type='password' className='mb-2' placeholder='Enter your new password' value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })} isInvalid={!!this.state.passwordError} />
-            <Form.Control type='password' placeholder='Enter your new password again' value={this.state.passwordCheck} onChange={(e) => this.setState({ passwordCheck: e.target.value })} isInvalid={!!this.state.passwordError} />
+            <Form.Control type='password' placeholder='Re-enter your new password' value={this.state.passwordCheck} onChange={(e) => this.setState({ passwordCheck: e.target.value })} isInvalid={!!this.state.passwordError} />
             <Form.Control.Feedback type="invalid">
               {this.state.passwordError}
             </Form.Control.Feedback>
           </div>
           <div className='d-flex gap-2 align-items-center'>
-                <Button type='submit' disabled={this.savingPassword}>{this.savingPassword ? 'Saving...' : 'Update personal information'}</Button>
+                <Button type='submit' disabled={this.savingPassword}>{this.savingPassword ? 'Saving...' : 'Update password'}</Button>
                 {this.state.showPasswordSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
               </div>
         </Form>
