@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Accordion, Modal } from 'react-bootstrap';
+import { Button, Accordion, Modal, Form } from 'react-bootstrap';
 import api from '../../api';
 
 const httpRegex = /^https?:\/\//
@@ -104,7 +104,12 @@ class EntitiesProjects extends React.Component {
 
                   { !this.props.readOnly ?
                     <div className='flex-grow-1 d-flex justify-content-end me-4'>
-                      <Button as='div' variant={shared ? 'outline-primary' : 'primary'} size='sm' onClick={(e) => { e.stopPropagation(); this.setShare(entity.enid, !shared) }}>{shared ? 'Unshare information' : 'Share information'}</Button>
+                      <Form.Check
+                        type='checkbox'
+                        label='Share information'
+                        checked={shared}
+                        onClick={(e) => { e.stopPropagation(); this.setShare(entity.enid, !shared) }}
+                      />
                     </div>
                     : null
                   }
