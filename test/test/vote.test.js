@@ -18,7 +18,7 @@ describe('Vote', () => {
 
     it('query votesOfStudent should properly query a student', testVotesOfStudent);
     it('query votesOfStudent should properly query a student and filter on event', async () => {
-      const res = await api.votes.getOfStudent(db.users[1].uid, db.events[0].evid).exec();
+      const res = await api.votes.getOfStudent(db.users[1].uid, db.events[1].evid).exec();
       expect(res).to.be.null;
     });
 
