@@ -81,6 +81,7 @@ const fields = {
   Student: ['studentnumber', 'websites', 'studies', 'share'],
   Representative: ['enid', 'repAdmin'],
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id'],
+  EntityImportResult: ['error', 'entity.enid', 'entity.name', 'entity.description', 'entity.type', 'entity.contact.type', 'entity.contact.content', 'entity.external_id'],
   Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities'],
   Project: ['pid', 'enid', 'evid', 'name', 'description', 'datanoseLink'],
   ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evid', 'project.name', 'project.description', 'project.datanoseLink'],
@@ -105,6 +106,7 @@ const bodies = {
     return (userBase ? `... on UserBase {${userBase}} ` : '') +  rep;
   },
   Entity: (projection) => genBody(fields.Entity, projection),
+  EntityImportResult: (projection) => genBody(fields.EntityImportResult, projection),
   Event: (projection) => genBody(fields.Event, projection),
   Project: (projection) => genBody(fields.Project, projection),
   ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
@@ -486,7 +488,7 @@ export default (url) => {
             type: 'mutation',
             name: 'importEntity',
             functionPath: 'entity.import',
-            body: bodies.Entity(projection),
+            body: bodies.EntityImportResult(projection),
             args: {
               file: { value: file, type: 'String!' },
             },

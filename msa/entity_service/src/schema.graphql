@@ -16,3 +16,8 @@ type Entity {
     contact: [EntityContactInfo!]
     external_id: Int
 }
+
+type EntityImportResult {
+  entity: Entity,
+  error: String,
+}

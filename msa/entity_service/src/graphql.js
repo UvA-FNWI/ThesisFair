@@ -134,7 +134,7 @@ schemaComposer.Mutation.addNestedFields({
     },
   },
   'entity.import': {
-    type: '[Entity]',
+    type: '[EntityImportResult!]!',
     args: {
       file: 'String!',
     },
@@ -170,22 +170,27 @@ schemaComposer.Mutation.addNestedFields({
                     if (name)
                       entity.name = name;
                     await entity.save();
-                    return entity;
+                    return { entity };
                   }
 
                   // Delete entity
-                  await rgraphql('api-user', 'mutation deleteUsersOfEntity($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: entity.enid });
+                  const res = await rgraphql('api-user', 'mutation deleteUsersOfEntity($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: entity.enid });
+                  if (res.errors) {
+                    console.error(res);
+                    return { error: 'Unexpected error has occured' };
+                  }
+
                   await Entity.deleteOne({ external_id: external_id });
-                  return null;
+                  return {};
                 }
 
                 if (!enabled) { // Entity already deleted.
-                  return null;
+                  return {};
                 }
 
                 // Create entity and admin accounts
                 if (adminNames.length !== adminEmails.length) {
-                  return `Fields Admin names and Admin emails need to have the same length!`;
+                  return { error: 'Fields Admin names and Admin emails need to have the same length!' };
                 }
 
                 entity = await Entity.create({
@@ -206,10 +211,11 @@ schemaComposer.Mutation.addNestedFields({
                     await rgraphql('api-user', 'mutation deleteUsersOfEntity($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: entity.enid });
 
                     console.error('Unexpected error while creating users: ', res);
-                    return 'Unexpected error has occured';
+                    return { error: 'Unexpected error has occured' };
                   }
                 }
-                return entity;
+
+                return { entity };
               })
             )
           );
