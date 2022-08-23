@@ -5,13 +5,13 @@ const debug = debugLib('event_service:database');
 let conn;
 
 const eventSchema = new mongoose.Schema({
-  enabled: Boolean,
-  name: String,
-  description: String,
-  start: Date,
-  location: String,
-  studentSubmitDeadline: Date,
-  entities: [mongoose.Schema.ObjectId],
+  enabled: { type: Boolean, required: true },
+  name: { type: String, required: true },
+  description: { type: String },
+  start: { type: Date, required: true },
+  location: { type: String },
+  studentSubmitDeadline: { type: Date, retuired: true },
+  entities: [{ type: mongoose.Schema.ObjectId }],
 });
 eventSchema.virtual('evid').get(function () { return this._id; }); // Create _id alias
 
