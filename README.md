@@ -56,3 +56,22 @@ Name,ID,Admin names,Admin emails,Enabled
 UvA,1,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
 ASML,2,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,0
 ```
+
+## Project import
+GraphQL path: `project.import`
+Supply a CSV file as the `file` parameter and the event ID from the ThesisFair Platform as the `evid` parameter.
+
+The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
+- `Name` - Name of the project
+- `enid` - The unique numeric identifier of the entity the project is linked to
+- `ID` - A unique numeric identifier of the project
+- `Description` - The description of the project
+- `Datanose link` - The link to datanose (Complete url)
+- `Enabled` - When `0` the project will be deleted, otherwise it will be upserted.
+
+Example CSV:
+```
+Name,enid,ID,Description,Datanose link,Enabled
+Test project,0,10101,This is a test project,https://datanose.nl/project/test,1
+UvA Project,0,20202,You will be doing research at the UvA,https://datanose.nl/project/UvAResearch,1
+```
