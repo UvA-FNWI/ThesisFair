@@ -9,6 +9,10 @@ const entity_import = {
   Name,ID,Admin names,Admin emails,Enabled
   UvA,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
   ASML,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,1`,
+  csvUpdate: `
+  Name,ID,Admin names,Admin emails,Enabled
+  UvA Master of Software Engineering,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
+  Chipsoft,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,1`,
   csvDelete: `
   Name,ID,Admin names,Admin emails,Enabled
   UvA,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,0
@@ -20,6 +24,10 @@ const entity_import = {
   data: [
     { name: 'UvA', external_id: 10101 },
     { name: 'ASML', external_id: 20202 },
+  ],
+  updatedData: [
+    { name: 'UvA Master of Software Engineering', external_id: 10101 },
+    { name: 'Chipsoft', external_id: 20202 },
   ]
 };
 
@@ -149,6 +157,14 @@ describe('Entity', () => {
       expect(userCountAfter).to.equal(userCountBefore + 4);
     });
 
+    it('mutation entity.import should update entities when they already exist', async () => {
+      await api.entity.import(entity_import.csv).exec();
+
+      const res = await api.entity.import(entity_import.csvUpdate).exec();
+      expect(res.map((e) => e.name)).to.deep.equal(entity_import.updatedData.map((e) => e.name));
+      expect(res.map((e) => e.external_id)).to.deep.equal(entity_import.updatedData.map((e) => e.external_id));
+    });
+
     it('mutation entity.import should conditonally delete entities and users', async () => {
       const userCountBefore = (await models.User.find()).length;
 
@@ -161,12 +177,22 @@ describe('Entity', () => {
       expect(userCountAfter).to.equal(userCountBefore);
     });
 
+
+    it('mutation entity.import should properly handle double deletes', async () => {
+      let res = await api.entity.import(entity_import.csvDelete).exec();
+      expect(res).to.deep.equal([null, null]);
+
+      res = await api.entity.import(entity_import.csvDelete).exec();
+      expect(res).to.deep.equal([null, null]);
+    });
+
     it('mutation entity.import should not double import entities', async () => {
       await api.entity.import(entity_import.csv).exec();
       const res = await api.entity.import(entity_import.csv).exec();
       const userCountBefore = models.User.find().length;
 
-      expect(res.every((v) => v === null), 'All returned entities are null').to.be.true;
+      expect(res.map((e) => e.name)).to.deep.equal(entity_import.data.map((e) => e.name));
+      expect(res.map((e) => e.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
 
       const userCountAfter = models.User.find().length;
       expect(userCountAfter).to.equal(userCountBefore);

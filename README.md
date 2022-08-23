@@ -44,7 +44,7 @@ Supply a CSV file as the `file` parameter.
 
 The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
 - `Name` - The name of the organisation
-- `ID` - A unique identifier from the system that is sending the data
+- `ID` - A unique numeric identifier from the system that is sending the data
 - `Admin names` - The names of the administrators, separated by a `;` within the field.
 - `Admin emails` - The email addresses of the organisation administrators, separated by a `;` within the field.
 - `Enabled` - When `0` the organisation will be deleted, otherwise it will be upserted.

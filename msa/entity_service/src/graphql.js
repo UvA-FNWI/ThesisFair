@@ -148,12 +148,19 @@ schemaComposer.Mutation.addNestedFields({
           resolve(
             Promise.all(
               records.map(async (record) => {
+                const name = record[config.fields.name].trim();
+                const adminNames = record[config.fields.user_names].split(config.array_separator).map((item) => item.trim());
+                const adminEmails = record[config.fields.user_emails].split(config.array_separator).map((item) => item.trim());
                 const enabled = record[config.fields.enabled].trim() !== '0';
                 const external_id = record[config.fields.external_id].trim();
+
                 let entity = await Entity.findOne({ external_id: external_id });
                 if (entity) {
                   if (enabled) { // Entity already created.
-                    return null;
+                    if (name)
+                      entity.name = name;
+                    await entity.save();
+                    return entity;
                   }
 
                   // Delete entity
@@ -167,10 +174,6 @@ schemaComposer.Mutation.addNestedFields({
                 }
 
                 // Create entity and admin accounts
-                const name = record[config.fields.name].trim();
-                const adminNames = record[config.fields.user_names].split(config.array_separator).map((item) => item.trim());
-                const adminEmails = record[config.fields.user_emails].split(config.array_separator).map((item) => item.trim());
-
                 if (adminNames.length !== adminEmails.length) {
                   return `Fields Admin names and Admin emails need to have the same length!`;
                 }
