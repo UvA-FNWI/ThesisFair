@@ -5,14 +5,14 @@ const debug = debugLib('entity_service:database');
 let conn;
 
 const entitySchema = new mongoose.Schema({
-  name: String,
-  description: String,
+  name: { type: String, required: true },
+  description: { type: String },
   type: { type: String, enum: ['company', 'research'] },
   contact: [new mongoose.Schema({
     type: { type: String, enum: ['website', 'email', 'phonenumber'] },
-    content: String,
+    content: { type: String, required: true },
   })],
-  external_id: { type: Number, index: true, unique: true },
+  external_id: { type: Number, index: true, unique: true, required: true },
 });
 entitySchema.virtual('enid').get(function () { return this._id; }); // Create _id alias
 
