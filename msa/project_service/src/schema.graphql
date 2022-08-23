@@ -6,3 +6,8 @@ type Project {
   description: String
   datanoseLink: String
 }
+
+type ProjectImportResult {
+  project: Project,
+  error: String,
+}

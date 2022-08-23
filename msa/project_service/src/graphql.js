@@ -1,13 +1,57 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
-// import { parse as csvParser } from 'csv-parse';
+import { parse as csvParser } from 'csv-parse';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Project } from './database.js';
-// import config from './config.js';
+import config from './config.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
+
+const evidExists = async (evid) => {
+  const res = await rgraphql('api-event', 'query checkEVID($evid: ID!) { event(evid: $evid) { evid } }', { evid });
+
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the evid is valid');
+  }
+
+  if (!res.data.event) {
+    return false;
+  }
+
+  return true;
+};
+
+const enidExists = async (enid) => {
+  const res = await rgraphql('api-entity', 'query checkENID($enid: ID!) { entity(enid: $enid) { enid } }', { enid });
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the enid is valid');
+  }
+
+  if (!res.data.entity) {
+    return false;
+  }
+
+  return true;
+}
+
+const getEnid = async (external_id) => {
+  const res = await rgraphql('api-entity', 'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
+  console.log(res);
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the enid is valid');
+  }
+
+  if (!res.data.entityByExtID) {
+    return false;
+  }
+
+  return res.data.entityByExtID.enid;
+}
 
 schemaComposer.Query.addNestedFields({
   project: {
@@ -72,23 +116,15 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       const res = await Promise.all([
-        rgraphql('api-event', `query { event(evid: ${JSON.stringify(args.evid)}) { evid } }`),
-        rgraphql('api-entity', `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`),
+        evidExists(args.evid),
+        enidExists(args.enid),
       ]);
 
-      if (res[0].errors) {
-        throw new Error('An unkown error occured while checking if the enid is valid');
-      }
-
-      if (res[1].errors) {
-        throw new Error('An unkown error occured while checking if the enid is valid');
-      }
-
-      if (!res[0].data.event) {
+      if (!res[0]) {
         throw new Error('The given evid does not exist');
       }
 
-      if (!res[1].data.entity) {
+      if (!res[1]) {
         throw new Error('The given enid does not exist');
       }
 
@@ -113,28 +149,12 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED update project');
       }
 
-      if (args.evid) {
-        const res = await rgraphql('api-event', `query { event(evid: ${JSON.stringify(args.evid)}) { evid } }`);
-
-        if (res.errors || !res.data) {
-          throw new Error('An unkown error occured while checking if the evid is valid');
-        }
-
-        if (!res.data.event) {
-          throw new Error('The given evid does not exist');
-        }
+      if (args.evid && !(await evidExists(args.evid))) {
+        throw new Error('The given evid does not exist');
       }
 
-      if (args.enid) {
-        const res = await rgraphql('api-entity', `query { entity(enid: ${JSON.stringify(args.enid)}) { enid } }`);
-        if (res.errors || !res.data) {
-          console.log(res);
-          throw new Error('An unkown error occured while checking if the enid is valid');
-        }
-
-        if (!res.data.entity) {
-          throw new Error('The given enid does not exist');
-        }
+      if (args.enid && !(await enidExists(args.enid))) {
+        throw new Error('The given enid does not exist');
       }
 
       const pid = args.pid;
@@ -176,44 +196,88 @@ schemaComposer.Mutation.addNestedFields({
     }
   },
   'project.import': {
-    type: '[Project]',
+    type: '[ProjectImportResult!]!',
     args: {
       file: 'String!',
-      enid: 'ID!',
+      evid: 'ID!',
     },
     description: JSON.stringify({
       caching: { type: 'project', key: 'pid', multiple: true }
     }),
-    resolve: (obj, args, req) => {
-      if (req.user.type !== 'a') {
+    resolve: async (obj, args, req) => {
+      if (!(req.user.type === 'a' || req.user.type === 'service')) {
         throw new Error('UNAUTHORIZED import projects');
       }
 
-      // return new Promise((resolve, reject) => {
-      //   csvParser(args.file.trim(), { columns: true }, (err, records, info) => {
-      //     if (err) { reject(err); return; }
+      if (!(await evidExists(args.evid))) {
+        throw new Error('Event does not exist!');
+      }
 
-      //     resolve(
-      //       Promise.all(
-      //         records.map(async (record) => {
-      //           const external_id = record[config.project_external_id];
-      //           const project = await Project.find({ external_id: external_id });
-      //           if (project.length > 0) {
-      //             return null;
-      //           }
+      return new Promise((resolve, reject) => {
+        csvParser(args.file.trim(), { columns: true }, (err, records, info) => {
+          if (err) { reject(err); return; }
 
-      //           // TODO: Create admin representative accounts with name and email address
+          if (!Object.values(config.fields).every((key) => key in records[0])) {
+            reject(new Error('Not all required fields supplied! Required fields are: ' + Object.values(config.fields).join(',')));
+            return;
+          }
 
-      //           return Project.create({
-      //             name: record[config.project_name],
-      //             external_id,
-      //             type: 'company',
-      //           })
-      //         })
-      //       )
-      //     );
-      //   });
-      // });
+          resolve(
+            Promise.all(
+              records.map(async (record) => {
+                const name = record[config.fields.name].trim();
+                const description = record[config.fields.description].trim();
+                const datanoseLink = record[config.fields.datanoseLink].trim();
+                const external_enid = record[config.fields.external_enid].trim();
+                const enabled = record[config.fields.enabled].trim() !== '0';
+                const external_id = record[config.fields.external_id];
+
+                const project = await Project.findOne({ external_id: external_id });
+                if (project) {
+                  if (enabled) { // Update project
+                    if (name)
+                      project.name = name;
+                    if (description)
+                      project.description = description;
+                    if (datanoseLink)
+                      project.datanoseLink = datanoseLink;
+
+                    await project.save();
+                    return {
+                      object: project,
+                    };
+                  }
+
+                  // Delete project
+                  await Project.deleteOne({ external_id: external_id });
+                  return {};
+                }
+
+                if (!enabled) { // Project already deleted
+                  return {};
+                }
+
+                const enid = await getEnid(external_enid);
+                if (!enid) {
+                  return { error: `Entity with ID ${external_enid} could not be found!` };
+                }
+
+                // Create project
+                return {
+                  project: await Project.create({
+                    evid: args.evid,
+                    enid,
+                    name: name,
+                    description,
+                    datanoseLink,
+                    external_id,
+                  }),
+                }
+              })
+            )
+          );
+        });
+      });
     }
   }
 });

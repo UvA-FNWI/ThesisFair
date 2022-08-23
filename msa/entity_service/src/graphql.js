@@ -21,6 +21,16 @@ schemaComposer.Query.addNestedFields({
     }),
     resolve: (obj, args) => Entity.findById(args.enid),
   },
+  entityByExtID: {
+    type: 'Entity',
+    args: {
+      external_id: 'ID!',
+    },
+    description: JSON.stringify({
+      caching: { type: 'entity', key: 'enid' },
+    }),
+    resolve: (obj, args) => Entity.findOne({ external_id: args.external_id }),
+  },
   entitiesAll: {
     type: '[Entity!]',
     description: JSON.stringify({

@@ -83,6 +83,7 @@ const fields = {
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id'],
   Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities'],
   Project: ['pid', 'enid', 'evid', 'name', 'description', 'datanoseLink'],
+  ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evid', 'project.name', 'project.description', 'project.datanoseLink'],
   StudentVote: ['uid', 'pid'],
 }
 
@@ -106,6 +107,7 @@ const bodies = {
   Entity: (projection) => genBody(fields.Entity, projection),
   Event: (projection) => genBody(fields.Event, projection),
   Project: (projection) => genBody(fields.Project, projection),
+  ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
   StudentVote: (projection) => genBody(fields.StudentVote, projection),
 }
 
@@ -679,15 +681,15 @@ export default (url) => {
               enid: { value: enid, type: 'ID!' },
             }
           }),
-        import: (file, enid, projection) =>
+        import: (file, evid, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'importProject',
             functionPath: 'project.import',
-            body: bodies.Project(projection),
+            body: bodies.ProjectImportResult(projection),
             args: {
               file: { value: file, type: 'String!' },
-              enid: { value: enid, type: 'ID!' },
+              evid: { value: evid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
