@@ -5,12 +5,12 @@ const debug = debugLib('user_service:database');
 let conn;
 
 const userSchema = new mongoose.Schema({
-  firstname: String,
-  lastname: String,
+  firstname: { type: String },
+  lastname: { type: String },
   email: { type: String, required: true, unique: true },
-  phone: String,
-  admin: Boolean,
-  password: String,
+  phone: { type: String },
+  admin: { type: Boolean },
+  password: { type: String },
 });
 userSchema.virtual('uid').get(function () { return this._id; }); // Create _id alias
 export let User;
