@@ -125,7 +125,7 @@ describe('project', () => {
     testQuery();
 
     it('mutation project.create should create an project', async () => {
-      const project = { ...db.projects[0] };
+      const project = { ...db.projects[0], external_id: 10101 };
       delete project.pid;
 
       const res = await api.project.create(project).exec();
@@ -134,21 +134,21 @@ describe('project', () => {
     });
 
     it('mutation project.create should properly check if event exists', async () => {
-      const project = { ...db.projects[0], evid: '62728401a41b2cfc83a7035b' };
+      const project = { ...db.projects[0], evid: '62728401a41b2cfc83a7035b', external_id: 10101 };
       delete project.pid;
 
       await fail(api.project.create(project).exec);
     });
 
     it('mutation project.create should properly check if entity exists', async () => {
-      const project = { ...db.projects[0], enid: '62728401a41b2cfc83a7035b' };
+      const project = { ...db.projects[0], enid: '62728401a41b2cfc83a7035b', external_id: 10101 };
       delete project.pid;
 
       await fail(api.project.create(project).exec);
     });
 
     it('mutation project.update should update the project', async () => {
-      const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid };
+      const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid, external_id: db.projects[0].external_id };
       const res = await api.project.update(updatedEntity).exec();
       expect(res).to.deep.equal(updatedEntity);
     });

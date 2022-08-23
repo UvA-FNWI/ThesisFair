@@ -5,12 +5,12 @@ const debug = debugLib('project_service:database');
 let conn;
 
 const projectSchema = new mongoose.Schema({
-  enid: mongoose.Schema.ObjectId,
-  evid: mongoose.Schema.ObjectId,
-  name: String,
-  description: String,
-  datanoseLink: String,
-  external_id: { type: Number, index: true, unique: true },
+  enid: { type: mongoose.Schema.ObjectId, required: true },
+  evid: { type: mongoose.Schema.ObjectId, required: true },
+  name: { type: String },
+  description: { type: String },
+  datanoseLink: { type: String },
+  external_id: { type: Number, index: true, unique: true, required: true },
 });
 projectSchema.virtual('pid').get(function () { return this._id; }); // Create _id alias
 

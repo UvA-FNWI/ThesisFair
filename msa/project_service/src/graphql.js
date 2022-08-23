@@ -106,6 +106,7 @@ schemaComposer.Mutation.addNestedFields({
       name: 'String!',
       description: 'String',
       datanoseLink: 'String',
+      external_id: 'Int!',
     },
     description: JSON.stringify({
       caching: { type: 'project', key: 'pid', create: true }

@@ -5,6 +5,7 @@ type Project {
   name: String!
   description: String
   datanoseLink: String
+  external_id: Int!
 }
 
 type ProjectImportResult {

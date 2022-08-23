@@ -88,6 +88,7 @@ const configs = {
         name: 'New name1 - project',
         description: 'New description1',
         datanoseLink: 'https://datanose.nl/projects/newName1',
+        external_id: 0,
       },
       {
         enid: db.entities[0].enid,
@@ -95,6 +96,7 @@ const configs = {
         name: 'New name 2 - project',
         description: 'New description 2',
         datanoseLink: 'https://datanose.nl/projects/newName2',
+        external_id: 1,
       },
       {
         enid: db.entities[1].enid,
@@ -102,6 +104,7 @@ const configs = {
         name: 'Other company project - project',
         description: 'Belongs to another company',
         datanoseLink: 'https://datanose.nl/projects/newName3',
+        external_id: 2,
       },
     ]
   },

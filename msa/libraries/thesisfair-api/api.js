@@ -103,8 +103,8 @@ const fields = {
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id'],
   EntityImportResult: ['error', 'entity.enid', 'entity.name', 'entity.description', 'entity.type', 'entity.contact.type', 'entity.contact.content', 'entity.external_id'],
   Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities'],
-  Project: ['pid', 'enid', 'evid', 'name', 'description', 'datanoseLink'],
-  ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evid', 'project.name', 'project.description', 'project.datanoseLink'],
+  Project: ['pid', 'enid', 'evid', 'name', 'description', 'datanoseLink', 'external_id'],
+  ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evid', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
   StudentVote: ['uid', 'pid'],
 }
 
@@ -664,6 +664,7 @@ export default (url) => {
               name: { value: project.name, type: 'String!' },
               description: { value: project.description, type: 'String' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
+              external_id: { value: project.external_id, type: 'Int!' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', create: true } : false,
           }),
