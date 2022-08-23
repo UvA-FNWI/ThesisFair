@@ -126,16 +126,16 @@ describe('User', () => {
     });
 
     it('query user should check if the user shared its data', async () => {
-      expect(db.users[1].studentnumber).to.exist;
-      await fail(api.user.get(db.users[1].uid).exec);
+      expect(db.users[6].studentnumber).to.exist;
+      await fail(api.user.get(db.users[6].uid).exec);
     });
 
     it('query cv should check if the user shared its data', async () => {
-      expect(db.users[1].studentnumber).to.exist;
-      await fail(api.user.student.getCV(db.users[1].uid).exec);
+      expect(db.users[6].studentnumber).to.exist;
+      await fail(api.user.student.getCV(db.users[6].uid).exec);
     });
 
-    it('query user should check if the representative is an admin', async () => {
+    it('query user should check if the representative is an admin when querying fellow representative', async () => {
       expect(db.users[3].enid).to.exist;
       await fail(api.user.get(db.users[3].uid).exec);
     });
@@ -146,8 +146,8 @@ describe('User', () => {
     });
 
     it('query users should check if the user shared its data', async () => {
-      expect(db.users[1].studentnumber).to.exist;
-      await fail(api.user.getMultiple([db.users[1].uid]).exec);
+      expect(db.users[6].studentnumber).to.exist;
+      await fail(api.user.getMultiple([db.users[6].uid]).exec);
     });
 
     it('query users should check if the representative is an admin', async () => {

@@ -173,6 +173,17 @@ const configs = {
         password: await hash('admin'),
         admin: true,
       },
+      {
+        firstname: 'Private',
+        lastname: 'Student',
+        email: 'private@gmail.com',
+        phone: '+31 6 11134567',
+        studentnumber: '22245678',
+        websites: [],
+        studies: ['UvA Kunstmatige Intellegentie',],
+        share: [],
+        __t: "Student",
+      },
     ],
   },
   votes: {
