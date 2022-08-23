@@ -5,11 +5,11 @@ const debug = debugLib('vote_service:database');
 let conn;
 
 const voteSchema = new mongoose.Schema({
-  uid: mongoose.Schema.ObjectId,
-  evid: mongoose.Schema.ObjectId,
+  uid: { type: mongoose.Schema.ObjectId, required: true },
+  evid: { type: mongoose.Schema.ObjectId, required: true },
   votes: [new mongoose.Schema({
-    enid: mongoose.Schema.ObjectId,
-    pid: mongoose.Schema.ObjectId,
+    enid: { type: mongoose.Schema.ObjectId, required: true },
+    pid: { type: mongoose.Schema.ObjectId, required: true },
   })],
 });
 voteSchema.virtual('vid').get(function () { return this._id; }); // Create _id alias
