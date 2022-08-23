@@ -56,24 +56,44 @@ const genBody = (possibleFields, projection) => {
     fields = [...possibleFields].filter((field) => !fields.includes(field));
   }
 
-  let res = fields.filter((v) => !v.includes('.') && possibleFields.includes(v)).join(' ');
-
-  const complexFields = {};
+  const structuredOutput = {
+    '$': fields.filter((v) => !v.includes('.') && possibleFields.includes(v))
+  };
   for (const field of fields.filter((v) => v.includes('.'))) {
-    const [parent, child] = field.split('.');
+    const path = field.split('.');
+    const leaf = path.pop();
 
-    if (!(parent in complexFields)) {
-      complexFields[parent] = [];
+    let cur = structuredOutput;
+    for (const parent of path) {
+      if (!(parent in cur)) {
+        cur[parent] = { '$': [] };
+      }
+
+      cur = cur[parent];
+    }
+    cur['$'].push(leaf);
+  }
+
+  /**
+   * A recursive function to generate the requesting items of GraphQL query from a structured output dictionary.
+   * @param {Dict} structuredOutput A dictionary containing the query items. { '$': [<root level items>], object: { '$': [<Nested items>], child: { '$': [<nested nested items>] } } }
+   * @returns GraphQL query items.
+   */
+  const genString = (structuredOutput) => {
+    let res = '';
+    for (const field in structuredOutput) {
+      if (field === '$') {
+        res += structuredOutput[field].join(' ');
+        continue;
+      }
+
+      res += ` ${field} {${genString(structuredOutput[field])}}`;
     }
 
-    complexFields[parent].push(child);
+    return res;
   }
 
-  for (const field in complexFields) {
-    res += ` ${field} {${complexFields[field].join(' ')}}`;
-  }
-
-  return res;
+  return genString(structuredOutput);
 };
 
 const fields = {
