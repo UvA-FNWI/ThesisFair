@@ -201,7 +201,7 @@ describe('project', () => {
 
     it('mutation project.import should check if evid exists when creating', async () => {
       const project_import = gen_project_import();
-      await fail(api.project.import(project_import.csv, '6204a764fz34247bd2cc2526').exec);
+      await fail(api.project.import(project_import.csv, '63061b54a3bd020d16952b11').exec);
     });
 
     it('mutation project.import should check if enid exists when creating', async () => {
