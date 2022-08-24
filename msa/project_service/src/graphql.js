@@ -40,7 +40,6 @@ const enidExists = async (enid) => {
 
 const getEnid = async (external_id) => {
   const res = await rgraphql('api-entity', 'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
-  console.log(res);
   if (res.errors || !res.data) {
     console.error(res);
     throw new Error('An unkown error occured while checking if the enid is valid');
