@@ -1,14 +1,65 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
-// import { parse as csvParser } from 'csv-parse';
+import { parse as csvParser } from 'csv-parse';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Vote } from './database.js';
 import { canGetStudentVotes, canGetEntityVotes, canGetProjectVotes } from './permissions.js';
-// import config from './config.js';
+import config from './config.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
+
+const getUid = async (studentnumber) => {
+  const res = await rgraphql('api-user', 'query getUid($studentnumber: ID!) { student(studentnumber: $studentnumber) { ... on Student { uid } } }', { studentnumber });
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the enid is valid');
+  }
+
+  if (!res.data.student) {
+    return false;
+  }
+
+  return res.data.student.uid;
+}
+
+const shareInfo = async (uid, enid, share=true) => {
+  const res = await rgraphql('api-user', 'mutation shareInfo($uid: ID!, $enid: ID!, $share: Boolean!) { user { student { shareInfo(uid: $uid, enid: $enid, share: $share) { uid } } } }', { uid, enid, share });
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the enid is valid');
+  }
+}
+
+const getProjectData = async (external_pid) => {
+  const res = await rgraphql('api-project', 'query getPid($external_id: ID!) { projectByExtID(external_id: $external_id) { pid enid } }', { external_id: external_pid });
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while looking up the project');
+  }
+
+  if (!res.data.projectByExtID) {
+    return false;
+  }
+
+  return res.data.projectByExtID;
+};
+
+const evidExists = async (evid) => {
+  const res = await rgraphql('api-event', 'query checkEVID($evid: ID!) { event(evid: $evid) { evid } }', { evid });
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the evid is valid');
+  }
+
+  if (!res.data.event) {
+    return false;
+  }
+
+  return true;
+};
+
 
 schemaComposer.Query.addNestedFields({
   votesOfStudent: {
@@ -91,44 +142,75 @@ schemaComposer.Mutation.addNestedFields({
   //     return true
   //   }
   // },
-  // 'project.import': {
-  //   type: '[Project]',
-  //   args: {
-  //     file: 'String!',
-  //     enid: 'ID!',
-  //   },
-  //   resolve: (obj, args, req) => {
-  //     if (req.user.type !== 'a') {
-  //       throw new Error('UNAUTHORIZED import projects');
-  //     }
+  'vote.import': {
+    type: '[VoteImportResult!]!',
+    args: {
+      file: 'String!',
+      evid: 'ID!',
+    },
+    resolve: async (obj, args, req) => {
+      if (!(req.user.type === 'a' || req.user.type === 'service')) {
+        throw new Error('UNAUTHORIZED import votes');
+      }
 
-      // return new Promise((resolve, reject) => {
-      //   csvParser(args.file.trim(), { columns: true }, (err, records, info) => {
-      //     if (err) { reject(err); return; }
+      if (!(await evidExists(args.evid))) {
+        throw new Error('Event does not exist!');
+      }
 
-      //     resolve(
-      //       Promise.all(
-      //         records.map(async (record) => {
-      //           const external_id = record[config.project_external_id];
-      //           const project = await Project.find({ external_id: external_id });
-      //           if (project.length > 0) {
-      //             return null;
-      //           }
+      return new Promise((resolve, reject) => {
+        csvParser(args.file.trim(), { columns: true }, (err, records, info) => {
+          if (err) { reject(err); return; }
 
-      //           // TODO: Create admin representative accounts with name and email address
+          if (!Object.values(config.fields).every((key) => key in records[0])) {
+            reject(new Error('Not all required fields supplied! Required fields are: ' + Object.values(config.fields).join(',')));
+            return;
+          }
 
-      //           return Project.create({
-      //             name: record[config.project_name],
-      //             external_id,
-      //             type: 'company',
-      //           })
-      //         })
-      //       )
-      //     );
-      //   });
-      // });
-    // }
-  // }
+          resolve(
+            Promise.all(
+              records.map(async (record) => {
+                const studentnumber = record[config.fields.studentnumber].trim();
+                const external_pid = record[config.fields.external_pid].trim();
+                const enabled = record[config.fields.enabled].trim() !== '0';
+                let uid, project;
+
+                try {
+                  [uid, project] = await Promise.all([
+                    getUid(studentnumber),
+                    getProjectData(external_pid),
+                  ]);
+                } catch (error) {
+                  console.log(error);
+                  return { error };
+                }
+
+                if (!uid) {
+                  return { error: 'Student not found with given studentnumber.' };
+                }
+
+                if (!project) {
+                  return { error: 'Project not found with given project_id.' };
+                }
+
+                const votes = await Vote.findOneAndUpdate({ uid: uid, evid: args.evid }, {}, { new: true, upsert: true }); // Automic find or create
+
+                const contains = !!votes.votes.find(({ pid: votePid }) => votePid == project.pid);
+                const voteItem = { pid: project.pid, enid: project.enid };
+                if (enabled && !contains) {
+                  await Vote.updateOne({ _id: votes._id }, { $push: { votes: [voteItem] } });
+                  await shareInfo(uid, project.enid);
+                } else if (!enabled && contains) {
+                  await Vote.updateOne({ _id: votes._id }, { $pull: { votes: voteItem } });
+                }
+
+                return {};
+              })
+            )
+          );
+        });
+      });
+    }
+  }
 });
 
 const schema = schemaComposer.buildSchema();

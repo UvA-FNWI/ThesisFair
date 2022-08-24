@@ -106,6 +106,7 @@ const fields = {
   Project: ['pid', 'enid', 'evid', 'name', 'description', 'datanoseLink', 'external_id'],
   ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evid', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
   StudentVote: ['uid', 'pid'],
+  VoteImportResult: ['error'],
 }
 
 const bodies = {
@@ -118,12 +119,12 @@ const bodies = {
   Student: (projection) => {
     const userBase = genBody(fields.UserBase, projection);
     const student = genBody(fields.Student, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') +  student;
+    return (userBase ? `... on UserBase {${userBase}} ` : '') + student;
   },
   Representative: (projection) => {
     const userBase = genBody(fields.UserBase, projection);
     const rep = genBody(fields.Representative, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') +  rep;
+    return (userBase ? `... on UserBase {${userBase}} ` : '') + rep;
   },
   Entity: (projection) => genBody(fields.Entity, projection),
   EntityImportResult: (projection) => genBody(fields.EntityImportResult, projection),
@@ -131,6 +132,7 @@ const bodies = {
   Project: (projection) => genBody(fields.Project, projection),
   ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
   StudentVote: (projection) => genBody(fields.StudentVote, projection),
+  VoteImportResult: (projection) => genBody(fields.VoteImportResult, projection),
 }
 
 export default (url) => {
@@ -138,7 +140,7 @@ export default (url) => {
   let trace = [];
   let caching = false;
   let cache;
-  let tokenChangeCallback = () => {};
+  let tokenChangeCallback = () => { };
 
   let apiToken = typeof localStorage !== 'undefined' ? localStorage.getItem('apiToken') : null;
   let apiTokenData = unpackToken(apiToken) || null;
@@ -370,7 +372,7 @@ export default (url) => {
         },
 
         student: {
-          getCV: (uid, check=false) =>
+          getCV: (uid, check = false) =>
             genGraphQLBuilder({
               name: 'getCVStudent',
               functionPath: 'cv',
@@ -743,6 +745,17 @@ export default (url) => {
             functionPath: 'votesOfProject',
             args: {
               pid: { value: pid, type: 'ID!' },
+              evid: { value: evid, type: 'ID!' },
+            }
+          }),
+        import: (file, evid, projection) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'importVotes',
+            functionPath: 'vote.import',
+            body: bodies.VoteImportResult(projection),
+            args: {
+              file: { value: file, type: 'String!' },
               evid: { value: evid, type: 'ID!' },
             }
           }),

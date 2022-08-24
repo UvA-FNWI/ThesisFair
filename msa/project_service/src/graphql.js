@@ -63,6 +63,16 @@ schemaComposer.Query.addNestedFields({
     }),
     resolve: (obj, args) => Project.findById(args.pid),
   },
+  projectByExtID: {
+    type: 'Project',
+    args: {
+      external_id: 'ID!',
+    },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid' }
+    }),
+    resolve: (obj, args) => Project.findOne({ external_id: args.external_id }),
+  },
   projects: {
     type: '[Project!]',
     args: {

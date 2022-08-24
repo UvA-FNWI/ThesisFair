@@ -59,6 +59,24 @@ schemaComposer.Query.addNestedFields({
       return user;
     },
   },
+  student: {
+    type: 'User',
+    args: {
+      studentnumber: 'ID!',
+    },
+    description: JSON.stringify({
+      checkPermissions: canGetUser.toString(),
+      caching: { type: 'user', key: 'uid' },
+    }),
+    resolve: async (obj, args, req) => {
+      const user = await Student.findOne({ studentnumber: args.studentnumber });
+      if (!user) { return null; }
+
+
+      canGetUser(req, args, user);
+      return user;
+    },
+  },
   users: {
     type: '[User]',
     args: {

@@ -4,3 +4,7 @@ type StudentVote {
   uid: ID!
   pid: ID!
 }
+
+type VoteImportResult {
+  error: String
+}
