@@ -1,5 +1,5 @@
 # Thesis Fair Platform
-The Thesis Fair Platform is currently beign developed to be used for the Thesis Fairs of the UvA. **The version of the platform that was used for the Bachalor Thesis** can be found in the "thesis" branch.
+The Thesis Fair Platform is currently beign developed to be used for the Thesis Fairs at the UvA. **The version of the platform that was used for the Bachalor Thesis** can be found in the "thesis" branch.
 
 # Development notes
 ## Docker compose
@@ -38,9 +38,82 @@ To seed the database for stress testing run `make seed`. Config for this can be 
 
 
 # Imports
+All communication is handled over GraphQL and JSON. The GraphQL endpoint is located at `/api/graphql`.
+
+## Sending requests:
+- URL: https://thesisfair.softwareify.nl/api/graphql
+- Method: POST
+- Headers:
+- - `Content-Type: application/json`
+- - `Authorization: Bearer <apiToken>`
+- Payload: JSON encoding of query and variables
+
+Example payload:
+```
+{
+  query: "
+    mutation importEntity($file: String!) {
+      entity {
+        import(file: $file) {
+          error
+        }
+      }
+    }
+  ",
+  variables: {
+    file: "
+      Name,ID,Admin names,Admin emails,Enabled
+      UvA,1,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
+      ASML,2,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,0
+    "
+  }
+}
+```
+
+## Reponse handling
+There are two level of errors. An **internal server error**, which will be indicated by the precense of the error key in the response. In this case nothing has been imported.
+The other type is an **import error** which signals that something is wrong with a specific line in the import file. Each row in the CSV will have a status object in the result array, below this has the JSON path `data.entity.import`. Import errors are returned by having a non-null error value in the status object.
+
+Example response:
+```
+{
+  "data": {
+    "entity": {
+      "import": [
+        {
+          "error": null
+        },
+        {
+          "error": null
+        }
+      ]
+    }
+  }
+}
+```
+
+Example internal server error response:
+```
+{
+  "errors": [
+    {
+      "message": "Invalid Record Length: columns length is 5, got 4 on line 2",
+      "path": [
+        "entity",
+        "import"
+      ]
+    }
+  ],
+  "data": {
+    "entity": null
+  }
+}
+```
+
 ## Entity import
-GraphQL path: `entity.import`
-Supply a CSV file as the `file` parameter.
+- GraphQL path: `entity.import`
+- Parameters:
+- - `file` - The contents of the CSV export
 
 The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
 - `Name` - The name of the organisation
@@ -58,8 +131,10 @@ ASML,2,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,0
 ```
 
 ## Project import
-GraphQL path: `project.import`
-Supply a CSV file as the `file` parameter and the event ID from the ThesisFair Platform as the `evid` parameter.
+- GraphQL path: `project.import`
+- Parameters:
+- - `file` - The contents of the CSV export
+- - `evid` - The event ID from the ThesisFair Platform
 
 The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
 - `Name` - Name of the project
@@ -74,4 +149,22 @@ Example CSV:
 Name,enid,ID,Description,Datanose link,Enabled
 Test project,0,10101,This is a test project,https://datanose.nl/project/test,1
 UvA Project,0,20202,You will be doing research at the UvA,https://datanose.nl/project/UvAResearch,1
+```
+
+## Vote import
+- GraphQL path: `vote.import`
+- Parameters:
+- - `file` - The contents of the CSV export
+- - `evid` - The event ID from the ThesisFair Platform
+
+The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
+- `Studentnumber` - The student its studentnumber
+- `Project_ID` - The unique numeric identifier of the project which has previously been supplied as ID parameter while importing the project
+- `Enabled` - When `0` the vote will be deleted, otherwise it will be upserted.
+
+Example CSV:
+```
+Studentnumber,Project_ID,Enabled
+22245678,0,1
+22245678,2,1
 ```
