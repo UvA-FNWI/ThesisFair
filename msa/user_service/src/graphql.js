@@ -204,12 +204,14 @@ schemaComposer.Query.addNestedFields({
       return await genApiToken(user);
     },
   },
-  apiToken: {
+  ssoLogin: {
     type: 'String!',
     args: {
-      uid: 'ID',
-      studentnumber: 'ID',
-      repnumber: 'ID',
+      student: 'Boolean!',
+      external_id: 'ID!',
+      email: 'String!',
+      firstname: 'String',
+      lastname: 'String',
     },
     description: JSON.stringify({
     }),
@@ -219,17 +221,16 @@ schemaComposer.Query.addNestedFields({
       }
 
       let user;
-      if (args.uid) {
-        user = await User.findById(args.uid);
-        if (!user) { throw new Error('No user with that uid found.'); }
-      } else if (args.studentnumber) {
-        user = await Student.findOne({ studentnumber: args.studentnumber });
-        if (!user) { throw new Error('No user with that studentnumber found.'); }
-      } else if (args.repnumber) {
-        // TODO
-        if (!user) { throw new Error('No user with that repnumber found.'); }
+      if (args.student) {
+        user = await Student.findOne({ studentnumber: args.external_id });
+        if (!user) {
+          user = await Student.findOneAndUpdate({ email: args.email }, { studentnumber: args.external_id, firstname: args.firstname, lastname: args.lastname }, { upsert: true, new: true });
+        }
       } else {
-        throw new Error('Supply one of the query parameters');
+        user = await Representative.findOne({ external_id: args.external_id });
+        if (!user) {
+          user = await Representative.findOne({ email: args.email }, { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname }, { upsert: true, new: true });
+        }
       }
 
       return await genApiToken(user);
