@@ -4,10 +4,12 @@ import morgan from 'morgan';
 
 import auth from './auth.js';
 import login from './routes/login.js';
+import sso from './routes/sso.js';
 import graphql from './graphql.js';
 
 const createApp = async () => {
   const newApp = express();
+  newApp.disable('x-powered-by');
 
   newApp.use(morgan('dev'));
   newApp.use(express.json({ limit: '10mb' }));
@@ -26,6 +28,7 @@ const createApp = async () => {
   }
 
   newApp.use('/login', login);
+  newApp.use('/sso', sso);
   newApp.use(auth);
   newApp.use('/graphql', await graphql());
 

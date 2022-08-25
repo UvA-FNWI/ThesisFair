@@ -15,7 +15,7 @@ services:
       - OPENID_RESOURCE=${OPENID_RESOURCE}
     labels:
       traefik.enable: "true"
-      traefik.http.routers.apiGateway.rule: (PathPrefix(`/api`) || PathPrefix(`/sso`) || Path(`/loggedin`))
+      traefik.http.routers.apiGateway.rule: (PathPrefix(`/api`) || PathPrefix(`/sso`))
       traefik.http.routers.apiGateway.middlewares: apiGatewayStrip
       traefik.http.middlewares.apiGatewayStrip.stripprefix.prefixes: /api
     volumes:

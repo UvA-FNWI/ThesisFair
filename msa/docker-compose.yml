@@ -14,8 +14,8 @@ services:
     image: traefik:2.8
     restart: unless-stopped
     ports:
-      - 3001:80
-      - 3002:8080
+      - 3000:80
+      - 3001:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
