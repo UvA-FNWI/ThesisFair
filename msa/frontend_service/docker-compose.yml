@@ -9,11 +9,20 @@ services:
     entrypoint: npm run ${NODE_CMD}
     environment:
       - PORT=3001
-      - REACT_APP_API_ENDPOINT=http://localhost:3000/
-    ports:
-      - 3001:3001
+      - REACT_APP_API_ENDPOINT=http://localhost:3001/api/
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.frontend.rule: PathPrefix(`/`)
+      traefik.http.services.frontend.loadbalancer.server.port: 3001
     volumes:
       - ./frontend_service/node_modules:/app/node_modules
       - ./frontend_service/public:/app/public:ro
       - ./frontend_service/src:/app/src:ro
       - ./libraries/thesisfair-api/:/app/src/api/:ro
+    networks:
+      - thesisfair
+
+networks:
+  thesisfair:
+    name: thesisfair
+    external: true

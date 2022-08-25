@@ -1,0 +1,11 @@
+entrypoints:
+  web:
+    address: ":80"
+
+providers:
+  docker:
+    watch: true
+    exposedByDefault: false
+
+api:
+  insecure: true

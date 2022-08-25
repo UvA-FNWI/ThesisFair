@@ -7,9 +7,17 @@ services:
         NODE_ENV: ${NODE_ENV}
     entrypoint: npm run ${NODE_CMD}
     environment:
-      - jwtKey=${JWT_SECRET}
-    ports:
-      - "3000:80"
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENID_ISSUER_URL=${OPENID_ISSUER_URL}
+      - OPENID_CLIENT_ID=${OPENID_CLIENT_ID}
+      - OPENID_CLIENT_SECRET=${OPENID_CLIENT_SECRET}
+      - OPENID_REDIRECT_URL=${OPENID_REDIRECT_URL}
+      - OPENID_RESOURCE=${OPENID_RESOURCE}
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.apiGateway.rule: (PathPrefix(`/api`) || PathPrefix(`/sso`) || Path(`/loggedin`))
+      traefik.http.routers.apiGateway.middlewares: apiGatewayStrip
+      traefik.http.middlewares.apiGatewayStrip.stripprefix.prefixes: /api
     volumes:
       - ./API_gateway/src:/app/src
       - ./libraries:/libraries

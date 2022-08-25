@@ -19,7 +19,7 @@ export default (req, res, next) => {
   }
   token = token.substring(7);
 
-  jwt.verify(token, process.env.jwtKey, { algorithms: ['HS512'] }, (err, data) => {
+  jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS512'] }, (err, data) => {
     if (err) {
       next({ status: 401, message: 'Supplied token is invalid' });
       return;
