@@ -27,6 +27,24 @@ export const enableTrace = () => {
   });
 };
 
+const getApiToken = () => {
+  if (document.cookie) {
+    const cookies = document.cookie.split(';').map((cookie) => cookie.split('='));
+    const token = cookies.find((cookie) => cookie[0].trim() === 'apiToken');
+
+    if (token) {
+      token.shift(); // Remove name
+      const apiToken = token.join('='); // Join the rest in case it has '='
+      localStorage.setItem('apiToken', apiToken);
+      document.cookie = ''; // Clear cookies
+
+      return apiToken;
+    }
+  }
+
+  return localStorage.getItem('apiToken');
+}
+
 const unpackToken = (token) => {
   if (!token) { return null; }
 
@@ -142,7 +160,7 @@ export default (url) => {
   let cache;
   let tokenChangeCallback = () => { };
 
-  let apiToken = typeof localStorage !== 'undefined' ? localStorage.getItem('apiToken') : null;
+  let apiToken = browser ? getApiToken() : null;
   let apiTokenData = unpackToken(apiToken) || null;
   const login = async (email, password) => {
     const res = await axios.post(url + 'login',
