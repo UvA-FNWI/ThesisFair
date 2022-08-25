@@ -383,7 +383,7 @@ function testRepCreate() {
 };
 
 function testApiTokenPermissions() {
-  it.only('query apiToken should never work', async () => {
+  it('query apiToken should never work', async () => {
     const error = await fail(api.user.apiToken(db.users[0].uid, null, null).exec);
     expect(error.errors[0].message).to.contain('UNAUTHORIZED');
   });
