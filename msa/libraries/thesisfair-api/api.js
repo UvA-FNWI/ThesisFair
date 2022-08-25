@@ -168,7 +168,7 @@ export default (url) => {
       })
     }
 
-    apiToken = res.data.data.apiToken;
+    apiToken = res.data;
     if (browser) {
       localStorage.setItem('apiToken', apiToken);
     }

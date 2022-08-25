@@ -154,7 +154,7 @@ schemaComposer.Query.addNestedFields({
       return readFile(file).then((content) => content.toString());
     }
   },
-  'apiToken': {
+  login: {
     type: 'String!',
     args: {
       email: 'String!',
