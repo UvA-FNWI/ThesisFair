@@ -5,7 +5,7 @@ export const fail = async (fn) => {
     await fn();
   } catch (error) {
     expect(error.errors).to.exist;
-    return;
+    return error;
   }
 
   expect('code not to reach this', 'Function did not fail while it should').to.be.null;

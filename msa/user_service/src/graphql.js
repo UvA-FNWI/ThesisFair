@@ -29,6 +29,37 @@ const mail = nodemailer.createTransport({
   port: 1025,
 });
 
+const genApiToken = (user) => {
+  let additionalData;
+  if (user.admin) {
+    additionalData = { type: 'a' };
+  } else if (user instanceof Student) {
+    additionalData = { type: 's' };
+  } else if (user instanceof Representative) {
+    additionalData = { type: 'r', enid: user.enid };
+    if (user.repAdmin) {
+      additionalData.repAdmin = true;
+    }
+  }
+
+  return new Promise((resolve, reject) => {
+    jwt.sign({
+      uid: user.uid,
+      ...additionalData,
+    }, process.env.jwtKey, {
+      algorithm: 'HS512',
+      expiresIn: '24h',
+    }, (err, key) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      resolve(key);
+    });
+  });
+}
+
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
 schemaComposer.types.get('User').setResolveType((value) => {
@@ -170,34 +201,38 @@ schemaComposer.Query.addNestedFields({
         throw new Error('Incorrect password');
       }
 
-      let additionalData;
-      if (user.admin) {
-        additionalData = { type: 'a' };
-      } else if (user instanceof Student) {
-        additionalData = { type: 's' };
-      } else if (user instanceof Representative) {
-        additionalData = { type: 'r', enid: user.enid };
-        if (user.repAdmin) {
-          additionalData.repAdmin = true;
-        }
+      return await genApiToken(user);
+    },
+  },
+  apiToken: {
+    type: 'String!',
+    args: {
+      uid: 'ID',
+      studentnumber: 'ID',
+      repnumber: 'ID',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'system') {
+        throw new Error('UNAUTHORIZED to generate apiTokens');
       }
 
-      return new Promise((resolve, reject) => {
-        jwt.sign({
-          uid: user.uid,
-          ...additionalData,
-        }, process.env.jwtKey, {
-          algorithm: 'HS512',
-          expiresIn: '24h',
-        }, (err, key) => {
-          if (err) {
-            reject(err);
-            return;
-          }
+      let user;
+      if (args.uid) {
+        user = await User.findById(args.uid);
+        if (!user) { throw new Error('No user with that uid found.'); }
+      } else if (args.studentnumber) {
+        user = await Student.findOne({ studentnumber: args.studentnumber });
+        if (!user) { throw new Error('No user with that studentnumber found.'); }
+      } else if (args.repnumber) {
+        // TODO
+        if (!user) { throw new Error('No user with that repnumber found.'); }
+      } else {
+        throw new Error('Supply one of the query parameters');
+      }
 
-          resolve(key);
-        });
-      });
+      return await genApiToken(user);
     },
   },
 });

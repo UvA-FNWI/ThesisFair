@@ -308,8 +308,23 @@ export default (url) => {
               uid: { value: uid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'user', key: 'uid', delete: true } : false,
+          }),
+
+        apiToken: (uid, studentnumber, repnumber) => {
+          if (process.env.NODE_ENV === 'production') {
+            throw new Error('This route is only for testing the proper implementation of the permissions and should NEVER succeed.');
           }
-          ),
+
+          return genGraphQLBuilder({
+            name: 'testApiToken',
+            functionPath: 'apiToken',
+            args: {
+              uid: { value: uid, type: 'ID' },
+              studentnumber: { value: studentnumber, type: 'ID' },
+              repnumber: { value: repnumber, type: 'ID' },
+            },
+          });
+        },
 
         representative: {
           /**

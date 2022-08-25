@@ -102,6 +102,8 @@ describe('User', () => {
     });
 
     testRepDelete('a representative', 2);
+
+    testApiTokenPermissions();
   });
 
 
@@ -197,6 +199,8 @@ describe('User', () => {
       expect(db.users[3].enid).to.exist;
       await fail(api.user.delete(db.users[3].uid).exec);
     })
+
+    testApiTokenPermissions();
   });
 
   //* Admin representative
@@ -271,6 +275,7 @@ describe('User', () => {
     testRepDelete('another representative from the same entity', 2);
     testRepDelete('self', 3);
 
+    testApiTokenPermissions();
   });
 
 
@@ -347,6 +352,8 @@ describe('User', () => {
     it('query users should fail', async () => {
       await fail(api.user.getMultiple([db.users[0].uid, db.users[1].uid]).exec);
     });
+
+    testApiTokenPermissions();
   });
 });
 
@@ -374,3 +381,10 @@ function testRepCreate() {
     expect(res).to.deep.equal({...newRep, uid: res.uid});
   });
 };
+
+function testApiTokenPermissions() {
+  it.only('query apiToken should never work', async () => {
+    const error = await fail(api.user.apiToken(db.users[0].uid, null, null).exec);
+    expect(error.errors[0].message).to.contain('UNAUTHORIZED');
+  });
+}
