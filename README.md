@@ -41,7 +41,7 @@ To seed the database for stress testing run `make seed`. Config for this can be 
 All communication is handled over GraphQL and JSON. The GraphQL endpoint is located at `/api/graphql`.
 
 ## Sending requests:
-- URL: https://thesisfair.softwareify.nl/api/graphql
+- URL: https://thesisfair.qrcsoftware.nl/api/graphql
 - Method: POST
 - Headers:
 - - `Content-Type: application/json`

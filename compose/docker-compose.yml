@@ -38,10 +38,15 @@ services:
     image: ghcr.io/quinten1333/thesisfair-api_gateway:base
     restart: unless-stopped
     environment:
-      - jwtKey=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENID_ISSUER_URL=${OPENID_ISSUER_URL}
+      - OPENID_CLIENT_ID=${OPENID_CLIENT_ID}
+      - OPENID_CLIENT_SECRET=${OPENID_CLIENT_SECRET}
+      - OPENID_REDIRECT_URL=${OPENID_REDIRECT_URL}
+      - OPENID_RESOURCE=${OPENID_RESOURCE}
     labels:
       traefik.enable: "true"
-      traefik.http.routers.apiGateway.rule: Host(`thesisfair.softwareify.nl`) && PathPrefix(`/api`)
+      traefik.http.routers.apiGateway.rule: Host(`thesisfair.qrcsoftware.nl`) && (PathPrefix(`/api`) || PathPrefix(`/sso`))
       traefik.http.routers.apiGateway.middlewares: apiGatewayStrip
       traefik.http.middlewares.apiGatewayStrip.stripprefix.prefixes: /api
     depends_on:
@@ -73,7 +78,7 @@ services:
     restart: unless-stopped
     labels:
       traefik.enable: "true"
-      traefik.http.routers.frontend.rule: Host(`thesisfair.softwareify.nl`)
+      traefik.http.routers.frontend.rule: Host(`thesisfair.qrcsoftware.nl`)
 
   api-project:
     image: ghcr.io/quinten1333/thesisfair-project_service:base

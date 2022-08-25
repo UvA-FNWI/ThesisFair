@@ -5,7 +5,7 @@ imageName=ghcr.io/quinten1333/thesisfair-frontend_service:base
 build:
 	rm -r src/api
 	cp -r ../libraries/thesisfair-api/ src/api/
-	docker build -t ${imageName} --build-arg "REACT_APP_API_ENDPOINT=https://thesisfair.softwareify.nl/api/" .
+	docker build -t ${imageName} --build-arg "REACT_APP_API_ENDPOINT=https://thesisfair.qrcsoftware.nl/api/" .
 	rm -r src/api
 	ln -s ../../libraries/thesisfair-api/ src/api
 
