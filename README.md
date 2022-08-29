@@ -190,4 +190,8 @@ In production each service should have their own database. In the docker-compose
 - Traefik dashboard: `make traefikDashboard` then http://localhost:9000/dashboard/
 - Mailhog: http://localhost:8001/api/v1/namespaces/default/services/mailhog:8025/proxy/
 
+## Authenticating the browser
+When the `NODE_ENV` is set to `development`, it is possible to authenticate get requests send directly from the browser by adding an authorization query parameter.
+This way it is possible to access the graphqli interface via the url: http://localhost:3000/api/graphql?authorization=%7B%22type%22%3A%22a%22%7D
+
 
