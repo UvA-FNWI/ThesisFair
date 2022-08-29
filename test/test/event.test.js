@@ -18,6 +18,7 @@ const checkPremissions = () => {
       fail(api.event.get(db.events[1].evid).exec),
       fail(api.event.create(createData).exec),
       fail(api.event.update({ ...db.events[0], evid: db.events[1].evid }).exec),
+      fail(api.event.updateImage(db.events[1].evid, 'testing').exec),
       fail(api.event.delete(db.events[0].evid).exec),
       fail(api.event.entity.add(db.events[0].evid, db.entities[1].enid).exec),
       fail(api.event.entity.del(db.events[0].evid, db.events[0].entities[0]).exec),
@@ -99,6 +100,14 @@ describe('Event', () => {
       }
 
       await fail(api.event.update(eventUpdate).exec);
+    });
+
+    it('mutation event.updateImage update the event image', async () => {
+      const image = 'New and epic image!';
+      await api.event.updateImage(db.events[0].evid, image).exec();
+
+      const savedImage = await api.event.getImage(db.events[0].evid).exec();
+      expect(savedImage).to.equal(image);
     });
 
     it('mutation event.delete should delete the event', async () => {

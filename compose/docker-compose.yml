@@ -58,6 +58,8 @@ services:
     restart: unless-stopped
     environment:
       - mongodbConStr=mongodb://mongodb/entity_service
+    volumes:
+      - /home/quinten/data/entityService:/app/data
     depends_on:
       - rabbitmq
       - mongodb

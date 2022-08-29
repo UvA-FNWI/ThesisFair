@@ -1,6 +1,7 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
-import { readFileSync } from 'fs';
+import { readFileSync, mkdirSync, existsSync, constants } from 'fs';
+import { writeFile, readFile, access } from 'fs/promises';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Event } from './database.js';
@@ -39,6 +40,22 @@ schemaComposer.Query.addNestedFields({
       canGetEvent(req, args, event);
       return event;
     },
+  },
+  eventImage: {
+    type: 'String',
+    args: {
+      evid: 'ID!',
+    },
+    resolve: async (obj, args, req) => {
+      const file = `./data/${args.evid}`;
+      try {
+        await access(file, constants.R_OK);
+      } catch (error) {
+        return null;
+      }
+
+      return readFile(file).then((content) => content.toString());
+    }
   },
   events: {
     type: '[Event!]',
@@ -123,6 +140,27 @@ schemaComposer.Mutation.addNestedFields({
       return Event.findByIdAndUpdate(evid, { $set: args }, { new: true });
     },
   },
+  'event.updateImage': {
+    type: 'Boolean',
+    args: {
+      evid: 'ID!',
+      image: 'String',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED update an event');
+      }
+
+      const event = Event.findById(args.evid);
+      if (!event) {
+        throw new Error('event does not exist');
+      }
+
+      await writeFile(`./data/${args.evid}`, args.image);
+    },
+  },
   'event.delete': {
     type: 'Event',
     args: {
@@ -184,6 +222,10 @@ schemaComposer.Mutation.addNestedFields({
     },
   },
 })
+
+if (!existsSync('./data')) {
+  mkdirSync('./data');
+}
 
 const schema = schemaComposer.buildSchema();
 
