@@ -150,6 +150,11 @@ schemaComposer.Mutation.addNestedFields({
         csvParser(args.file.trim(), { columns: true }, (err, records, info) => {
           if (err) { reject(err); return; }
 
+          if (records.length === 0) {
+            reject(new Error('No row provided to import'));
+            return;
+          }
+
           if (!Object.values(config.fields).every((key) => key in records[0])) {
             reject(new Error('Not all required fields supplied! Required fields are: ' + Object.values(config.fields).join(',')));
             return;
