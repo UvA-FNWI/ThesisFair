@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import cookieParser from 'cookie-parser';
 import { Issuer, generators, custom } from 'openid-client';
 
+import { encrypt, decrypt } from '../encryption.js';
 import { rgraphql } from '../../../libraries/amqpmessaging/index.js';
 
 const router = Router();
@@ -30,9 +32,8 @@ const ssoLogin = async (student, external_id, email, firstname, lastname) => {
   return res.data.ssoLogin;
 }
 
-let code_verifier; // TODO
 router.get('/login', (req, res) => {
-  code_verifier = generators.codeVerifier();
+  const code_verifier = generators.codeVerifier();
   const code_challenge = generators.codeChallenge(code_verifier);
 
   const authUrl = client.authorizationUrl({
@@ -42,14 +43,28 @@ router.get('/login', (req, res) => {
     code_challenge_method: 'S256',
   });
 
+  const code_verifier_encrypted = encrypt(code_verifier);
+
+  res.cookie('c', code_verifier_encrypted, {
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV !== 'development',
+    secure: process.env.NODE_ENV !== 'development',
+    maxAge: 300000,
+  });
   res.redirect(authUrl);
 })
 
-router.get('/loggedin', async (req, res) => {
+router.get('/loggedin', cookieParser(), async (req, res) => {
+  console.log(req.cookies);
+  if (!req.cookies.c) {
+    res.status(400).send('No code cookie set').end();
+    return;
+  }
+
   const params = client.callbackParams(req);
   let tokenSet;
   try {
-    tokenSet = await client.callback(process.env.OPENID_REDIRECT_URL, params, { code_verifier });
+    tokenSet = await client.callback(process.env.OPENID_REDIRECT_URL, params, { code_verifier: decrypt(req.cookies.c) });
   } catch (error) {
     res.status(401).send('Invalid code').end();
     return;
