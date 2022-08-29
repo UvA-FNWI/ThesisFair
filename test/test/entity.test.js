@@ -126,7 +126,7 @@ describe('Entity', () => {
     });
 
     it('mutation entity.update should update the entity', async () => {
-      const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid };
+      const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid, external_id: db.entities[0].external_id };
       const res = await api.entity.update(updatedEntity).exec();
       expect(res).to.deep.equal(updatedEntity);
     });
@@ -224,7 +224,7 @@ describe('Entity', () => {
     permissions.create();
 
     it('mutation entity.update should update the entity', async () => {
-      const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid, type: db.entities[0].type };
+      const updatedEntity = { ...db.entities[1], enid: db.entities[0].enid, type: db.entities[0].type, external_id: db.entities[0].external_id };
       const updateQuery = {...updatedEntity};
       delete updateQuery.type;
       const res = await api.entity.update(updateQuery).exec();
