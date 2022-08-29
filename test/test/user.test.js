@@ -383,8 +383,8 @@ function testRepCreate() {
 };
 
 function testApiTokenPermissions() {
-  it('query apiToken should never work', async () => {
-    const error = await fail(api.user.apiToken(db.users[0].uid, null, null).exec);
+  it('query ssoLogin should never work', async () => {
+    const error = await fail(api.user.ssoLogin(true, '10101', 'email@email.email', 'firstname', 'lastname').exec);
     expect(error.errors[0].message).to.contain('UNAUTHORIZED');
   });
 }

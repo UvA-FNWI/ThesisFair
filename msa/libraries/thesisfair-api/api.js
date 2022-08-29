@@ -328,18 +328,20 @@ export default (url) => {
             cache: caching ? { instance: cache, type: 'user', key: 'uid', delete: true } : false,
           }),
 
-        apiToken: (uid, studentnumber, repnumber) => {
+        ssoLogin: (student, external_id, email, firstname, lastname) => {
           if (process.env.NODE_ENV === 'production') {
             throw new Error('This route is only for testing the proper implementation of the permissions and should NEVER succeed.');
           }
 
           return genGraphQLBuilder({
-            name: 'testApiToken',
-            functionPath: 'apiToken',
+            name: 'testssoLogin',
+            functionPath: 'ssoLogin',
             args: {
-              uid: { value: uid, type: 'ID' },
-              studentnumber: { value: studentnumber, type: 'ID' },
-              repnumber: { value: repnumber, type: 'ID' },
+              student: { value: student, type: 'Boolean!' },
+              external_id: { value: external_id, type: 'ID!' },
+              email: { value: email, type: 'String!' },
+              firstname: { value: firstname, type: 'String' },
+              lastname: { value: lastname, type: 'String' },
             },
           });
         },
