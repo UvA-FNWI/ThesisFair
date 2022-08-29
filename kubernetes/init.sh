@@ -1,6 +1,3 @@
-# Dashboard
-kubectl apply -f "https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml"
-
 # RabbitMQ Custom Resource Definisons
 kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
 
@@ -16,7 +13,7 @@ else
 fi
 
 # Traefik for ingress routing
-if [[ "$helmInstalled" == *"\ntraefik"* ]]; then
+if [[ "$helmInstalled" == *"\ntraefik"* ]]; then # TODO: Make this work in a public cloud env
   helm repo add traefik https://helm.traefik.io/traefik # Source code: https://github.com/traefik/traefik-helm-chart/
   helm install traefik traefik/traefik --set service.type=NodePort --set nodePort=true --set ports.web.nodePort=32080 --set ports.websecure.nodePort=32443 --set ports.traefik.expose=true
 else
