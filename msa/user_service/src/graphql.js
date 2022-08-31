@@ -100,12 +100,11 @@ schemaComposer.Query.addNestedFields({
       caching: { type: 'user', key: 'uid' },
     }),
     resolve: async (obj, args, req) => {
-      const user = await Student.findOne({ studentnumber: args.studentnumber });
-      if (!user) { return null; }
+      if (req.user.type !== 'system') {
+        throw new Error('UNAUTHORIZED to use this route.');
+      }
 
-
-      canGetUser(req, args, user);
-      return user;
+      return await Student.findOneAndUpdate({ studentnumber: args.studentnumber }, {}, { new: true, upsert: true }); // Automic find or create
     },
   },
   users: {
@@ -223,7 +222,9 @@ schemaComposer.Query.addNestedFields({
       let user;
       if (args.student) {
         user = await Student.findOne({ studentnumber: args.external_id });
-        if (!user) {
+        if (!user.email && !user.firstname && !user.lastname) { // Current user data is a placeholder created by "query student", this is the first time the user is logging in via SSO.
+          await Student.findByIdAndUpdate(user.uid, { email: args.email, firstname: args.firstname, lastname: args.lastname });
+        } else if (!user) {
           user = await Student.findOneAndUpdate({ email: args.email }, { studentnumber: args.external_id, firstname: args.firstname, lastname: args.lastname }, { upsert: true, new: true });
         }
       } else {

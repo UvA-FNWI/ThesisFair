@@ -10,6 +10,12 @@ const gen_vote_import = () => ({
   ${db.users[6].studentnumber},${db.projects[0].external_id},1
   ${db.users[6].studentnumber},${db.projects[2].external_id},1
   `,
+  csvNewStudentNumber: `
+  Studentnumber,Project_ID,Enabled
+  ${db.users[6].studentnumber},${db.projects[0].external_id},1
+  10101,${db.projects[2].external_id},1
+  20202,${db.projects[2].external_id},1
+  `,
   csvUpdate: `
   Studentnumber,Project_ID,Enabled
   ${db.users[6].studentnumber},${db.projects[0].external_id},1
@@ -85,6 +91,15 @@ describe('Vote', () => {
         expect(votes).to.contain(pid);
         expect(user.share).to.contain(enid);
       }
+    });
+
+    it('mutation vote.import should properly handle new student numbers while importing votes', async () => {
+      const vote_import = gen_vote_import();
+      const userCount = (await models.User.find()).length;
+      await api.votes.import(vote_import.csvNewStudentNumber, db.events[0].evid).exec();
+
+      const newUserCount = (await models.User.find()).length;
+      expect(newUserCount).to.equal(userCount + 2);
     });
 
     it('mutation vote.import should update already existing votes', async () => {

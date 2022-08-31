@@ -11,10 +11,10 @@ import config from './config.js';
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
 const getUid = async (studentnumber) => {
-  const res = await rgraphql('api-user', 'query getUid($studentnumber: ID!) { student(studentnumber: $studentnumber) { ... on Student { uid } } }', { studentnumber });
+  const res = await rgraphql('api-user', 'query getUid($studentnumber: ID!) { student(studentnumber: $studentnumber) { ... on Student { uid } } }', { studentnumber }, { user: { type: 'system' } });
   if (res.errors || !res.data) {
     console.error(res);
-    throw new Error('An unkown error occured while checking if the enid is valid');
+    throw new Error('An unkown error occured while getting the user uid');
   }
 
   if (!res.data.student) {
@@ -181,7 +181,7 @@ schemaComposer.Mutation.addNestedFields({
 
                 try {
                   [uid, project] = await Promise.all([
-                    getUid(studentnumber), // TODO: Handle unexisting user properly.
+                    getUid(studentnumber),
                     getProjectData(external_pid),
                   ]);
                 } catch (error) {
