@@ -28,7 +28,7 @@ export const enableTrace = () => {
 };
 
 const getApiToken = () => {
-  if (document.cookie) {
+  if (browser && document.cookie) {
     const cookies = document.cookie.split(';').map((cookie) => cookie.split('='));
     const token = cookies.find((cookie) => cookie[0].trim() === 'apiToken');
 
@@ -36,7 +36,7 @@ const getApiToken = () => {
       token.shift(); // Remove name
       const apiToken = token.join('='); // Join the rest in case it has '='
       localStorage.setItem('apiToken', apiToken);
-      document.cookie = ''; // Clear cookies
+      document.cookie = 'apiToken=;max-age=0; Path=/;'; // Clear cookies
 
       return apiToken;
     }
