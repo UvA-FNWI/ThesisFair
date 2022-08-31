@@ -1,3 +1,0 @@
-[submodule "kubernetes/server/Arch-installer"]
-	path = server/install/Arch-installer
-	url = https://github.com/quinten1333/Arch-installer
