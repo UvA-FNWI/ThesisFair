@@ -5,42 +5,77 @@ import api from './api.js';
 import initDB, { init, disconnect, db, models } from './db.js';
 
 const gen_vote_import = () => ({
-  csv: `
-  Studentnumber,Project_ID,Enabled
-  ${db.users[6].studentnumber},${db.projects[0].external_id},1
-  ${db.users[6].studentnumber},${db.projects[2].external_id},1
-  `,
-  csvNewStudentNumber: `
-  Studentnumber,Project_ID,Enabled
-  ${db.users[6].studentnumber},${db.projects[0].external_id},1
-  10101,${db.projects[2].external_id},1
-  20202,${db.projects[2].external_id},1
-  `,
-  csvUpdate: `
-  Studentnumber,Project_ID,Enabled
-  ${db.users[6].studentnumber},${db.projects[0].external_id},1
-  ${db.users[6].studentnumber},${db.projects[1].external_id},1
-  ${db.users[6].studentnumber},${db.projects[2].external_id},0
-  `,
-  csvDelete: `
-  Studentnumber,Project_ID,Enabled
-  ${db.users[6].studentnumber},${db.projects[0].external_id},0
-  ${db.users[6].studentnumber},${db.projects[1].external_id},0
-  ${db.users[6].studentnumber},${db.projects[2].external_id},0
-  `,
-  csvInvalidFields: `
-  Studentnumber,Project_ID
-  ${db.users[0].studentnumber},${db.projects[0].external_id}
-  ${db.users[0].studentnumber},${db.projects[1].external_id}
-  `,
-  csvInvalidStudentnumber: `
-  Studentnumber,Project_ID,Enabled
-  10101,${db.projects[0].external_id},0
-  `,
-  csvInvalidProjectID: `
-  Studentnumber,Project_ID,Enabled
-  ${db.users[0].studentnumber},10101,0
-  `,
+  base: [
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[0].external_id,
+      enabled: true,
+    },
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[2].external_id,
+      enabled: true,
+    },
+  ],
+  newStudentNumber: [
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[0].external_id,
+      enabled: true,
+    },
+    {
+      studentnumber: 10101,
+      projectID: db.projects[2].external_id,
+      enabled: true,
+    },
+    {
+      studentnumber: 20202,
+      projectID: db.projects[2].external_id,
+      enabled: true,
+    },
+  ],
+  update: [
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[0].external_id,
+      enabled: true,
+    },
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[1].external_id,
+      enabled: true,
+    },
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[2].external_id,
+      enabled: false,
+    },
+  ],
+  delete: [
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[0].external_id,
+      enabled: false,
+    },
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[1].external_id,
+      enabled: false,
+    },
+    {
+      studentnumber: db.users[6].studentnumber,
+      projectID: db.projects[2].external_id,
+      enabled: false,
+    },
+  ],
+  invalidProjectID: [
+    {
+      studentnumber: db.users[0].studentnumber,
+      projectID: 10101,
+      enabled: false,
+    },
+  ],
+
   data: [
     { uid: db.users[6].uid, evid: db.events[0].evid, votes: [
       { pid: db.projects[0].pid, enid: db.projects[0].enid },
@@ -79,7 +114,7 @@ describe('Vote', () => {
 
     it('mutation vote.import should import votes', async () => {
       const vote_import = gen_vote_import();
-      const res = await api.votes.import(vote_import.csv, db.events[0].evid).exec();
+      const res = await api.votes.import(vote_import.base, db.events[0].evid).exec();
 
       for (const result of res) {
         expect(result.error).to.be.null;
@@ -96,7 +131,7 @@ describe('Vote', () => {
     it('mutation vote.import should properly handle new student numbers while importing votes', async () => {
       const vote_import = gen_vote_import();
       const userCount = (await models.User.find()).length;
-      await api.votes.import(vote_import.csvNewStudentNumber, db.events[0].evid).exec();
+      await api.votes.import(vote_import.newStudentNumber, db.events[0].evid).exec();
 
       const newUserCount = (await models.User.find()).length;
       expect(newUserCount).to.equal(userCount + 2);
@@ -104,8 +139,8 @@ describe('Vote', () => {
 
     it('mutation vote.import should update already existing votes', async () => {
       const vote_import = gen_vote_import();
-      await api.votes.import(vote_import.csv, db.events[0].evid).exec();
-      const res = await api.votes.import(vote_import.csvUpdate, db.events[0].evid).exec();
+      await api.votes.import(vote_import.base, db.events[0].evid).exec();
+      const res = await api.votes.import(vote_import.update, db.events[0].evid).exec();
 
       for (const result of res) {
         expect(result.error).to.be.null;
@@ -122,8 +157,8 @@ describe('Vote', () => {
 
     it('mutation vote.import should delete properly delete votes', async () => {
       const vote_import = gen_vote_import();
-      await api.votes.import(vote_import.csv, db.events[0].evid).exec();
-      const res = await api.votes.import(vote_import.csvDelete, db.events[0].evid).exec();
+      await api.votes.import(vote_import.base, db.events[0].evid).exec();
+      const res = await api.votes.import(vote_import.delete, db.events[0].evid).exec();
 
       for (const result of res) {
         expect(result.error).to.be.null;
@@ -133,22 +168,9 @@ describe('Vote', () => {
       expect(votes).to.have.length(0);
     });
 
-    it('mutation vote.import should check fields', async () => {
-      const vote_import = gen_vote_import();
-      await fail(api.votes.import(vote_import.csvInvalidFields, db.events[0].evid).exec);
-    });
-
-    it('mutation vote.import should properly handle incorrect student number', async () => {
-      const vote_import = gen_vote_import();
-      const res = await api.votes.import(vote_import.csvInvalidStudentnumber, db.events[0].evid).exec();
-
-      expect(res[0].error).to.be.a.string;
-      expect(res[0].error).to.have.length.above(0);
-    });
-
     it('mutation vote.import should properly handle incorrect project id', async () => {
       const vote_import = gen_vote_import();
-      const res = await api.votes.import(vote_import.csvInvalidProjectID, db.events[0].evid).exec();
+      const res = await api.votes.import(vote_import.invalidProjectID, db.events[0].evid).exec();
 
       expect(res[0].error).to.be.a.string;
       expect(res[0].error).to.have.length.above(0);

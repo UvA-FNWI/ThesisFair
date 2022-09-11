@@ -1,5 +1,11 @@
 scalar Pid
 
+input VoteImport {
+  studentnumber: ID!
+  projectID: ID!
+  enabled: Boolean!
+}
+
 type StudentVote {
   uid: ID!
   pid: ID!

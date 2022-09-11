@@ -1,12 +1,10 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
-import { parse as csvParser } from 'csv-parse';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Vote } from './database.js';
 import { canGetStudentVotes, canGetEntityVotes, canGetProjectVotes } from './permissions.js';
-import config from './config.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -24,7 +22,7 @@ const getUid = async (studentnumber) => {
   return res.data.student.uid;
 }
 
-const shareInfo = async (uid, enid, share=true) => {
+const shareInfo = async (uid, enid, share = true) => {
   const res = await rgraphql('api-user', 'mutation shareInfo($uid: ID!, $enid: ID!, $share: Boolean!) { user { student { shareInfo(uid: $uid, enid: $enid, share: $share) { uid } } } }', { uid, enid, share });
   if (res.errors || !res.data) {
     console.error(res);
@@ -145,7 +143,7 @@ schemaComposer.Mutation.addNestedFields({
   'vote.import': {
     type: '[VoteImportResult!]!',
     args: {
-      file: 'String!',
+      votes: '[VoteImport!]!',
       evid: 'ID!',
     },
     resolve: async (obj, args, req) => {
@@ -157,63 +155,41 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('Event does not exist!');
       }
 
-      return new Promise((resolve, reject) => {
-        csvParser(args.file.trim(), { columns: true }, (err, records, info) => {
-          if (err) { reject(err); return; }
-
-          if (records.length === 0) {
-            reject(new Error('No row provided to import'));
-            return;
+      return Promise.all(
+        args.votes.map(async ({ studentnumber, projectID: external_pid, enabled }) => {
+          let uid, project;
+          try {
+            [uid, project] = await Promise.all([
+              getUid(studentnumber),
+              getProjectData(external_pid),
+            ]);
+          } catch (error) {
+            console.log(error);
+            return { error };
           }
 
-          if (!Object.values(config.fields).every((key) => key in records[0])) {
-            reject(new Error('Not all required fields supplied! Required fields are: ' + Object.values(config.fields).join(',')));
-            return;
+          if (!uid) {
+            return { error: 'Student not found with given studentnumber.' };
           }
 
-          resolve(
-            Promise.all(
-              records.map(async (record) => {
-                const studentnumber = record[config.fields.studentnumber].trim();
-                const external_pid = record[config.fields.external_pid].trim();
-                const enabled = record[config.fields.enabled].trim() !== '0';
-                let uid, project;
+          if (!project) {
+            return { error: 'Project not found with given project_id.' };
+          }
 
-                try {
-                  [uid, project] = await Promise.all([
-                    getUid(studentnumber),
-                    getProjectData(external_pid),
-                  ]);
-                } catch (error) {
-                  console.log(error);
-                  return { error };
-                }
+          const votes = await Vote.findOneAndUpdate({ uid: uid, evid: args.evid }, {}, { new: true, upsert: true }); // Automic find or create
 
-                if (!uid) {
-                  return { error: 'Student not found with given studentnumber.' };
-                }
+          const contains = !!votes.votes.find(({ pid: votePid }) => votePid == project.pid);
+          const voteItem = { pid: project.pid, enid: project.enid };
+          if (enabled && !contains) {
+            await Vote.updateOne({ _id: votes._id }, { $push: { votes: [voteItem] } });
+            await shareInfo(uid, project.enid);
+          } else if (!enabled && contains) {
+            await Vote.updateOne({ _id: votes._id }, { $pull: { votes: voteItem } });
+          }
 
-                if (!project) {
-                  return { error: 'Project not found with given project_id.' };
-                }
-
-                const votes = await Vote.findOneAndUpdate({ uid: uid, evid: args.evid }, {}, { new: true, upsert: true }); // Automic find or create
-
-                const contains = !!votes.votes.find(({ pid: votePid }) => votePid == project.pid);
-                const voteItem = { pid: project.pid, enid: project.enid };
-                if (enabled && !contains) {
-                  await Vote.updateOne({ _id: votes._id }, { $push: { votes: [voteItem] } });
-                  await shareInfo(uid, project.enid);
-                } else if (!enabled && contains) {
-                  await Vote.updateOne({ _id: votes._id }, { $pull: { votes: voteItem } });
-                }
-
-                return {};
-              })
-            )
-          );
-        });
-      });
+          return {};
+        })
+      );
     }
   }
 });

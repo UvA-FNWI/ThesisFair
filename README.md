@@ -162,7 +162,7 @@ Example Payload:
 ## Project import
 - GraphQL path: `project.import`
 - Parameters:
-- - `projects` - Structure data of type ProjectImport
+- - `projects` - Structured data of type ProjectImport
 - - `evid` - The event ID from the ThesisFair Platform
 
 The ProjectImport type has the following fields:
@@ -198,19 +198,28 @@ Example payload:
 ## Vote import
 - GraphQL path: `vote.import`
 - Parameters:
-- - `file` - The contents of the CSV export
+- - `votes` - Structured data of type VoteImport
 - - `evid` - The event ID from the ThesisFair Platform
 
-The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
-- `Studentnumber` - The student its studentnumber
-- `Project_ID` - The unique numeric identifier of the project which has previously been supplied as ID parameter while importing the project
-- `Enabled` - When `0` the vote will be deleted, otherwise it will be upserted.
+The VoteImport type has the following fields:
+- `studentnumber` - The student its studentnumber
+- `projectID` - The unique numeric identifier of the project which has previously been supplied as ID parameter while importing the project
+- `enabled` - When false the vote will be deleted, otherwise it will be upserted
 
-Example CSV:
+Example payload:
 ```
-Studentnumber,Project_ID,Enabled
-22245678,0,1
-22245678,2,1
+[
+  {
+    studentnumber: 22245678,
+    projectID: 0,
+    enabled: true,
+  },
+  {
+    studentnumber: 22245678,
+    projectID: 2,
+    enabled: true,
+  },
+]
 ```
 
 # Development notes

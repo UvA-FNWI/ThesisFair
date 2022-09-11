@@ -800,14 +800,14 @@ export default (url) => {
               evid: { value: evid, type: 'ID!' },
             }
           }),
-        import: (file, evid, projection) =>
+        import: (votes, evid, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'importVotes',
             functionPath: 'vote.import',
             body: bodies.VoteImportResult(projection),
             args: {
-              file: { value: file, type: 'String!' },
+              votes: { value: votes, type: '[VoteImport!]!' },
               evid: { value: evid, type: 'ID!' },
             }
           }),
