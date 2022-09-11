@@ -765,7 +765,7 @@ export default (url) => {
             functionPath: 'project.import',
             body: bodies.ProjectImportResult(projection),
             args: {
-              projects: { value: projects, type: '[ProjectImport!]' },
+              projects: { value: projects, type: '[ProjectImport!]!' },
               evid: { value: evid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
