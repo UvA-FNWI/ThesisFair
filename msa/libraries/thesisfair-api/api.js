@@ -540,16 +540,15 @@ export default (url) => {
             },
             cache: caching ? { instance: cache, type: 'entity', key: 'enid', delete: true } : false,
           }),
-        import: (file, projection) =>
+        import: (entities, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'importEntity',
             functionPath: 'entity.import',
             body: bodies.EntityImportResult(projection),
             args: {
-              file: { value: file, type: 'String!' },
+              entities: { value: entities, type: '[EntityImport!]!' },
             },
-            cache: caching ? { instance: cache, type: 'entity', key: 'enid', multiple: true } : false,
           }),
       },
       event: {

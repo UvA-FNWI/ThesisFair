@@ -110,14 +110,13 @@ Example internal server error response:
 ## Entity import
 - GraphQL path: `entity.import`
 - Parameters:
-- - `file` - The contents of the CSV export
+- - `entities` - Structured data of type EntityImport
 
-The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
-- `Name` - The name of the organisation
+The EntityImport type has the following fields:
 - `ID` - A unique numeric identifier from the system that is sending the data
-- `Admin names` - The names of the administrators, separated by a `;` within the field.
-- `Admin emails` - The email addresses of the organisation administrators, separated by a `;` within the field.
-- `Enabled` - When `0` the organisation will be deleted, otherwise it will be upserted.
+- `name` - The name of the organisation
+- `admins` - Array of `AdminAccount` objects which have the keys `firstname`, `lastname` and `email`.
+- `enabled` - When false the organisation will be deleted, otherwise it will be upserted.
 
 
 Example CSV:

@@ -5,30 +5,115 @@ import api from './api.js';
 import initDB, { init, disconnect, db, models } from './db.js';
 
 const entity_import = {
-  csv: `
-  Name,ID,Admin names,Admin emails,Enabled
-  UvA,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
-  ASML,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,1`,
-  csvUpdate: `
-  Name,ID,Admin names,Admin emails,Enabled
-  UvA Master of Software Engineering,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
-  Chipsoft,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,1`,
-  csvDelete: `
-  Name,ID,Admin names,Admin emails,Enabled
-  UvA,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,0
-  ASML,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,0`,
-  csvInvalidFields: `
-  Name,ID,Admin names,Admin emails
-  UvA,10101,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl
-  ASML,20202,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl`,
-  data: [
-    { name: 'UvA', external_id: 10101 },
-    { name: 'ASML', external_id: 20202 },
+  base: [
+    {
+      ID: 10101,
+      name: 'UvA',
+      admins: [
+        {
+          firstname: 'Quinten',
+          lastname: 'Coltof',
+          email: 'quinten.coltof@uva.nl',
+        },
+        {
+          firstname: 'Yvanka',
+          lastname: 'van Dijk',
+          email: 'yvanka.van.dijk@uva.nl',
+        },
+      ],
+      enabled: true
+    },
+    {
+      ID: 20202,
+      name: 'ASML',
+      admins: [
+        {
+          firstname: 'Lucas',
+          lastname: 'van Dijk',
+          email: 'lucas.van.dijk@uva.nl',
+        },
+        {
+          firstname: 'Yvonne',
+          lastname: 'van Dijk',
+          email: 'yvonne.van.dijk@uva.nl',
+        },
+      ],
+      enabled: true
+    },
   ],
-  updatedData: [
-    { name: 'UvA Master of Software Engineering', external_id: 10101 },
-    { name: 'Chipsoft', external_id: 20202 },
-  ]
+  update: [
+    {
+      ID: 10101,
+      name: 'UvA Master of Software Engineering',
+      admins: [
+        {
+          firstname: 'Quinten',
+          lastname: 'Coltof',
+          email: 'quinten.coltof@uva.nl',
+        },
+        {
+          firstname: 'Yvanka',
+          lastname: 'van Dijk',
+          email: 'yvanka.van.dijk@uva.nl',
+        },
+      ],
+      enabled: true
+    },
+    {
+      ID: 20202,
+      name: 'ASML',
+      admins: [
+        {
+          firstname: 'Lucas',
+          lastname: 'van Dijk',
+          email: 'lucas.van.dijk@uva.nl',
+        },
+        {
+          firstname: 'Yvonne',
+          lastname: 'van Dijk',
+          email: 'yvonne.van.dijk@uva.nl',
+        },
+      ],
+      enabled: true
+    },
+  ],
+
+  delete: [
+    {
+      ID: 10101,
+      name: 'UvA',
+      admins: [
+        {
+          firstname: 'Quinten',
+          lastname: 'Coltof',
+          email: 'quinten.coltof@uva.nl',
+        },
+        {
+          firstname: 'Yvanka',
+          lastname: 'van Dijk',
+          email: 'yvanka.van.dijk@uva.nl',
+        },
+      ],
+      enabled: false
+    },
+    {
+      ID: 20202,
+      name: 'ASML',
+      admins: [
+        {
+          firstname: 'Lucas',
+          lastname: 'van Dijk',
+          email: 'lucas.van.dijk@uva.nl',
+        },
+        {
+          firstname: 'Yvonne',
+          lastname: 'van Dijk',
+          email: 'yvonne.van.dijk@uva.nl',
+        },
+      ],
+      enabled: false
+    },
+  ],
 };
 
 const testQuery = () => {
@@ -147,10 +232,10 @@ describe('Entity', () => {
 
     it('mutation entity.import should import entities and create users', async () => {
       const userCountBefore = (await models.User.find()).length;
-      const res = await api.entity.import(entity_import.csv).exec();
+      const res = await api.entity.import(entity_import.base).exec();
 
-      expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.data.map((e) => e.name));
-      expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
+      expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.base.map((e) => e.name));
+      expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.base.map((e) => e.ID));
 
       const userCountAfter = (await models.User.find()).length;
 
@@ -158,19 +243,19 @@ describe('Entity', () => {
     });
 
     it('mutation entity.import should update entities when they already exist', async () => {
-      await api.entity.import(entity_import.csv).exec();
+      await api.entity.import(entity_import.base).exec();
 
-      const res = await api.entity.import(entity_import.csvUpdate).exec();
-      expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.updatedData.map((e) => e.name));
-      expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.updatedData.map((e) => e.external_id));
+      const res = await api.entity.import(entity_import.update).exec();
+      expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.update.map((e) => e.name));
+      expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.update.map((e) => e.ID));
     });
 
     it('mutation entity.import should conditonally delete entities and users', async () => {
       const userCountBefore = (await models.User.find()).length;
 
-      await api.entity.import(entity_import.csv).exec();
+      await api.entity.import(entity_import.base).exec();
 
-      const res = await api.entity.import(entity_import.csvDelete).exec();
+      const res = await api.entity.import(entity_import.delete).exec();
       for (const item of res) {
         expect(item.error).to.be.null;
         expect(item.entity).to.be.null;
@@ -182,14 +267,14 @@ describe('Entity', () => {
 
 
     it('mutation entity.import should properly handle double deletes', async () => {
-      await api.entity.import(entity_import.csv).exec();
-      let res = await api.entity.import(entity_import.csvDelete).exec();
+      await api.entity.import(entity_import.base).exec();
+      let res = await api.entity.import(entity_import.delete).exec();
       for (const item of res) {
         expect(item.error).to.be.null;
         expect(item.entity).to.be.null;
       }
 
-      res = await api.entity.import(entity_import.csvDelete).exec();
+      res = await api.entity.import(entity_import.delete).exec();
       for (const item of res) {
         expect(item.error).to.be.null;
         expect(item.entity).to.be.null;
@@ -197,19 +282,15 @@ describe('Entity', () => {
     });
 
     it('mutation entity.import should not double import entities', async () => {
-      await api.entity.import(entity_import.csv).exec();
-      const res = await api.entity.import(entity_import.csv).exec();
       const userCountBefore = models.User.find().length;
+      await api.entity.import(entity_import.base).exec();
+      const res = await api.entity.import(entity_import.base).exec();
 
-      expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.data.map((e) => e.name));
-      expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.data.map((e) => e.external_id));
+      expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.base.map((e) => e.name));
+      expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.base.map((e) => e.ID));
 
       const userCountAfter = models.User.find().length;
       expect(userCountAfter).to.equal(userCountBefore);
-    });
-
-    it('mutation entity.import should check for required fields', async () => {
-      await fail(api.entity.import(entity_import.csvInvalidFields).exec);
     });
   });
 
