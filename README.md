@@ -119,32 +119,80 @@ The EntityImport type has the following fields:
 - `enabled` - When false the organisation will be deleted, otherwise it will be upserted.
 
 
-Example CSV:
+Example Payload:
 ```
-Name,ID,Admin names,Admin emails,Enabled
-UvA,1,Quinten Coltof;Yvanka van Dijk,quinten.coltof@uva.nl;yvanka.van.dijk@uva.nl,1
-ASML,2,Lucas van Dijk;Yvonne van Dijk,Lucas@asml.nl;Yvonne@asml.nl,0
+[
+  {
+    "ID": 10101,
+    "name": "UvA",
+    "admins": [
+      {
+        "firstname": "Quinten",
+        "lastname": "Coltof",
+        "email": "quinten.coltof@uva.nl",
+      },
+      {
+        "firstname": "Yvanka",
+        "lastname": "van Dijk",
+        "email": "yvanka.van.dijk@uva.nl",
+      },
+    ],
+    "enabled": true
+  },
+  {
+    "ID": 20202,
+    "name": "ASML",
+    "admins": [
+      {
+        "firstname": "Lucas",
+        "lastname": "van Dijk",
+        "email": "lucas.van.dijk@uva.nl",
+      },
+      {
+        "firstname": "Yvonne",
+        "lastname": "van Dijk",
+        "email": "yvonne.van.dijk@uva.nl",
+      },
+    ],
+    "enabled": true
+  }
+]
 ```
 
 ## Project import
 - GraphQL path: `project.import`
 - Parameters:
-- - `file` - The contents of the CSV export
+- - `projects` - Structure data of type ProjectImport
 - - `evid` - The event ID from the ThesisFair Platform
 
-The first row of the CSV file should be a header containing column names. The case sensitive column names should be:
-- `Name` - Name of the project
-- `enid` - The unique numeric identifier of the entity the project is linked to
+The ProjectImport type has the following fields:
 - `ID` - A unique numeric identifier of the project
-- `Description` - The description of the project
-- `Datanose link` - The link to datanose (Complete url)
-- `Enabled` - When `0` the project will be deleted, otherwise it will be upserted.
+- `entityID` - The unique numeric identifier of the entity the project is linked to
+- `name` - Name of the project
+- `description` - The description of the project
+- `datanoseLink` - The link to datanose (Complete url)
+- `enabled` - When false the project will be deleted, otherwise it will be upserted.
 
-Example CSV:
+Example payload:
 ```
-Name,enid,ID,Description,Datanose link,Enabled
-Test project,0,10101,This is a test project,https://datanose.nl/project/test,1
-UvA Project,0,20202,You will be doing research at the UvA,https://datanose.nl/project/UvAResearch,1
+[
+  {
+    "ID": 10101,
+    "entityID": 0,
+    "name": "Test Project",
+    "description": "This is a test project",
+    "datanoseLink": "https://datanose.nl/project/test",
+    "enabled": true,
+  },
+  {
+    "ID": 20202,
+    "entityID": 0,
+    "name": "UvA Project",
+    "description": "You will be doing reserach at the UvA",
+    "datanoseLink": "https://datanose.nl/project/UvAResearch",
+    "enabled": true,
+  },
+]
 ```
 
 ## Vote import

@@ -6,43 +6,95 @@ import initDB, { init, disconnect, db } from './db.js';
 
 
 const gen_project_import = () => ({
-  csv: `
-  Name,enid,ID,Description,Datanose link,Enabled
-  Test project,0,10101,This is a test project,https://datanose.nl/project/test,1
-  UvA Project,0,20202,You will be doing research at the UvA,https://datanose.nl/project/UvAResearch,1
-  `,
-  csvUpdate: `
-  Name,enid,ID,Description,Datanose link,Enabled
-  Test,0,10101,It will be cool,https://datanose.nl/project/testing,1
-  UvA,0,20202,You will be doing cool stuf at the UvA,https://datanose.nl/project/UvAResearching,1
-  `,
-  csvUpdateEnid: `
-  Name,enid,ID,Description,Datanose link,Enabled
-  Test,1,10101,It will be cool,https://datanose.nl/project/testing,1
-  UvA,1,20202,You will be doing cool stuf at the UvA,https://datanose.nl/project/UvAResearching,1
-  `,
-  csvDelete: `
-  Name,enid,ID,Description,Datanose link,Enabled
-  Test project,0,10101,This is a test project,https://datanose.nl/project/test,0
-  UvA Project,0,20202,You will be doing research at the UvA,https://datanose.nl/project/UvAResearch,0
-  `,
-  csvInvalidFields: `
-  Name,enid,ID,Description,Datanose link
-  Test project,0,10101,This is a test project,https://datanose.nl/project/test
-  UvA Project,0,20202,You will be doing research at the UvA,https://datanose.nl/project/UvAResearch
-  `,
-  csvInvalidEnid: `
-  Name,enid,ID,Description,Datanose link,Enabled
-  Test project,12344321,10101,This is a test project,https://datanose.nl/project/test,1
-  UvA Project,12344321,20202,You will be doing research at the UvA,https://datanose.nl/project/UvAResearch,1
-  `,
-  data: [
-    { name: 'Test project', enid: db.entities[0].enid ,external_id: 10101, description: 'This is a test project', datanoseLink: 'https://datanose.nl/project/test'},
-    { name: 'UvA Project', enid: db.entities[0].enid ,external_id: 20202, description: 'You will be doing research at the UvA', datanoseLink: 'https://datanose.nl/project/UvAResearch'},
+  base: [
+    {
+      ID: 10101,
+      entityID: 0,
+      name: 'Test Project',
+      description: 'This is a test project',
+      datanoseLink: 'https://datanose.nl/project/test',
+      enabled: true,
+    },
+    {
+      ID: 20202,
+      entityID: 0,
+      name: 'UvA Project',
+      description: 'You will be doing reserach at the UvA',
+      datanoseLink: 'https://datanose.nl/project/UvAResearch',
+      enabled: true,
+    },
   ],
-  updatedData: [
-    { name: 'Test', enid: db.entities[0].enid ,external_id: 10101, description: 'It will be cool', datanoseLink: 'https://datanose.nl/project/testing'},
-    { name: 'UvA', enid: db.entities[0].enid ,external_id: 20202, description: 'You will be doing cool stuf at the UvA', datanoseLink: 'https://datanose.nl/project/UvAResearching'},
+  update: [
+    {
+      ID: 10101,
+      entityID: 0,
+      name: 'Test',
+      description: 'It will be cool',
+      datanoseLink: 'https://datanose.nl/project/test',
+      enabled: true,
+    },
+    {
+      ID: 20202,
+      entityID: 0,
+      name: 'UvA',
+      description: 'You will be doing cool stuf at the UvA',
+      datanoseLink: 'https://datanose.nl/project/UvAResearch',
+      enabled: true,
+    },
+  ],
+  updateEnid: [
+    {
+      ID: 10101,
+      entityID: 1,
+      name: 'Test Project',
+      description: 'This is a test project',
+      datanoseLink: 'https://datanose.nl/project/test',
+      enabled: true,
+    },
+    {
+      ID: 20202,
+      entityID: 1,
+      name: 'UvA Project',
+      description: 'You will be doing reserach at the UvA',
+      datanoseLink: 'https://datanose.nl/project/UvAResearch',
+      enabled: true,
+    },
+  ],
+  delete: [
+    {
+      ID: 10101,
+      entityID: 0,
+      name: 'Test Project',
+      description: 'This is a test project',
+      datanoseLink: 'https://datanose.nl/project/test',
+      enabled: false,
+    },
+    {
+      ID: 20202,
+      entityID: 0,
+      name: 'UvA Project',
+      description: 'You will be doing reserach at the UvA',
+      datanoseLink: 'https://datanose.nl/project/UvAResearch',
+      enabled: false,
+    },
+  ],
+  invalidEnid: [
+    {
+      ID: 10101,
+      entityID: 12344321,
+      name: 'Test Project',
+      description: 'This is a test project',
+      datanoseLink: 'https://datanose.nl/project/test',
+      enabled: true,
+    },
+    {
+      ID: 20202,
+      entityID: 12344321,
+      name: 'UvA Project',
+      description: 'You will be doing reserach at the UvA',
+      datanoseLink: 'https://datanose.nl/project/UvAResearch',
+      enabled: true,
+    },
   ],
 });
 
@@ -183,17 +235,17 @@ describe('project', () => {
 
     it('mutation project.import should import projects', async () => {
       const project_import = gen_project_import();
-      const res = await api.project.import(project_import.csv, db.events[0].evid).exec();
+      const res = await api.project.import(project_import.base, db.events[0].evid).exec();
 
-      for (let i = 0; i < project_import.data; i++) {
+      for (let i = 0; i < project_import.base; i++) {
         const actual = res[i];
-        const expected = project_import.data[i];
+        const expected = project_import.base[i];
 
         expect(actual.error).to.be.null;
         expect(actual.project.evid).to.equal(db.events[0].evid);
+        expect(actual.project.enid).to.equal(db.entities[0].enid);
         expect(actual.project.name).to.equal(expected.name);
-        expect(actual.project.enid).to.equal(expected.enid);
-        expect(actual.project.external_id).to.equal(expected.external_id);
+        expect(actual.project.external_id).to.equal(expected.ID);
         expect(actual.project.description).to.equal(expected.description);
         expect(actual.project.datanoseLink).to.equal(expected.datanoseLink);
       }
@@ -201,12 +253,12 @@ describe('project', () => {
 
     it('mutation project.import should check if evid exists when creating', async () => {
       const project_import = gen_project_import();
-      await fail(api.project.import(project_import.csv, '63061b54a3bd020d16952b11').exec);
+      await fail(api.project.import(project_import.base, '63061b54a3bd020d16952b11').exec);
     });
 
     it('mutation project.import should check if enid exists when creating', async () => {
       const project_import = gen_project_import();
-      const res = await api.project.import(project_import.csvInvalidEnid, db.events[0].evid).exec();
+      const res = await api.project.import(project_import.invalidEnid, db.events[0].evid).exec();
       for (const item of res) {
         expect(item.project).to.be.null;
         expect(item.error).to.be.string;
@@ -216,18 +268,18 @@ describe('project', () => {
 
     it('mutation project.import should update existing projects', async () => {
       const project_import = gen_project_import();
-      await api.project.import(project_import.csv, db.events[0].evid).exec();
-      const res = await api.project.import(project_import.csvUpdate, db.events[0].evid).exec();
+      await api.project.import(project_import.base, db.events[0].evid).exec();
+      const res = await api.project.import(project_import.update, db.events[0].evid).exec();
 
-      for (let i = 0; i < project_import.updatedData; i++) {
+      for (let i = 0; i < project_import.base; i++) {
         const actual = res[i];
-        const expected = project_import.updatedData[i];
+        const expected = project_import.update[i];
 
         expect(actual.error).to.be.null;
         expect(actual.project.evid).to.equal(db.events[0].evid);
+        expect(actual.project.enid).to.equal(db.entities[0].enid);
         expect(actual.project.name).to.equal(expected.name);
-        expect(actual.project.enid).to.equal(expected.enid);
-        expect(actual.project.external_id).to.equal(expected.external_id);
+        expect(actual.project.external_id).to.equal(expected.ID);
         expect(actual.project.description).to.equal(expected.description);
         expect(actual.project.datanoseLink).to.equal(expected.datanoseLink);
       }
@@ -235,9 +287,9 @@ describe('project', () => {
 
     it('mutation project.import should delete projects', async () => {
       const project_import = gen_project_import();
-      await api.project.import(project_import.csv, db.events[0].evid).exec();
+      await api.project.import(project_import.base, db.events[0].evid).exec();
 
-      const res = await api.project.import(project_import.csvDelete, db.events[0].evid).exec();
+      const res = await api.project.import(project_import.delete, db.events[0].evid).exec();
       for (const item of res) {
         expect(item.project).to.be.null;
         expect(item.error).to.be.null;
@@ -246,24 +298,19 @@ describe('project', () => {
 
     it('mutation project.import should handle double delete properly', async () => {
       const project_import = gen_project_import();
-      await api.project.import(project_import.csv, db.events[0].evid).exec();
+      await api.project.import(project_import.base, db.events[0].evid).exec();
 
-      let res = await api.project.import(project_import.csvDelete, db.events[0].evid).exec();
+      let res = await api.project.import(project_import.delete, db.events[0].evid).exec();
       for (const item of res) {
         expect(item.project).to.be.null;
         expect(item.error).to.be.null;
       }
 
-      res = await api.project.import(project_import.csvDelete, db.events[0].evid).exec();
+      res = await api.project.import(project_import.delete, db.events[0].evid).exec();
       for (const item of res) {
         expect(item.project).to.be.null;
         expect(item.error).to.be.null;
       }
-    });
-
-    it('mutation project.import should check for required fields', async () => {
-      const project_import = gen_project_import();
-      await fail(api.project.import(project_import.csvInvalidFields, db.events[0].evid).exec);
     });
   });
 

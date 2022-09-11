@@ -1,11 +1,9 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
-import { parse as csvParser } from 'csv-parse';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Project } from './database.js';
-import config from './config.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -208,7 +206,7 @@ schemaComposer.Mutation.addNestedFields({
   'project.import': {
     type: '[ProjectImportResult!]!',
     args: {
-      file: 'String!',
+      projects: '[ProjectImport!]!',
       evid: 'ID!',
     },
     description: JSON.stringify({
@@ -223,76 +221,51 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('Event does not exist!');
       }
 
-      return new Promise((resolve, reject) => {
-        csvParser(args.file.trim(), { columns: true }, (err, records, info) => {
-          if (err) { reject(err); return; }
+      return Promise.all(
+        args.projects.map(async ({ ID: external_id, entityID: external_enid, name, description, datanoseLink, enabled }) => {
+          const project = await Project.findOne({ external_id: external_id });
+          if (project) {
+            if (enabled) { // Update project
+              if (name)
+                project.name = name;
+              if (description)
+                project.description = description;
+              if (datanoseLink)
+                project.datanoseLink = datanoseLink;
 
-          if (records.length === 0) {
-            reject(new Error('No row provided to import'));
-            return;
+              await project.save();
+              return {
+                object: project,
+              };
+            }
+
+            // Delete project
+            await Project.deleteOne({ external_id: external_id });
+            return {};
           }
 
-          if (!Object.values(config.fields).every((key) => key in records[0])) {
-            reject(new Error('Not all required fields supplied! Required fields are: ' + Object.values(config.fields).join(',')));
-            return;
+          if (!enabled) { // Project already deleted
+            return {};
           }
 
-          resolve(
-            Promise.all(
-              records.map(async (record) => {
-                const name = record[config.fields.name].trim();
-                const description = record[config.fields.description].trim();
-                const datanoseLink = record[config.fields.datanoseLink].trim();
-                const external_enid = record[config.fields.external_enid].trim();
-                const enabled = record[config.fields.enabled].trim() !== '0';
-                const external_id = record[config.fields.external_id];
+          const enid = await getEnid(external_enid);
+          if (!enid) {
+            return { error: `Entity with ID ${external_enid} could not be found!` };
+          }
 
-                const project = await Project.findOne({ external_id: external_id });
-                if (project) {
-                  if (enabled) { // Update project
-                    if (name)
-                      project.name = name;
-                    if (description)
-                      project.description = description;
-                    if (datanoseLink)
-                      project.datanoseLink = datanoseLink;
-
-                    await project.save();
-                    return {
-                      object: project,
-                    };
-                  }
-
-                  // Delete project
-                  await Project.deleteOne({ external_id: external_id });
-                  return {};
-                }
-
-                if (!enabled) { // Project already deleted
-                  return {};
-                }
-
-                const enid = await getEnid(external_enid);
-                if (!enid) {
-                  return { error: `Entity with ID ${external_enid} could not be found!` };
-                }
-
-                // Create project
-                return {
-                  project: await Project.create({
-                    evid: args.evid,
-                    enid,
-                    name: name,
-                    description,
-                    datanoseLink,
-                    external_id,
-                  }),
-                }
-              })
-            )
-          );
-        });
-      });
+          // Create project
+          return {
+            project: await Project.create({
+              evid: args.evid,
+              enid,
+              name: name,
+              description,
+              datanoseLink,
+              external_id,
+            }),
+          }
+        })
+      )
     }
   }
 });

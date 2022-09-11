@@ -758,14 +758,14 @@ export default (url) => {
               enid: { value: enid, type: 'ID!' },
             }
           }),
-        import: (file, evid, projection) =>
+        import: (projects, evid, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'importProject',
             functionPath: 'project.import',
             body: bodies.ProjectImportResult(projection),
             args: {
-              file: { value: file, type: 'String!' },
+              projects: { value: projects, type: '[ProjectImport!]' },
               evid: { value: evid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
