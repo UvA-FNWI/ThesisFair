@@ -19,6 +19,7 @@ input EntityImport {
   name: String!
   admins: [AdminAccount!]
   enabled: Boolean!
+  representatives: Int
 }
 
 type Entity {
@@ -28,6 +29,7 @@ type Entity {
     type: String!
     contact: [EntityContactInfo!]
     external_id: Int
+    representatives: Int
 }
 
 type EntityImportResult {

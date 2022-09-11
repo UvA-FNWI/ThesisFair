@@ -9,6 +9,7 @@ const entity_import = {
     {
       ID: 10101,
       name: 'UvA',
+      representatives: 4,
       admins: [
         {
           firstname: 'Quinten',
@@ -26,6 +27,7 @@ const entity_import = {
     {
       ID: 20202,
       name: 'ASML',
+      representatives: 5,
       admins: [
         {
           firstname: 'Lucas',
@@ -45,6 +47,7 @@ const entity_import = {
     {
       ID: 10101,
       name: 'UvA Master of Software Engineering',
+      representatives: 5,
       admins: [
         {
           firstname: 'Quinten',
@@ -62,6 +65,7 @@ const entity_import = {
     {
       ID: 20202,
       name: 'ASML',
+      representatives: 6,
       admins: [
         {
           firstname: 'Lucas',
@@ -82,6 +86,7 @@ const entity_import = {
     {
       ID: 10101,
       name: 'UvA',
+      representatives: 4,
       admins: [
         {
           firstname: 'Quinten',
@@ -99,6 +104,7 @@ const entity_import = {
     {
       ID: 20202,
       name: 'ASML',
+      representatives: 4,
       admins: [
         {
           firstname: 'Lucas',
@@ -186,6 +192,7 @@ describe('Entity', () => {
         type: 'company',
         contact: [{ type: 'website', content: 'qrcsoftware.nl' }, { type: 'phonenumber', content: '06 12345678' }],
         external_id: 100,
+        representatives: 2,
       }
 
       const res = await api.entity.create(entity).exec();
@@ -236,6 +243,7 @@ describe('Entity', () => {
 
       expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.base.map((e) => e.name));
       expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.base.map((e) => e.ID));
+      expect(res.map((e) => e.entity.representatives)).to.deep.equal(entity_import.base.map((e) => e.representatives));
 
       const userCountAfter = (await models.User.find()).length;
 
@@ -248,6 +256,7 @@ describe('Entity', () => {
       const res = await api.entity.import(entity_import.update).exec();
       expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.update.map((e) => e.name));
       expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.update.map((e) => e.ID));
+      expect(res.map((e) => e.entity.representatives)).to.deep.equal(entity_import.update.map((e) => e.representatives));
     });
 
     it('mutation entity.import should conditonally delete entities and users', async () => {

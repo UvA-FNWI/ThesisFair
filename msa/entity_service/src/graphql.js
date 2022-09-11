@@ -61,6 +61,7 @@ schemaComposer.Mutation.addNestedFields({
       type: 'String!',
       contact: '[EntityContactInfoIn!]',
       external_id: 'Int',
+      representatives: 'Int',
     },
     description: JSON.stringify({
       caching: { type: 'entity', key: 'enid', create: true },
@@ -82,6 +83,7 @@ schemaComposer.Mutation.addNestedFields({
       type: 'String',
       contact: '[EntityContactInfoIn!]',
       external_id: 'Int',
+      representatives: 'Int',
     },
     description: JSON.stringify({
       caching: { type: 'entity', key: 'enid', update: true },
@@ -145,12 +147,14 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       return Promise.all(
-        args.entities.map(async ({ ID: external_id, name, admins, enabled }) => {
+        args.entities.map(async ({ ID: external_id, name, admins, enabled, representatives }) => {
           let entity = await Entity.findOne({ external_id: external_id });
           if (entity) {
             if (enabled) { // Entity already created.
               if (name)
                 entity.name = name;
+              if (representatives)
+                entity.representatives = representatives;
               await entity.save();
               return { entity };
             }
@@ -174,6 +178,7 @@ schemaComposer.Mutation.addNestedFields({
           entity = await Entity.create({
             name: name,
             external_id,
+            representatives,
             type: 'company',
           });
 

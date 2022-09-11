@@ -24,6 +24,7 @@ const configs = {
         type: 'company',
         contact: [{ type: 'website', content: 'qrcsoftware.nl/1' }, { type: 'email', content: 'info.1@uva.nl' }, { type: 'phonenumber', content: '06 12345671' }],
         external_id: 0,
+        representatives: 2,
       },
       {
         name: 'New name 2',
@@ -31,6 +32,7 @@ const configs = {
         type: 'research',
         contact: [{ type: 'website', content: 'qrcsoftware.nl/2' }, { type: 'email', content: 'info.2@uva.nl' }, { type: 'phonenumber', content: '06 12345672' }],
         external_id: 1,
+        representatives: 2,
       }
     ],
   },

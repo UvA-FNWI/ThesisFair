@@ -115,6 +115,7 @@ Example internal server error response:
 The EntityImport type has the following fields:
 - `ID` - A unique numeric identifier from the system that is sending the data
 - `name` - The name of the organisation
+- `representatives` - The number of representatives from this organisation, filled in by the event managers.
 - `admins` - Array of `AdminAccount` objects which have the keys `firstname`, `lastname` and `email`.
 - `enabled` - When false the organisation will be deleted, otherwise it will be upserted.
 
@@ -125,6 +126,7 @@ Example Payload:
   {
     "ID": 10101,
     "name": "UvA",
+    "representatives": 2,
     "admins": [
       {
         "firstname": "Quinten",
@@ -142,6 +144,7 @@ Example Payload:
   {
     "ID": 20202,
     "name": "ASML",
+    "representatives": 2,
     "admins": [
       {
         "firstname": "Lucas",
