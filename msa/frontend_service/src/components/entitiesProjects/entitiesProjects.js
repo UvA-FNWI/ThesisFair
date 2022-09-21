@@ -15,8 +15,10 @@ class EntitiesProjects extends React.Component {
   }
 
   async componentDidMount() {
-    const user = await api.user.get(api.getApiTokenData().uid, { share: true }).exec();
-    this.setState({ sharedEntities: user.share });
+    if (this.props.shareControls) {
+      const user = await api.user.get(api.getApiTokenData().uid, { share: true }).exec();
+      this.setState({ sharedEntities: user.share });
+    }
   }
 
   renderProjectModal = () => {
@@ -102,7 +104,7 @@ class EntitiesProjects extends React.Component {
                 <Accordion.Header>
                   {entity.name}
 
-                  { !this.props.readOnly ?
+                  { this.props.shareControls ?
                     <div className='flex-grow-1 d-flex justify-content-end me-4'>
                       <Form.Check
                         type='checkbox'

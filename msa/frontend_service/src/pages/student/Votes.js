@@ -39,7 +39,7 @@ class Votes extends React.Component {
         <div className='mb-4'>
           <h1>Organisations You Voted For</h1>
         </div>
-        <EntitiesProjects entities={this.state.entities} projects={this.state.projects} ref={this.entitiesProjects} readOnly />
+        <EntitiesProjects entities={this.state.entities} projects={this.state.projects} ref={this.entitiesProjects} />
       </Container>
     );
   }

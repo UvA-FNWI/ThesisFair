@@ -36,7 +36,7 @@ class Organisations extends React.Component {
           <h1>Organisations</h1>
           <Button onClick={() => this.entitiesProjects.current.shareAll()}>Give all companies access</Button>
         </div>
-        <EntitiesProjects entities={this.state.entities} projects={this.state.projects} ref={this.entitiesProjects} />
+        <EntitiesProjects entities={this.state.entities} projects={this.state.projects} shareControls ref={this.entitiesProjects} />
       </Container>
     );
   }
