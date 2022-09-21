@@ -10,6 +10,10 @@ import EventPicker from './pages/EventPicker';
 import Page from './pages/Page';
 import EventPage from './pages/EventPage';
 
+import Event from './pages/admin/Event';
+import Events from './pages/admin/Events';
+import AdminAccount from './pages/admin/AdminAccount';
+
 import StudentAccount from './pages/student/StudentAccount';
 import Organisations from './pages/student/Organisations';
 import Votes from './pages/student/Votes';
@@ -71,7 +75,13 @@ class App extends React.Component {
   }
 
   adminRoutes() {
-    return [];
+    return (
+      <>
+        <Route path='account' element={<Page page={<AdminAccount />} />} />
+        <Route path='event/:evid' element={<Page page={<Event />} />} />
+        <Route path='' element={<Page page={<Events />} />} />
+      </>
+    );
   }
 
   studentRoutes() {
@@ -115,8 +125,7 @@ class App extends React.Component {
     let routes;
     switch (tokenData.type) {
       case 'a': // Admin
-        routes = this.adminRoutes();
-        break;
+        return this.adminRoutes();
       case 's': // Student
         routes = this.studentRoutes();
         break;
