@@ -31,39 +31,52 @@ function CustomNavbar(props) {
       <Link className='logo' to={`/${params.evid}/`}>
         <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
       </Link>
-      <Nav.Item>
-        <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
-      </Nav.Item>
-      { type === 's' ?
-      <>
-        <Nav.Item>
-          <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
-        </Nav.Item>
-        <Nav.Item>
-            <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
-        </Nav.Item>
-      </>
-      : null }
-
-      { type === 'r' ?
+      {type === 'a' ?
         <>
-          { api.getApiTokenData().repAdmin === true ?
-            <Nav.Item>
-              <Link to={`/${params.evid}/organisation`}><img src={organisationsIcon} alt='' /><span>Organisation</span></Link>
-            </Nav.Item>
-            : null
-           }
+          <Nav.Item>
+            <Link to={`/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link to={`/`}><img src={eventIcon} alt='' /><span>Events</span></Link>
+          </Nav.Item>
+        </>
+        : null}
+      {type === 's' ?
+        <>
+          <Nav.Item>
+            <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
+          </Nav.Item>
           <Nav.Item>
             <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
           </Nav.Item>
           <Nav.Item>
-              <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
+            <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
+          </Nav.Item>
+        </>
+        : null}
+
+      {type === 'r' ?
+        <>
+          <Nav.Item>
+            <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
+          </Nav.Item>
+          {api.getApiTokenData().repAdmin === true ?
+            <Nav.Item>
+              <Link to={`/${params.evid}/organisation`}><img src={organisationsIcon} alt='' /><span>Organisation</span></Link>
+            </Nav.Item>
+            : null
+          }
+          <Nav.Item>
+            <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
           </Nav.Item>
           <Nav.Item>
             <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>
