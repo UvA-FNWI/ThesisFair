@@ -326,6 +326,29 @@ Password: ${password}
       return Representative.findByIdAndUpdate(uid, { $set: args }, { new: true });
     },
   },
+  'user.admin.update': {
+    type: 'User',
+    args: {
+      uid: 'ID!',
+      email: 'String',
+      password: 'String'
+    },
+    description: {},
+    resolve: async (obj, args, req) => {
+      const uid = args.uid;
+      delete args.uid;
+
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED update admin');
+      }
+
+      if (args.password) {
+        args.password = await hash(args.password);
+      }
+
+      return User.findByIdAndUpdate(uid, { $set: args }, { new: true });
+    }
+  },
   'user.student.update': {
     type: 'Student',
     args: {
