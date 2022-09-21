@@ -346,6 +346,22 @@ export default (url) => {
           });
         },
 
+        admin: {
+          update: (admin, projection) =>
+            genGraphQLBuilder({
+              type: 'mutation',
+              name: 'updateAdministrator',
+              functionPath: 'user.admin.update',
+              body: bodies.User(projection),
+              args: {
+                uid: { value: admin.uid, type: 'ID!' },
+                email: { value: admin.email, type: 'String' },
+                password: { value: admin.password, type: 'String' },
+              },
+              cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
+            }),
+        },
+
         representative: {
           /**
            * @param {Object} representative
