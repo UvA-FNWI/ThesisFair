@@ -34,6 +34,10 @@ class LoginPage extends React.Component {
           </div>
           <Col xs={12} md={5} lg={4}>
             <img width='100%' src='/images/en-informatics-institute.jpg' alt='' />
+            <a href="/sso/login" className='d-flex justify-content-center pt-2'>
+              <Button>UvA student and employee login</Button>
+            </a>
+            <div className='w-100 text-center pt-2 pb-2'>OR</div>
             <Form onSubmit={this.submit}>
               <Form.Group className='mb-3'>
                 <Form.Label>Email address</Form.Label>
