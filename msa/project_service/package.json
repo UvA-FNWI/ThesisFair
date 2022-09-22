@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "DEBUG=API_gateway:* DEBUG_COLORS=true nodemon ./src/index.js",
+    "start": "DEBUG=project_service:* DEBUG_COLORS=true nodemon ./src/index.js",
     "production": "node ./src/index.js"
   },
   "author": "Quinten Coltof",
