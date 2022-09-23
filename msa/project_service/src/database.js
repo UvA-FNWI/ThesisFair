@@ -6,7 +6,7 @@ let conn;
 
 const projectSchema = new mongoose.Schema({
   enid: { type: mongoose.Schema.ObjectId, required: true },
-  evid: { type: mongoose.Schema.ObjectId, required: true },
+  evids: [{ type: mongoose.Schema.ObjectId }],
   name: { type: String },
   description: { type: String },
   datanoseLink: { type: String },

@@ -1,0 +1,7 @@
+
+type Schedule {
+    uid: ID!
+    enid: ID!
+    pid: ID!
+    slot: String
+}

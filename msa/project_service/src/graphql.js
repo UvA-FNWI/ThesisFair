@@ -36,6 +36,21 @@ const enidExists = async (enid) => {
   return true;
 }
 
+const getEvid = async (external_id) => {
+  const res = await rgraphql('api-event', 'query getEvid($external_id: ID!) { eventByExtID(external_id: $external_id) { evid } }', { external_id });
+
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the evid is valid');
+  }
+
+  if (!res.data.eventByExtID) {
+    return false;
+  }
+
+  return res.data.eventByExtID.evid;
+};
+
 const getEnid = async (external_id) => {
   const res = await rgraphql('api-entity', 'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
   if (res.errors || !res.data) {
@@ -90,7 +105,7 @@ schemaComposer.Query.addNestedFields({
     description: JSON.stringify({
       caching: { type: 'project', key: 'pid', multiple: true }
     }),
-    resolve: (obj, args) => Project.find({ evid: args.evid, enid: args.enid }),
+    resolve: (obj, args) => Project.find({ enid: args.enid, evids: args.evid }),
   },
   projectsOfEvent: {
     type: '[Project!]',
@@ -100,76 +115,76 @@ schemaComposer.Query.addNestedFields({
     description: JSON.stringify({
       caching: { type: 'project', key: 'pid', multiple: true }
     }),
-    resolve: (obj, args) => Project.find({ evid: args.evid }),
+    resolve: (obj, args) => Project.find({ evids: args.evid }),
   },
 });
 
 schemaComposer.Mutation.addNestedFields({
-  'project.create': {
-    type: 'Project',
-    args: {
-      enid: 'ID!',
-      evid: 'ID!',
-      name: 'String!',
-      description: 'String',
-      datanoseLink: 'String',
-      external_id: 'Int!',
-    },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', create: true }
-    }),
-    resolve: async (obj, args, req) => {
-      if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED create project');
-      }
+  // 'project.create': {
+  //   type: 'Project',
+  //   args: {
+  //     enid: 'ID!',
+  //     evid: 'ID!',
+  //     name: 'String!',
+  //     description: 'String',
+  //     datanoseLink: 'String',
+  //     external_id: 'Int!',
+  //   },
+  //   description: JSON.stringify({
+  //     caching: { type: 'project', key: 'pid', create: true }
+  //   }),
+  //   resolve: async (obj, args, req) => {
+  //     if (req.user.type !== 'a') {
+  //       throw new Error('UNAUTHORIZED create project');
+  //     }
 
-      const res = await Promise.all([
-        evidExists(args.evid),
-        enidExists(args.enid),
-      ]);
+  //     const res = await Promise.all([
+  //       evidExists(args.evid),
+  //       enidExists(args.enid),
+  //     ]);
 
-      if (!res[0]) {
-        throw new Error('The given evid does not exist');
-      }
+  //     if (!res[0]) {
+  //       throw new Error('The given evid does not exist');
+  //     }
 
-      if (!res[1]) {
-        throw new Error('The given enid does not exist');
-      }
+  //     if (!res[1]) {
+  //       throw new Error('The given enid does not exist');
+  //     }
 
-      return Project.create(args);
-    }
-  },
-  'project.update': {
-    type: 'Project',
-    args: {
-      pid: 'ID!',
-      enid: 'ID',
-      evid: 'ID',
-      name: 'String',
-      description: 'String',
-      datanoseLink: 'String',
-    },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', update: true }
-    }),
-    resolve: async (obj, args, req) => {
-      if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED update project');
-      }
+  //     return Project.create(args);
+  //   }
+  // },
+  // 'project.update': {
+  //   type: 'Project',
+  //   args: {
+  //     pid: 'ID!',
+  //     enid: 'ID',
+  //     evid: 'ID',
+  //     name: 'String',
+  //     description: 'String',
+  //     datanoseLink: 'String',
+  //   },
+  //   description: JSON.stringify({
+  //     caching: { type: 'project', key: 'pid', update: true }
+  //   }),
+  //   resolve: async (obj, args, req) => {
+  //     if (req.user.type !== 'a') {
+  //       throw new Error('UNAUTHORIZED update project');
+  //     }
 
-      if (args.evid && !(await evidExists(args.evid))) {
-        throw new Error('The given evid does not exist');
-      }
+  //     if (args.evid && !(await evidExists(args.evid))) {
+  //       throw new Error('The given evid does not exist');
+  //     }
 
-      if (args.enid && !(await enidExists(args.enid))) {
-        throw new Error('The given enid does not exist');
-      }
+  //     if (args.enid && !(await enidExists(args.enid))) {
+  //       throw new Error('The given enid does not exist');
+  //     }
 
-      const pid = args.pid;
-      delete args.pid;
-      return Project.findByIdAndUpdate(pid, { $set: args }, { new: true });
-    },
-  },
+  //     const pid = args.pid;
+  //     delete args.pid;
+  //     return Project.findByIdAndUpdate(pid, { $set: args }, { new: true });
+  //   },
+  // },
   'project.delete': {
     type: 'Project',
     args: {
@@ -207,7 +222,6 @@ schemaComposer.Mutation.addNestedFields({
     type: '[ProjectImportResult!]!',
     args: {
       projects: '[ProjectImport!]!',
-      evid: 'ID!',
     },
     description: JSON.stringify({
       caching: { type: 'project', key: 'pid', multiple: true }
@@ -217,12 +231,15 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED import projects');
       }
 
-      if (!(await evidExists(args.evid))) {
-        throw new Error('Event does not exist!');
-      }
-
       return Promise.all(
-        args.projects.map(async ({ ID: external_id, entityID: external_enid, name, description, datanoseLink, enabled }) => {
+        args.projects.map(async ({ ID: external_id, entityID: external_enid, name, description, datanoseLink, enabled, evids: external_evids }) => {
+          const evids = external_evids ? await Promise.all(external_evids.map(getEvid)) : [];
+          for (const evid of evids) {
+            if (!evid) {
+              return { error: `Event with ID "${evid}" could not be found!.` };
+            }
+          }
+
           const project = await Project.findOne({ external_id: external_id });
           if (project) {
             if (enabled) { // Update project
@@ -232,6 +249,8 @@ schemaComposer.Mutation.addNestedFields({
                 project.description = description;
               if (datanoseLink)
                 project.datanoseLink = datanoseLink;
+              if (evids)
+                project.evids = evids;
 
               await project.save();
               return {
@@ -256,7 +275,7 @@ schemaComposer.Mutation.addNestedFields({
           // Create project
           return {
             project: await Project.create({
-              evid: args.evid,
+              evids,
               enid,
               name: name,
               description,

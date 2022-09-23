@@ -1,6 +1,7 @@
 input ProjectImport {
   ID: ID!
   entityID: ID!
+  evids: [ID!]
   name: String!
   description: String
   datanoseLink: String
@@ -10,7 +11,7 @@ input ProjectImport {
 type Project {
   pid: ID!
   enid: ID!
-  evid: ID!
+  evids: [ID!]
   name: String!
   description: String
   datanoseLink: String
