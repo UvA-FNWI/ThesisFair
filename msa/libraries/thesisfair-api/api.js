@@ -120,9 +120,10 @@ const fields = {
   Representative: ['enid', 'repAdmin'],
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id', 'representatives'],
   EntityImportResult: ['error', 'entity.enid', 'entity.name', 'entity.description', 'entity.type', 'entity.contact.type', 'entity.contact.content', 'entity.external_id', 'entity.representatives'],
-  Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities'],
-  Project: ['pid', 'enid', 'evid', 'name', 'description', 'datanoseLink', 'external_id'],
-  ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evid', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
+  Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities', 'external_id'],
+  EventImportResult: ['error', 'event.evid', 'event.enabled', 'event.name', 'event.description', 'event.start', 'event.location', 'event.studentSubmitDeadline', 'event.entities', 'event.external_id'],
+  Project: ['pid', 'enid', 'evids', 'name', 'description', 'datanoseLink', 'external_id'],
+  ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evids', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
   StudentVote: ['uid', 'pid'],
   VoteImportResult: ['error'],
 }
@@ -147,6 +148,7 @@ const bodies = {
   Entity: (projection) => genBody(fields.Entity, projection),
   EntityImportResult: (projection) => genBody(fields.EntityImportResult, projection),
   Event: (projection) => genBody(fields.Event, projection),
+  EventImportResult: (projection) => genBody(fields.EventImportResult, projection),
   Project: (projection) => genBody(fields.Project, projection),
   ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
   StudentVote: (projection) => genBody(fields.StudentVote, projection),
@@ -612,6 +614,7 @@ export default (url) => {
               location: { value: event.location, type: 'String' },
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
+              external_id: { value: event.external_id, type: 'Int!' },
             },
             cache: caching ? { instance: cache, type: 'event', key: 'evid', create: true } : false,
           }),
@@ -630,6 +633,7 @@ export default (url) => {
               location: { value: event.location, type: 'String' },
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
+              external_id: { value: event.external_id, type: 'Int!' },
             },
             cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
           }),
@@ -653,6 +657,16 @@ export default (url) => {
               evid: { value: evid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'event', key: 'evid', delete: true } : false,
+          }),
+        import: (events, projection) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'importEvents',
+            functionPath: 'event.import',
+            body: bodies.EventImportResult(projection),
+            args: {
+              events: { value: events, type: '[EventImport!]!' }
+            }
           }),
         entity: {
           add: (evid, enid, projection) =>
@@ -776,7 +790,7 @@ export default (url) => {
               enid: { value: enid, type: 'ID!' },
             }
           }),
-        import: (projects, evid, projection) =>
+        import: (projects, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'importProject',
@@ -784,7 +798,6 @@ export default (url) => {
             body: bodies.ProjectImportResult(projection),
             args: {
               projects: { value: projects, type: '[ProjectImport!]!' },
-              evid: { value: evid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),

@@ -12,6 +12,7 @@ const eventSchema = new mongoose.Schema({
   location: { type: String },
   studentSubmitDeadline: { type: Date, retuired: true },
   entities: [{ type: mongoose.Schema.ObjectId }],
+  external_id: { type: Number, index: true, unique: true, required: true },
 });
 eventSchema.virtual('evid').get(function () { return this._id; }); // Create _id alias
 

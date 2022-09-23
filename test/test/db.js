@@ -42,6 +42,7 @@ const configs = {
     object: 'Event',
     get: (db) => [
       {
+        external_id: 1,
         enabled: true,
         name: 'New name 1 - event',
         description: 'New description 1 - event',
@@ -51,6 +52,7 @@ const configs = {
         entities: [db.entities[0].enid, db.entities[1].enid],
       },
       {
+        external_id: 2,
         enabled: false,
         name: 'New name 2 - event',
         description: 'New description 2 - event',
@@ -60,6 +62,7 @@ const configs = {
         entities: [db.entities[0].enid, db.entities[1].enid],
       },
       {
+        external_id: 3,
         enabled: true,
         name: 'New name 3 - event',
         description: 'New description 3 - event',
@@ -69,6 +72,7 @@ const configs = {
         entities: [db.entities[1].enid],
       },
       {
+        external_id: 4,
         enabled: true,
         name: 'New name 4 - event',
         description: 'New description 4 - event',
@@ -86,7 +90,7 @@ const configs = {
     get: (db) => [
       {
         enid: db.entities[0].enid,
-        evid: db.events[0].evid,
+        evids: [db.events[0].evid],
         name: 'New name1 - project',
         description: 'New description1',
         datanoseLink: 'https://datanose.nl/projects/newName1',
@@ -94,7 +98,7 @@ const configs = {
       },
       {
         enid: db.entities[0].enid,
-        evid: db.events[0].evid,
+        evids: [db.events[0].evid],
         name: 'New name 2 - project',
         description: 'New description 2',
         datanoseLink: 'https://datanose.nl/projects/newName2',
@@ -102,7 +106,7 @@ const configs = {
       },
       {
         enid: db.entities[1].enid,
-        evid: db.events[1].evid,
+        evids: [db.events[1].evid],
         name: 'Other company project - project',
         description: 'Belongs to another company',
         datanoseLink: 'https://datanose.nl/projects/newName3',

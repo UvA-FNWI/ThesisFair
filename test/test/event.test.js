@@ -6,6 +6,111 @@ import initDb, { init, disconnect, db } from './db.js';
 
 const nonExistingId = '6272838d6a373ac04510b798';
 
+const gen_event_import = () => ({
+  base: [
+    {
+      ID: 10101,
+      enabled: true,
+      name: 'First event',
+      description: 'First event description',
+      start: "1970-01-01T00:00:01.000Z",
+      location: 'UvA SP',
+      entities: [db.entities[0].external_id, db.entities[1].external_id],
+    },
+    {
+      ID: 20202,
+      enabled: true,
+      name: 'Second event',
+      description: 'Second event description',
+      start: "1970-01-01T00:00:02.000Z",
+      location: 'UvA RoetersEiland',
+      entities: [db.entities[0].external_id],
+    },
+  ],
+  update: [
+    {
+      ID: 10101,
+      enabled: true,
+      name: 'First event updated',
+      description: 'First event description updated',
+      start: "1970-01-01T00:01:01.000Z",
+      location: 'UvA SP new place',
+      entities: [db.entities[1].external_id],
+    },
+    {
+      ID: 20202,
+      enabled: true,
+      name: 'Second event updated',
+      description: 'Second event description updated',
+      start: "1970-01-01T00:01:02.000Z",
+      location: 'UvA RoetersEiland new place',
+      entities: [db.entities[0].external_id, db.entities[1].external_id],
+    },
+  ],
+  delete: [
+    {
+      ID: 10101,
+      enabled: false,
+      name: 'First event updated',
+      description: 'First event description updated',
+      start: "1970-01-01T00:01:01.000Z",
+      location: 'UvA SP new place',
+      entities: [db.entities[1].external_id],
+    },
+    {
+      ID: 20202,
+      enabled: false,
+      name: 'Second event updated',
+      description: 'Second event description updated',
+      start: "1970-01-01T00:01:02.000Z",
+      location: 'UvA RoetersEiland new place',
+      entities: [db.entities[0].external_id, db.entities[1].external_id],
+    },
+  ],
+  invalidEntity: [
+    {
+      ID: 10101,
+      enabled: true,
+      name: 'First event updated',
+      description: 'First event description updated',
+      start: "1970-01-01T00:01:01.000Z",
+      location: 'UvA SP new place',
+      entities: [10101],
+    },
+    {
+      ID: 20202,
+      enabled: true,
+      name: 'Second event updated',
+      description: 'Second event description updated',
+      start: "1970-01-01T00:01:02.000Z",
+      location: 'UvA RoetersEiland new place',
+      entities: [10101, 20202],
+    },
+  ],
+  expected: [
+    {
+      external_id: 10101,
+      enabled: true,
+      name: 'First event',
+      description: 'First event description',
+      start: "1970-01-01T00:00:01.000Z",
+      location: 'UvA SP',
+      entities: [db.entities[0].enid, db.entities[1].enid],
+      studentSubmitDeadline: null,
+    },
+    {
+      external_id: 20202,
+      enabled: true,
+      name: 'Second event',
+      description: 'Second event description',
+      start: "1970-01-01T00:00:02.000Z",
+      location: 'UvA RoetersEiland',
+      entities: [db.entities[0].enid],
+      studentSubmitDeadline: null,
+    },
+  ],
+});
+
 const checkPremissions = () => {
   it('should enforce permissions properly', async () => {
     expect(db.events[1].enabled).to.be.false;
@@ -68,7 +173,7 @@ describe('Event', () => {
     });
 
     it('mutation event.create should create an event', async () => {
-      const event = { ...db.events[0] };
+      const event = { ...db.events[0], external_id: 10101 };
       delete event.evid;
 
       const res = await api.event.create(event).exec();
@@ -77,7 +182,7 @@ describe('Event', () => {
     });
 
     it('mutation event.create should check if the entities exist', async () => {
-      const event = { ...db.events[0], entities: [nonExistingId] };
+      const event = { ...db.events[0], external_id: 10101, entities: [nonExistingId] };
       delete event.evid;
 
       await fail(api.event.create(event).exec);
@@ -87,6 +192,7 @@ describe('Event', () => {
       const eventUpdate = {
         ...db.events[1],
         evid: db.events[0].evid,
+        external_id: 10101,
       }
 
       const res = await api.event.update(eventUpdate).exec();
@@ -97,6 +203,7 @@ describe('Event', () => {
       const eventUpdate = {
         evid: db.events[0].evid,
         entities: [nonExistingId],
+        external_id: 10101,
       }
 
       await fail(api.event.update(eventUpdate).exec);
@@ -131,6 +238,39 @@ describe('Event', () => {
     it('mutation event.entity.del should del the entity', async () => {
       const res = await api.event.entity.del(db.events[0].evid, db.events[0].entities[0]).exec();
       expect(res.entities).not.to.include(db.events[0].entities[0]);
+    });
+
+    it('mutation event.import should import events', async () => {
+      const event_import = gen_event_import();
+      const res = await api.event.import(event_import.base).exec();
+
+      for (let i = 0; i < event_import.base.length; i++) {
+        const actual = res[i];
+        delete actual.event.evid;
+
+        expect(actual.error).to.be.null;
+        expect(actual.event).to.deep.equal(event_import.expected[i]);
+      }
+    });
+
+    it('mutation event.import should properly update events', async () => {
+      const event_import = gen_event_import();
+      await api.event.import(event_import.base).exec();
+      const res = await api.event.import(event_import.update).exec();
+
+      for (const result of res) {
+        expect(result.error).to.be.null;
+      }
+    });
+
+    it('mutation event.import should properly delete events', async () => {
+      const event_import = gen_event_import();
+      await api.event.import(event_import.base).exec();
+      const res = await api.event.import(event_import.delete).exec();
+
+      for (const result of res) {
+        expect(result.error).to.be.null;
+      }
     });
   });
 

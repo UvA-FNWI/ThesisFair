@@ -1,5 +1,16 @@
 scalar Date
 
+input EventImport {
+    ID: Int!
+    enabled: Boolean
+    name: String!
+    description: String
+    start: Date
+    location: String
+    entities: [ID!]
+}
+
+
 type Event {
     evid: ID!
     enabled: Boolean
@@ -8,5 +19,11 @@ type Event {
     start: Date
     location: String
     studentSubmitDeadline: Date
-    entities: [ID]
+    entities: [ID!]
+    external_id: Int!
+}
+
+type EventImportResult {
+  event: Event,
+  error: String,
 }

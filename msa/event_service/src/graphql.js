@@ -22,6 +22,20 @@ const checkEntitiesExist = async (entities) => {
   }
 }
 
+const getEnid = async (external_id) => {
+  const res = await rgraphql('api-entity', 'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the enid is valid');
+  }
+
+  if (!res.data.entityByExtID) {
+    return false;
+  }
+
+  return res.data.entityByExtID.enid;
+}
+
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
 schemaComposer.Query.addNestedFields({
@@ -36,6 +50,22 @@ schemaComposer.Query.addNestedFields({
     }),
     resolve: async (obj, args, req) => {
       const event = await Event.findById(args.evid);
+      if (!event) { return null; }
+      canGetEvent(req, args, event);
+      return event;
+    },
+  },
+  eventByExtID: {
+    type: 'Event',
+    args: {
+      external_id: 'ID!',
+    },
+    description: JSON.stringify({
+      permissionCheck: canGetEvent.toString(),
+      caching: { type: 'event', key: 'evid' }
+    }),
+    resolve: async (obj, args, req) => {
+      const event = await Event.findOne({ external_id: args.external_id });
       if (!event) { return null; }
       canGetEvent(req, args, event);
       return event;
@@ -94,7 +124,8 @@ schemaComposer.Mutation.addNestedFields({
       start: 'Date',
       location: 'String',
       studentSubmitDeadline: 'Date',
-      entities: '[ID!]'
+      entities: '[ID!]',
+      external_id: 'Int!',
     },
     description: JSON.stringify({
       caching: { type: 'event', key: 'evid', create: true }
@@ -121,7 +152,8 @@ schemaComposer.Mutation.addNestedFields({
       start: 'Date',
       location: 'String',
       studentSubmitDeadline: 'Date',
-      entities: '[ID!]'
+      entities: '[ID!]',
+      external_id: 'Int',
     },
     description: JSON.stringify({
       caching: { type: 'event', key: 'evid', update: true }
@@ -221,6 +253,71 @@ schemaComposer.Mutation.addNestedFields({
       return Event.findByIdAndUpdate(args.evid, { $pull: { entities: args.enid } }, { new: true });
     },
   },
+  'event.import': {
+    type: '[EventImportResult!]!',
+    args: {
+      events: '[EventImport!]!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: (obj, args, req) => {
+      if (!(req.user.type === 'a' || req.user.type === 'service')) {
+        throw new Error('UNAUTHORIZED import events');
+      }
+
+      return Promise.all(
+        args.events.map(async ({ ID: external_id, enabled, name, description, start, location, entities: external_enids }) => {
+          const entities = external_enids ? await Promise.all(external_enids.map(getEnid)) : null;
+          for (const enid of entities) {
+            if (!enid) {
+              return { error: `Entity with ID "${enid}" could not be found!.` };
+            }
+          }
+
+          const event = await Event.findOne({ external_id: external_id });
+          if (event) {
+            if (enabled) { // Update project
+              if (name)
+                event.name = name;
+              if (description)
+                event.description = description;
+              if (start)
+                event.start = start;
+              if (location)
+                event.location = location;
+              if (entities)
+                event.entities = entities;
+
+              await event.save();
+              return {
+                object: event,
+              };
+            }
+
+            // Delete project
+            await Event.deleteOne({ external_id: external_id });
+            return {};
+          }
+
+          if (!enabled) { // Project already deleted
+            return {};
+          }
+
+          return {
+            event: await Event.create({
+              enabled: true,
+              name,
+              description,
+              start,
+              location,
+              entities,
+              external_id,
+            })
+          }
+        })
+      )
+    },
+  }
 })
 
 if (!existsSync('./data')) {
