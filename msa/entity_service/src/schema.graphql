@@ -30,6 +30,7 @@ type Entity {
     contact: [EntityContactInfo!]
     external_id: Int
     representatives: Int
+    location: String
 }
 
 type EntityImportResult {

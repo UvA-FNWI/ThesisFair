@@ -14,6 +14,7 @@ const entitySchema = new mongoose.Schema({
   })],
   external_id: { type: Number, index: true, unique: true, required: true },
   representatives: { type: Number },
+  location: { type: String },
 });
 entitySchema.virtual('enid').get(function () { return this._id; }); // Create _id alias
 

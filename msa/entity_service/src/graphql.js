@@ -62,6 +62,7 @@ schemaComposer.Mutation.addNestedFields({
       contact: '[EntityContactInfoIn!]',
       external_id: 'Int',
       representatives: 'Int',
+      location: 'String',
     },
     description: JSON.stringify({
       caching: { type: 'entity', key: 'enid', create: true },
@@ -84,6 +85,7 @@ schemaComposer.Mutation.addNestedFields({
       contact: '[EntityContactInfoIn!]',
       external_id: 'Int',
       representatives: 'Int',
+      location: 'String',
     },
     description: JSON.stringify({
       caching: { type: 'entity', key: 'enid', update: true },
