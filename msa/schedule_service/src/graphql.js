@@ -102,11 +102,46 @@ schemaComposer.Query.addNestedFields({
       return Schedule.find({ evid: args.evid, enid: args.enid });
     },
   },
+  scheduleAdmin: {
+    type: '[Schedule!]!',
+    args: {
+      evid: 'ID!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (!(req.user.type === 'a')) {
+        throw new Error('UNAUTHORIZED to get the full schedule');
+      }
+
+      return Schedule.find({ evid: args.evid });
+    },
+  },
   // deleteOfEvent: { // TODO
   // }
 });
 
 schemaComposer.Mutation.addNestedFields({
+  'schedule.update': { // TODO: Auto test
+    type: 'Schedule',
+    args: {
+      sid: 'ID!',
+      uid: 'ID',
+      enid: 'ID',
+      slot: 'String',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED update schedule');
+      }
+      const sid = args.sid;
+      delete args.sid;
+
+      return Schedule.findByIdAndUpdate(sid, { $set: args }, { new: true });
+    },
+  },
   'schedule.generate': {
     type: 'String',
     args: {

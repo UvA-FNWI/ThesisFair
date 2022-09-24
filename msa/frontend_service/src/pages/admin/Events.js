@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Table, Button, Container } from 'react-bootstrap';
 import api from '../../api';
 
@@ -14,8 +14,7 @@ class Events extends React.Component {
   }
 
   async componentDidMount() {
-    const events = await api.event.getAll().exec();
-
+    const events = await api.event.getAll(true).exec();
     this.setState({ events });
   }
 
@@ -30,7 +29,8 @@ class Events extends React.Component {
         <td>{description}</td>
         <td>{new Date(start).toLocaleString('NL-nl')}</td>
         <td>{enabled ? 'Enabled' : 'Hidden'}</td>
-        <td><Link to={`event/${evid}`}><Button>More info</Button></Link></td>
+        <td><Link to={`event/${evid}/schedule`}><Button>Schedule</Button></Link></td>
+        <td><Link to={`event/${evid}/projects`}><Button>Projects</Button></Link></td>
       </tr>
     );
   }

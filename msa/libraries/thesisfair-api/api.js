@@ -126,7 +126,7 @@ const fields = {
   ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evids', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
   StudentVote: ['uid', 'pid'],
   VoteImportResult: ['error'],
-  Schedule: ['uid', 'enid', 'slot'],
+  Schedule: ['sid', 'uid', 'enid', 'slot'],
 }
 
 const bodies = {
@@ -854,6 +854,28 @@ export default (url) => {
             args: {
               evid: { value: evid, type: 'ID!' },
             },
+          }),
+        getAll: (evid, projection) =>
+          genGraphQLBuilder({
+            name: 'getFullSchedule',
+            functionPath: 'scheduleAdmin',
+            body: bodies.Schedule(projection),
+            args: {
+              evid: { value: evid, type: 'ID!' },
+            },
+          }),
+        update: (appointment, projection) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'updateAppointment',
+            functionPath: 'schedule.update',
+            body: bodies.Schedule(projection),
+            args: {
+              sid: { value: appointment.sid, type: 'ID!' },
+              uid: { value: appointment.uid, type: 'ID' },
+              enid: { value: appointment.enid, type: 'ID' },
+              slot: { value: appointment.slot, type: 'String' },
+            }
           }),
         representative: {
           get: (enid, evid, projection) =>

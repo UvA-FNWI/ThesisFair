@@ -10,7 +10,8 @@ import EventPicker from './pages/EventPicker';
 import Page from './pages/Page';
 import EventPage from './pages/EventPage';
 
-import Event from './pages/admin/Event';
+import EventSchedule from './pages/admin/EventSchedule';
+import EventProjects from './pages/admin/EventProjects';
 import Events from './pages/admin/Events';
 import AdminAccount from './pages/admin/AdminAccount';
 
@@ -79,7 +80,8 @@ class App extends React.Component {
     return (
       <>
         <Route path='account' element={<Page page={<AdminAccount />} />} />
-        <Route path='event/:evid' element={<Page page={<Event />} />} />
+        <Route path='event/:evid/schedule' element={<Page page={<EventSchedule />} />} />
+        <Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />
         <Route path='' element={<Page page={<Events />} />} />
       </>
     );

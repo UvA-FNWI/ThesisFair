@@ -5,7 +5,7 @@ import EntitiesProjects from '../../components/entitiesProjects/entitiesProjects
 import api from '../../api';
 
 
-class Events extends React.Component {
+class EventProjects extends React.Component {
   constructor(props) {
     super(props);
 
@@ -49,10 +49,10 @@ class Events extends React.Component {
   }
 }
 
-function EventsWithParams(props) {
+function EventProjectsWithParams(props) {
   const params = useParams();
 
-  return <Events {...props} params={params} />
+  return <EventProjects {...props} params={params} />
 }
 
-export default EventsWithParams;
+export default EventProjectsWithParams;
