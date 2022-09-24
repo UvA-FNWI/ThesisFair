@@ -81,6 +81,16 @@ const configs = {
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
         entities: [db.entities[1].enid],
       },
+      {
+        external_id: 5,
+        enabled: true,
+        name: 'New name 5 - event',
+        description: 'New description 5 - event',
+        start: '2022-04-27T22:05:00.000Z',
+        location: 'New location 5',
+        studentSubmitDeadline: '2022-04-30T22:05:00.000Z',
+        entities: [db.entities[0].enid, db.entities[1].enid],
+      },
     ],
   },
   projects: {
@@ -223,13 +233,13 @@ const configs = {
     get: (db) => [
       {
         uid: db.users[0].uid,
-        evid: db.events[1].evid,
+        evid: db.events[4].evid,
         enid: db.entities[0].enid,
         slot: 'Slot1',
       },
       {
         uid: db.users[0].uid,
-        evid: db.events[1].evid,
+        evid: db.events[4].evid,
         enid: db.entities[1].enid,
         slot: 'Slot2',
       },

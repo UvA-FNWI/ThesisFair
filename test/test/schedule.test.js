@@ -4,7 +4,7 @@ import { fail } from './lib.js';
 import api from './api.js';
 import initDB, { init, disconnect, db, models } from './db.js';
 
-describe.only('Schedule', () => {
+describe('Schedule', () => {
   before(init);
   after(disconnect);
   beforeEach(initDB);
@@ -39,7 +39,7 @@ describe.only('Schedule', () => {
     });
 
     it('query scheduleStudent should return the student schedule', async () => {
-      const res = await api.schedule.representative.get(api.getApiTokenData().enid, db.events[1].evid).exec();
+      const res = await api.schedule.representative.get(api.getApiTokenData().enid, db.events[4].evid).exec();
 
       for (const schedule of db.schedule) {
         delete schedule.sid;
@@ -63,7 +63,7 @@ describe.only('Schedule', () => {
     });
 
     it('query scheduleStudent should return the student schedule', async () => {
-      const res = await api.schedule.student.get(api.getApiTokenData().uid, db.events[1].evid).exec();
+      const res = await api.schedule.student.get(api.getApiTokenData().uid, db.events[4].evid).exec();
 
       for (const schedule of db.schedule) {
         delete schedule.sid;
