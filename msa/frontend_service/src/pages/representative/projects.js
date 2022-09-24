@@ -103,6 +103,9 @@ class Projects extends React.Component {
           <div className='mb-4'>
             <h1>Projects</h1>
           </div>
+
+          {this.state.projects.length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
+
           <Accordion defaultActiveKey={0}>
             {this.state.projects.map((project, projectIndex) => (
               <Accordion.Item key={projectIndex} eventKey={projectIndex}>
