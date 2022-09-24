@@ -11,7 +11,7 @@ describe('Schedule', () => {
 
   //* Admin
 
-  describe.only('admin', () => {
+  describe('admin', () => {
     beforeEach(async () => {
       await api.user.login('admin', 'admin');
     });
@@ -45,6 +45,21 @@ describe('Schedule', () => {
   describe('student', () => {
     beforeEach(async () => {
       await api.user.login('student', 'student');
+    });
+
+    it('query scheduleStudent should return the student schedule', async () => {
+      const res = await api.schedule.student.get(api.getApiTokenData().uid, db.events[1].evid).exec();
+
+      for (const schedule of db.schedule) {
+        delete schedule.sid;
+        delete schedule.evid;
+
+        if (schedule.uid == api.getApiTokenData().uid) {
+          expect(res).to.deep.contain(schedule);
+        } else {
+          expect(res).to.not.deep.contain(schedule);
+        }
+      }
     });
 
   });

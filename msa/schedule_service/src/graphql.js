@@ -70,7 +70,7 @@ const exec = (cmd) => {
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
 schemaComposer.Query.addNestedFields({
-  studentSchedule: {
+  scheduleStudent: {
     type: '[Schedule!]!',
     args: {
       uid: 'ID!',
@@ -79,14 +79,14 @@ schemaComposer.Query.addNestedFields({
     description: JSON.stringify({
     }),
     resolve: async (obj, args, req) => {
-      if (!(req.user.type === 'a' || (req.user.uid === args.uid))) {
+      if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
         throw new Error('UNAUTHORIZED to get this users schedule');
       }
 
-      return await Schedule.find({ evid: args.evid, uid: args.uid });
+      return Schedule.find({ evid: args.evid, uid: args.uid });
     },
   },
-  representativeSchedule: {
+  scheduleRepresentative: {
     type: '[Schedule!]!',
     args: {
       enid: 'ID!',
@@ -99,7 +99,7 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED to get this users schedule');
       }
 
-      return await Schedule.find({ evid: args.evid, enid: args.enid });
+      return Schedule.find({ evid: args.evid, enid: args.enid });
     },
   },
   // deleteOfEvent: { // TODO

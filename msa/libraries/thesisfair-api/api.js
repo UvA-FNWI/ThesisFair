@@ -126,6 +126,7 @@ const fields = {
   ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evids', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
   StudentVote: ['uid', 'pid'],
   VoteImportResult: ['error'],
+  StudentSchedule: ['uid', 'enid', 'slot'],
 }
 
 const bodies = {
@@ -153,6 +154,7 @@ const bodies = {
   ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
   StudentVote: (projection) => genBody(fields.StudentVote, projection),
   VoteImportResult: (projection) => genBody(fields.VoteImportResult, projection),
+  StudentSchedule: (projection) => genBody(fields.StudentSchedule, projection),
 }
 
 export default (url) => {
@@ -853,7 +855,19 @@ export default (url) => {
               evid: { value: evid, type: 'ID!' },
             },
           }),
-      }
+        student: {
+          get: (uid, evid, projection) =>
+            genGraphQLBuilder({
+              name: 'getStudentSchedule',
+              functionPath: 'scheduleStudent',
+              body: bodies.StudentSchedule(projection),
+              args: {
+                uid: { value: uid, type: 'ID!' },
+                evid: { value: evid, type: 'ID!' },
+              },
+            }),
+        },
+      },
     }
   }
 };
