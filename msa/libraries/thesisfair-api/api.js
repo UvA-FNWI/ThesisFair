@@ -842,6 +842,17 @@ export default (url) => {
               evid: { value: evid, type: 'ID!' },
             }
           }),
+      },
+      schedule: {
+        generate: (evid) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'generateSchedule',
+            functionPath: 'schedule.generate',
+            args: {
+              evid: { value: evid, type: 'ID!' },
+            },
+          }),
       }
     }
   }

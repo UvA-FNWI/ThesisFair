@@ -123,6 +123,21 @@ schemaComposer.Query.addNestedFields({
       return Vote.find(query).then((result) => result.map((v) => v.uid));
     }
   },
+  votesOfEvent: {
+    type: '[EventVote!]!',
+    args: {
+      evid: 'ID!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw Error('UNAUTHORIZED to get all votes of the event');
+      }
+
+      return Vote.find({ evid: args.evid });
+    }
+  }
 });
 
 schemaComposer.Mutation.addNestedFields({

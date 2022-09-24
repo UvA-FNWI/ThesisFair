@@ -1,0 +1,32 @@
+version: "3"
+services:
+  api-schedule:
+    build:
+      context: ./schedule_service
+      args:
+        NODE_ENV: ${NODE_ENV}
+    entrypoint: npm run ${NODE_CMD}
+    environment:
+      - mongodbConStr=mongodb://mongodb/schedule_service
+    volumes:
+      - ./schedule_service/src:/app/node/src
+      - ./schedule_service/tmp:/app/node/tmp
+      - ./libraries:/app/libraries
+    networks:
+      - default
+      - thesisfair
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    command: --quiet --logpath /dev/null
+    restart: unless-stopped
+
+    ports:
+      - 27017:27017
+
+networks:
+  thesisfair:
+    name: thesisfair
+    external: true

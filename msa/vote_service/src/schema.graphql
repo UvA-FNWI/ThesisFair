@@ -11,6 +11,17 @@ type StudentVote {
   pid: ID!
 }
 
+type Vote {
+  enid: ID!
+  pid: ID!
+}
+
+type EventVote {
+  uid: ID!
+  evid: ID!
+  votes: [Vote!]
+}
+
 type VoteImportResult {
   error: String
 }

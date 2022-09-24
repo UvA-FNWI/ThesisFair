@@ -216,6 +216,25 @@ const configs = {
       },
     ],
   },
+  schedule: {
+    uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/schedule_service',
+    library: import('../../msa/schedule_service/src/database.js'),
+    object: 'Schedule',
+    get: (db) => [
+      {
+        uid: db.users[0].uid,
+        evid: db.events[1].evid,
+        enid: db.entities[0].enid,
+        slot: 'Slot1',
+      },
+      {
+        uid: db.users[0].uid,
+        evid: db.events[1].evid,
+        enid: db.entities[1].enid,
+        slot: 'Slot2',
+      },
+    ],
+  },
 };
 
 const provisioner = new MongoDBProvisioner(configs);

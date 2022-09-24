@@ -11,6 +11,7 @@ ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /app/node
+RUN mkdir tmp
 COPY ./package*.json ./
 RUN npm ci
 

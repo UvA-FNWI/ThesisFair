@@ -6,8 +6,8 @@ let conn;
 
 const scheduleSchema = new mongoose.Schema({
   uid: { type: mongoose.Schema.ObjectId, required: true },
+  evid: { type: mongoose.Schema.ObjectId, required: true },
   enid: { type: mongoose.Schema.ObjectId, required: true },
-  pid: { type: mongoose.Schema.ObjectId, required: true },
   slot: { type: String, required: true },
   // start: { type: Date, required: true },
   // end: { type: Date, required: true },
