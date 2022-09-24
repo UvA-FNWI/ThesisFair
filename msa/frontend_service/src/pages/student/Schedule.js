@@ -10,13 +10,23 @@ class Schedule extends React.Component {
 
     this.state = {
       event: {},
+      schedule: [],
     };
   }
 
   async componentDidMount() {
-    const event = await api.event.get(this.props.params.evid).exec();
+    const [event, schedule] = await Promise.all([
+      api.event.get(this.props.params.evid).exec(),
+      api.schedule.student.get(api.getApiTokenData().uid, this.props.params.evid).exec(),
+    ]);
 
-    this.setState({ event });
+    const names = await api.entity.getMultiple(schedule.map((s) => s.enid), { name: true, location: true }).exec();
+    for (let i = 0; i < schedule.length; i++) {
+      schedule[i].entityName = names[i].name;
+      schedule[i].entityLocation = names[i].location;
+    }
+
+    this.setState({ event, schedule });
   }
 
   render() {
@@ -34,21 +44,15 @@ class Schedule extends React.Component {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>9:00</td>
-              <td>ASML</td>
-              <td>1b</td>
-            </tr>
-            <tr>
-              <td>10:00</td>
-              <td>UvA Software Engineering</td>
-              <td>1c</td>
-            </tr>
-            <tr>
-              <td>12:00</td>
-              <td>UvA bioengineering</td>
-              <td>10a</td>
-            </tr>
+            {
+              this.state.schedule.map(({ slot, entityName, entityLocation }) => (
+                <tr>
+                  <td>{slot}</td>
+                  <td>{entityName}</td>
+                  <td>{entityLocation}</td>
+                </tr>
+              ))
+            }
           </tbody>
         </Table>
       </Container>
