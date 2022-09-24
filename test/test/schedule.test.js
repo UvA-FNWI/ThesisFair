@@ -4,7 +4,7 @@ import { fail } from './lib.js';
 import api from './api.js';
 import initDB, { init, disconnect, db, models } from './db.js';
 
-describe('Schedule', () => {
+describe.only('Schedule', () => {
   before(init);
   after(disconnect);
   beforeEach(initDB);
@@ -36,6 +36,21 @@ describe('Schedule', () => {
   describe('representative', () => {
     beforeEach(async () => {
       await api.user.login('rep', 'rep');
+    });
+
+    it('query scheduleStudent should return the student schedule', async () => {
+      const res = await api.schedule.representative.get(api.getApiTokenData().enid, db.events[1].evid).exec();
+
+      for (const schedule of db.schedule) {
+        delete schedule.sid;
+        delete schedule.evid;
+
+        if (schedule.enid == api.getApiTokenData().enid) {
+          expect(res).to.deep.contain(schedule);
+        } else {
+          expect(res).to.not.deep.contain(schedule);
+        }
+      }
     });
 
   });
