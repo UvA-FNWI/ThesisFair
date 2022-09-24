@@ -46,7 +46,7 @@ class Schedule extends React.Component {
           <tbody>
             {
               this.state.schedule.map(({ slot, entityName, entityLocation }) => (
-                <tr>
+                <tr key={slot}>
                   <td>{slot}</td>
                   <td>{entityName}</td>
                   <td>{entityLocation}</td>
