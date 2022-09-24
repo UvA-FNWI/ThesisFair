@@ -17,10 +17,11 @@ import AdminAccount from './pages/admin/AdminAccount';
 import StudentAccount from './pages/student/StudentAccount';
 import Organisations from './pages/student/Organisations';
 import Votes from './pages/student/Votes';
-import Schedule from './pages/student/Schedule';
+import StudentSchedule from './pages/student/Schedule';
 
 import RepAccount from './pages/representative/RepAccount';
 import Projects from './pages/representative/projects';
+import RepSchedule from './pages/representative/Schedule';
 
 import OrganisationDashboard from './pages/adminRepresentative/OrganisationDashboard';
 
@@ -91,7 +92,7 @@ class App extends React.Component {
         <Route path='account' element={<Page page={<StudentAccount />} />} />
         <Route path='organisations' element={<Page page={<Organisations />} />} />
         <Route path='votes' element={<Page page={<Votes />} />} />
-        <Route path='schedule' element={<Page page={<Schedule />} />} />
+        <Route path='schedule' element={<Page page={<StudentSchedule />} />} />
       </>
     );
   }
@@ -102,6 +103,7 @@ class App extends React.Component {
         <Route path='' element={<Navigate to='account' replace={true} />} />
         <Route path="account" element={<Page page={<RepAccount />} />} />
         <Route path="projects" element={<Page page={<Projects />} />} />
+        <Route path='schedule' element={<Page page={<RepSchedule />} />} />
       </>
     );
   }

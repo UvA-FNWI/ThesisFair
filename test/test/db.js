@@ -226,6 +226,23 @@ const configs = {
           { enid: db.projects[2].enid, pid: db.projects[2].pid },
         ],
       },
+      {
+        uid: db.users[0].uid,
+        evid: db.events[4].evid,
+        votes: [
+          { enid: db.projects[0].enid, pid: db.projects[0].pid },
+          { enid: db.projects[1].enid, pid: db.projects[1].pid },
+          { enid: db.projects[2].enid, pid: db.projects[2].pid },
+        ],
+      },
+      {
+        uid: db.users[1].uid,
+        evid: db.events[4].evid,
+        votes: [
+          { enid: db.projects[0].enid, pid: db.projects[0].pid },
+          { enid: db.projects[2].enid, pid: db.projects[2].pid },
+        ],
+      },
     ],
   },
   schedule: {
