@@ -10,6 +10,7 @@ let sendInitialized = false;
 
 const TRY_COUNT = 20;
 const TRY_TIMEOUT = 500;
+const MSG_TIMEOUT = 10000; // ms
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -51,12 +52,17 @@ export const receive = async (queue, callback) => {
 
   channel.consume(queue, async (msg) => {
     debug('Recv corr: %ds, reply:To %s', msg.properties.correlationId, msg.properties.replyTo)
+    if (msg.properties.timestamp < Date.now() - MSG_TIMEOUT) {
+      channel.ack(msg);
+      console.log('Dropped timeouted message');
+      return;
+    }
 
     const payload = JSON.parse(msg.content.toString());
     const reply = await callback(payload);
 
     if (msg.properties.replyTo) {
-      channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(reply)), { correlationId: msg.properties.correlationId });
+      channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(reply)), { correlationId: msg.properties.correlationId, timestamp: Date.now() });
     }
     channel.ack(msg);
   });
@@ -96,7 +102,7 @@ export const rpc = (queue, data) => {
     const id = genCorrelationId();
     correlationIds[id] = (msg) => resolve(JSON.parse(msg.content.toString()));
 
-    channel.sendToQueue(queue, Buffer.from(JSON.stringify(data)), { correlationId: id, replyTo: replyQueue.queue });
+    channel.sendToQueue(queue, Buffer.from(JSON.stringify(data)), { correlationId: id, replyTo: replyQueue.queue, timestamp: Date.now() });
     debug('Message send with corrolation id %d', id);
   });
 }
