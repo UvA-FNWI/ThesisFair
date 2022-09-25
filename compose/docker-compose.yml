@@ -113,3 +113,11 @@ services:
     depends_on:
       - rabbitmq
       - mongodb
+
+  api-schedule:
+    image: ghcr.io/quinten1333/thesisfair-schedule_service:base
+    environment:
+      - mongodbConStr=mongodb://mongodb/schedule_service
+    depends_on:
+      - rabbitmq
+      - mongodb
