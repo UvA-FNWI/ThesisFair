@@ -232,7 +232,11 @@ schemaComposer.Query.addNestedFields({
       } else {
         user = await Representative.findOne({ external_id: args.external_id });
         if (!user) {
-          user = await Representative.findOneAndUpdate({ email: args.email }, { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname }, { upsert: true, new: true });
+          user = await Representative.findOneAndUpdate({ email: args.email }, { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname });
+
+          if (!user) {
+            throw new Error('No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address.');
+          }
         }
       }
 
