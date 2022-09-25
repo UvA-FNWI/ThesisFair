@@ -273,11 +273,13 @@ schemaComposer.Mutation.addNestedFields({
 Dear ${args.firstname} ${args.lastname},
 
 Your UvA ThesisFair ${args.repAdmin ? 'admin ' : ''}representative account has been created.
-You can log in at https://TODO.nl/login
+You can log in at https://thesisfair.ivi.uva.nl/
 
 Your credentials are:
 Email: ${args.email}
 Password: ${password}
+
+Please update your password to a more secure one as soon as possible.
 `
       })
 
