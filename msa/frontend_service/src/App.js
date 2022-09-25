@@ -9,6 +9,7 @@ import EventPicker from './pages/EventPicker';
 
 import Page from './pages/Page';
 import EventPage from './pages/EventPage';
+import Error from './pages/Error';
 
 import Entities from './pages/admin/Entities';
 import EventSchedule from './pages/admin/EventSchedule';
@@ -160,6 +161,7 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <Routes>
+          <Route path='/error' element={<Error />} />
           {this.getRoutes()}
           <Route path='*' element={<NotFound />} />
         </Routes>
