@@ -162,15 +162,53 @@ Example Payload:
 ]
 ```
 
+## Event import
+- GraphQL path: `event.import`
+- Parameters:
+- - `events` - Structured data of type EventImport
+
+The EventImport type has the following fields:
+- `ID` - A unique numeric identifier of the project
+- `name` - Name of the event
+- `description` - Description of the event
+- `start` - Start date of the event (timestamp)
+- `location` - The address where the event is hosted
+- `entities` - An array of the unique numeric identifiers of the entities that are present on this event
+- `enabled` - When false the project will be deleted, otherwise it will be upserted.
+
+Example payload:
+```
+[
+  {
+    "ID": 10101,
+    "name": "Test event",
+    "description": "This is a test event",
+    "start": 1664110555634,
+    "location": "Schience Park 904",
+    "entities": [0, 1],
+    "enabled": true,
+  },
+  {
+    "ID": 20202,
+    "name": "Test event 2",
+    "description": "This is a test event 2",
+    "start": 1664110565634,
+    "location": "RoutersEiland",
+    "entities": [1, 3],
+    "enabled": true,
+  },
+]
+```
+
 ## Project import
 - GraphQL path: `project.import`
 - Parameters:
 - - `projects` - Structured data of type ProjectImport
-- - `evid` - The event ID from the ThesisFair Platform
 
 The ProjectImport type has the following fields:
 - `ID` - A unique numeric identifier of the project
 - `entityID` - The unique numeric identifier of the entity the project is linked to
+- `evids` - An array of the unique numeric identifiers of the events this project linked to
 - `name` - Name of the project
 - `description` - The description of the project
 - `datanoseLink` - The link to datanose (Complete url)
@@ -182,6 +220,7 @@ Example payload:
   {
     "ID": 10101,
     "entityID": 0,
+    "evids": [0, 1],
     "name": "Test Project",
     "description": "This is a test project",
     "datanoseLink": "https://datanose.nl/project/test",
@@ -190,6 +229,7 @@ Example payload:
   {
     "ID": 20202,
     "entityID": 0,
+    "evids": [0, 1],
     "name": "UvA Project",
     "description": "You will be doing reserach at the UvA",
     "datanoseLink": "https://datanose.nl/project/UvAResearch",
