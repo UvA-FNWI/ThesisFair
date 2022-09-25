@@ -311,12 +311,20 @@ export default (url) => {
             },
           }),
 
-        getAll: (projection) =>
+        /**
+         *
+         * @typedef {'student'|'representative'|'admin'} getAllUsersFilter
+         * @param {getAllUsersFilter} filter
+         * @param {*} projection
+         * @returns
+         */
+        getAll: (filter, projection) =>
           genGraphQLBuilder({
             name: 'getAllUsers',
             functionPath: 'usersAll',
             body: bodies.User(projection),
             args: {
+              filter: { value: filter, type: 'String' },
             },
           }),
 

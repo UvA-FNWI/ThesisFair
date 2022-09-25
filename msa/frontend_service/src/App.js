@@ -15,6 +15,7 @@ import EventEntities from './pages/admin/EventEntities';
 import EventSchedule from './pages/admin/EventSchedule';
 import EventProjects from './pages/admin/EventProjects';
 import Events from './pages/admin/Events';
+import Students from './pages/admin/Students';
 import AdminAccount from './pages/admin/AdminAccount';
 
 import StudentAccount from './pages/student/StudentAccount';
@@ -85,6 +86,7 @@ class App extends React.Component {
         <Route path='event/:evid/entities' element={<Page page={<EventEntities />} />} />
         <Route path='event/:evid/schedule' element={<Page page={<EventSchedule />} />} />
         <Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />
+        <Route path='students' element={<Page page={<Students />} />} />
         <Route path='' element={<Page page={<Events />} />} />
       </>
     );
