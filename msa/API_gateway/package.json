@@ -8,7 +8,7 @@
     "production": "node ./src/index.js"
   },
   "dependencies": {
-    "@amicopo/amqpmessaging": "^1.0.4",
+    "@amicopo/amqpmessaging": "^1.0.7",
     "@graphql-tools/stitch": "^8.6.9",
     "@graphql-tools/wrap": "^8.4.16",
     "cookie-parser": "^1.4.6",
