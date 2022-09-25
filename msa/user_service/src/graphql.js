@@ -30,6 +30,8 @@ const mail = nodemailer.createTransport({
 });
 
 const genApiToken = (user) => {
+  if (!user) { throw new Error('genApiToken did not get a user object.'); }
+
   let additionalData;
   if (user.admin) {
     additionalData = { type: 'a' };
@@ -230,7 +232,7 @@ schemaComposer.Query.addNestedFields({
       } else {
         user = await Representative.findOne({ external_id: args.external_id });
         if (!user) {
-          user = await Representative.findOne({ email: args.email }, { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname }, { upsert: true, new: true });
+          user = await Representative.findOneAndUpdate({ email: args.email }, { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname }, { upsert: true, new: true });
         }
       }
 
