@@ -1,9 +1,10 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Table, Form } from 'react-bootstrap';
+import { Container, Table, Form, Button, Modal } from 'react-bootstrap';
 import EditIcon from 'bootstrap-icons/icons/pencil-square.svg';
 import SaveIcon from 'bootstrap-icons/icons/check-lg.svg';
 import api from '../../api';
+import RepresentativeList from '../../components/representativeList/representativeList';
 
 class TableRow extends React.Component {
   constructor(props) {
@@ -13,6 +14,7 @@ class TableRow extends React.Component {
     this.state = {
       location: this.props.entity.location,
       editing: false,
+      modal: false,
     }
   }
 
@@ -32,6 +34,18 @@ class TableRow extends React.Component {
     });
   }
 
+  manageUsersPopup = () => (
+    <Modal show={true} onHide={() => this.setState({ modal: false })} size='lg'>
+      <Modal.Header closeButton>
+        Users of "{this.props.entity.name}"
+      </Modal.Header>
+
+      <Modal.Body>
+        <RepresentativeList enid={this.props.entity.enid} />
+      </Modal.Body>
+    </Modal>
+  )
+
   render() {
     if (this.state.editing) {
       return (
@@ -44,11 +58,15 @@ class TableRow extends React.Component {
     }
 
     return (
-      <tr>
-        <td>{this.props.entity.name}</td>
-        <td>{this.state.location}</td>
-        <td><img src={EditIcon} alt='edit' onClick={this.toggleEditing} /></td>
-      </tr>
+      <>
+        {this.state.modal ? this.manageUsersPopup() : null}
+        <tr>
+          <td>{this.props.entity.name}</td>
+          <td>{this.state.location}</td>
+          <td style={{ width: '1px', whiteSpace: 'nowrap' }}><img src={EditIcon} alt='edit' onClick={this.toggleEditing} /></td>
+          <td style={{ width: '1px', whiteSpace: 'nowrap' }}><Button onClick={() => this.setState({ modal: true })}>Manage users</Button></td>
+        </tr>
+      </>
     )
   }
 }
@@ -74,13 +92,13 @@ class Entities extends React.Component {
     return (
       <Container className='mt-2'>
         <div className='mb-4'>
-          <h1>Schedule on {new Date(this.state.event.start).toLocaleString('NL-nl').split(' ')[0]}</h1>
+          <h1>Companies</h1>
         </div>
         <Table striped bordered hover>
           <thead>
             <tr>
               <th>Organisation</th>
-              <th>Place</th>
+              <th>Location</th>
             </tr>
           </thead>
           <tbody>

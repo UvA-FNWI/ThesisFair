@@ -18,6 +18,7 @@ class CreateUserPopup extends React.Component {
       lastname: '',
       email: '',
       phone: '',
+      error: null,
     };
   }
 
@@ -25,8 +26,13 @@ class CreateUserPopup extends React.Component {
     this.props.close();
   }
 
-  save = () => {
-    this.props.create(this.state);
+  save = async () => {
+    const error = await this.props.create(this.state);
+    if (error) {
+      this.setState({ error });
+      return;
+    }
+
     this.props.close();
   }
 
@@ -68,6 +74,8 @@ class CreateUserPopup extends React.Component {
                 </Form.Group>
               </Col>
             </Row>
+
+            <p style={{ color: 'red' }}>{this.state.error}</p>
           </Form>
         </Modal.Body>
 
