@@ -55,7 +55,6 @@ router.get('/login', (req, res) => {
 })
 
 router.get('/loggedin', cookieParser(), async (req, res) => {
-  console.log(req.cookies);
   if (!req.cookies.c) {
     res.status(400).send('No code cookie set').end();
     return;
