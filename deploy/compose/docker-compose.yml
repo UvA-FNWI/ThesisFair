@@ -10,7 +10,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
-      - /home/quinten/data/traefik:/data
+      - ${FS_ROOT}/data/traefik:/data
 
 
   rabbitmq:
@@ -28,7 +28,7 @@ services:
     image: mongo
     restart: unless-stopped
     volumes:
-      - /home/quinten/data/db:/data/db
+      - ${FS_ROOT}/data/db:/data/db
 
     ports:
       - 27017:27017
@@ -46,7 +46,7 @@ services:
       - OPENID_RESOURCE=${OPENID_RESOURCE}
     labels:
       traefik.enable: "true"
-      traefik.http.routers.apiGateway.rule: Host(`thesisfair.qrcsoftware.nl`) && (PathPrefix(`/api`) || PathPrefix(`/sso`))
+      traefik.http.routers.apiGateway.rule: Host(`${URL}`) && (PathPrefix(`/api`) || PathPrefix(`/sso`))
       traefik.http.routers.apiGateway.middlewares: apiGatewayStrip
       traefik.http.middlewares.apiGatewayStrip.stripprefix.prefixes: /api
     depends_on:
@@ -59,7 +59,7 @@ services:
     environment:
       - mongodbConStr=mongodb://mongodb/entity_service
     volumes:
-      - /home/quinten/data/entityService:/app/data
+      - ${FS_ROOT}/data/entityService:/app/data
     depends_on:
       - rabbitmq
       - mongodb
@@ -80,7 +80,7 @@ services:
     restart: unless-stopped
     labels:
       traefik.enable: "true"
-      traefik.http.routers.frontend.rule: Host(`thesisfair.qrcsoftware.nl`)
+      traefik.http.routers.frontend.rule: Host(`${URL}`)
 
   api-project:
     image: ghcr.io/quinten1333/thesisfair-project_service:base
@@ -99,7 +99,7 @@ services:
       - mongodbConStr=mongodb://mongodb/user_service
       - jwtKey=${JWT_SECRET}
     volumes:
-      - /home/quinten/data/userService:/app/data
+      - ${FS_ROOT}/data/userService:/app/data
     depends_on:
       - rabbitmq
       - mongodb

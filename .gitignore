@@ -1,11 +1,5 @@
 node_modules/
-userStories/files/*.csv
 **/build/
-results/**/*.txt
-results/**/*.csv
-results/**/*.mongoexport
-results/**/*.png
-results/**/*.jpg
-results/db
-**/.scannerwork
 **.env
+**.env.prod
+deploy/hosts
