@@ -92,8 +92,8 @@ router.get('/loggedin', cookieParser(), async (req, res) => {
   try {
     apiToken = await ssoLogin(student, external_uid, email, firstname, lastname);
   } catch (error) {
-    console.error(error);
-    res.status(500).end();
+    res.redirect('/error#' + error);
+    return;
   }
 
   res.cookie('apiToken', apiToken, {
