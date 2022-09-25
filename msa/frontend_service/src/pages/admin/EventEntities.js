@@ -71,7 +71,7 @@ class TableRow extends React.Component {
   }
 }
 
-class Entities extends React.Component {
+class EventEntities extends React.Component {
   constructor(props) {
     super(props);
 
@@ -114,10 +114,10 @@ class Entities extends React.Component {
   }
 }
 
-function EntitiesWithParams(props) {
+function EventEntitiesWithParams(props) {
   const params = useParams();
 
-  return <Entities {...props} params={params} />
+  return <EventEntities {...props} params={params} />
 };
 
-export default EntitiesWithParams
+export default EventEntitiesWithParams

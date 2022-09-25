@@ -11,7 +11,7 @@ import Page from './pages/Page';
 import EventPage from './pages/EventPage';
 import Error from './pages/Error';
 
-import Entities from './pages/admin/Entities';
+import EventEntities from './pages/admin/EventEntities';
 import EventSchedule from './pages/admin/EventSchedule';
 import EventProjects from './pages/admin/EventProjects';
 import Events from './pages/admin/Events';
@@ -82,7 +82,7 @@ class App extends React.Component {
     return (
       <>
         <Route path='account' element={<Page page={<AdminAccount />} />} />
-        <Route path='event/:evid/entities' element={<Page page={<Entities />} />} />
+        <Route path='event/:evid/entities' element={<Page page={<EventEntities />} />} />
         <Route path='event/:evid/schedule' element={<Page page={<EventSchedule />} />} />
         <Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />
         <Route path='' element={<Page page={<Events />} />} />
