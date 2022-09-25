@@ -272,7 +272,7 @@ schemaComposer.Mutation.addNestedFields({
       args.password = await hash(password);
 
       await mail.sendMail({
-        from: 'UvA ThesisFair <quintencoltof1@gmail.com>',
+        from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
         to: args.email,
         subject: 'ThesisFair representative account created',
         text: `
