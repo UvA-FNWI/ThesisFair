@@ -83,7 +83,7 @@ router.get('/loggedin', cookieParser(), async (req, res) => {
   }
 
   const student = userInfo.eduperson_affiliation.includes('student');
-  const external_uid = userInfo.sub;
+  const external_uid = userInfo.uids[0];
   const firstname = userInfo.given_name;
   const lastname = userInfo.family_name;
   const email = userInfo.email;
