@@ -68,7 +68,7 @@ Example payload:
 ```
 
 ## Reponse handling
-There are two level of errors. An **internal server error**, which will be indicated by the precense of the error key in the response. In this case nothing has been imported.
+There are two level of errors. An **internal server error**, which will be indicated by the presence of the error key in the response. In this case nothing has been imported.
 The other type is an **import error** which signals that something is wrong with a specific line in the import file. Each row in the CSV will have a status object in the result array, below this has the JSON path `data.entity.import`. Import errors are returned by having a non-null error value in the status object.
 
 Example response:
