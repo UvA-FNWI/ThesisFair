@@ -139,6 +139,9 @@ schemaComposer.Query.addNestedFields({
   },
   usersAll: { // TODO: Auto test this
     type: '[User]',
+    args: {
+      filter: 'String',
+    },
     description: JSON.stringify({
     }),
     resolve: async (obj, args, req) => {
@@ -146,8 +149,19 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED to get all users');
       }
 
-      const users = await User.find();
-      return users;
+      switch (args.filter) {
+        case 'student':
+          return Student.find();
+
+        case 'representative':
+          return Representative.find();
+
+        case 'admin':
+          return User.find({ admin: true });
+
+        default:
+          return User.find();
+      }
     }
   },
   cv: {
