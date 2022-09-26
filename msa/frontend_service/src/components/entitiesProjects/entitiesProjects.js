@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Accordion, Modal, Form } from 'react-bootstrap';
+import { Button, Accordion, Modal, Form, Row, Col } from 'react-bootstrap';
 import api from '../../api';
 
 const httpRegex = /^https?:\/\//
@@ -27,22 +27,24 @@ class EntitiesProjects extends React.Component {
     const project = this.props.projects[enid][projectIndex];
 
     return (
-      <Modal show={true} onHide={() => this.setState({ popup: false })} size='lg'>
+      <Modal show={true} onHide={() => this.setState({ popup: false })} fullscreen={true}>
         <Modal.Header closeButton>
           Project and organisation information
         </Modal.Header>
         <Modal.Body>
-          <div class='d-flex justify-content-between'>
-            <div>
+          <Row class='d-flex justify-content-around'>
+            <Col xs={12} lg={6} className='mb-4'>
               <h1>{project.name}</h1>
               <h4>About the project</h4>
               {project.description}
 
               <h4 className='mt-4'>Datanose link</h4>
               <a href={project.datanoseLink} target='_blank' rel='noreferrer'>{project.datanoseLink}</a>
-            </div>
+            </Col>
 
-            <div>
+            <hr className='d-lg-none mb-4' />
+
+            <Col xs={12} lg={6}>
               <h1>{entity.name}</h1>
               <h4>About the organisation</h4>
               {entity.description}
@@ -68,8 +70,8 @@ class EntitiesProjects extends React.Component {
                   return (<li key={i}><a href={prefix + contact.content} target='_blank' rel='noreferrer'>{contact.content}</a></li>);
                 })}
               </ul>
-            </div>
-          </div>
+            </Col>
+          </Row>
         </Modal.Body>
       </Modal>
     )
