@@ -32,7 +32,7 @@ class Organisations extends React.Component {
   render() {
     return (
       <Container className='mt-2'>
-        <div className='d-flex justify-content-between align-items-baseline mb-4'>
+        <div className='d-flex justify-content-between align-items-baseline mb-4 flex-column flex-sm-row'>
           <h1>Organisations</h1>
           <Button onClick={() => this.entitiesProjects.current.shareAll()}>Give all companies access</Button>
         </div>
