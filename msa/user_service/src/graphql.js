@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import axios from 'axios';
 
 import { User, Student, Representative, isValidObjectId } from './database.js';
 import { canGetUser, canGetUsers } from './permissions.js';
@@ -60,6 +61,24 @@ const genApiToken = (user) => {
       resolve(key);
     });
   });
+}
+
+const getStudies = async (studentnumber) => {
+  const result = await axios({
+    method: 'get',
+    baseURL: 'https://api.datanose.nl/Programmes/',
+    url: studentnumber,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!Array.isArray(result.data)) {
+    console.error('Could not get studies from ' + studentnumber);
+    return [];
+  }
+
+  return result.data.map((study) => study.Name);
 }
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
@@ -241,7 +260,8 @@ schemaComposer.Query.addNestedFields({
         if (!user.email && !user.firstname && !user.lastname) { // Current user data is a placeholder created by "query student", this is the first time the user is logging in via SSO.
           await Student.findByIdAndUpdate(user.uid, { email: args.email, firstname: args.firstname, lastname: args.lastname });
         } else if (!user) {
-          user = await Student.findOneAndUpdate({ email: args.email }, { studentnumber: args.external_id, firstname: args.firstname, lastname: args.lastname }, { upsert: true, new: true });
+          const studies = await getStudies(args.external_id);
+          user = await Student.findOneAndUpdate({ email: args.email }, { studentnumber: args.external_id, firstname: args.firstname, lastname: args.lastname, studies }, { upsert: true, new: true });
         }
       } else {
         user = await Representative.findOne({ external_id: args.external_id });
