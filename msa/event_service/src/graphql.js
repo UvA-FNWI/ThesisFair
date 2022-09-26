@@ -268,9 +268,9 @@ schemaComposer.Mutation.addNestedFields({
       return Promise.all(
         args.events.map(async ({ ID: external_id, enabled, name, description, start, location, entities: external_enids }) => {
           const entities = external_enids ? await Promise.all(external_enids.map(getEnid)) : null;
-          for (const enid of entities) {
-            if (!enid) {
-              return { error: `Entity with ID "${enid}" could not be found!.` };
+          for (let i = 0; i < entities.length; i++) {
+            if (!entities[i]) {
+              return { error: `Entity with ID "${external_enids[i]}" could not be found!.` };
             }
           }
 
