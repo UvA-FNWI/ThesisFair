@@ -112,7 +112,8 @@ class EntitiesProjects extends React.Component {
                         type='checkbox'
                         label='Share information'
                         checked={shared}
-                        onClick={(e) => { e.stopPropagation(); this.setShare(entity.enid, !shared) }}
+                        onClick={(e) => { e.stopPropagation() }}
+                        onChange={(e) => { this.setShare(entity.enid, !shared) }}
                       />
                     </div>
                     : null
