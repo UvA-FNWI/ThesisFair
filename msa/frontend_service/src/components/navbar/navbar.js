@@ -1,5 +1,6 @@
 import React from 'react';
 import Nav from 'react-bootstrap/Nav'
+import Navbar from 'react-bootstrap/Navbar'
 
 import { Link, useParams } from 'react-router-dom';
 import accountIcon from 'bootstrap-icons/icons/person-circle.svg';
@@ -19,83 +20,85 @@ function CustomNavbar(props) {
   const type = api.getApiTokenData().type;
 
   return (
-    // <Navbar className='custom-navbar'> // TODO: Make mobile friendly
-    //   <Container>
-    //     <Navbar.Brand href='/dashboard'>Thesis fair</Navbar.Brand>
-    //     <Navbar.Toggle />
-    //     <Navbar.Collapse>
-    //       <Navbar.Text>Test</Navbar.Text>
-    //     </Navbar.Collapse>
-    //   </Container>
-    // </Navbar>
-    <Nav className="d-md-block sidebar flex-column">
-      <Link className='logo' to={`/${params.evid}/`}>
-        <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
-      </Link>
-      {type === 'a' ?
-        <>
-          <Nav.Item>
-            <Link to={`/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Link to={`/`}><img src={eventIcon} alt='' /><span>Events</span></Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Link to={`/students`}><img src={userIcon} alt='' /><span>Students</span></Link>
-          </Nav.Item>
-        </>
-        : null}
-      {type === 's' ?
-        <>
-          <Nav.Item>
-            <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
-          </Nav.Item>
-        </>
-        : null}
+    <Navbar className='ps-2 pe-2 p-md-0' bg="light" expand="md">
+      <Navbar.Brand className='d-md-none'>
+        <Link to={`/${params.evid}/`}>
+          <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
+        </Link>
+      </Navbar.Brand>
+      <Navbar.Toggle aria-controls="topNavbar" />
+      <Navbar.Collapse id="topNavbar">
+        <Nav className="sidebar navbar flex-row flex-md-column justify-content-start">
+          <Link className='logo d-none d-md-block' to={`/${params.evid}/`}>
+            <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
+          </Link>
 
-      {type === 'r' ?
-        <>
-          <Nav.Item>
-            <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
-          </Nav.Item>
-          {api.getApiTokenData().repAdmin === true ?
-            <Nav.Item>
-              <Link to={`/${params.evid}/organisation`}><img src={organisationsIcon} alt='' /><span>Organisation</span></Link>
-            </Nav.Item>
+          {type === 'a' ?
+            <>
+              <Nav.Item>
+                <Link to={`/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/`}><img src={eventIcon} alt='' /><span>Events</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/students`}><img src={userIcon} alt='' /><span>Students</span></Link>
+              </Nav.Item>
+            </>
+            : null}
+          {type === 's' ?
+            <>
+              <Nav.Item>
+                <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
+              </Nav.Item>
+            </>
+            : null}
+
+          {type === 'r' ?
+            <>
+              <Nav.Item>
+                <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
+              </Nav.Item>
+              {api.getApiTokenData().repAdmin === true ?
+                <Nav.Item>
+                  <Link to={`/${params.evid}/organisation`}><img src={organisationsIcon} alt='' /><span>Organisation</span></Link>
+                </Nav.Item>
+                : null
+              }
+              <Nav.Item>
+                <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>
+              </Nav.Item>
+            </>
             : null
           }
-          <Nav.Item>
-            <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>
-          </Nav.Item>
-        </>
-        : null
-      }
 
-      <Nav.Item className='logout'>
-        <div onClick={api.user.logout}>
-          <img src={logoutIcon} alt='' />
-          <span>Logout</span>
-        </div>
-      </Nav.Item>
-    </Nav>
+          <Nav.Item className='logout'>
+            <div onClick={api.user.logout}>
+              <img src={logoutIcon} alt='' />
+              <span>Logout</span>
+            </div>
+          </Nav.Item>
+        </Nav>
+      </Navbar.Collapse>
+    </Navbar>
   );
 }
 

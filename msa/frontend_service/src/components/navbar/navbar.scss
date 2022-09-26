@@ -4,16 +4,8 @@
 
 $navbarWidth: 84px;
 
-.sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  height: 100vh;
+.navbar {
   background-color: #BC0031;
-
-  z-index: 100;
-  width: $navbarWidth;
 
   .logo {
     display: block;
@@ -60,10 +52,21 @@ $navbarWidth: 84px;
   }
 }
 
-// @include media-breakpoint-up(md) { //TODO: For making mobile friendly
+@include media-breakpoint-up(md) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100vh;
+
+    z-index: 100;
+    width: $navbarWidth;
+  }
+
   .page-content {
     padding-left: $navbarWidth;
     width: 100%;
     padding-bottom: 75px;
   }
-// }
+}
