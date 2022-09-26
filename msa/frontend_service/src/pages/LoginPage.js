@@ -34,7 +34,7 @@ class LoginPage extends React.Component {
           </div>
           <Col xs={12} md={5} lg={4}>
             <img width='100%' src='/images/en-informatics-institute.jpg' alt='' />
-            <a href="/sso/login" className='d-flex justify-content-center pt-2'>
+            <a href="/sso/login" className='d-flex justify-content-center pt-2 text-decoration-none'>
               <Button>UvA student and employee login</Button>
             </a>
             <div className='w-100 text-center pt-2 pb-2'>OR</div>
