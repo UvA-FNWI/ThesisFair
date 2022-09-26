@@ -9,6 +9,11 @@ services:
     environment:
       - mongodbConStr=mongodb://mongodb/user_service
       - jwtKey=${JWT_SECRET}
+      - OVERRIDEMAIL=${OVERRIDEMAIL}
+      - MAILHOST=${MAILHOST}
+      - MAILPORT=${MAILPORT}
+      - MAILUSER=${MAILUSER}
+      - MAILPASS=${MAILPASS}
     volumes:
       - ./user_service/src:/app/src
       - ./libraries:/libraries

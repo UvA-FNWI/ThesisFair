@@ -19,11 +19,6 @@ services:
     ports:
       - 15672:15672
 
-  mailhog:
-    image: mailhog/mailhog
-    ports:
-      - 8025:8025
-
   mongodb:
     image: mongo
     restart: unless-stopped
@@ -98,6 +93,11 @@ services:
     environment:
       - mongodbConStr=mongodb://mongodb/user_service
       - jwtKey=${JWT_SECRET}
+      - OVERRIDEMAIL=${OVERRIDEMAIL}
+      - MAILHOST=${MAILHOST}
+      - MAILPORT=${MAILPORT}
+      - MAILUSER=${MAILUSER}
+      - MAILPASS=${MAILPASS}
     volumes:
       - ${FS_ROOT}/data/userService:/app/data
     depends_on:

@@ -26,8 +26,14 @@ const randomPassword = async (length = 12) => {
 };
 
 const mail = nodemailer.createTransport({
-  host: 'mailhog',
-  port: 1025,
+  host: process.env.MAILHOST,
+  port: parseInt(process.env.MAILPORT),
+  ...(process.env.MAILUSER ? {
+    auth: {
+      user: process.env.MAILUSER,
+      pass: process.env.MAILPASS,
+    }
+  } : null)
 });
 
 const genApiToken = (user) => {
@@ -307,7 +313,7 @@ schemaComposer.Mutation.addNestedFields({
 
       await mail.sendMail({
         from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
-        to: args.email,
+        to: process.env.OVERRIDEMAIL || args.email,
         subject: 'ThesisFair representative account created',
         text: `
 Dear ${args.firstname} ${args.lastname},
