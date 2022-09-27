@@ -237,6 +237,10 @@ schemaComposer.Query.addNestedFields({
       const user = await User.findOne({ email: args.email });
       if (!user) { throw new Error('No user with that email found.'); }
 
+      if (process.env.NODE_ENV !== 'development' && user.admin === true) {
+        throw new Error('SSO only account. Please login via Single Sign-on');
+      }
+
       if (!(await bcrypt.compare(args.password, user.password))) {
         throw new Error('Incorrect password');
       }
@@ -275,7 +279,11 @@ schemaComposer.Query.addNestedFields({
           user = await Representative.findOneAndUpdate({ email: args.email }, { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname });
 
           if (!user) {
-            throw new Error('No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address.');
+            user = await User.findOne({ email: args.email, admin: true }); // Admin login
+
+            if (!user) {
+              throw new Error('No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address.');
+            }
           }
         }
       }
