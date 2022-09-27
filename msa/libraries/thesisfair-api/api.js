@@ -865,6 +865,16 @@ export default (url) => {
               evid: { value: evid, type: 'ID!' },
             },
           }),
+        import: (evid, file) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'importSchedule',
+            functionPath: 'schedule.import',
+            args: {
+              evid: { value: evid, type: 'ID!' },
+              file: { value: file, type: 'String!' },
+            },
+          }),
         getAll: (evid, projection) =>
           genGraphQLBuilder({
             name: 'getFullSchedule',

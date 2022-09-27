@@ -25,7 +25,7 @@ const getEvent = async (evid) => {
 };
 
 const getEntities = async (enids) => {
-  const res = await rgraphql('api-entity', 'query getEntities($enids: [ID!]!) { entities(enids: $enids) { enid representatives } }', { enids });
+  const res = await rgraphql('api-entity', 'query getEntities($enids: [ID!]!) { entities(enids: $enids) { enid representatives name } }', { enids });
 
   if (res.errors || !res.data) {
     console.error(res);
@@ -37,6 +37,20 @@ const getEntities = async (enids) => {
   }
 
   return res.data.entities;
+}
+
+const getUid = async (studentnumber) => {
+  const res = await rgraphql('api-user', 'query getUid($studentnumber: ID!) { student(studentnumber: $studentnumber) { ... on Student { uid } } }', { studentnumber }, { user: { type: 'system' } });
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while getting the user uid');
+  }
+
+  if (!res.data.student) {
+    return false;
+  }
+
+  return res.data.student.uid;
 }
 
 const getVotes = async (evid) => {
@@ -215,6 +229,73 @@ schemaComposer.Mutation.addNestedFields({
         });
       });
     },
+  },
+
+  'schedule.import': {
+    type: 'String',
+    args: {
+      evid: 'ID!',
+      file: 'String!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED to import schedule');
+      }
+
+      if (await Schedule.findOne({ evid: args.evid })) {
+        return 'Schedule already created!';
+      }
+
+      return new Promise((resolve, reject) => {
+        csvParser(args.file.trim(), { columns: true, skip_empty_lines: true, delimiter: ';' }, async (err, records, info) => {
+          if (err) { reject(err); return; }
+
+          if (records.length === 0) {
+            resolve('Given file does not have records');
+            return;
+          }
+
+          const event = await getEvent(args.evid);
+          if (!event) {
+            resolve('Could not find event');
+            return;
+          }
+
+          const entities = await getEntities(event.entities);
+          if (!entities) {
+            resolve('Could not get entities of event');
+            return;
+          }
+
+          const schedule = [];
+          for (let { Slot: slot, StudentID: studentnumber, Org: entityName } of records) {
+            const uid = await getUid(studentnumber);
+            if (!uid) {
+              resolve(`Count not find or create student with studentnumber ${studentnumber}`);
+              return;
+            }
+            entityName = entityName.trim();
+            const entity = entities.find((entity) => entity.name.trim() === entityName);
+            if (!entity) {
+              resolve(`Count not find entity with name '${entityName}'`);
+              return;
+            }
+
+            schedule.push({
+              uid: uid,
+              evid: args.evid,
+              enid: entity.enid,
+              slot: slot,
+            });
+          }
+
+          await Schedule.insertMany(schedule);
+          resolve(null);
+        });
+      });
+    }
   }
 });
 
