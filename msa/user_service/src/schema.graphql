@@ -2,7 +2,7 @@ interface UserBase {
   uid: ID!
   firstname: String
   lastname: String
-  email: String!
+  email: String
   phone: String
 }
 
@@ -10,7 +10,7 @@ type Student implements UserBase {
   uid: ID!
   firstname: String
   lastname: String
-  email: String!
+  email: String
   phone: String
 
   studentnumber: String!
