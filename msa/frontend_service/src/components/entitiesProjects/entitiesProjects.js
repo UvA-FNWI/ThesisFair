@@ -36,7 +36,7 @@ class EntitiesProjects extends React.Component {
             <Col xs={12} lg={6} className='mb-4'>
               <h1>{project.name}</h1>
               <h4>About the project</h4>
-              {project.description}
+              <div dangerouslySetInnerHTML={{ __html: project.description }} />
 
               <h4 className='mt-4'>Datanose link</h4>
               <a href={project.datanoseLink} target='_blank' rel='noreferrer'>{project.datanoseLink}</a>
@@ -130,7 +130,7 @@ class EntitiesProjects extends React.Component {
                           {project.name}
                         </Accordion.Header>
                         <Accordion.Body>
-                          <p>{project.description}</p>
+                          <div dangerouslySetInnerHTML={{ __html: project.description}} />
 
                           <Button onClick={() => this.setState({ popup: { enid: entity.enid, entityIndex, projectIndex } })}>More information</Button>
                         </Accordion.Body>
