@@ -42,7 +42,6 @@ describe('Schedule', () => {
       const res = await api.schedule.representative.get(api.getApiTokenData().enid, db.events[4].evid).exec();
 
       for (const schedule of db.schedule) {
-        delete schedule.sid;
         delete schedule.evid;
 
         if (schedule.enid == api.getApiTokenData().enid) {
@@ -66,7 +65,6 @@ describe('Schedule', () => {
       const res = await api.schedule.student.get(api.getApiTokenData().uid, db.events[4].evid).exec();
 
       for (const schedule of db.schedule) {
-        delete schedule.sid;
         delete schedule.evid;
 
         if (schedule.uid == api.getApiTokenData().uid) {
