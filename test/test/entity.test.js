@@ -193,6 +193,7 @@ describe('Entity', () => {
         contact: [{ type: 'website', content: 'qrcsoftware.nl' }, { type: 'phonenumber', content: '06 12345678' }],
         external_id: 100,
         representatives: 2,
+        location: 'Stand 2b',
       }
 
       const res = await api.entity.create(entity).exec();
