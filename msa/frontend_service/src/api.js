@@ -1,6 +1,6 @@
 import apiGen from './api/api.js';
 
-const api = apiGen(process.env.REACT_APP_API_ENDPOINT);
+const api = apiGen(`${window.location.protocol}//${window.location.host}/api/`);
 export default api.api;
 
 
