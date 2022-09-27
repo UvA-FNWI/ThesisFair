@@ -32,7 +32,7 @@ class EntitiesProjects extends React.Component {
           Project and organisation information
         </Modal.Header>
         <Modal.Body>
-          <Row class='d-flex justify-content-around'>
+          <Row className='d-flex justify-content-around'>
             <Col xs={12} lg={6} className='mb-4'>
               <h1>{project.name}</h1>
               <h4>About the project</h4>
