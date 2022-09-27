@@ -47,7 +47,7 @@ router.get('/login', (req, res) => {
 
   res.cookie('c', code_verifier_encrypted, {
     httpOnly: true,
-    sameSite: process.env.NODE_ENV !== 'development',
+    sameSite: 'Lax',
     secure: process.env.NODE_ENV !== 'development',
     maxAge: 300000,
   });
