@@ -45,3 +45,6 @@ azureCLI:
 
 dashboardToken:
 	kubectl create token admin -n kubernetes-dashboard --duration 7d
+
+generateJWTSecret:
+	openssl rand -base64 512
