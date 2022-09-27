@@ -98,7 +98,7 @@ class Schedule extends React.Component {
 
     const [entities, students] = await Promise.all([
       api.entity.getMultiple(event.entities, { enid: true, name: true, location: true }).exec(),
-      api.user.getAll({ uid: true, firstname: true, lastname: true }).exec(),
+      api.user.getAll('student', { uid: true, firstname: true, lastname: true }).exec(),
     ]);
     for (let i = 0; i < schedule.length; i++) {
       const entity = entities.find((entity) => entity.enid === schedule[i].enid);
