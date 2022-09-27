@@ -114,7 +114,7 @@ describe('Vote', () => {
 
     it('mutation vote.import should import votes', async () => {
       const vote_import = gen_vote_import();
-      const res = await api.votes.import(vote_import.base, db.events[0].evid).exec();
+      const res = await api.votes.import(vote_import.base, db.events[0].external_id).exec();
 
       for (const result of res) {
         expect(result.error).to.be.null;
@@ -131,7 +131,7 @@ describe('Vote', () => {
     it('mutation vote.import should properly handle new student numbers while importing votes', async () => {
       const vote_import = gen_vote_import();
       const userCount = (await models.User.find()).length;
-      await api.votes.import(vote_import.newStudentNumber, db.events[0].evid).exec();
+      await api.votes.import(vote_import.newStudentNumber, db.events[0].external_id).exec();
 
       const newUserCount = (await models.User.find()).length;
       expect(newUserCount).to.equal(userCount + 2);
@@ -139,8 +139,8 @@ describe('Vote', () => {
 
     it('mutation vote.import should update already existing votes', async () => {
       const vote_import = gen_vote_import();
-      await api.votes.import(vote_import.base, db.events[0].evid).exec();
-      const res = await api.votes.import(vote_import.update, db.events[0].evid).exec();
+      await api.votes.import(vote_import.base, db.events[0].external_id).exec();
+      const res = await api.votes.import(vote_import.update, db.events[0].external_id).exec();
 
       for (const result of res) {
         expect(result.error).to.be.null;
@@ -157,8 +157,8 @@ describe('Vote', () => {
 
     it('mutation vote.import should delete properly delete votes', async () => {
       const vote_import = gen_vote_import();
-      await api.votes.import(vote_import.base, db.events[0].evid).exec();
-      const res = await api.votes.import(vote_import.delete, db.events[0].evid).exec();
+      await api.votes.import(vote_import.base, db.events[0].external_id).exec();
+      const res = await api.votes.import(vote_import.delete, db.events[0].external_id).exec();
 
       for (const result of res) {
         expect(result.error).to.be.null;
@@ -170,7 +170,7 @@ describe('Vote', () => {
 
     it('mutation vote.import should properly handle incorrect project id', async () => {
       const vote_import = gen_vote_import();
-      const res = await api.votes.import(vote_import.invalidProjectID, db.events[0].evid).exec();
+      const res = await api.votes.import(vote_import.invalidProjectID, db.events[0].external_id).exec();
 
       expect(res[0].error).to.be.a.string;
       expect(res[0].error).to.have.length.above(0);

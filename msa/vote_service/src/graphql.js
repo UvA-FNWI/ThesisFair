@@ -44,20 +44,20 @@ const getProjectData = async (external_pid) => {
   return res.data.projectByExtID;
 };
 
-const evidExists = async (evid) => {
-  const res = await rgraphql('api-event', 'query checkEVID($evid: ID!) { event(evid: $evid) { evid } }', { evid });
+const getEvid = async (external_id) => {
+  const res = await rgraphql('api-event', 'query getEvid($external_id: ID!) { eventByExtID(external_id: $external_id) { evid } }', { external_id });
+
   if (res.errors || !res.data) {
     console.error(res);
     throw new Error('An unkown error occured while checking if the evid is valid');
   }
 
-  if (!res.data.event) {
+  if (!res.data.eventByExtID) {
     return false;
   }
 
-  return true;
+  return res.data.eventByExtID.evid;
 };
-
 
 schemaComposer.Query.addNestedFields({
   votesOfStudent: {
@@ -166,7 +166,8 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED import votes');
       }
 
-      if (!(await evidExists(args.evid))) {
+      const evid = await getEvid(args.evid);
+      if (!evid) {
         throw new Error('Event does not exist!');
       }
 
@@ -191,7 +192,7 @@ schemaComposer.Mutation.addNestedFields({
             return { error: 'Project not found with given project_id.' };
           }
 
-          const votes = await Vote.findOneAndUpdate({ uid: uid, evid: args.evid }, {}, { new: true, upsert: true }); // Automic find or create
+          const votes = await Vote.findOneAndUpdate({ uid: uid, evid: evid }, {}, { new: true, upsert: true }); // Automic find or create
 
           const contains = !!votes.votes.find(({ pid: votePid }) => votePid == project.pid);
           const voteItem = { pid: project.pid, enid: project.enid };
