@@ -3,8 +3,8 @@ ansible:
 
 sync:
 	scp -r ./compose thesisfairDev:~/
-	scp -r ./.env thesisfairDev:~/compose/.env
+	scp -r ./docker-compose.yml thesisfairDev:~/compose/docker-compose.yml
 
 syncProd:
-	rsync -r --rsync-path="sudo rsync" ./compose thesisfairProd:/opt/thesisfair/
-	rsync --rsync-path="sudo rsync" ./.env.prod thesisfairProd:/opt/thesisfair/compose/.env
+	rsync -r --rsync-path="sudo rsync" --delete ./composeProd/ thesisfairProd:/opt/thesisfair/compose
+	rsync --rsync-path="sudo rsync" ./docker-compose.yml thesisfairProd:/opt/thesisfair/compose/docker-compose.yml

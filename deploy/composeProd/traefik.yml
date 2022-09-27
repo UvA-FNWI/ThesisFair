@@ -9,16 +9,7 @@ entrypoints:
   webSec:
     address: ":443"
     http:
-      tls:
-        certResolver: "letsencrypt"
-
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      email: q.r.coltof@uva.nl
-      storage: /data/acme.json
-      httpChallenge:
-        entryPoint: web
+      tls: {}
 
 providers:
   docker:

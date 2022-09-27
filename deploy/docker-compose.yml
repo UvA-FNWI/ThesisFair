@@ -10,6 +10,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./dynamic-config:/dynamic-config:ro
       - ${FS_ROOT}/data/traefik:/data
 
 

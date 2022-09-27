@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /dynamic-config/thesisfair.ivi.uva.nl.cert.pem
+      keyFile: /dynamic-config/thesisfair.ivi.uva.nl.key
