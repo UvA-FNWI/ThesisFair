@@ -267,11 +267,12 @@ schemaComposer.Query.addNestedFields({
       let user;
       if (args.student) {
         user = await Student.findOne({ studentnumber: args.external_id });
-        if (!user.email && !user.firstname && !user.lastname) { // Current user data is a placeholder created by "query student", this is the first time the user is logging in via SSO.
-          await Student.findByIdAndUpdate(user.uid, { email: args.email, firstname: args.firstname, lastname: args.lastname });
-        } else if (!user) {
+        if (!user) { // User does not exist
           const studies = await getStudies(args.external_id);
           user = await Student.findOneAndUpdate({ email: args.email }, { studentnumber: args.external_id, firstname: args.firstname, lastname: args.lastname, studies }, { upsert: true, new: true });
+        } else if (!user.email && !user.firstname && !user.lastname) { // Current user data is a placeholder created by "query student", this is the first time the user is logging in via SSO.
+          const studies = await getStudies(args.external_id);
+          await Student.findByIdAndUpdate(user.uid, { email: args.email, firstname: args.firstname, lastname: args.lastname, studies });
         }
       } else {
         user = await Representative.findOne({ external_id: args.external_id });
