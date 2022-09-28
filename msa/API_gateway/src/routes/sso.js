@@ -26,7 +26,7 @@ const ssoLogin = async (student, external_id, email, firstname, lastname) => {
   }
   const res = await rgraphql('api-user', `query ssoLogin($student: Boolean!, $external_id: ID!, $email: String!, $firstname: String, $lastname: String) { ssoLogin(student: $student, external_id: $external_id, email: $email, firstname: $firstname, lastname: $lastname) } `, variables, { user: { type: 'system' } });
   if (res.errors) {
-    throw new Error(res.errors[0].message);
+    throw new Error('api-user: ' + res.errors[0].message);
   }
 
   return res.data.ssoLogin;
