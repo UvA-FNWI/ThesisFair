@@ -135,7 +135,7 @@ schemaComposer.Mutation.addNestedFields({
       return Entity.findByIdAndDelete(args.enid)
     },
   },
-  'entity.import': {
+  'entity.import': { // TODO: Remove contact information from import as well
     type: '[EntityImportResult!]!',
     args: {
       entities: '[EntityImport!]!',
@@ -149,7 +149,7 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       return Promise.all(
-        args.entities.map(async ({ ID: external_id, name, admins, enabled, representatives }) => {
+        args.entities.map(async ({ ID: external_id, name, enabled, representatives }) => {
           let entity = await Entity.findOne({ external_id: external_id });
           if (entity) {
             if (enabled) { // Entity already created.
@@ -177,26 +177,14 @@ schemaComposer.Mutation.addNestedFields({
           }
 
           // Create entity and admin accounts
-          entity = await Entity.create({
-            name: name,
-            external_id,
-            representatives,
-            type: 'company',
-          });
-
-          // for (let i = 0; i < adminNames.length; i++) {
-          for (const { firstname, lastname, email } of admins) {
-            const res = await rgraphql('api-user', 'mutation createAdminRepresentative($enid: ID!, $firstname: String, $lastname: String, $email: String!) { user { representative { create(enid: $enid, firstname: $firstname, lastname: $lastname, email: $email, repAdmin: true) { uid } } } }', { enid: entity.enid, firstname, lastname, email });
-            if (res.errors) {
-              // Delete all users and, log and return error message.
-              await rgraphql('api-user', 'mutation deleteUsersOfEntity($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: entity.enid });
-
-              console.error('Unexpected error while creating users: ', res);
-              return { error: 'Unexpected error has occured' };
-            }
-          }
-
-          return { entity };
+          return {
+            entity: await Entity.create({
+              name: name,
+              external_id,
+              representatives,
+              type: 'company',
+            })
+          };
         })
       );
     }

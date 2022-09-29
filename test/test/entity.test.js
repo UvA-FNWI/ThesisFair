@@ -239,16 +239,10 @@ describe('Entity', () => {
     });
 
     it('mutation entity.import should import entities and create users', async () => {
-      const userCountBefore = (await models.User.find()).length;
       const res = await api.entity.import(entity_import.base).exec();
-
       expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.base.map((e) => e.name));
       expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.base.map((e) => e.ID));
       expect(res.map((e) => e.entity.representatives)).to.deep.equal(entity_import.base.map((e) => e.representatives));
-
-      const userCountAfter = (await models.User.find()).length;
-
-      expect(userCountAfter).to.equal(userCountBefore + 4);
     });
 
     it('mutation entity.import should update entities when they already exist', async () => {
