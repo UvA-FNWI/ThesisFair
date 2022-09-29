@@ -325,16 +325,29 @@ schemaComposer.Mutation.addNestedFields({
         to: process.env.OVERRIDEMAIL || args.email,
         subject: 'ThesisFair representative account created',
         text: `
-Dear ${args.firstname} ${args.lastname},
+Dear Madam/Sir,
 
-Your UvA ThesisFair ${args.repAdmin ? 'admin ' : ''}representative account has been created.
+Your UvA Thesis Fair ${args.repAdmin ? 'admin ' : ''}representative account has been created.
 You can log in at https://thesisfair.ivi.uva.nl/
+
+${
+ args.repAdmin ?
+`This admin account gives you the ability to create additional logins for representatives from your organisations.
+Please create subaccounts for all you colleague representatives attending before the event. Let your colleagues check your spam folder in case they do not receive an email.
+
+You can create subaccounts by going the bottom of the organization page and pressing the "Create new account" button.
+ `
+ : ''
+}
 
 Your credentials are:
 Email: ${args.email}
 Password: ${password}
 
 Please update your password to a more secure one as soon as possible.
+
+Kind regards,
+Thesis Fair Team
 `
       })
 
