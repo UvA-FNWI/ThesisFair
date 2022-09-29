@@ -10,7 +10,7 @@ let sendInitialized = false;
 
 const TRY_COUNT = 20;
 const TRY_TIMEOUT = 500;
-const MSG_TIMEOUT = 10000; // ms
+const MSG_TIMEOUT = 30000; // ms
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
