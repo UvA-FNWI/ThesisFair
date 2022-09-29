@@ -54,7 +54,7 @@ export const receive = async (queue, callback) => {
     debug('Recv corr: %ds, reply:To %s', msg.properties.correlationId, msg.properties.replyTo)
     if (msg.properties.timestamp < Date.now() - MSG_TIMEOUT) {
       channel.ack(msg);
-      console.log('Dropped timeouted message');
+      console.log('Dropped timeouted message: ' + msg.content);
       return;
     }
 

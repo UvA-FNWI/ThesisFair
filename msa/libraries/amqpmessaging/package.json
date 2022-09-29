@@ -1,6 +1,6 @@
 {
   "name": "@amicopo/amqpmessaging",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A library which implements amqp messaging withing a microservice architecture",
   "main": "index.js",
   "type": "module",
