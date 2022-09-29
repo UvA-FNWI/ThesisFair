@@ -78,6 +78,7 @@ class EventEntities extends React.Component {
     this.state = {
       event: {},
       entities: [],
+      importingReps: false,
     };
   }
 
@@ -88,17 +89,50 @@ class EventEntities extends React.Component {
     this.setState({ event, entities });
   }
 
+  importRepresentatives = async () => {
+    if (this.state.importingReps) { return; }
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = async () => {
+      const blob = input.files.item(0);
+      if (!blob) {
+        input.remove();
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        this.setState({ importingReps: true });
+        input.remove();
+        const error = await api.user.representative.import(reader.result).exec();
+        if (error) {
+          this.setState({ importingReps: false, importingRepsError: error.message });
+          return;
+        }
+        this.setState({ importingReps: false, importingRepsDone: true });
+      }
+      reader.readAsText(blob);
+    }
+    input.click();
+  }
+
   render() {
     return (
       <Container className='mt-2'>
         <div className='mb-4'>
           <h1>Companies</h1>
+          <Button onClick={this.importRepresentatives}>{this.state.importingReps ? 'Creating representatives...' : 'Batch create representatives'}</Button>
+          { this.state.importingRepsError ? <><br /><span style={{ color: 'red'}}>{this.state.importingRepsError}</span></> : null }
+          { this.state.importingRepsDone ? <><br /><span style={{ color: 'green'}}>Representatives have been imported</span></> : null }
         </div>
         <Table striped bordered hover>
           <thead>
             <tr>
               <th>Organisation</th>
               <th>Location</th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>

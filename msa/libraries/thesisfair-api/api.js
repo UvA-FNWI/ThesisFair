@@ -432,6 +432,15 @@ export default (url) => {
               },
               cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
             }),
+          import: (file) =>
+            genGraphQLBuilder({
+              type: 'mutation',
+              name: 'importRepresentatives',
+              functionPath: 'user.representative.import',
+              args: {
+                file: { value: file, type: 'String!' },
+              },
+            }),
         },
 
         student: {

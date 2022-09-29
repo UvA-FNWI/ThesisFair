@@ -2,12 +2,14 @@ import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync, mkdirSync, existsSync, constants } from 'fs';
 import { writeFile, readFile, access } from 'fs/promises';
+import { parse as csvParser } from 'csv-parse';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import axios from 'axios';
 
+import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { User, Student, Representative, isValidObjectId } from './database.js';
 import { canGetUser, canGetUsers } from './permissions.js';
 
@@ -85,6 +87,70 @@ const getStudies = async (studentnumber) => {
   }
 
   return result.data.map((study) => study.Name);
+}
+
+const getEnid = async (external_id) => {
+  const res = await rgraphql('api-entity', 'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
+
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while getting the entity enid');
+  }
+
+  if (!res.data.entityByExtID) {
+    return false;
+  }
+
+  return res.data.entityByExtID.enid;
+};
+
+/**
+ *
+ * @param {Object} rep
+ * @param {String} rep.enid
+ * @param {String} rep.firstname
+ * @param {String} rep.lastname
+ * @param {String} rep.email
+ * @param {String} rep.phone
+ * @param {String} rep.repAdmin
+ * @returns {Object} The new representative
+ */
+const createRepresentative = async (rep) => {
+  const password = await randomPassword();
+  rep.password = await hash(password);
+
+  await mail.sendMail({
+    from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
+    to: process.env.OVERRIDEMAIL || rep.email,
+    subject: 'ThesisFair representative account created',
+    text: `
+  Dear Madam/Sir,
+
+  Your UvA Thesis Fair ${rep.repAdmin ? 'admin ' : ''}representative account has been created.
+  You can log in at https://thesisfair.ivi.uva.nl/
+
+  ${rep.repAdmin ?
+        `This admin account gives you the ability to create additional logins for representatives from your organisation.
+Please create subaccounts for all your colleague representatives attending before the event.
+Please ask your colleagues to check their spam folder in case they do not receive an email.
+
+  You can create subaccounts by going the bottom of the organisation page and pressing the "Create new account" button.
+   `
+        : ''
+      }
+
+  Your credentials are:
+  Email: ${rep.email}
+  Password: ${password}
+
+  Please update your password to a more secure one as soon as possible.
+
+  Kind regards,
+  Thesis Fair Team
+  `
+  })
+
+  return Representative.create(rep);
 }
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
@@ -317,41 +383,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create user accounts for this entity');
       }
 
-      const password = await randomPassword();
-      args.password = await hash(password);
-
-      await mail.sendMail({
-        from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
-        to: process.env.OVERRIDEMAIL || args.email,
-        subject: 'ThesisFair representative account created',
-        text: `
-Dear Madam/Sir,
-
-Your UvA Thesis Fair ${args.repAdmin ? 'admin ' : ''}representative account has been created.
-You can log in at https://thesisfair.ivi.uva.nl/
-
-${
- args.repAdmin ?
-`This admin account gives you the ability to create additional logins for representatives from your organisations.
-Please create subaccounts for all you colleague representatives attending before the event. Let your colleagues check your spam folder in case they do not receive an email.
-
-You can create subaccounts by going the bottom of the organization page and pressing the "Create new account" button.
- `
- : ''
-}
-
-Your credentials are:
-Email: ${args.email}
-Password: ${password}
-
-Please update your password to a more secure one as soon as possible.
-
-Kind regards,
-Thesis Fair Team
-`
-      })
-
-      return Representative.create(args);
+      return createRepresentative(args);
     }
   },
   'user.representative.update': {
@@ -395,6 +427,50 @@ Thesis Fair Team
 
       return Representative.findByIdAndUpdate(uid, { $set: args }, { new: true });
     },
+  },
+  'user.representative.import': {
+    type: 'String',
+    args: {
+      file: 'String!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED to import representatives');
+      }
+
+      return new Promise((resolve, reject) => {
+        csvParser(args.file.trim(), { columns: true, skip_empty_lines: true, delimiter: ';' }, async (err, records, info) => {
+          if (err) { reject(err); return; }
+
+          if (records.length === 0) {
+            resolve('Given file does not have records');
+            return;
+          }
+
+          for (let { ID: entity_id, email } of records) {
+            if (!entity_id || !email) { continue; }
+
+            const user = await Representative.findOne({ email });
+            if (user) { continue; } // User already exists
+
+            const enid = await getEnid(entity_id);
+            if (!enid) {
+              resolve(`Entity id ${entity_id} not found!`);
+              return;
+            }
+            await createRepresentative({
+              enid: enid,
+              email: email,
+              repAdmin: true,
+            });
+          }
+
+          resolve(null);
+        });
+      });
+    }
   },
   'user.admin.update': {
     type: 'User',
