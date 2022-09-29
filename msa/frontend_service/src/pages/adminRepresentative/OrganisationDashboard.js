@@ -112,6 +112,7 @@ class OrganisationDashboard extends React.Component {
 
           <div>
             <h2>Company Accounts</h2>
+            <h6><em>The filled in star means that the person has an admin representative account. Try and limit the amount of admin representatives to one or two people per organisation</em></h6>
             <RepresentativeList enid={api.getApiTokenData().enid} />
           </div>
         </Container>
