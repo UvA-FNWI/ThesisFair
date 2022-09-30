@@ -1,0 +1,75 @@
+version: '3.2'
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+    - 9090:9090
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - prometheusStorage:/prometheus
+    depends_on:
+    - cadvisor
+    - node-exporter
+    networks:
+      - default
+      - thesisfair
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    # ports:
+    # - 8080:8080
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+    - redis
+
+  redis:
+    image: redis:latest
+    # ports:
+    # - 6379:6379
+
+  grafana:
+    image: grafana/grafana-oss
+    volumes:
+    - ./grafana.ini:/etc/grafana/grafana.ini:ro
+    - grafanaStorage:/var/lib/grafana
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: "thesisfair"
+      traefik.http.routers.grafana.entrypoints: webSec
+      traefik.http.routers.grafana.rule: Host(`${URL}`) && PathPrefix(`/grafana`)
+      traefik.http.routers.grafana.middlewares: grafanaIpWhitelist
+      traefik.http.middlewares.grafanaIpWhitelist.ipwhitelist.sourcerange: 213.10.31.95
+    networks:
+      - default
+      - thesisfair
+
+volumes:
+  prometheusStorage:
+  grafanaStorage:
+
+networks:
+  default:
+  thesisfair:
+    name: thesisfair
+    external: true

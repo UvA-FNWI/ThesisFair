@@ -10,6 +10,8 @@ entrypoints:
     address: ":443"
     http:
       tls: {}
+  metrics:
+    address: ":8082"
 
 providers:
   docker:
@@ -20,6 +22,11 @@ providers:
     watch: true
 
 accessLog: {}
+
+metrics:
+  prometheus:
+    entryPoint: metrics
+    addRoutersLabels: true
 
 api:
   insecure: true

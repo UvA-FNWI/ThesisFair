@@ -11,6 +11,8 @@ entrypoints:
     http:
       tls:
         certResolver: "letsencrypt"
+  metrics:
+    address: ":8082"
 
 certificatesResolvers:
   letsencrypt:
@@ -29,6 +31,11 @@ providers:
     watch: true
 
 accessLog: {}
+
+metrics:
+  prometheus:
+    entryPoint: metrics
+    addRoutersLabels: true
 
 api:
   insecure: true
