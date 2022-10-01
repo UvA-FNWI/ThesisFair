@@ -44,7 +44,7 @@ class EventPicker extends React.Component {
                   <Button className='ms-auto' onClick={() => this.setState({ redirect: `/${event.evid}` })}>Select</Button>
                 </Accordion.Header>
                 <Accordion.Body>
-                  {event.description}
+                  <div dangerouslySetInnerHTML={{ __html: event.description }} />
                 </Accordion.Body>
               </Accordion.Item>
             )) }

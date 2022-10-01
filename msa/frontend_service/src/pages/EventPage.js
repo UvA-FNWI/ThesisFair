@@ -25,7 +25,7 @@ class EventPage extends React.Component {
     return (
       <Container className='mt-2'>
         <h2>{this.state.event.name}</h2>
-        <p>{this.state.event.description}</p>
+        <div dangerouslySetInnerHTML={{ __html: this.state.event.description }} />
 
         {this.state.eventImage ?
           <img src={this.state.eventImage} alt='Map of the event' />
