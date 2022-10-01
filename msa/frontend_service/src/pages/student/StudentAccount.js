@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Form, Button, CloseButton } from 'react-bootstrap';
 import cvUploadedIcon from 'bootstrap-icons/icons/file-earmark-check.svg';
-import api, { downloadCV } from '../../api';
+import api, { downloadCV, getFileContent } from '../../api';
 
 class StudentAccount extends React.Component {
   constructor(props) {
@@ -69,28 +69,15 @@ class StudentAccount extends React.Component {
     }, 2000);
   }
 
-  uploadCV = () => {
+  uploadCV = async () => {
     this.setState({ savingCV: true });
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = async () => {
-      const blob = input.files.item(0);
-      if (!blob) {
-        input.remove();
-        this.setState({ savingCV: false });
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-
-        input.remove();
-        await api.user.student.uploadCV(api.getApiTokenData().uid, reader.result).exec();
-        this.setState({ savingCV: false, cvPresence: true });
-      }
-      reader.readAsDataURL(blob);
+    const cv = await getFileContent();
+    if (!cv) {
+      this.setState({ savingCV: false });
+      return;
     }
-    input.click();
+    await api.user.student.uploadCV(api.getApiTokenData().uid, cv).exec();
+    this.setState({ savingCV: false, cvPresence: true });
   }
 
 

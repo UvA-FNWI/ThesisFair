@@ -23,3 +23,31 @@ export const downloadCV = async (uid, name='cv') => {
 
   download(cv, name + '.pdf');
 }
+
+export const getFileContent = (text=false) => {
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = async () => {
+      const blob = input.files.item(0);
+      if (!blob) {
+        input.remove();
+        resolve(null);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        input.remove();
+        resolve(reader.result)
+      }
+
+      if (text) {
+        reader.readAsText(blob);
+      } else {
+        reader.readAsDataURL(blob);
+      }
+    }
+    input.click();
+  });
+}

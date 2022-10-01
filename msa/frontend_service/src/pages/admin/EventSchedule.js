@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Container, Table, Form, Button } from 'react-bootstrap';
 import EditIcon from 'bootstrap-icons/icons/pencil-square.svg';
 import SaveIcon from 'bootstrap-icons/icons/check-lg.svg';
-import api from '../../api';
+import api, { getFileContent } from '../../api';
 
 const getStudentName = (student) => student.firstname || student.lastname ? (student.firstname || '') + ' ' + (student.lastname || '') : null;
 
@@ -142,26 +142,11 @@ class Schedule extends React.Component {
   importSchedule = async () => {
     if (this.state.uploadingCSV) { return; }
 
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = async () => {
-      const blob = input.files.item(0);
-      if (!blob) {
-        input.remove();
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        this.setState({ uploadingCSV: true });
-        await api.schedule.import(this.props.params.evid, reader.result).exec();
-        this.setState({ uploadingCSV: false });
-        input.remove();
-        await this.loadSchedule();
-      }
-      reader.readAsText(blob);
-    }
-    input.click();
+    this.setState({ uploadingCSV: true });
+    const file = await getFileContent(true);
+    await api.schedule.import(this.props.params.evid, file).exec();
+    this.setState({ uploadingCSV: false });
+    await this.loadSchedule();
   }
 
   render() {
