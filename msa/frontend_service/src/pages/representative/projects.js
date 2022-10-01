@@ -118,7 +118,7 @@ class Projects extends React.Component {
                   </div>
                 </Accordion.Header>
                 <Accordion.Body>
-                  <p>{project.description}</p>
+                <div dangerouslySetInnerHTML={{ __html: project.description }} />
 
                   <h4 className='mt-4'>Students</h4>
                   <div>
