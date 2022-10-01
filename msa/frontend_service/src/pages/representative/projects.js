@@ -122,7 +122,7 @@ class Projects extends React.Component {
 
                   <h4 className='mt-4'>Students</h4>
                   <div>
-                    {this.state.votedFor[project.pid] ? this.state.votedFor[project.pid].map((student, studentIndex) => (
+                    {this.state.votedFor[project.pid] ? this.state.votedFor[project.pid].length > 0 ? this.state.votedFor[project.pid].map((student, studentIndex) => (
                       <Card key={studentIndex} className='mb-2 hoverable' onClick={(e) => this.setState({ popup: { projectIndex, studentIndex, cv: false } })}>
                         <Card.Body className='d-flex justify-content-between align-items-center'>
                           <p className='m-0'>
@@ -135,7 +135,9 @@ class Projects extends React.Component {
                           </div>
                         </Card.Body>
                       </Card>
-                    )) : null}
+                    ))
+                    : <h6><em>No students have voted for this project.</em></h6>
+                    : null}
                   </div>
                 </Accordion.Body>
               </Accordion.Item>
