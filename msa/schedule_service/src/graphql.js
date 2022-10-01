@@ -85,7 +85,7 @@ schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8')
 
 schemaComposer.Query.addNestedFields({
   scheduleStudent: {
-    type: '[Schedule!]!',
+    type: '[Schedule!]',
     args: {
       uid: 'ID!',
       evid: 'ID!',
@@ -97,11 +97,18 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED to get this users schedule');
       }
 
-      return Schedule.find({ evid: args.evid, uid: args.uid });
+      const schedule = await Schedule.find({ evid: args.evid, uid: args.uid });
+      if (schedule.length === 0) {
+        if (!await Schedule.findOne({ evid: args.evid })) {
+          return null; // No schedule has been generated yet.
+        }
+      }
+
+      return schedule;
     },
   },
   scheduleRepresentative: {
-    type: '[Schedule!]!',
+    type: '[Schedule!]',
     args: {
       enid: 'ID!',
       evid: 'ID!',
@@ -113,11 +120,18 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED to get this users schedule');
       }
 
-      return Schedule.find({ evid: args.evid, enid: args.enid });
+      const schedule = await Schedule.find({ evid: args.evid, enid: args.enid });
+      if (schedule.length === 0) {
+        if (!await Schedule.findOne({ evid: args.evid })) {
+          return null; // No schedule has been generated yet.
+        }
+      }
+
+      return schedule;
     },
   },
   scheduleAdmin: {
-    type: '[Schedule!]!',
+    type: '[Schedule!]',
     args: {
       evid: 'ID!',
     },
