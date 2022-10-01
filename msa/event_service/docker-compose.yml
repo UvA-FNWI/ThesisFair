@@ -10,6 +10,7 @@ services:
       - mongodbConStr=mongodb://mongodb/event_service
     volumes:
       - ./event_service/src:/app/src
+      - ./event_service/data:/app/data
       - ./libraries:/libraries
     networks:
       - default

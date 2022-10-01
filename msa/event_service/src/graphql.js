@@ -7,6 +7,8 @@ import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Event } from './database.js';
 import { canGetEvent, canGetEvents } from './permissions.js';
 
+const imageTypes = ['student', 'rep']
+
 const checkEntitiesExist = async (entities) => {
   const res = await rgraphql('api-entity', 'query($enids: [ID!]!){entities(enids:$enids){enid}}', { enids: entities });
   if (res.errors) {
@@ -75,9 +77,14 @@ schemaComposer.Query.addNestedFields({
     type: 'String',
     args: {
       evid: 'ID!',
+      type: 'String!',
     },
     resolve: async (obj, args, req) => {
-      const file = `./data/${args.evid}`;
+      if (!imageTypes.includes(args.type)) {
+        throw new Error('Invalid image type. Options are: ' + imageTypes.join(','));
+      }
+
+      const file = `./data/${args.evid}-${args.type}`;
       try {
         await access(file, constants.R_OK);
       } catch (error) {
@@ -176,7 +183,8 @@ schemaComposer.Mutation.addNestedFields({
     type: 'Boolean',
     args: {
       evid: 'ID!',
-      image: 'String',
+      type: 'String!',
+      image: 'String!',
     },
     description: JSON.stringify({
     }),
@@ -185,12 +193,16 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED update an event');
       }
 
+      if (!imageTypes.includes(args.type)) {
+        throw new Error('Invalid image type. Options are: ' + imageTypes.join(','));
+      }
+
       const event = Event.findById(args.evid);
       if (!event) {
         throw new Error('event does not exist');
       }
 
-      await writeFile(`./data/${args.evid}`, args.image);
+      await writeFile(`./data/${args.evid}-${args.type}`, args.image);
     },
   },
   'event.delete': {

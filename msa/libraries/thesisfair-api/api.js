@@ -603,12 +603,13 @@ export default (url) => {
             },
             cache: caching ? { instance: cache, type: 'event', key: 'evid' } : false,
           }),
-        getImage: (evid) =>
+        getImage: (evid, type) =>
           genGraphQLBuilder({
             name: 'getEventImage',
             functionPath: 'eventImage',
             args: {
               evid: { value: evid, type: 'ID!' },
+              type: { value: type, type: 'String!' },
             },
           }),
         getAll: (all = false, projection) =>
@@ -658,13 +659,14 @@ export default (url) => {
             },
             cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
           }),
-        updateImage: (evid, image) =>
+        updateImage: (evid, type, image) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'updateEventImage',
             functionPath: 'event.updateImage',
             args: {
               evid: { value: evid, type: 'ID!' },
+              type: { value: type, type: 'String!' },
               image: { value: image, type: 'String!' },
             },
           }),
