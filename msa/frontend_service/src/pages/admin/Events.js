@@ -26,9 +26,10 @@ class Events extends React.Component {
     return (
       <tr key={evid}>
         <td>{name}</td>
-        <td>{description}</td>
+        <td><div dangerouslySetInnerHTML={{__html: description}} /></td>
         <td>{new Date(start).toLocaleString('NL-nl')}</td>
         <td>{enabled ? 'Enabled' : 'Hidden'}</td>
+        <td><Link to={`event/${evid}/`}><Button>Event</Button></Link></td>
         <td><Link to={`event/${evid}/schedule`}><Button>Schedule</Button></Link></td>
         <td><Link to={`event/${evid}/projects`}><Button>Projects</Button></Link></td>
         <td><Link to={`event/${evid}/entities`}><Button>Entities</Button></Link></td>
