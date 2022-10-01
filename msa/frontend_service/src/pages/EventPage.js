@@ -15,7 +15,7 @@ class EventPage extends React.Component {
 
   async componentDidMount() {
     const event = api.event.get(this.props.params.evid).exec();
-    const eventImage = api.event.getImage(this.props.params.evid).exec();
+    const eventImage = api.event.getImage(this.props.params.evid, api.getApiTokenData().type === 's' ? 'student' : 'rep').exec();
 
     this.setState({ event: await event });
     this.setState({ eventImage: await eventImage });
@@ -28,7 +28,7 @@ class EventPage extends React.Component {
         <div dangerouslySetInnerHTML={{ __html: this.state.event.description }} />
 
         {this.state.eventImage ?
-          <img src={this.state.eventImage} alt='Map of the event' />
+          <img width="100%" src={this.state.eventImage} alt='Map of the event' />
           :
           this.state.eventImage === false ?
             <div style={{ width: '100%', minHeight: '95vh' }} className='d-flex justify-content-center align-items-center'>
