@@ -211,7 +211,14 @@ schemaComposer.Query.addNestedFields({
     }),
     resolve: async (obj, args, req) => {
       const users = await User.find({ _id: { $in: args.uids } });
-      canGetUsers(req, args, users);
+      for (let i = 0; i < users.length; i++) {
+        try {
+          canGetUser(req, args, users[i]);
+        } catch (error) {
+          users[i] = null;
+        }
+      }
+
       return users;
     },
   },
