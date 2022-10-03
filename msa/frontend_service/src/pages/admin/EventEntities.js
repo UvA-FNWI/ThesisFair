@@ -13,6 +13,7 @@ class TableRow extends React.Component {
 
     this.state = {
       location: this.props.entity.location,
+      description: this.props.entity.description,
       editing: false,
       modal: false,
     }
@@ -26,6 +27,7 @@ class TableRow extends React.Component {
 
     await api.entity.update({
       enid: this.props.entity.enid,
+      description: this.state.description,
       location: this.state.location,
     }).exec();
 
@@ -51,6 +53,7 @@ class TableRow extends React.Component {
       return (
         <tr>
           <td>{this.props.entity.name}</td>
+          <td><Form.Control as='textarea' value={this.state.description} onChange={(e) => this.setState({ description: e.target.value })} /></td>
           <td><Form.Control value={this.state.location} onChange={(e) => this.setState({ location: e.target.value })} /></td>
           <td><img src={SaveIcon} alt='save' onClick={this.toggleEditing} /></td>
         </tr>
@@ -62,6 +65,7 @@ class TableRow extends React.Component {
         {this.state.modal ? this.manageUsersPopup() : null}
         <tr>
           <td>{this.props.entity.name}</td>
+          <td>{this.state.description}</td>
           <td>{this.state.location}</td>
           <td style={{ width: '1px', whiteSpace: 'nowrap' }}><img src={EditIcon} alt='edit' onClick={this.toggleEditing} /></td>
           <td style={{ width: '1px', whiteSpace: 'nowrap' }}><Button onClick={() => this.setState({ modal: true })}>Manage users</Button></td>
@@ -84,7 +88,7 @@ class EventEntities extends React.Component {
 
   async componentDidMount() {
     const event = await api.event.get(this.props.params.evid).exec();
-    const entities = await api.entity.getMultiple(event.entities, { enid: true, name: true, location: true }).exec();
+    const entities = await api.entity.getMultiple(event.entities, { enid: true, name: true, description: true, location: true }).exec();
 
     this.setState({ event, entities });
   }
@@ -130,6 +134,7 @@ class EventEntities extends React.Component {
           <thead>
             <tr>
               <th>Organisation</th>
+              <th>Description</th>
               <th>Location</th>
               <th></th>
               <th></th>
