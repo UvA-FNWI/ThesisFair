@@ -12,8 +12,8 @@ const createApp = async () => {
   newApp.disable('x-powered-by');
 
   newApp.use(morgan('dev'));
-  newApp.use(express.json({ limit: '10mb' }));
-  newApp.use(express.urlencoded({ extended: false, limit: '10mb' }));
+  newApp.use(express.json({ limit: '50mb' }));
+  newApp.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
   if (process.env.NODE_ENV === 'development') {
     newApp.use((req, res, next) => {
