@@ -11,13 +11,13 @@ class Schedule extends React.Component {
     this.state = {
       event: {},
       entity: {},
-      schedule: [],
+      schedule: false,
     };
   }
 
   async componentDidMount() {
     const [event, entity, schedule] = await Promise.all([
-      api.event.get(this.props.params.evid).exec(),
+      api.event.get(this.props.params.evid, { start: true }).exec(),
       api.entity.get(api.getApiTokenData().enid, { location: true }).exec(),
       api.schedule.representative.get(api.getApiTokenData().enid, this.props.params.evid).exec(),
     ]);
@@ -28,8 +28,13 @@ class Schedule extends React.Component {
 
     const names = await api.user.getMultiple(schedule.map((s) => s.uid), { firstname: true, lastname: true }).exec();
     for (let i = 0; i < schedule.length; i++) {
-      schedule[i].studentName = names[i].firstname + ' ' + names[i].lastname;
       schedule[i].votes = [];
+      if (!names[i]) {
+        schedule[i].studentName = 'Student revoked access';
+        continue;
+      }
+
+      schedule[i].studentName = names[i].firstname || names[i].lastname ? names[i].firstname + ' ' + names[i].lastname : 'Not yet logged in';
     }
 
     const votes = await api.votes.getOfEntity(api.getApiTokenData().enid, this.props.params.evid).exec();
@@ -45,6 +50,10 @@ class Schedule extends React.Component {
   }
 
   schedule = () => {
+    if (this.state.schedule === false) {
+      return (<h6><em>Loading schedule...</em></h6>)
+    }
+
     if (this.state.schedule === null) {
       return (<h6><em>No schedule has been generated yet</em></h6>);
     }
@@ -64,8 +73,8 @@ class Schedule extends React.Component {
         </thead>
         <tbody>
           {
-            this.state.schedule.map(({ slot, studentName, votes }) => (
-              <tr key={slot}>
+            this.state.schedule.map(({ slot, studentName, votes }, i) => (
+              <tr key={i}>
                 <td>{slot}</td>
                 <td>{studentName}</td>
                 <td>
