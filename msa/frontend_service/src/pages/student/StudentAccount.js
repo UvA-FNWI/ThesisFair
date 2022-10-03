@@ -18,6 +18,7 @@ class StudentAccount extends React.Component {
 
       cvPresence: true,
       savingCV: false,
+      errorCV: null,
 
       savingInfo: false,
       showInfoSaved: false,
@@ -76,8 +77,16 @@ class StudentAccount extends React.Component {
       this.setState({ savingCV: false });
       return;
     }
-    await api.user.student.uploadCV(api.getApiTokenData().uid, cv).exec();
-    this.setState({ savingCV: false, cvPresence: true });
+
+    try {
+      await api.user.student.uploadCV(api.getApiTokenData().uid, cv).exec();
+    } catch (error) {
+      console.error(error);
+      this.setState({ savingCV: false, errorCV: error.toString() });
+      return;
+    }
+
+    this.setState({ savingCV: false, cvPresence: true, errorCV: null });
   }
 
 
@@ -149,6 +158,7 @@ class StudentAccount extends React.Component {
           <Button onClick={this.uploadCV} className='me-1' disabled={this.savingCV}>{this.savingCV ? 'Saving CV...' : (this.state.cvPresence ? 'Re-upload CV' : 'Upload CV')}</Button>
           {this.state.cvPresence ? <Button onClick={() => downloadCV(api.getApiTokenData().uid)} >Download your CV</Button> : null}
           <p className='fs-6'><em>By uploading your CV you agree to share your CV with the participating organisations</em></p>
+          { this.state.errorCV ? <p style={{ color: 'red' }}>{this.state.errorCV}</p> : null }
         </div>
 
         <div>

@@ -237,6 +237,8 @@ export default (url) => {
         }
 
         throw new Error('APItoken does not give rights to access this resource');
+      } else if (error.response.status === 413) {
+        throw new Error('Payload too big');
       }
 
       throw error.response.data;
