@@ -74,15 +74,15 @@ class Projects extends React.Component {
             <h4>CV</h4>
             {cv ?
               <embed style={{ width: '100%', minHeight: '95vh' }} src={cv} />
-            :
-              cv === false ?
-              <div style={{ width: '100%', minHeight: '95vh' }} className='d-flex justify-content-center align-items-center'>
-                <Spinner animation="border" />
-              </div>
               :
-              <h6>
-                This student has not uploaded a CV.
-              </h6>
+              cv === false ?
+                <div style={{ width: '100%', minHeight: '95vh' }} className='d-flex justify-content-center align-items-center'>
+                  <Spinner animation="border" />
+                </div>
+                :
+                <h6>
+                  This student has not uploaded a CV.
+                </h6>
             }
           </div>
         </Modal.Body>
@@ -118,26 +118,37 @@ class Projects extends React.Component {
                   </div>
                 </Accordion.Header>
                 <Accordion.Body>
-                <div dangerouslySetInnerHTML={{ __html: project.description }} />
+                  <div dangerouslySetInnerHTML={{ __html: project.description }} />
 
                   <h4 className='mt-4'>Students</h4>
                   <div>
-                    {this.state.votedFor[project.pid] ? this.state.votedFor[project.pid].length > 0 ? this.state.votedFor[project.pid].map((student, studentIndex) => (
-                      <Card key={studentIndex} className='mb-2 hoverable' onClick={(e) => this.setState({ popup: { projectIndex, studentIndex, cv: false } })}>
-                        <Card.Body className='d-flex justify-content-between align-items-center'>
-                          <p className='m-0'>
-                            {student.firstname} {student.lastname}<span className='d-none d-sm-inline ps-2 pe-2'>-</span><span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
-                          </p>
-                          <div>
-                            <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
-                              <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(student.uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
-                            </OverlayTrigger>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    ))
-                    : <h6><em>No students have voted for this project.</em></h6>
-                    : null}
+                    {this.state.votedFor[project.pid] ? this.state.votedFor[project.pid].length > 0 ? this.state.votedFor[project.pid].map((student, studentIndex) => {
+                      const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0;
+                      return (
+                        <Card key={studentIndex} className='mb-2 hoverable' bg={studentInfoPresent ? 'white' : 'gray'} onClick={studentInfoPresent ? (e) => this.setState({ popup: { projectIndex, studentIndex, cv: false } }) : null}>
+                          <Card.Body className='d-flex justify-content-between align-items-center'>
+                            { studentInfoPresent ?
+                              <>
+                                <p className='m-0'>
+                                  {student.firstname} {student.lastname}<span className='d-none d-sm-inline ps-2 pe-2'>-</span><span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
+                                </p>
+                                <div>
+                                  <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
+                                    <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(student.uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
+                                  </OverlayTrigger>
+                                </div>
+                              </>
+                              :
+                              <p className='m-0'>
+                                Student has not logged in yet
+                              </p>
+                            }
+                          </Card.Body>
+                        </Card>
+                      )
+                    })
+                      : <h6><em>No students have voted for this project.</em></h6>
+                      : null}
                   </div>
                 </Accordion.Body>
               </Accordion.Item>
