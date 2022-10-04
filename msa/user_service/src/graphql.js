@@ -484,7 +484,6 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       uid: 'ID!',
       email: 'String',
-      password: 'String'
     },
     description: {},
     resolve: async (obj, args, req) => {
@@ -493,10 +492,6 @@ schemaComposer.Mutation.addNestedFields({
 
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED update admin');
-      }
-
-      if (args.password) {
-        args.password = await hash(args.password);
       }
 
       return User.findByIdAndUpdate(uid, { $set: args }, { new: true });

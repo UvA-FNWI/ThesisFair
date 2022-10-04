@@ -370,7 +370,6 @@ export default (url) => {
               args: {
                 uid: { value: admin.uid, type: 'ID!' },
                 email: { value: admin.email, type: 'String' },
-                password: { value: admin.password, type: 'String' },
               },
               cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
             }),
