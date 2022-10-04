@@ -104,6 +104,28 @@ const getEnid = async (external_id) => {
   return res.data.entityByExtID.enid;
 };
 
+const checkStudentVotedForEntity = async (uid, enid) => {
+  const res = await rgraphql('api-vote', 'query checkStudentVotedForEntity($uid: ID!, $enid: ID!) { voteStudentForEntity(uid: $uid, enid: $enid) }', { uid, enid });
+
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the student voted for the entity');
+  }
+
+  return res.data.voteStudentForEntity;
+};
+
+const checkStudentScheduledWithEntity = async (uid, enid) => {
+  const res = await rgraphql('api-schedule', 'query checkStudentScheduledWithEntity($uid: ID!, $enid: ID!) { scheduleStudentForEntity(uid: $uid, enid: $enid) }', { uid, enid });
+
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while checking if the student is scheduled for the entity');
+  }
+
+  return res.data.scheduleStudentForEntity;
+};
+
 /**
  *
  * @param {Object} rep
@@ -556,6 +578,16 @@ schemaComposer.Mutation.addNestedFields({
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
         throw new Error('UNAUTHORIZED update share information');
+      }
+
+      const votedForEntity = await checkStudentVotedForEntity(args.uid, args.enid);
+      if (votedForEntity && !args.share) {
+        throw new Error('It is not possible to unshare for a company that you have voted for.')
+      }
+
+      const scheduledWithEntity = await checkStudentScheduledWithEntity(args.uid, args.enid);
+      if (scheduledWithEntity && !args.share) {
+        throw new Error('It is not possible to unshare for a company that you are scheduled with.')
       }
 
       let operation;

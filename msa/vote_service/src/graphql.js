@@ -137,6 +137,22 @@ schemaComposer.Query.addNestedFields({
 
       return Vote.find({ evid: args.evid });
     }
+  },
+  voteStudentForEntity: {
+    type: 'Boolean',
+    args: {
+      uid: 'ID!',
+      enid: 'ID!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw Error('UNAUTHORIZED internal only route');
+      }
+
+      return !!(await Vote.findOne({ uid: args.uid, 'votes.enid': args.enid }));
+    },
   }
 });
 

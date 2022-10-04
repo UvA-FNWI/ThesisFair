@@ -145,6 +145,20 @@ schemaComposer.Query.addNestedFields({
       return Schedule.find({ evid: args.evid });
     },
   },
+  scheduleStudentForEntity: {
+    type: 'Boolean!',
+    args: {
+      uid: 'ID!',
+      enid: 'ID!',
+    },
+    resolve: async (obj, args, req) => {
+      if (!(req.user.type === 'a')) {
+        throw Error('UNAUTHORIZED internal only route');
+      }
+
+      return !!(await Schedule.findOne({ uid: args.uid, enid: args.enid }));
+    }
+  }
   // deleteOfEvent: { // TODO
   // }
 });

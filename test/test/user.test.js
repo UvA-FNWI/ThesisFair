@@ -341,8 +341,20 @@ describe('User', () => {
 
     it('mutation user.student.shareInfo should revoke sharing info with an entity', async () => {
       expect(db.users[0].studentnumber).to.exist;
-      const res = await api.user.student.shareInfo(db.users[0].uid, db.entities[0].enid, false).exec();
-      expect(res).to.deep.equal({ ...db.users[0], share: [] });
+      const res = await api.user.student.shareInfo(db.users[0].uid, db.entities[2].enid, false).exec();
+      expect(res).to.deep.equal({ ...db.users[0], share: db.users[0].share.filter((v) => v !== db.entities[2].enid) });
+    });
+
+    it('mutation user.student.shareInfo should revuse unsharing info with entity student has voted for', async () => {
+      expect(db.users[0].studentnumber).to.exist;
+      const res = await fail(api.user.student.shareInfo(db.users[0].uid, db.entities[0].enid, false).exec);
+      expect(res.errors[0].message).to.contain('vote');
+    });
+
+    it('mutation user.student.shareInfo should revuse unsharing info with entity student has scheduled a meeting with', async () => {
+      expect(db.users[0].studentnumber).to.exist;
+      const res = await fail(api.user.student.shareInfo(db.users[0].uid, db.entities[3].enid, false).exec);
+      expect(res.errors[0].message).to.contain('schedule');
     });
 
     it('mutation user.representative.create should fail', async () => {

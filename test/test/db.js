@@ -35,6 +35,24 @@ const configs = {
         external_id: 1,
         representatives: 2,
         location: 'Booth 2'
+      },
+      {
+        name: 'New name 3',
+        description: 'New description 3',
+        type: 'company',
+        contact: [{ type: 'website', content: 'qrcsoftware.nl/3' }, { type: 'email', content: 'info.3@uva.nl' }, { type: 'phonenumber', content: '06 12345673' }],
+        external_id: 2,
+        representatives: 3,
+        location: 'Booth 3'
+      },
+      {
+        name: 'New name 4',
+        description: 'New description 4',
+        type: 'company',
+        contact: [{ type: 'website', content: 'qrcsoftware.nl/4' }, { type: 'email', content: 'info.4@uva.nl' }, { type: 'phonenumber', content: '06 12345674' }],
+        external_id: 3,
+        representatives: 4,
+        location: 'Booth 4'
       }
     ],
   },
@@ -142,7 +160,7 @@ const configs = {
         studentnumber: '12345678',
         websites: ['https://qrcsoftware.nl', 'https://softwareify.nl'],
         studies: ['UvA Informatica'],
-        share: [db.entities[0].enid],
+        share: [db.entities[0].enid, db.entities[2].enid],
         __t: "Student",
       },
       {
@@ -261,6 +279,12 @@ const configs = {
         evid: db.events[4].evid,
         enid: db.entities[1].enid,
         slot: 'Slot2',
+      },
+      {
+        uid: db.users[0].uid,
+        evid: db.events[4].evid,
+        enid: db.entities[3].enid,
+        slot: 'Slot3',
       },
     ],
   },
