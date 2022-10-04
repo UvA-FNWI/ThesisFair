@@ -68,6 +68,17 @@ const getVotes = async (evid) => {
   return res.data.votesOfEvent;
 }
 
+const studentShareInfo = async (uid, enid, share = true) => {
+  const res = await rgraphql('api-user', 'mutation studentShareInfo($uid: ID!, $enid: ID!, $share: Boolean!) { user { student { shareInfo(uid: $uid, enid: $enid, share: $share) { uid }}}}', { uid, enid, share });
+
+  if (res.errors || !res.data) {
+    console.error(res);
+    throw new Error('An unkown error occured while sharing the student data with the entities');
+  }
+
+  return res.data.user.student.shareInfo;
+}
+
 const exec = (cmd) => {
   return new Promise((resolve, reject) => {
     cpExec(cmd, (err, stdout, stderr) => {
@@ -244,13 +255,19 @@ schemaComposer.Mutation.addNestedFields({
             return;
           }
 
-          for (const { Slot: slot, ' StudentID': uid, ' Project_Voted_For': enid } of records) {
+          for (let { Slot: slot, ' StudentID': uid, ' Project_Voted_For': enid } of records) {
+            uid = uid.trim();
+            enid = enid.trim();
+            slot = slot.trim();
+
             await Schedule.create({
-              uid: uid.trim(),
+              uid: uid,
               evid: args.evid,
-              enid: enid.trim(),
-              slot: slot.trim(),
+              enid: enid,
+              slot: slot,
             });
+
+            await studentShareInfo(uid, enid);
           }
 
           resolve(null);
@@ -317,6 +334,10 @@ schemaComposer.Mutation.addNestedFields({
               enid: entity.enid,
               slot: slot,
             });
+          }
+
+          for (const appointment of schedule) {
+            await studentShareInfo(appointment.uid, appointment.enid);
           }
 
           await Schedule.insertMany(schedule);

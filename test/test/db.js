@@ -69,7 +69,7 @@ const configs = {
         start: '2022-04-27T22:00:00.000Z',
         location: 'New location 1',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
-        entities: [db.entities[0].enid, db.entities[1].enid],
+        entities: [db.entities[0].enid, db.entities[1].enid, db.entities[2].enid, db.entities[3].enid],
       },
       {
         external_id: 2,

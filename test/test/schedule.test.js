@@ -29,6 +29,26 @@ describe('Schedule', () => {
       expect(res).to.be.a('string');
       expect(res).to.have.length.greaterThan(0);
     });
+
+    it.only('mutation schedule.import should import a schedule', async () => {
+      const csvImport = `
+Slot;StudentID;Org
+Slot1;${db.users[0].studentnumber};${db.entities[0].name}
+Slot1;${db.users[0].studentnumber};${db.entities[3].name}
+Slot1;${db.users[6].studentnumber};${db.entities[0].name}
+      `
+      const countBefore = (await models.Schedule.find()).length;
+      const res = await api.schedule.import(db.events[0].evid, csvImport).exec();
+      expect(res).to.be.null;
+      expect((await models.Schedule.find()).length).to.be.greaterThan(countBefore);
+
+      const student1 = await api.user.get(db.users[0].uid).exec();
+      expect(student1.share).to.include(db.entities[0].enid);
+      expect(student1.share).to.include(db.entities[3].enid);
+
+      const student2 = await api.user.get(db.users[6].uid).exec();
+      expect(student2.share).to.include(db.entities[0].enid);
+    });
   });
 
   //* Representative
