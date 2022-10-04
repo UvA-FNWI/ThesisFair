@@ -209,13 +209,15 @@ describe('Event', () => {
       await fail(api.event.update(eventUpdate).exec);
     });
 
-    it('mutation event.updateImage update the event image', async () => {
-      const image = 'New and epic image!';
-      await api.event.updateImage(db.events[0].evid, image).exec();
+    for (const type of ['student', 'rep']) {
+      it(`mutation event.updateImage update the event ${type} image`, async () => {
+        const image = 'New and epic image!';
+        await api.event.updateImage(db.events[0].evid, type, image).exec();
 
-      const savedImage = await api.event.getImage(db.events[0].evid).exec();
-      expect(savedImage).to.equal(image);
-    });
+        const savedImage = await api.event.getImage(db.events[0].evid, type).exec();
+        expect(savedImage).to.equal(image);
+      });
+    }
 
     it('mutation event.delete should delete the event', async () => {
       const res = await api.event.delete(db.events[0].evid).exec();

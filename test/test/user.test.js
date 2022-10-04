@@ -149,12 +149,20 @@ describe('User', () => {
 
     it('query users should check if the user shared its data', async () => {
       expect(db.users[6].studentnumber).to.exist;
-      await fail(api.user.getMultiple([db.users[6].uid]).exec);
+      const res = await api.user.getMultiple([db.users[6].uid]).exec();
+
+      expect(res).to.be.a('array');
+      expect(res).to.have.length(1);
+      expect(res[0]).to.be.null;
     });
 
     it('query users should check if the representative is an admin', async () => {
       expect(db.users[3].enid).to.exist;
-      await fail(api.user.getMultiple([db.users[3].uid]).exec);
+      const res = await api.user.getMultiple([db.users[3].uid]).exec();
+
+      expect(res).to.be.a('array');
+      expect(res).to.have.length(1);
+      expect(res[0]).to.be.null;
     });
 
     it('mutation user.representative.update should not be able to update another representative', async () => {
@@ -349,8 +357,17 @@ describe('User', () => {
       await fail(api.user.representative.update(db.users[3]).exec);
     });
 
-    it('query users should fail', async () => {
-      await fail(api.user.getMultiple([db.users[0].uid, db.users[1].uid]).exec);
+    it('query users should check permissions', async () => {
+      const res = await api.user.getMultiple([db.users[0].uid, db.users[1].uid]).exec();
+
+      expect(res).to.be.a('array');
+      for (const result of res) {
+        if (result && result.uid === db.users[0].uid) {
+          expect(result).to.deep.equal(db.users[0]);
+        } else {
+          expect(result).to.be.null;
+        }
+      }
     });
 
     testApiTokenPermissions();
