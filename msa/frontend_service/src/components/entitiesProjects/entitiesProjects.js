@@ -11,6 +11,8 @@ class EntitiesProjects extends React.Component {
     this.state = {
       sharedEntities: [],
       popup: false,
+
+      shareError: {},
     };
   }
 
@@ -78,7 +80,16 @@ class EntitiesProjects extends React.Component {
   }
 
   setShare = async (enid, state) => {
-    await api.user.student.shareInfo(api.getApiTokenData().uid, enid, state).exec();
+    try {
+      await api.user.student.shareInfo(api.getApiTokenData().uid, enid, state).exec();
+    } catch (error) {
+      if (!error.errors) {
+        throw error;
+      }
+
+      this.setState({ shareError: { message: error.errors[0].message, enid } });
+      return;
+    }
 
     const sharedEntities = [...this.state.sharedEntities];
     if (state) {
@@ -108,6 +119,7 @@ class EntitiesProjects extends React.Component {
 
                   { this.props.shareControls ?
                     <div className='flex-grow-1 d-flex justify-content-end me-4'>
+                      { this.state.shareError.enid === entity.enid ? <h6 className='pe-4' style={{ color: 'red' }} >{this.state.shareError.message}</h6> : null }
                       <Form.Check
                         type='checkbox'
                         label='Share information'
