@@ -582,12 +582,12 @@ schemaComposer.Mutation.addNestedFields({
 
       const votedForEntity = await checkStudentVotedForEntity(args.uid, args.enid);
       if (votedForEntity && !args.share) {
-        throw new Error('It is not possible to unshare for a company that you have voted for.')
+        throw new Error('It is not possible to unshare a company that you have voted for.')
       }
 
       const scheduledWithEntity = await checkStudentScheduledWithEntity(args.uid, args.enid);
       if (scheduledWithEntity && !args.share) {
-        throw new Error('It is not possible to unshare for a company that you are scheduled with.')
+        throw new Error('It is not possible to unshare a company that you are scheduled with.')
       }
 
       let operation;
