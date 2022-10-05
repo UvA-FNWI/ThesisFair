@@ -1,0 +1,39 @@
+groups:
+- name: Linux
+  rules:
+  - alert: CPU usage
+    expr: (((count(count(node_cpu_seconds_total) by (cpu))) - avg(sum by (mode)(rate(node_cpu_seconds_total{mode='idle'}[15s])))) * 100) / count(count(node_cpu_seconds_total) by (cpu)) > 80
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: High cpu usage
+  - alert: CPU usage
+    expr: (((count(count(node_cpu_seconds_total) by (cpu))) - avg(sum by (mode)(rate(node_cpu_seconds_total{mode='idle'}[15s])))) * 100) / count(count(node_cpu_seconds_total) by (cpu)) > 95
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: Critical cpu usage
+
+  - alert: RAM usage
+    expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.8
+    # for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: High ram usage
+  - alert: RAM usage
+    expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.95
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: Critical ram usage
+
+  - alert: Disk usage
+    expr: node_filesystem_avail_bytes{ mountpoint=~"/opt/thesisfair|/" } < 10737418240 # 10 GiB
+    labels:
+      severity: warning
+    annotations:
+      summary: "Low disk space on {{ $labels.mountpoint }}"

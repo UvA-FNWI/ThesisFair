@@ -11,3 +11,6 @@ syncProd:
 	rsync --rsync-path="sudo rsync" ./docker-compose.yml thesisfairProd:/opt/thesisfair/compose/docker-compose.yml
 	rsync -r --rsync-path="sudo rsync" ./monitoring thesisfairProd:/opt/thesisfair/
 	rsync --rsync-path="sudo rsync" ./monitoring/.env.prod thesisfairProd:/opt/thesisfair/monitoring/.env
+
+prometheusReloadProd:
+	curl -v -X POST http://thesisfair.ivi.uva.nl:9090/-/reload

@@ -2,19 +2,35 @@ version: '3.2'
 services:
   prometheus:
     image: prom/prometheus:latest
+    restart: unless-stopped
     ports:
     - 9090:9090
     command:
     - --config.file=/etc/prometheus/prometheus.yml
+    - --storage.tsdb.retention.time=1y
+    - --web.enable-lifecycle
     volumes:
     - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - ./prometheusRules.yml:/etc/prometheus/prometheusRules.yml:ro
     - prometheusStorage:/prometheus
     depends_on:
-    - cadvisor
+    - alertmanager
     - node-exporter
+    - cadvisor
     networks:
       - default
       - thesisfair
+
+  alertmanager:
+    image: prom/alertmanager
+    restart: unless-stopped
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/config.yml
+    command:
+      - --config.file=/etc/alertmanager/config.yml
+      - --storage.path=/alertmanager
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -33,6 +49,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
+    restart: unless-stopped
     # ports:
     # - 8080:8080
     volumes:
@@ -45,10 +62,12 @@ services:
 
   redis:
     image: redis:latest
+    restart: unless-stopped
     # ports:
     # - 6379:6379
 
   grafana:
+    restart: unless-stopped
     image: grafana/grafana-oss
     volumes:
     - ./grafana.ini:/etc/grafana/grafana.ini:ro

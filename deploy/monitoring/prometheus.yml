@@ -30,3 +30,14 @@ scrape_configs:
   static_configs:
   - targets:
     - traefik:8082
+
+alerting:
+  alertmanagers:
+    - scheme: http
+      static_configs:
+        - targets: [ 'alertmanager:9093' ]
+
+# Rule files specifies a list of globs. Rules and alerts are read from
+# all matching files.
+rule_files:
+  - /etc/prometheus/prometheusRules.yml
