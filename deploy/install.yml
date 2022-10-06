@@ -100,3 +100,4 @@
         - entityService
         - traefik
         - userService
+        - eventService

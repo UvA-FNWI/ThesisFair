@@ -69,6 +69,8 @@ services:
     restart: unless-stopped
     environment:
       - mongodbConStr=mongodb://mongodb/event_service
+    volumes:
+      - ${FS_ROOT}/data/eventService:/app/data
     depends_on:
       - rabbitmq
       - mongodb
