@@ -26,15 +26,16 @@ class Schedule extends React.Component {
       return;
     }
 
-    const names = await api.user.getMultiple(schedule.map((s) => s.uid), { firstname: true, lastname: true }).exec();
-    for (let i = 0; i < schedule.length; i++) {
-      schedule[i].votes = [];
-      if (!names[i]) {
-        schedule[i].studentName = 'Student revoked access';
+    const students = await api.user.getMultiple(schedule.map((s) => s.uid), { uid: true, firstname: true, lastname: true }).exec();
+    for (const appointment of schedule) {
+      appointment.votes = [];
+      const student = students.find((student) => student.uid === appointment.uid);
+      if (!student) {
+        appointment.studentName = 'Student revoked access';
         continue;
       }
 
-      schedule[i].studentName = names[i].firstname || names[i].lastname ? names[i].firstname + ' ' + names[i].lastname : 'Not yet logged in';
+      appointment.studentName = student.firstname || student.lastname ? student.firstname + ' ' + student.lastname : 'Not yet logged in';
     }
 
     const votes = await api.votes.getOfEntity(api.getApiTokenData().enid, this.props.params.evid).exec();
