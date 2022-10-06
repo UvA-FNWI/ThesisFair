@@ -24,10 +24,16 @@ class Schedule extends React.Component {
       return;
     }
 
-    const names = await api.entity.getMultiple(schedule.map((s) => s.enid), { name: true, location: true }).exec();
-    for (let i = 0; i < schedule.length; i++) {
-      schedule[i].entityName = names[i].name;
-      schedule[i].entityLocation = names[i].location;
+    const entities = await api.entity.getMultiple(schedule.map((s) => s.enid), { enid: true, name: true, location: true }).exec();
+    for (const appointment of schedule) {
+      const entity = entities.find((entity) => entity.enid === appointment.enid);
+      if (!entity) {
+        console.error(`Could not find entity with enid ${appointment.enid}`);
+        continue;
+      }
+
+      appointment.entityName = entity.name;
+      appointment.entityLocation = entity.location;
     }
 
     this.setState({ event, schedule });
