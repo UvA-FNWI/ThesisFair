@@ -10,6 +10,7 @@ import projectsIcon from 'bootstrap-icons/icons/list-task.svg';
 import scheduleIcon from 'bootstrap-icons/icons/calendar.svg';
 import eventIcon from 'bootstrap-icons/icons/calendar-event.svg';
 import userIcon from 'bootstrap-icons/icons/people.svg';
+import overrideUserIcon from 'bootstrap-icons/icons/person.svg';
 import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg';
 
 import './navbar.scss';
@@ -43,6 +44,9 @@ function CustomNavbar(props) {
               </Nav.Item>
               <Nav.Item>
                 <Link to={`/students`}><img src={userIcon} alt='' /><span>Students</span></Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link to={`/loginAs`}><img src={overrideUserIcon} alt='' /><span>LoginAs</span></Link>
               </Nav.Item>
             </>
             : null}
@@ -91,9 +95,9 @@ function CustomNavbar(props) {
           }
 
           <Nav.Item className='logout'>
-            <div onClick={api.user.logout}>
+            <div onClick={api.apiTokenOverriden() ? () => {api.overrideApiTokenData(null); window.location.href='/loginAs'} : api.user.logout}>
               <img src={logoutIcon} alt='' />
-              <span>Logout</span>
+              <span>{api.apiTokenOverriden() ? 'Return' : 'Logout'}</span>
             </div>
           </Nav.Item>
         </Nav>

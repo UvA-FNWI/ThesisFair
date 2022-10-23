@@ -18,6 +18,7 @@ import EventProjects from './pages/admin/EventProjects';
 import Events from './pages/admin/Events';
 import Students from './pages/admin/Students';
 import AdminAccount from './pages/admin/AdminAccount';
+import LoginAs from './pages/admin/LoginAs';
 
 import StudentAccount from './pages/student/StudentAccount';
 import Organisations from './pages/student/Organisations';
@@ -89,6 +90,7 @@ class App extends React.Component {
         <Route path='event/:evid/schedule' element={<Page page={<EventSchedule />} />} />
         <Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />
         <Route path='students' element={<Page page={<Students />} />} />
+        <Route path='loginAs' element={<Page page={<LoginAs />} />} />
         <Route path='' element={<Page page={<Events />} />} />
       </>
     );

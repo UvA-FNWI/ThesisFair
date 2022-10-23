@@ -166,6 +166,7 @@ export default (url) => {
 
   let apiToken = browser ? getApiToken() : null;
   let apiTokenData = unpackToken(apiToken) || null;
+  let apiTokenDataOverride = browser ? JSON.parse(localStorage.getItem('apiTokenOverride')) : null;
   const login = async (email, password) => {
     const res = await axios.post(url + 'login',
       { email, password },
@@ -275,7 +276,15 @@ export default (url) => {
       cache = new NodeCache({ deleteOnExpire: true, checkperiod: ttl + 1, stdTTL: ttl, useClones: false });
     },
     api: {
-      getApiTokenData: () => apiTokenData,
+      getApiTokenData: () => apiTokenDataOverride || apiTokenData,
+      overrideApiTokenData: (newData) => {
+        if (browser) {
+          localStorage.setItem('apiTokenOverride', JSON.stringify(newData));
+        }
+        apiTokenDataOverride = newData;
+        tokenChangeCallback(apiTokenDataOverride)
+      },
+      apiTokenOverriden: () => !!apiTokenDataOverride,
       setTokenChangeCallback: (cb) => { tokenChangeCallback = cb; },
       user: {
         login: login,
