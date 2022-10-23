@@ -1,8 +1,9 @@
 import React from 'react';
-import { Container, Accordion, Button, Modal, Spinner, Card, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import downloadIcon from 'bootstrap-icons/icons/download.svg';
 import { useParams } from 'react-router-dom';
 import api, { downloadCV } from '../../api';
+import StudentPopup from '../../components/studentPopup/studentPopup';
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`;
 
@@ -30,64 +31,11 @@ class Projects extends React.Component {
   }
 
   renderStudentModal = () => {
-    const { projectIndex, studentIndex, cv } = this.state.popup;
+    const { projectIndex, studentIndex } = this.state.popup;
     const project = this.state.projects[projectIndex];
     const student = this.state.votedFor[project.pid][studentIndex];
 
-    if (cv === false) {
-      api.user.student.getCV(student.uid).exec().then((cv) => {
-        this.setState({ popup: { projectIndex, studentIndex, cv } });
-      })
-    }
-
-    return (
-      <Modal show={true} onHide={() => this.setState({ popup: false })} size='xl'>
-        <Modal.Header closeButton>
-          Student information
-        </Modal.Header>
-        <Modal.Body>
-          <h1>{student.firstname} {student.lastname}</h1>
-
-          <div className='row'>
-            <div className='col-12 col-sm-6 col-lg-4'>
-              <h4 className='mt-4'>Contact information</h4>
-              <span className='d-block'>Email: {student.email || 'Not given'}</span>
-              <span className='d-block'>Phone number: {student.phone || 'Not given'}</span>
-            </div>
-
-            <div className='col-12 col-sm-6 col-lg-4'>
-              <h4 className='mt-4'>Links</h4>
-              <ul>
-                {student.websites.map((website, i) => <li key={i}><a href={website} target='_blank' rel='noreferrer'>{website}</a></li>)}
-              </ul>
-            </div>
-            <div className='col-12 col-sm-6 col-lg-4'>
-              <h4 className='mt-4'>Studies</h4>
-              <ul>
-                {student.studies.map((study, i) => <li key={i}>{study}</li>)}
-              </ul>
-            </div>
-          </div>
-
-
-          <div className='mt-4'>
-            <h4>CV</h4>
-            {cv ?
-              <embed style={{ width: '100%', minHeight: '95vh' }} src={cv} />
-              :
-              cv === false ?
-                <div style={{ width: '100%', minHeight: '95vh' }} className='d-flex justify-content-center align-items-center'>
-                  <Spinner animation="border" />
-                </div>
-                :
-                <h6>
-                  This student has not uploaded a CV.
-                </h6>
-            }
-          </div>
-        </Modal.Body>
-      </Modal>
-    )
+    return <StudentPopup student={student} onHide={() => this.setState({ popup: false })} />
   }
 
   downloadAllCVs = async (project) => {
@@ -96,7 +44,7 @@ class Projects extends React.Component {
     }
   }
 
-  render() { // TODO: Change order feature
+  render() {
     return (
       <>
         <Container className='mt-2'>
