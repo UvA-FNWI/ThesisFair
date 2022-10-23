@@ -20,14 +20,14 @@ function CustomNavbar(props) {
   const type = api.getApiTokenData().type;
 
   return (
-    <Navbar className='ps-2 pe-2 p-md-0' bg="light" expand="md">
+    <Navbar className='ps-2 pe-2 p-md-0' bg="primary" expand="sm">
       <Navbar.Brand className='d-md-none'>
         <Link to={`/${params.evid}/`}>
           <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
         </Link>
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="topNavbar" />
-      <Navbar.Collapse id="topNavbar">
+      <Navbar.Collapse id="topNavbar" className='justify-content-end'>
         <Nav className="sidebar navbar flex-row flex-md-column justify-content-start">
           <Link className='logo d-none d-md-block' to={`/${params.evid}/`}>
             <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
