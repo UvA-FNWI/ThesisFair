@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Table } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
+import StudentPopup from '../../components/studentPopup/studentPopup';
 import api from '../../api';
 
 
@@ -11,6 +12,7 @@ class Schedule extends React.Component {
     this.state = {
       event: {},
       entity: {},
+      students: [],
       schedule: false,
     };
   }
@@ -26,7 +28,7 @@ class Schedule extends React.Component {
       return;
     }
 
-    const students = await api.user.getMultiple(schedule.map((s) => s.uid), { uid: true, firstname: true, lastname: true }).exec();
+    const students = await api.user.getMultiple(schedule.map((s) => s.uid)).exec();
     for (const appointment of schedule) {
       appointment.votes = [];
       const student = students.find((student) => student.uid === appointment.uid);
@@ -47,7 +49,15 @@ class Schedule extends React.Component {
       s.votes.push(project.name);
     }
 
-    this.setState({ event, entity, schedule });
+    this.setState({ event, entity, students, schedule });
+  }
+
+  renderPopup = () => {
+    if (!this.state.popup) { return null; }
+
+    const student = this.state.students.find((student) => student.uid === this.state.popup);
+
+    return <StudentPopup student={student} onHide={() => this.setState({ popup: false })} />
   }
 
   schedule = () => {
@@ -74,8 +84,8 @@ class Schedule extends React.Component {
         </thead>
         <tbody>
           {
-            this.state.schedule.map(({ slot, studentName, votes }, i) => (
-              <tr key={i}>
+            this.state.schedule.map(({ slot, studentName, uid, votes }, i) => (
+              <tr key={i} onClick={() => this.setState({ popup: uid })} style={{ cursor: 'pointer' }}>
                 <td>{slot}</td>
                 <td>{studentName}</td>
                 <td>
@@ -102,6 +112,7 @@ class Schedule extends React.Component {
         </div>
 
         {this.schedule()}
+        {this.renderPopup()}
 
       </Container>
     );
