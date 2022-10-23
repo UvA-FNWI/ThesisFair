@@ -78,7 +78,7 @@ services:
       traefik.http.routers.grafana.entrypoints: webSec
       traefik.http.routers.grafana.rule: Host(`${URL}`) && PathPrefix(`/grafana`)
       traefik.http.routers.grafana.middlewares: grafanaIpWhitelist
-      traefik.http.middlewares.grafanaIpWhitelist.ipwhitelist.sourcerange: 213.10.31.95
+      traefik.http.middlewares.grafanaIpWhitelist.ipwhitelist.sourcerange: ${WHITELISTED_IPS}
     networks:
       - default
       - thesisfair
