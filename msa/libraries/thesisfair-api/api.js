@@ -665,7 +665,7 @@ export default (url) => {
               location: { value: event.location, type: 'String' },
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
-              external_id: { value: event.external_id, type: 'Int!' },
+              external_id: { value: event.external_id, type: 'Int' },
             },
             cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
           }),

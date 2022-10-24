@@ -37,9 +37,11 @@ class Event extends React.Component {
     e.preventDefault();
 
     this.setState({ savingInfo: true });
-    await api.user.admin.update({
-      uid: api.getApiTokenData().uid,
-      email: this.state.email,
+    await api.event.update({
+      evid: this.props.params.evid,
+      name: this.state.name,
+      description: this.state.description,
+      enabled: this.state.enabled,
     }).exec();
     this.setState({ savingInfo: false, showInfoSaved: true });
     setTimeout(() => {
