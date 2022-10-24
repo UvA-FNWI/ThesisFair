@@ -12,5 +12,8 @@ syncProd:
 	rsync -r --rsync-path="sudo rsync" ./monitoring thesisfairProd:/opt/thesisfair/
 	rsync --rsync-path="sudo rsync" ./monitoring/.env.prod thesisfairProd:/opt/thesisfair/monitoring/.env
 
+downloadBackups:
+	rsync -r --rsync-path="sudo rsync" thesisfairProd:/opt/thesisfair/backup/* ./backup
+
 prometheusReloadProd:
 	curl -v -X POST http://thesisfair.ivi.uva.nl:9090/-/reload

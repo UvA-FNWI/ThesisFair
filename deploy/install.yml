@@ -101,3 +101,16 @@
         - traefik
         - userService
         - eventService
+
+    - name: Backup directory
+      file:
+        path: /opt/thesisfair/backup
+        state: directory
+
+    - name: Schedule backup
+      cron:
+        name: Backup
+        user: root
+        minute: 0
+        hour: 2
+        job: cd /opt/thesisfair/compose && ./backup.sh
