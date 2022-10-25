@@ -40,6 +40,8 @@ const getEntities = async (enids) => {
 }
 
 const getUid = async (studentnumber) => {
+  if (!studentnumber) { return null; }
+
   const res = await rgraphql('api-user', 'query getUid($studentnumber: ID!) { student(studentnumber: $studentnumber) { ... on Student { uid } } }', { studentnumber }, { user: { type: 'system' } });
   if (res.errors || !res.data) {
     console.error(res);
@@ -54,6 +56,8 @@ const getUid = async (studentnumber) => {
 }
 
 const getVotes = async (evid) => {
+  if (!evid) { return null; }
+
   const res = await rgraphql('api-vote', 'query getVotes($evid: ID!) { votesOfEvent(evid: $evid) { uid votes { enid pid } } }', { evid });
 
   if (res.errors || !res.data) {
@@ -69,6 +73,8 @@ const getVotes = async (evid) => {
 }
 
 const studentShareInfo = async (uid, enid, share = true) => {
+  if (!uid || !enid) { return null; }
+
   const res = await rgraphql('api-user', 'mutation studentShareInfo($uid: ID!, $enid: ID!, $share: Boolean!) { user { student { shareInfo(uid: $uid, enid: $enid, share: $share) { uid }}}}', { uid, enid, share });
 
   if (res.errors || !res.data) {
@@ -294,7 +300,7 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       return new Promise((resolve, reject) => {
-        csvParser(args.file.trim(), { columns: true, skip_empty_lines: true, delimiter: ';' }, async (err, records, info) => {
+        csvParser(args.file.trim(), { columns: true, skip_empty_lines: true, delimiter: ',' }, async (err, records, info) => {
           if (err) { reject(err); return; }
 
           if (records.length === 0) {
@@ -315,10 +321,11 @@ schemaComposer.Mutation.addNestedFields({
           }
 
           const schedule = [];
-          for (let { Slot: slot, StudentID: studentnumber, Org: entityName } of records) {
+          for (const record of records) {
+            let { Slot: slot, StudentID: studentnumber, Org: entityName } = record;
             const uid = await getUid(studentnumber);
             if (!uid) {
-              resolve(`Count not find or create student with studentnumber ${studentnumber}`);
+              resolve(`Count not find or create student with studentnumber ${studentnumber}. Record: ${JSON.stringify(record)}`);
               return;
             }
             entityName = entityName.trim();
