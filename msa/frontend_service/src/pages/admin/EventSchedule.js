@@ -144,8 +144,13 @@ class Schedule extends React.Component {
 
     this.setState({ uploadingCSV: true });
     const file = await getFileContent(true);
-    await api.schedule.import(this.props.params.evid, file).exec();
-    this.setState({ uploadingCSV: false });
+    if (!file) {
+      this.setState({ uploadingCSV: false });
+      return;
+    }
+
+    const error = await api.schedule.import(this.props.params.evid, file).exec();
+    this.setState({ uploadingCSV: false, errorCSV: error });
     await this.loadSchedule();
   }
 
@@ -184,6 +189,7 @@ class Schedule extends React.Component {
               <Button onClick={this.generateSchedule}>Generate schedule</Button>
               <span className='ps-2 pe-2'>OR</span>
               <Button onClick={this.importSchedule}>{ this.state.uploadingCSV ? 'Importing CSV, this might take a while...' : 'Import schedule' }</Button>
+              {this.state.errorCSV ? <p style={{ color: 'red' }}>{this.state.errorCSV}</p> : null}
             </div>
 
         }
