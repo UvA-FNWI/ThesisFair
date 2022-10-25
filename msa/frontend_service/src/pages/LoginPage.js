@@ -30,7 +30,7 @@ class LoginPage extends React.Component {
       <Container fluid>
         <Row>
           <div className='col-md-7 col-lg-8 d-none d-md-block' style={{ paddingLeft: 0, overflow: 'hidden' }}>
-            <img style={{ height: '100vh' }} src='/images/loginHeader.jpg' alt='' />
+            <img align='right' style={{ height: '100vh' }} src='/images/loginHeaderCompressed.jpg' alt='' />
           </div>
           <Col xs={12} md={5} lg={4}>
             <img width='100%' src='/images/en-informatics-institute.jpg' alt='' />
