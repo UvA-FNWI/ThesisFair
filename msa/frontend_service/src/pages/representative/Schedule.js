@@ -89,11 +89,15 @@ class Schedule extends React.Component {
                 <td>{slot}</td>
                 <td>{studentName}</td>
                 <td>
-                  <ul className='mb-0'>
-                    {votes.map((project) => (
-                      <li key={project}>{project}</li>
-                    ))}
-                  </ul>
+                  {votes.length > 0 ?
+                    <ul className='mb-0'>
+                      {votes.map((project) => (
+                        <li key={project}>{project}</li>
+                      ))}
+                    </ul>
+                  :
+                    <p className='m-0'>No preference</p>
+                  }
                 </td>
               </tr>
             ))
