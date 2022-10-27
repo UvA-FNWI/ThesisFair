@@ -4,6 +4,7 @@ node_modules/
 **.key
 **.env
 **.env.prod
+deploy/backup
 deploy/hosts
 deploy/monitoring/alertmanager.yml
 **/data/
