@@ -36,6 +36,7 @@ class Schedule extends React.Component {
       appointment.entityLocation = entity.location;
     }
 
+    schedule.sort((a, b) => a.slot > b.slot ? 1 : -1);
     this.setState({ event, schedule });
   }
 

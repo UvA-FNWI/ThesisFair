@@ -49,6 +49,7 @@ class Schedule extends React.Component {
       s.votes.push(project.name);
     }
 
+    schedule.sort((a, b) => a.slot > b.slot ? 1 : -1);
     this.setState({ event, entity, students, schedule });
   }
 

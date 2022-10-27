@@ -131,6 +131,7 @@ class Schedule extends React.Component {
       schedule[i].studentnumber = student.studentnumber;
     }
 
+    schedule.sort((a, b) => a.slot > b.slot ? 1 : -1);
     this.setState({ schedule, loading: false });
   }
 
