@@ -470,7 +470,7 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       return new Promise((resolve, reject) => {
-        csvParser(args.file.trim(), { columns: true, skip_empty_lines: true, delimiter: ';' }, async (err, records, info) => {
+        csvParser(args.file.trim(), { columns: true, skip_empty_lines: true, delimiter: ',' }, async (err, records, info) => {
           if (err) { reject(err); return; }
 
           if (records.length === 0) {
