@@ -136,7 +136,7 @@ const configs = {
       },
       {
         enid: db.entities[1].enid,
-        evids: [db.events[1].evid],
+        evids: [db.events[1].evid, db.events[4].evid],
         name: 'Other company project - project',
         description: 'Belongs to another company',
         datanoseLink: 'https://datanose.nl/projects/newName3',

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { fail } from './lib.js';
 import api from './api.js';
-import initDb, { init, disconnect, db } from './db.js';
+import initDb, { init, disconnect, db, models } from './db.js';
 
 const nonExistingId = '6272838d6a373ac04510b798';
 
@@ -219,13 +219,23 @@ describe('Event', () => {
       });
     }
 
-    it('mutation event.delete should delete the event', async () => {
-      const res = await api.event.delete(db.events[0].evid).exec();
-      expect(res).to.deep.equal(db.events[0]);
+    it('mutation event.delete should delete the event and its linked schedule, votes and remove evid from projects', async () => {
+      const evid = db.events[4].evid;
+      const res = await api.event.delete(evid).exec();
+      expect(res).to.deep.equal(db.events[4]);
 
 
-      const query = await api.event.get(db.events[0].evid).exec();
+      const query = await api.event.get(evid).exec();
       expect(query).to.be.null;
+
+      const projects = await models.Project.find({ evids: evid });
+      expect(projects).to.have.length(0);
+
+      const schedules = await models.Schedule.find({ evid: evid });
+      expect(schedules).to.have.length(0);
+
+      const votes = await models.Vote.find({ evid: evid });
+       expect(votes).to.have.length(0);
     });
 
     it('mutation event.entity.add should add the entity', async () => {

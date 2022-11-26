@@ -204,7 +204,7 @@ schemaComposer.Mutation.addNestedFields({
     },
   },
   'project.deleteOfEntity': {
-    type: 'Boolean',
+    type: 'String',
     args: {
       enid: 'ID!',
     },
@@ -217,7 +217,22 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       await Project.deleteMany({ enid: args.enid });
-      return true
+    }
+  },
+  'project.deleteOfEvent': {
+    type: 'String',
+    args: {
+      evid: 'ID!',
+    },
+    description: JSON.stringify({
+
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED delete project');
+      }
+
+      await Project.updateMany({ $pull: { evids: args.evid} });
     }
   },
   'project.import': {

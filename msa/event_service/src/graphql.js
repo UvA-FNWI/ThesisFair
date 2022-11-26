@@ -38,6 +38,22 @@ const getEnid = async (external_id) => {
   return res.data.entityByExtID.enid;
 }
 
+const deleteEvent = async (evid) => {
+  const calls = await Promise.all([
+    rgraphql('api-project', 'mutation deleteLinkedProjects($evid: ID!) { project { deleteOfEvent(evid: $evid) } }', { evid: evid }),
+    rgraphql('api-schedule', 'mutation deleteLinkedSchedules($evid: ID!) { schedule { deleteOfEvent(evid: $evid) } }', { evid: evid }),
+    rgraphql('api-vote', 'mutation deleteLinkedVotes($evid: ID!) { vote { deleteOfEvent(evid: $evid) } }', { evid: evid }),
+  ]);
+  for (const call of calls) {
+    if (call.errors) {
+      console.error('Deleting linked objects failed', call.errors);
+      throw new Error('Deleting all linked objects failed');
+    }
+  }
+
+  return Event.findByIdAndDelete(evid);
+}
+
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
 schemaComposer.Query.addNestedFields({
@@ -218,7 +234,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create delete an event');
       }
 
-      return Event.findByIdAndDelete(args.evid);
+      return deleteEvent(args.evid);
     },
   },
   'event.removeEntity': {

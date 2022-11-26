@@ -171,6 +171,19 @@ schemaComposer.Mutation.addNestedFields({
       await Vote.deleteMany({ enid: args.enid });
     }
   },
+  'vote.deleteOfEvent': {
+    type: 'String',
+    args: {
+      evid: 'ID!',
+    },
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED delete vote');
+      }
+
+      await Vote.deleteMany({ evid: args.evid });
+    }
+  },
   'vote.import': {
     type: '[VoteImportResult!]!',
     args: {

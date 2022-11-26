@@ -369,6 +369,22 @@ schemaComposer.Mutation.addNestedFields({
       await Schedule.deleteMany({ enid: args.enid });
     },
   },
+
+  'schedule.deleteOfEvent': {
+    type: 'String',
+    args: {
+      evid: 'ID!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED to delete schedule');
+      }
+
+      await Schedule.deleteMany({ evid: args.evid });
+    },
+  },
 });
 
 const schema = schemaComposer.buildSchema();
