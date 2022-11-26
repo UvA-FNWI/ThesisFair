@@ -49,6 +49,19 @@ Slot1,${db.users[6].studentnumber},${db.entities[0].name}
       const student2 = await api.user.get(db.users[6].uid).exec();
       expect(student2.share).to.include(db.entities[0].enid);
     });
+
+    it('mutation schedule.update should update the schedule', async () => {
+      const data = {
+        ...db.schedule[0],
+        uid: db.users[1].uid,
+        enid: db.entities[1].enid,
+        slot: 'newSlot!',
+      }
+      delete data.evid;
+
+      const res = await api.schedule.update(data).exec();
+      expect(res).to.deep.equal(data);
+    });
   });
 
   //* Representative

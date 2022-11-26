@@ -181,7 +181,7 @@ schemaComposer.Query.addNestedFields({
 });
 
 schemaComposer.Mutation.addNestedFields({
-  'schedule.update': { // TODO: Auto test
+  'schedule.update': {
     type: 'Schedule',
     args: {
       sid: 'ID!',
