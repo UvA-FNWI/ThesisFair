@@ -10,36 +10,12 @@ const entity_import = {
       ID: 10101,
       name: 'UvA',
       representatives: 4,
-      admins: [
-        {
-          firstname: 'Quinten',
-          lastname: 'Coltof',
-          email: 'quinten.coltof@uva.nl',
-        },
-        {
-          firstname: 'Yvanka',
-          lastname: 'van Dijk',
-          email: 'yvanka.van.dijk@uva.nl',
-        },
-      ],
       enabled: true
     },
     {
       ID: 20202,
       name: 'ASML',
       representatives: 5,
-      admins: [
-        {
-          firstname: 'Lucas',
-          lastname: 'van Dijk',
-          email: 'lucas.van.dijk@uva.nl',
-        },
-        {
-          firstname: 'Yvonne',
-          lastname: 'van Dijk',
-          email: 'yvonne.van.dijk@uva.nl',
-        },
-      ],
       enabled: true
     },
   ],
@@ -48,36 +24,12 @@ const entity_import = {
       ID: 10101,
       name: 'UvA Master of Software Engineering',
       representatives: 5,
-      admins: [
-        {
-          firstname: 'Quinten',
-          lastname: 'Coltof',
-          email: 'quinten.coltof@uva.nl',
-        },
-        {
-          firstname: 'Yvanka',
-          lastname: 'van Dijk',
-          email: 'yvanka.van.dijk@uva.nl',
-        },
-      ],
       enabled: true
     },
     {
       ID: 20202,
       name: 'ASML',
       representatives: 6,
-      admins: [
-        {
-          firstname: 'Lucas',
-          lastname: 'van Dijk',
-          email: 'lucas.van.dijk@uva.nl',
-        },
-        {
-          firstname: 'Yvonne',
-          lastname: 'van Dijk',
-          email: 'yvonne.van.dijk@uva.nl',
-        },
-      ],
       enabled: true
     },
   ],
@@ -87,36 +39,12 @@ const entity_import = {
       ID: 10101,
       name: 'UvA',
       representatives: 4,
-      admins: [
-        {
-          firstname: 'Quinten',
-          lastname: 'Coltof',
-          email: 'quinten.coltof@uva.nl',
-        },
-        {
-          firstname: 'Yvanka',
-          lastname: 'van Dijk',
-          email: 'yvanka.van.dijk@uva.nl',
-        },
-      ],
       enabled: false
     },
     {
       ID: 20202,
       name: 'ASML',
       representatives: 4,
-      admins: [
-        {
-          firstname: 'Lucas',
-          lastname: 'van Dijk',
-          email: 'lucas.van.dijk@uva.nl',
-        },
-        {
-          firstname: 'Yvonne',
-          lastname: 'van Dijk',
-          email: 'yvonne.van.dijk@uva.nl',
-        },
-      ],
       enabled: false
     },
   ],
@@ -238,7 +166,7 @@ describe('Entity', () => {
       expect(projects).to.have.length(0);
     });
 
-    it('mutation entity.import should import entities and create users', async () => {
+    it('mutation entity.import should import entities', async () => {
       const res = await api.entity.import(entity_import.base).exec();
       expect(res.map((e) => e.entity.name)).to.deep.equal(entity_import.base.map((e) => e.name));
       expect(res.map((e) => e.entity.external_id)).to.deep.equal(entity_import.base.map((e) => e.ID));
@@ -257,7 +185,16 @@ describe('Entity', () => {
     it('mutation entity.import should conditonally delete entities and users', async () => {
       const userCountBefore = (await models.User.find()).length;
 
-      await api.entity.import(entity_import.base).exec();
+      const entities = await api.entity.import(entity_import.base).exec();
+      for (const { entity } of entities) {
+        await api.user.representative.create({
+          enid: entity.enid,
+          firstname: 'firstname',
+          lastname: 'lastname',
+          email: 'whoo@' + entity.enid,
+        }).exec();
+      }
+      expect((await models.User.find()).length).to.equal(userCountBefore + entities.length);
 
       const res = await api.entity.import(entity_import.delete).exec();
       for (const item of res) {

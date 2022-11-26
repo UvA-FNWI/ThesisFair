@@ -30,12 +30,12 @@ describe('Schedule', () => {
       expect(res).to.have.length.greaterThan(0);
     });
 
-    it.only('mutation schedule.import should import a schedule', async () => {
+    it('mutation schedule.import should import a schedule', async () => {
       const csvImport = `
-Slot;StudentID;Org
-Slot1;${db.users[0].studentnumber};${db.entities[0].name}
-Slot1;${db.users[0].studentnumber};${db.entities[3].name}
-Slot1;${db.users[6].studentnumber};${db.entities[0].name}
+Slot,StudentID,Org
+Slot1,${db.users[0].studentnumber},${db.entities[0].name}
+Slot1,${db.users[0].studentnumber},${db.entities[3].name}
+Slot1,${db.users[6].studentnumber},${db.entities[0].name}
       `
       const countBefore = (await models.Schedule.find()).length;
       const res = await api.schedule.import(db.events[0].evid, csvImport).exec();
