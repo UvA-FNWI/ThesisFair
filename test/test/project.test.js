@@ -222,6 +222,7 @@ describe('project', () => {
 
     testQuery();
 
+    //! Left in the project due to possible future usage.
     // it('mutation project.create should create an project', async () => {
     //   const project = { ...db.projects[0], external_id: 10101 };
     //   delete project.pid;

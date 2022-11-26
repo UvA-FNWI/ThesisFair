@@ -7,34 +7,35 @@ import { Project } from './database.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
-const evidExists = async (evid) => {
-  const res = await rgraphql('api-event', 'query checkEVID($evid: ID!) { event(evid: $evid) { evid } }', { evid });
+//! Left in the project due to possible future usage.
+// const evidExists = async (evid) => {
+//   const res = await rgraphql('api-event', 'query checkEVID($evid: ID!) { event(evid: $evid) { evid } }', { evid });
 
-  if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the evid is valid');
-  }
+//   if (res.errors || !res.data) {
+//     console.error(res);
+//     throw new Error('An unkown error occured while checking if the evid is valid');
+//   }
 
-  if (!res.data.event) {
-    return false;
-  }
+//   if (!res.data.event) {
+//     return false;
+//   }
 
-  return true;
-};
+//   return true;
+// };
 
-const enidExists = async (enid) => {
-  const res = await rgraphql('api-entity', 'query checkENID($enid: ID!) { entity(enid: $enid) { enid } }', { enid });
-  if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the enid is valid');
-  }
+// const enidExists = async (enid) => {
+//   const res = await rgraphql('api-entity', 'query checkENID($enid: ID!) { entity(enid: $enid) { enid } }', { enid });
+//   if (res.errors || !res.data) {
+//     console.error(res);
+//     throw new Error('An unkown error occured while checking if the enid is valid');
+//   }
 
-  if (!res.data.entity) {
-    return false;
-  }
+//   if (!res.data.entity) {
+//     return false;
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
 const getEvid = async (external_id) => {
   const res = await rgraphql('api-event', 'query getEvid($external_id: ID!) { eventByExtID(external_id: $external_id) { evid } }', { external_id });
@@ -120,6 +121,7 @@ schemaComposer.Query.addNestedFields({
 });
 
 schemaComposer.Mutation.addNestedFields({
+  //! Left in the project due to possible future usage.
   // 'project.create': {
   //   type: 'Project',
   //   args: {
