@@ -636,6 +636,7 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       await Representative.deleteMany({ enid: args.enid });
+      await Student.updateMany({ $pull: { share: args.enid }});
       return true;
     },
   },
