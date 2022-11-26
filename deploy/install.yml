@@ -102,6 +102,20 @@
         - userService
         - eventService
 
+    - name: Prometheus data directory
+      file:
+        path: /opt/thesisfair/data/prometheus
+        state: directory
+        owner: nobody
+        group: nogroup
+
+    - name: Grafana data directory
+      file:
+        path: /opt/thesisfair/data/grafana
+        state: directory
+        owner: 472
+        group: root
+
     - name: Backup directory
       file:
         path: /opt/thesisfair/backup

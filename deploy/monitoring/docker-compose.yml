@@ -12,7 +12,7 @@ services:
     volumes:
     - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     - ./prometheusRules.yml:/etc/prometheus/prometheusRules.yml:ro
-    - prometheusStorage:/prometheus
+    - /opt/thesisfair/data/prometheus:/prometheus
     depends_on:
     - alertmanager
     - node-exporter
@@ -71,7 +71,7 @@ services:
     image: grafana/grafana-oss
     volumes:
     - ./grafana.ini:/etc/grafana/grafana.ini:ro
-    - grafanaStorage:/var/lib/grafana
+    - /opt/thesisfair/data/grafana:/var/lib/grafana
     labels:
       traefik.enable: "true"
       traefik.docker.network: "thesisfair"
@@ -82,10 +82,6 @@ services:
     networks:
       - default
       - thesisfair
-
-volumes:
-  prometheusStorage:
-  grafanaStorage:
 
 networks:
   default:
