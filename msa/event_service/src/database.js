@@ -10,7 +10,7 @@ const eventSchema = new mongoose.Schema({
   description: { type: String },
   start: { type: Date, required: true },
   location: { type: String },
-  studentSubmitDeadline: { type: Date, retuired: true },
+  studentSubmitDeadline: { type: Date },
   entities: [{ type: mongoose.Schema.ObjectId }],
   external_id: { type: Number, index: true, unique: true, required: true },
 });
