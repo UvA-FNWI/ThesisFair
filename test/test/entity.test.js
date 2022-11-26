@@ -152,12 +152,18 @@ describe('Entity', () => {
       expect(res).to.deep.equal(updatedEntity);
     });
 
-    it('mutation entity.delete should delete the entity, linked projects, representatives and remove enid from student shares list', async () => {
+    it('mutation entity.delete should delete the entity, linked projects, schedules, votes, representatives and remove enid from student shares list and event list', async () => {
       const res = await api.entity.delete(db.entities[0].enid).exec();
       expect(res).to.deep.equal(db.entities[0]);
 
       const query = await api.entity.get(db.entities[0].enid).exec();
       expect(query).to.be.null;
+
+      const schedules = await models.Schedule.find({ enid: db.entities[0].enid });
+      expect(schedules).to.have.length(0);
+
+      const votes = await models.Vote.find({ enid: db.entities[0].enid });
+      expect(votes).to.have.length(0);
 
       const representatives = await models.Representative.find({ enid: db.entities[0].enid });
       expect(representatives).to.have.length(0);
@@ -167,6 +173,9 @@ describe('Entity', () => {
 
       const projects = await models.Project.find({ enid: db.entities[0].enid });
       expect(projects).to.have.length(0);
+
+      const events = await models.Event.find({ entities: db.entities[0].enid });
+      expect(events).to.have.length(0);
     });
 
     it('mutation entity.import should import entities', async () => {

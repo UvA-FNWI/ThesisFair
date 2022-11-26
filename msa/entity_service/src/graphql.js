@@ -8,6 +8,24 @@ import { canGetAllEntities } from './permissions.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
+const deleteEntity = async (enid) => {
+  const calls = await Promise.all([
+    rgraphql('api-event', 'mutation deleteFromEvents($enid: ID!) { event { removeEntity(enid: $enid) } }', { enid: enid }),
+    rgraphql('api-project', 'mutation deleteLinkedProjects($enid: ID!) { project { deleteOfEntity(enid: $enid) } }', { enid: enid }),
+    rgraphql('api-user', 'mutation deleteLinkedUsers($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: enid }),
+    rgraphql('api-schedule', 'mutation deleteLinkedSchedules($enid: ID!) { schedule { deleteOfEntity(enid: $enid) } }', { enid: enid }),
+    rgraphql('api-vote', 'mutation deleteLinkedVotes($enid: ID!) { vote { deleteOfEntity(enid: $enid) } }', { enid: enid }),
+  ]);
+  for (const call of calls) {
+    if (call.errors) {
+      console.error('Deleting linked objects failed', call.errors);
+      throw new Error('Deleting all linked objects failed');
+    }
+  }
+
+  return Entity.findByIdAndDelete(enid);
+}
+
 schemaComposer.Query.addNestedFields({
   entity: {
     type: 'Entity',
@@ -118,21 +136,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED delete entities');
       }
 
-      const [projects, users] = await Promise.all([
-        rgraphql('api-project', 'mutation deleteLinkedProjects($enid: ID!) { project { deleteOfEntity(enid: $enid) } }', { enid: args.enid }),
-        rgraphql('api-user', 'mutation deleteLinkedUsers($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: args.enid }),
-      ]);
-      if (projects.errors || !projects.data.project || !projects.data.project.deleteOfEntity) {
-        console.error('Deleting linked projects failed', projects.errors);
-        throw new Error('Deleting all linked projects failed');
-      }
-
-      if (users.errors || !users.data.user || !users.data.user.deleteOfEntity) {
-        console.error('Deleting linked users failed', users.errors);
-        throw new Error('Deleting all representatives failed');
-      }
-
-      return Entity.findByIdAndDelete(args.enid)
+      return deleteEntity(args.enid);
     },
   },
   'entity.import': {
@@ -162,13 +166,11 @@ schemaComposer.Mutation.addNestedFields({
             }
 
             // Delete entity
-            const res = await rgraphql('api-user', 'mutation deleteUsersOfEntity($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', { enid: entity.enid });
-            if (res.errors) {
-              console.error(res);
-              return { error: 'Unexpected error has occured' };
+            try {
+              await deleteEntity(entity.enid);
+            } catch (error) {
+              return { error: error };
             }
-
-            await Entity.deleteOne({ external_id: external_id });
             return {};
           }
 

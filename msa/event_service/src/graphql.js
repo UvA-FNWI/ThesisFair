@@ -221,6 +221,21 @@ schemaComposer.Mutation.addNestedFields({
       return Event.findByIdAndDelete(args.evid);
     },
   },
+  'event.removeEntity': {
+    type: 'String',
+    args: {
+      enid: 'ID!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED remove an entity from events');
+      }
+
+      await Event.updateMany({ $pull: { entities: args.enid } });
+    },
+  },
 
   'event.entity.add': {
     type: 'Event',

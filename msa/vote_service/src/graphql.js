@@ -158,20 +158,19 @@ schemaComposer.Query.addNestedFields({
 });
 
 schemaComposer.Mutation.addNestedFields({
-  // 'project.deleteOfEntity': {
-  //   type: 'Boolean',
-  //   args: {
-  //     enid: 'ID!',
-  //   },
-  //   resolve: async (obj, args, req) => {
-  //     if (req.user.type !== 'a') {
-  //       throw new Error('UNAUTHORIZED delete project');
-  //     }
+  'vote.deleteOfEntity': {
+    type: 'String',
+    args: {
+      enid: 'ID!',
+    },
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED delete vote');
+      }
 
-  //     await Project.deleteMany({ enid: args.enid });
-  //     return true
-  //   }
-  // },
+      await Vote.deleteMany({ enid: args.enid });
+    }
+  },
   'vote.import': {
     type: '[VoteImportResult!]!',
     args: {

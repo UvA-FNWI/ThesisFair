@@ -352,7 +352,23 @@ schemaComposer.Mutation.addNestedFields({
         });
       });
     }
-  }
+  },
+
+  'schedule.deleteOfEntity': {
+    type: 'String',
+    args: {
+      enid: 'ID!',
+    },
+    description: JSON.stringify({
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED to delete schedule');
+      }
+
+      await Schedule.deleteMany({ enid: args.enid });
+    },
+  },
 });
 
 const schema = schemaComposer.buildSchema();
