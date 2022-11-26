@@ -55,7 +55,7 @@ class OrganisationDashboard extends React.Component {
     }, 2000);
   }
 
-  render() { // TODO: save automatically by deferring
+  render() {
     return (
       <>
         <Container className='mt-2'>

@@ -56,7 +56,7 @@ class Event extends React.Component {
     this.setState({ [`${type}Img`]: img });
   }
 
-  render() { // TODO: save automatically by deferring
+  render() {
     return (
       <Container className='mt-2'>
         <h2>Event</h2>

@@ -71,7 +71,7 @@ class RepAccount extends React.Component {
     }, 2000);
   }
 
-  render() { // TODO: save automatically by deferring
+  render() {
     return (
       <Container className='mt-2'>
         <h2>Account information</h2>

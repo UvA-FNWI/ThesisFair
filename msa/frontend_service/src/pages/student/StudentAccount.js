@@ -91,21 +91,11 @@ class StudentAccount extends React.Component {
 
 
 
-  render() { // TODO: save automatically by deferring
+  render() {
     return (
       <Container className='mt-2'>
         <h2>Account information</h2>
         <div className='mb-4'>
-          {/* <div className='me-4'>
-            <div className='d-flex'>
-              <img width='128px' height='128px' src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=192&h=192&q=80" alt='Profile' style={{ marginLeft: 'auto', marginRight: 'auto' }} />
-            </div>
-            <div className='d-flex justify-content-center gap-2 mt-2'>
-              <Button>Upload</Button>
-              <Button>Delete</Button>
-            </div>
-          </div> */}
-
           <div>
             <Form onSubmit={this.updatePersonalInfo}>
               <Row className='mb-2'>
