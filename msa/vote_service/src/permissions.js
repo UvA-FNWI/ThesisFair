@@ -9,9 +9,3 @@ export const canGetEntityVotes = (req, args) => {
     throw new Error('UNAUTHORIZED get this entities votes');
   }
 }
-
-export const canGetProjectVotes = (req, args) => { // TODO: Check if representative belongs to the same entity as project
-  if (req.user.type === 's') {
-    throw new Error('UNAUTHORIZED get votes of projects');
-  }
-}

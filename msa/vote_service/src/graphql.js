@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Vote } from './database.js';
-import { canGetStudentVotes, canGetEntityVotes, canGetProjectVotes } from './permissions.js';
+import { canGetStudentVotes, canGetEntityVotes } from './permissions.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -108,10 +108,11 @@ schemaComposer.Query.addNestedFields({
       evid: 'ID!'
     },
     description: JSON.stringify({
-      checkPermissions: canGetProjectVotes.toString(),
     }),
     resolve: async (obj, args, req) => {
-      canGetProjectVotes(req, args);
+      if (req.user.type === 's') {
+        throw new Error('UNAUTHORIZED get votes of projects');
+      }
 
       const query = { evid: args.evid };
       if (req.user.type === 'a') {
