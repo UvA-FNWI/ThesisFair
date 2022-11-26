@@ -8,16 +8,9 @@ type EntityContactInfo {
   content: String!
 }
 
-input AdminAccount {
-  firstname: String!
-  lastname: String!
-  email: String!
-}
-
 input EntityImport {
   ID: ID!
   name: String!
-  admins: [AdminAccount!]
   enabled: Boolean!
   representatives: Int
 }

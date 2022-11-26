@@ -135,7 +135,7 @@ schemaComposer.Mutation.addNestedFields({
       return Entity.findByIdAndDelete(args.enid)
     },
   },
-  'entity.import': { // TODO: Remove contact information from import as well
+  'entity.import': {
     type: '[EntityImportResult!]!',
     args: {
       entities: '[EntityImport!]!',
