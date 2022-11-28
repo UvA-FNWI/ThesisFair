@@ -176,8 +176,6 @@ schemaComposer.Query.addNestedFields({
       return !!(await Schedule.findOne({ uid: args.uid, enid: args.enid }));
     }
   }
-  // deleteOfEvent: { // TODO
-  // }
 });
 
 schemaComposer.Mutation.addNestedFields({
