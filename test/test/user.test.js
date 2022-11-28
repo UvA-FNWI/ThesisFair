@@ -43,7 +43,7 @@ describe('User', () => {
       expect(res).to.deep.equal(db.users.filter((user) => !user.admin));
     });
 
-    describe.only('query userAll', () => {
+    describe('query userAll', () => {
       const normalizeUsers = (users) => {
         for (const user of users) {
           for (const key in user) {
@@ -95,6 +95,17 @@ describe('User', () => {
           }
         }
       });
+    });
+
+    it.only('query usersOfEntity should return all the representatives of the entity', async () => {
+      const users = await api.user.getOfEntity(db.entities[0].enid).exec();
+      for (const user of db.users) {
+        if (user.enid === db.entities[0].enid) {
+          expect(users).to.deep.contain(user);
+        } else {
+          expect(users).not.to.deep.contain(user);
+        }
+      }
     });
 
     testRepCreate();

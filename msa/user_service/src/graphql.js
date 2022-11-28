@@ -244,7 +244,7 @@ schemaComposer.Query.addNestedFields({
       return users;
     },
   },
-  usersOfEntity: { // TODO: Auto test this
+  usersOfEntity: {
     type: '[User]',
     args: {
       enid: 'ID!',
