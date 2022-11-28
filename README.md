@@ -1,37 +1,108 @@
 # Thesis Fair Platform
-The Thesis Fair Platform is currently beign developed to be used for the Thesis Fairs at the UvA. **The version of the platform that was used for the Bachalor Thesis** can be found in the "thesis" branch.
+Is the companion site for the thesis fairs hosted by the University of Amsterdam.
+A thesis fair is an event where students and companies meet each other to find interesting thesis projects and students respectively.
 
 # Running the platform
-## Initializing kubernetes
-1. Run `make init`
+## Initializing the server
+The server is initialized via the `/deploy/install.yml` ansible playbook.
+This is run by adding the server to the `thesisfair` group and executing the ansible playbook.
+
+### Server requirements
+For staging a 1 vCPU and 2 GB ram server can be used (Standard B1ms in Azure cloud) without the monitoring stack.
+For production 2 vCPU and 4 GB ram (Standard B2s in Azure cloud) seem to be enough with the monitoring stack.
 
 ## Configure environment variables
-TODO
+Copy and paste the template below to `/deploy/compose/.env` for staging environment and `/deploy/composeProd/.env` for production environment.
+
+```
+JWT_SECRET=
+
+OPENID_ISSUER_URL=
+OPENID_CLIENT_ID=
+OPENID_CLIENT_SECRET=
+OPENID_REDIRECT_URL=
+OPENID_RESOURCE=
+
+FS_ROOT=
+URL=
+
+OVERRIDEMAIL=
+MAILHOST=
+MAILPORT=
+MAILUSER=
+MAILPASS=
+```
+
 ### Environment variables
 - `JWT_SECRET` - Is the signing key for the JSON web tokens. The API gateway and user service need this token. It can be generated using the command `openssl rand -base64 512`.
+- `FS_ROOT` - The root path of the project on the filesystem. Used to mount the data directories into the containers. (For example `/opt/thesisfair/`)
+- `URL` - The url of the website(For example `thesisfair.qrcsoftware.nl`).
 
 #### OpenID variables
 These should be supplied to the API gateway.
 - `OPENID_ISSUER_URL` - The URL of the openID instance.
 - `OPENID_CLIENT_ID` - The Client ID that identifies this application to the openID server.
 - `OPENID_CLIENT_SECRET` - The Client Secret to validate that this application is actually this application.
-- `OPENID_REDIRECT_URL` - The URL to which should be redirected afterwards. Should have the form `https://<root>/sso/loggedin`
-- `OPENID_RESOURCE` - Should have the form `https://<root>`.
+- `OPENID_REDIRECT_URL` - The URL to which should be redirected afterwards. Should have the form `https://<YRK>/sso/loggedin`
+- `OPENID_RESOURCE` - Should have the form `https://<URL>`.
 
-## Running the ThesisFair software
-### Kubernetes
-To deploy run `make up`.
+#### Email variables
+These are used by the user service to send emails regarding representative accounts.
+- `OVERRIDEMAIL` - All emails that the system will send will be sent to this email address instead of the "correct" email address.
+- `MAILHOST` - The SMTP host.
+- `MAILPORT` - The port to use for SMTP.
+- `MAILUSER` - The username to authenticate this application to the SMTP server.
+- `MAILPASS` - The password to authenticate this application to the SMTP server.
 
-To remove the deployment run `make down`
+## Build and push container images
+Run `make update` in the root of the project.
 
-## Initializing the database
-### Testing
-To seed the database for testing run `make seed`. Config for this can be found in `kubernetes/dbInit.yaml`.
+## Push deploy scripts
+Add the staging server to your ssh config as `thesisfairDev` and production server as `thesisfairProd`.
+
+Run `make sync` and `make syncProd` to sync the deploy files to the staging and production server respectively.
+
+## Starting the ThesisFair Platform
+SSH to the server and run `docker compose up -d` to start up the architecture.
+
+
+# Configuring monitoring
+All monitoring related configuration can be found in `/deploy/monitoring/`.
+
+## Set the monitoring environment variables
+Copy the template below to `/deploy/monitoring/.env` and `/deploy/monitoring/.env.prod` for staging and production environment respectively.
+- `URL` - The same URL value as the other environment file.
+- `WHITELISTED_IPS` - A comma separated list of all the IPs that are allowed to reach the Grafana dashboard.
+
+```
+URL=
+WHITELISTED_IPS=
+```
+
+## Configure alert manager
+Duplicate `/deploy/monitoring/alertmanager.template.yml` to `/deploy/monitoring/alertmanager.yml` and configure alertmanager to your liking.
+
+## Run the monitoring
+SSH to the server and run `docker compose up -d` in the monitoring directory to start the monitoring stack.
+
+## Accessing monitoring
+- Prometheus runs on port 9090
+- Alert manager runs on port 9093
+- Grafana runs on `https://{URL}/grafana` for whitelisted IPs
+
+# Initializing the database
+## Testing
+Run `node test/test/db.js` to initialize the database for testing.
 
 The default logins are: `student`, `rep`, `repAdmin` and `admin`. Where the password is their username.
 
-### Production
-TODO
+## Production
+All data is automatically imported from an external system. Documentation for this is below.
+
+The only manual database change that needs to be made is the creation of administrator accounts.
+
+### Administrators
+Administrators can be created by adding an entry in the `users` collection with a field email of type string and a field admin of type boolean and value true. Afterwards, the user can log in via single sign-on on the supplied email address.
 
 
 # Automated imports
@@ -68,7 +139,7 @@ Example payload:
 ```
 
 ## Reponse handling
-There are two level of errors. An **internal server error**, which will be indicated by the presence of the error key in the response. In this case nothing has been imported.
+There are two levels of errors. An **internal server error**, will be indicated by the presence of the error key in the response. In this case nothing has been imported.
 The other type is an **import error** which signals that something is wrong with a specific line in the import file. Each row in the CSV will have a status object in the result array, below this has the JSON path `data.entity.import`. Import errors are returned by having a non-null error value in the status object.
 
 Example response:
@@ -231,7 +302,7 @@ Example payload:
     "entityID": 0,
     "evids": [0, 1],
     "name": "UvA Project",
-    "description": "You will be doing reserach at the UvA",
+    "description": "You will be doing research at the UvA",
     "datanoseLink": "https://datanose.nl/project/UvAResearch",
     "enabled": true,
   },
@@ -274,23 +345,13 @@ The following environment variables should be used within the docker-compose fil
 - `NODE_CMD` -> Command to execute to start the container, either `start` for development with automatic restarting or `production` for production.
 
 ## Shared libraries
-Are in the libraries folder. The folder name should match their package name on npm so that during build the code can be rewritten to make regex pattern `(\.\./)*libraries/amqpmessaging/index.js` -> `@amicopo/amqpmessaging/index.js`
+All shared libraries are in the `/msa/libraries` folder. The folder name should match their package name on npm so that during building the code can be rewritten using the regex `(\.\./)*libraries` -> `@amicopo`
 
 ## Shared databases
-In production each service should have their own database. In the docker-compose.yml files every service has their own mongodb service. However, because these all have the same name only one will be created and all services will communicate with the same mongodb database.
-
-
-## Cluster urls
-- Dashboard http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-- Prometheus: http://localhost:8001/api/v1/namespaces/monitoring/services/prometheus-server:80/proxy/
-- Grafana: `make grafanaDashboard` then http://localhost:3000/login
-- RabbitMQ: `make rabbitmqDashboard` then http://localhost:15672/#/
-- Traefik `http://<server ip>:32080` or `https://<server ip>:32443` or http://localhost:8001/api/v1/namespaces/default/services/traefik:80/proxy/
-- Traefik dashboard: `make traefikDashboard` then http://localhost:9000/dashboard/
-- Mailhog: http://localhost:8001/api/v1/namespaces/default/services/mailhog:8025/proxy/
+In the docker-compose.yml files, every service has its private MongoDB service. However, because these all have the same name only one will be created and all services will communicate with the same MongoDB database.
 
 ## Authenticating the browser
-When the `NODE_ENV` is set to `development`, it is possible to authenticate get requests send directly from the browser by adding an authorization query parameter.
-This way it is possible to access the graphqli interface via the url: http://localhost:3000/api/graphql?authorization=%7B%22type%22%3A%22a%22%7D
+When the `NODE_ENV` is set to `development`, it is possible to authenticate get requests sent directly from the browser by adding an authorization query parameter.
+This way it is possible to access the graphqli interface via the URL: http://localhost:3000/api/graphql?authorization=%7B%22type%22%3A%22a%22%7D
 
 
