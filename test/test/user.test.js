@@ -43,6 +43,60 @@ describe('User', () => {
       expect(res).to.deep.equal(db.users.filter((user) => !user.admin));
     });
 
+    describe.only('query userAll', () => {
+      const normalizeUsers = (users) => {
+        for (const user of users) {
+          for (const key in user) {
+            if (user[key] === null) {
+              delete user[key];
+            }
+          }
+        }
+
+        return users;
+      }
+
+      it('query userAll should get all users of the given type', async () => {
+        const users = normalizeUsers(await api.user.getAll().exec());
+        for (const user of db.users) {
+          delete user.admin;
+          expect(users).to.deep.contain(user);
+        }
+      });
+
+      it('query userAll with filter admin should only give admins', async () => {
+        const users = normalizeUsers(await api.user.getAll('admin').exec());
+        for (const user of db.users) {
+          if (user.admin) {
+            delete user.admin;
+            expect(users).to.deep.contain(user);
+          } else {
+            expect(users).not.to.deep.contain(user);
+          }
+        }
+      });
+      it('query userAll with filter student should only give students', async () => {
+        const users = normalizeUsers(await api.user.getAll('student').exec());
+        for (const user of db.users) {
+          if (user.studentnumber) {
+            expect(users).to.deep.contain(user);
+          } else {
+            expect(users).not.to.deep.contain(user);
+          }
+        }
+      });
+      it('query userAll with filter representative should only give representatives', async () => {
+        const users = normalizeUsers(await api.user.getAll('representative').exec());
+        for (const user of db.users) {
+          if (user.enid) {
+            expect(users).to.deep.contain(user);
+          } else {
+            expect(users).not.to.deep.contain(user);
+          }
+        }
+      });
+    });
+
     testRepCreate();
 
     it('mutation user.representative.create should check for double email address', async () => {
@@ -360,7 +414,7 @@ describe('User', () => {
     it('mutation user.representative.create should fail', async () => {
       expect(db.users[3].enid).to.exist;
 
-      await fail(api.user.representative.create({...db.users[3], email: 'new@new.nl'}).exec);
+      await fail(api.user.representative.create({ ...db.users[3], email: 'new@new.nl' }).exec);
     });
 
     it('mutation user.representative.update should fail', async () => {
@@ -407,7 +461,7 @@ function testRepCreate() {
     const res = await api.user.representative.create(newRep).exec();
 
     expect(res.uid).to.exist;
-    expect(res).to.deep.equal({...newRep, uid: res.uid});
+    expect(res).to.deep.equal({ ...newRep, uid: res.uid });
   });
 };
 

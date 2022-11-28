@@ -257,7 +257,7 @@ schemaComposer.Query.addNestedFields({
       return users;
     }
   },
-  usersAll: { // TODO: Auto test this
+  usersAll: {
     type: '[User]',
     args: {
       filter: 'String',
