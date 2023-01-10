@@ -2,6 +2,13 @@
 Is the companion site for the thesis fairs hosted by the University of Amsterdam.
 A thesis fair is an event where students and companies meet each other to find interesting thesis projects and students respectively.
 
+# Microservices architecture
+![Microservices architecture!](architecture.svg "The microservices architecture")
+
+# Database architecture
+![Database architecture!](database.svg "The database architecture")
+
+
 # Running the platform
 ## Initializing the server
 The server is initialized via the `/deploy/install.yml` ansible playbook.
@@ -92,7 +99,7 @@ SSH to the server and run `docker compose up -d` in the monitoring directory to 
 
 # Initializing the database
 ## Testing
-Run `node test/test/db.js` to initialize the database for testing.
+Run `node test/test/db.js run` to initialize the database for testing.
 
 The default logins are: `student`, `rep`, `repAdmin` and `admin`. Where the password is their username.
 
@@ -352,6 +359,7 @@ In the docker-compose.yml files, every service has its private MongoDB service. 
 
 ## Authenticating the browser
 When the `NODE_ENV` is set to `development`, it is possible to authenticate get requests sent directly from the browser by adding an authorization query parameter.
-This way it is possible to access the graphqli interface via the URL: http://localhost:3000/api/graphql?authorization=%7B%22type%22%3A%22a%22%7D
+This way it is possible to access the graphqli interface via the URL: [http://localhost:3000/api/graphql?authorization={"type":"a"}](http://localhost:3000/api/graphql?authorization=%7B%22type%22%3A%22a%22%7D)
 
-
+## Automatic testing
+Automatic testing is done using [mocha](https://mochajs.org/) and [chai](https://www.chaijs.com/) by running `npm run test` in the `/test` directory.
