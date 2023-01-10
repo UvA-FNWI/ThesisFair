@@ -72,9 +72,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       pid: 'ID!',
     },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid' }
-    }),
+    description: 'Get a project by its project id.',
     resolve: (obj, args) => Project.findById(args.pid),
   },
   projectByExtID: {
@@ -82,9 +80,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       external_id: 'ID!',
     },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid' }
-    }),
+    description: 'Get a project using its external id',
     resolve: (obj, args) => Project.findOne({ external_id: args.external_id }),
   },
   projects: {
@@ -92,9 +88,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       pids: '[ID!]!'
     },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', keys: 'pids' }
-    }),
+    description: 'Get a list of projects using their project ids. Result is not in original order!',
     resolve: (obj, args) => Project.find({ _id: { $in: args.pids } }),
   },
   projectsOfEntity: {
@@ -103,9 +97,7 @@ schemaComposer.Query.addNestedFields({
       evid: 'ID!',
       enid: 'ID!',
     },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', multiple: true }
-    }),
+    description: 'Get the projects of a given entity and event.',
     resolve: (obj, args) => Project.find({ enid: args.enid, evids: args.evid }),
   },
   projectsOfEvent: {
@@ -113,9 +105,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       evid: 'ID!'
     },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', multiple: true }
-    }),
+    description: 'Get the projects available on an event.',
     resolve: (obj, args) => Project.find({ evids: args.evid }),
   },
 });
@@ -192,9 +182,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       pid: 'ID!',
     },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', delete: true }
-    }),
+    description: 'Delete a project.',
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete project');
@@ -208,9 +196,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
-    description: JSON.stringify({
-
-    }),
+    description: 'Delete all projects of an entity.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete project');
@@ -224,9 +210,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       evid: 'ID!',
     },
-    description: JSON.stringify({
-
-    }),
+    description: 'Delete all projects of an event.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete project');
@@ -240,9 +224,43 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       projects: '[ProjectImport!]!',
     },
-    description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', multiple: true }
-    }),
+    description: `Import projects.
+Parameters:
+- projects - Structured data of type ProjectImport
+
+The ProjectImport type has the following fields:
+- ID - A unique numeric identifier of the project
+- entityID - The unique numeric identifier of the entity the project is linked to
+- evids - An array of the unique numeric identifiers of the events this project linked to
+- name - Name of the project
+- description - The description of the project
+- datanoseLink - The link to datanose (Complete url)
+- enabled - When false the project will be deleted, otherwise it will be upserted.
+
+Example payload:
+\`\`\`
+[
+  {
+    "ID": 10101,
+    "entityID": 0,
+    "evids": [0, 1],
+    "name": "Test Project",
+    "description": "This is a test project",
+    "datanoseLink": "https://datanose.nl/project/test",
+    "enabled": true,
+  },
+  {
+    "ID": 20202,
+    "entityID": 0,
+    "evids": [0, 1],
+    "name": "UvA Project",
+    "description": "You will be doing research at the UvA",
+    "datanoseLink": "https://datanose.nl/project/UvAResearch",
+    "enabled": true,
+  },
+]
+\`\`\`
+    `,
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || req.user.type === 'service')) {
         throw new Error('UNAUTHORIZED import projects');

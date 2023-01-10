@@ -16,6 +16,15 @@ const client = new issuer.Client({
 });
 client[custom.clock_tolerance] = 5;
 
+/**
+ * Call the ssoLogin query on the user service which optionally creates the user and generates the JWT token.
+ * @param {Boolean} student Is the user a student?
+ * @param {String} external_id The external identifier supplied by the SSO instance
+ * @param {String} email The email address
+ * @param {String} firstname The users first name
+ * @param {String} lastname The users last name
+ * @returns JWT token string
+ */
 const ssoLogin = async (student, external_id, email, firstname, lastname) => {
   const variables = {
     student,
@@ -32,6 +41,10 @@ const ssoLogin = async (student, external_id, email, firstname, lastname) => {
   return res.data.ssoLogin;
 }
 
+/**
+ * Login route to start the SSO process.
+ * The code verifier is encrypted and stored as a cookie in the users browser
+ */
 router.get('/login', (req, res) => {
   const code_verifier = generators.codeVerifier();
   const code_challenge = generators.codeChallenge(code_verifier);
@@ -54,6 +67,10 @@ router.get('/login', (req, res) => {
   res.redirect(authUrl);
 })
 
+/**
+ * The route the user is redirected towards after SSO login is complete.
+ * Retrieves the code varifier using the cookie "c" which is encrypted.
+ */
 router.get('/loggedin', cookieParser(), async (req, res) => {
   if (!req.cookies.c) {
     res.status(400).send('No code cookie set').end();

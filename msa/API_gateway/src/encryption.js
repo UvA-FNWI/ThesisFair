@@ -1,9 +1,19 @@
 import crypto from 'node:crypto';
 
+/**
+ * This file is used by sso.js to store the SSO verifier code as a cookie
+ * on the users computer.
+ */
+
 const algorithm = 'AES-256-CBC';
 const encoding = 'base64';
 const key = Buffer.from(process.env.JWT_SECRET).subarray(0, 32);
 
+/**
+ * Encrypts the given contents
+ * @param {String} content The string to be encrypted
+ * @returns JSON string with the iv and encrypted data.
+ */
 export const encrypt = (content) => {
   if (typeof content !== 'string') { return; }
 
@@ -18,6 +28,11 @@ export const encrypt = (content) => {
   });
 }
 
+/**
+ * Decrypts the given contents
+ * @param {String} payload The JSON encoded payload with the iv and data
+ * @returns The unencrypted JSON string
+ */
 export const decrypt = (payload) => {
   if (typeof payload !== 'string') { return; }
 

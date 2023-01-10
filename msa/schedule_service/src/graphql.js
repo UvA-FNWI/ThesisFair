@@ -107,8 +107,7 @@ schemaComposer.Query.addNestedFields({
       uid: 'ID!',
       evid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Get the schedule of a student on an event.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
         throw new Error('UNAUTHORIZED to get this users schedule');
@@ -130,8 +129,7 @@ schemaComposer.Query.addNestedFields({
       enid: 'ID!',
       evid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Get the schedule of an entity on an event.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enid === args.enid))) {
         throw new Error('UNAUTHORIZED to get this users schedule');
@@ -152,8 +150,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       evid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Get everyones schedule of an event.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a')) {
         throw new Error('UNAUTHORIZED to get the full schedule');
@@ -168,6 +165,7 @@ schemaComposer.Query.addNestedFields({
       uid: 'ID!',
       enid: 'ID!',
     },
+    description: 'Check if a student is scheduled with an entity.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a')) {
         throw Error('UNAUTHORIZED internal only route');
@@ -187,8 +185,7 @@ schemaComposer.Mutation.addNestedFields({
       enid: 'ID',
       slot: 'String',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Update a specific appointment.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED update schedule');
@@ -204,8 +201,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       evid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Generate a schedule using a in house created algorithm.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED to generate schedule')
@@ -286,8 +282,7 @@ schemaComposer.Mutation.addNestedFields({
       evid: 'ID!',
       file: 'String!',
     },
-    description: JSON.stringify({
-    }),
+    description: `Import the schedule for a given event. The file parameter should be a CSV file with the headers "Slot,StudentID,Org" and content being: Name of the slot, student id (external identifier) and the organisation name.`,
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED to import schedule');
@@ -357,8 +352,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Delete all appointments with an entity.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED to delete schedule');
@@ -373,8 +367,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       evid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Delete all appointments of an event.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED to delete schedule');

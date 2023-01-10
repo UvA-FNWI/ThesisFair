@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Module dependencies.
+ * Does the following in order:
+ * - Connect to the message broker
+ * - Initialize sending
+ * - Load express aplication
+ * - Create http server
+ * - Start listening for connections.
  */
 
 import { connect, initSending } from '../../libraries/amqpmessaging/index.js';

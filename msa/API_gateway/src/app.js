@@ -7,6 +7,10 @@ import login from './routes/login.js';
 import sso from './routes/sso.js';
 import graphql from './graphql.js';
 
+/**
+ * The express app which handles the middleweres, routing and error handling.
+ * @returns Express app
+ */
 const createApp = async () => {
   const newApp = express();
   newApp.disable('x-powered-by');

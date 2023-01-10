@@ -66,9 +66,7 @@ schemaComposer.Query.addNestedFields({
       uid: 'ID!',
       evid: 'ID!'
     },
-    description: JSON.stringify({
-      checkPermissions: canGetStudentVotes.toString(),
-    }),
+    description: 'Get the votes of a student from an event.',
     resolve: (obj, args, req) => {
       canGetStudentVotes(req, args);
       return Vote.findOne({ evid: args.evid, uid: args.uid }).then((result) => result ? result.votes.map((v) => v.pid) : null);
@@ -80,9 +78,7 @@ schemaComposer.Query.addNestedFields({
       enid: 'ID!',
       evid: 'ID!'
     },
-    description: JSON.stringify({
-      checkPermissions: canGetEntityVotes.toString(),
-    }),
+    description: 'Get the students that voted for an entity on an event.',
     resolve: async (obj, args, req) => {
       canGetEntityVotes(req, args);
 
@@ -107,8 +103,7 @@ schemaComposer.Query.addNestedFields({
       pid: 'ID!',
       evid: 'ID!'
     },
-    description: JSON.stringify({
-    }),
+    description: 'Get the students who voted for a project on an event.',
     resolve: async (obj, args, req) => {
       if (req.user.type === 's') {
         throw new Error('UNAUTHORIZED get votes of projects');
@@ -129,8 +124,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       evid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Get all the votes of an event.',
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw Error('UNAUTHORIZED to get all votes of the event');
@@ -145,8 +139,7 @@ schemaComposer.Query.addNestedFields({
       uid: 'ID!',
       enid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Check if a student has voted for an entity.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw Error('UNAUTHORIZED internal only route');
@@ -163,6 +156,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
+    description: 'Delete all votes for an entity.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete vote');
@@ -176,6 +170,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       evid: 'ID!',
     },
+    description: 'Delete all votes of an event.'
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete vote');
@@ -190,6 +185,32 @@ schemaComposer.Mutation.addNestedFields({
       votes: '[VoteImport!]!',
       evid: 'ID!',
     },
+    description: `Import votes.
+Parameters:
+- votes - Structured data of type VoteImport
+- evid - The event ID from the ThesisFair Platform
+
+The VoteImport type has the following fields:
+- studentnumber - The student its studentnumber
+- projectID - The unique numeric identifier of the project which has previously been supplied as ID parameter while importing the project
+- enabled - When false the vote will be deleted, otherwise it will be upserted
+
+Example payload:
+\`\`\`
+[
+  {
+    studentnumber: 22245678,
+    projectID: 0,
+    enabled: true,
+  },
+  {
+    studentnumber: 22245678,
+    projectID: 2,
+    enabled: true,
+  },
+]
+\`\`\`
+    `,
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || req.user.type === 'service')) {
         throw new Error('UNAUTHORIZED import votes');

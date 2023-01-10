@@ -193,10 +193,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       uid: 'ID!',
     },
-    description: JSON.stringify({
-      checkPermissions: canGetUser.toString(),
-      caching: { type: 'user', key: 'uid' },
-    }),
+    description: 'Get a user by its id.',
     resolve: async (obj, args, req) => {
       const user = await User.findById(args.uid);
       if (!user) { return null; }
@@ -210,10 +207,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       studentnumber: 'ID!',
     },
-    description: JSON.stringify({
-      checkPermissions: canGetUser.toString(),
-      caching: { type: 'user', key: 'uid' },
-    }),
+    description: 'Get a student by its studentnumber',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'system') {
         throw new Error('UNAUTHORIZED to use this route.');
@@ -227,10 +221,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       uids: '[ID!]!',
     },
-    description: JSON.stringify({
-      checkPermissions: canGetUsers.toString(),
-      caching: { type: 'user', key: 'uid', keys: 'uids' },
-    }),
+    description: 'Get a list of users using their ids. Result is not in original order!',
     resolve: async (obj, args, req) => {
       const users = await User.find({ _id: { $in: args.uids } });
       for (let i = 0; i < users.length; i++) {
@@ -249,8 +240,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       enid: 'ID!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Get all users of an entity.',
     resolve: async (obj, args, req) => {
       const users = await Representative.find({ enid: args.enid });
       canGetUsers(req, args, users);
@@ -262,8 +252,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       filter: 'String',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Get all users.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED to get all users');
@@ -290,10 +279,7 @@ schemaComposer.Query.addNestedFields({
       uid: 'ID!',
       check: 'Boolean'
     },
-    description: JSON.stringify({
-      checkPermissions: canGetUser.toString(),
-      caching: { type: 'userCV', key: 'uid' },
-    }),
+    description: 'Get a students CV or check if a student has uploaded a CV.',
     resolve: async (obj, args, req) => {
       if (!isValidObjectId(args.uid)) {
         throw new Error('Invalid uid supplied');
@@ -326,8 +312,7 @@ schemaComposer.Query.addNestedFields({
       email: 'String!',
       password: 'String!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Login a user via email/password combination and return the JWT string.',
     resolve: async (obj, args) => {
       const user = await User.findOne({ email: args.email });
       if (!user) { throw new Error('No user with that email found.'); }
@@ -352,8 +337,13 @@ schemaComposer.Query.addNestedFields({
       firstname: 'String',
       lastname: 'String',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Internal only route.',
+    /**
+     * Check if user exists based on external_id.
+     * - If the user does not exist, create it.
+     * - If the user is an empty placeholder, update it with the SSO email and name.
+     * - Return a JWT string for the (newly created) user.
+     */
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'system') {
         throw new Error('UNAUTHORIZED to generate apiTokens');
@@ -400,9 +390,7 @@ schemaComposer.Mutation.addNestedFields({
       phone: 'String',
       repAdmin: 'Boolean',
     },
-    description: JSON.stringify({
-      caching: { type: 'user', key: 'uid', create: true },
-    }),
+    description: 'Create a representative account.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' ||
         (req.user.type === 'r' &&
@@ -427,9 +415,7 @@ schemaComposer.Mutation.addNestedFields({
       repAdmin: 'Boolean',
       password: 'String',
     },
-    description: JSON.stringify({
-      caching: { type: 'user', key: 'uid', update: true },
-    }),
+    description: 'Update a representative account.',
     resolve: async (obj, args, req) => {
       const uid = args.uid;
       delete args.uid;
@@ -462,8 +448,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       file: 'String!',
     },
-    description: JSON.stringify({
-    }),
+    description: 'Import representatives using a CSV file. The file parameter should be a CSV file with the headers "ID,email" and its content should be the external entity ID and email addresses of the new account. If an account already exists it will not be recreated.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED to import representatives');
@@ -507,7 +492,7 @@ schemaComposer.Mutation.addNestedFields({
       uid: 'ID!',
       email: 'String',
     },
-    description: {},
+    description: 'Update an admin account.',
     resolve: async (obj, args, req) => {
       const uid = args.uid;
       delete args.uid;
@@ -529,9 +514,7 @@ schemaComposer.Mutation.addNestedFields({
       phone: 'String',
       websites: '[String!]',
     },
-    description: JSON.stringify({
-      caching: { type: 'user', key: 'uid', update: true },
-    }),
+    description: 'Update a student account.',
     resolve: async (obj, args, req) => {
       const uid = args.uid;
       delete args.uid;
@@ -549,9 +532,7 @@ schemaComposer.Mutation.addNestedFields({
       uid: 'ID!',
       file: 'String!',
     },
-    description: JSON.stringify({
-      caching: { type: 'userCV', key: 'uid', update: true },
-    }),
+    description: 'Upload a CV',
     resolve: async (obj, args, req) => {
       if (!isValidObjectId(args.uid)) {
         throw new Error('Invalid uid supplied');
@@ -572,9 +553,7 @@ schemaComposer.Mutation.addNestedFields({
       enid: 'ID!',
       share: 'Boolean!'
     },
-    description: JSON.stringify({
-      caching: { type: 'user', key: 'uid', update: true },
-    }),
+    description: 'Allow or disallow a company to see student data.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
         throw new Error('UNAUTHORIZED update share information');
@@ -605,9 +584,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       uid: 'ID!',
     },
-    description: JSON.stringify({
-      caching: { type: 'user', key: 'uid', delete: true },
-    }),
+    description: 'Delete a user',
     resolve: async (obj, args, req) => {
       const checkEnid = async () => {
         const user = await Representative.findById(args.uid, { enid: 1 });
@@ -630,6 +607,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
+    description: 'Delete all representatives of an entity.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete entities');

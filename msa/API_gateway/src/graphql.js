@@ -12,6 +12,11 @@ const debug = debugLib('API_gateway:graphql');
 
 const executor = (queue, { document, variables, context }) => rgraphql(queue, print(document), variables, context ? { user: context.user } : {});
 
+/**
+ * Assert all configured messaging queues and introspect the schema of the queues
+ * Concatinate the schema into one and serve it on the route /graphql.
+ * @returns ExpressJS middleware
+ */
 const getMiddleware = async () => {
     const subschemas = [];
     for (const queue of graphqlConfig.queues) {

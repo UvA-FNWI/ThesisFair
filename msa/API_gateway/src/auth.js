@@ -1,5 +1,8 @@
 import jwt from 'jsonwebtoken';
 
+/**
+ * ExpressJS Middleware which validates the JWT token.
+ */
 export default (req, res, next) => {
   if (process.env.DEBUG && req.query.authorization) {
     req.user = JSON.parse(req.query.authorization);

@@ -32,9 +32,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       enid: 'ID!',
     },
-    description: JSON.stringify({
-      caching: { type: 'entity', key: 'enid' },
-    }),
+    description: 'Get the entity by enid.',
     resolve: (obj, args) => Entity.findById(args.enid),
   },
   entityByExtID: {
@@ -42,17 +40,12 @@ schemaComposer.Query.addNestedFields({
     args: {
       external_id: 'ID!',
     },
-    description: JSON.stringify({
-      caching: { type: 'entity', key: 'enid' },
-    }),
+    description: 'Get the entity by external identifier.',
     resolve: (obj, args) => Entity.findOne({ external_id: args.external_id }),
   },
   entitiesAll: {
     type: '[Entity!]',
-    description: JSON.stringify({
-      checkPermissions: canGetAllEntities.toString(),
-      caching: { type: 'entity', key: 'enid', multiple: true },
-    }),
+    description: 'Get all entities.',
     resolve: (obj, args, req) => {
       canGetAllEntities(req);
       return Entity.find();
@@ -63,9 +56,7 @@ schemaComposer.Query.addNestedFields({
     args: {
       enids: '[ID!]!'
     },
-    description: JSON.stringify({
-      caching: { type: 'entity', key: 'enid', keys: 'enids' },
-    }),
+    description: 'Request a list of entities by supplying their enids. The order is not preserved!',
     resolve: (obj, args) => Entity.find({ _id: { $in: args.enids } }),
   }
 });
@@ -82,9 +73,7 @@ schemaComposer.Mutation.addNestedFields({
       representatives: 'Int',
       location: 'String',
     },
-    description: JSON.stringify({
-      caching: { type: 'entity', key: 'enid', create: true },
-    }),
+    description: 'Create a new entity.',
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED create entities');
@@ -105,9 +94,7 @@ schemaComposer.Mutation.addNestedFields({
       representatives: 'Int',
       location: 'String',
     },
-    description: JSON.stringify({
-      caching: { type: 'entity', key: 'enid', update: true },
-    }),
+    description: 'Update an entity.',
     resolve: (obj, args, req) => {
       const enid = args.enid;
       delete args.enid;
@@ -128,9 +115,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
-    description: JSON.stringify({
-      caching: { type: 'entity', key: 'enid', delete: true },
-    }),
+    description: 'Delete an entity.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete entities');
@@ -144,9 +129,59 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       entities: '[EntityImport!]!',
     },
-    description: JSON.stringify({
-      caching: { type: 'entity', key: 'enid', multiple: true },
-    }),
+    description: `Import entities
+Parameters:
+- entities - Structured data of type EntityImport
+
+The EntityImport type has the following fields:
+- ID - A unique numeric identifier from the system that is sending the data
+- name - The name of the organisation
+- representatives - The number of representatives from this organisation, filled in by the event managers.
+- admins - Array of AdminAccount objects which have the keys firstname, lastname and email.
+- enabled - When false the organisation will be deleted, otherwise it will be upserted.
+
+Example Payload:
+\`\`\`
+[
+  {
+    "ID": 10101,
+    "name": "UvA",
+    "representatives": 2,
+    "admins": [
+      {
+        "firstname": "Quinten",
+        "lastname": "Coltof",
+        "email": "quinten.coltof@uva.nl",
+      },
+      {
+        "firstname": "Yvanka",
+        "lastname": "van Dijk",
+        "email": "yvanka.van.dijk@uva.nl",
+      },
+    ],
+    "enabled": true
+  },
+  {
+    "ID": 20202,
+    "name": "ASML",
+    "representatives": 2,
+    "admins": [
+      {
+        "firstname": "Lucas",
+        "lastname": "van Dijk",
+        "email": "lucas.van.dijk@uva.nl",
+      },
+      {
+        "firstname": "Yvonne",
+        "lastname": "van Dijk",
+        "email": "yvonne.van.dijk@uva.nl",
+      },
+    ],
+    "enabled": true
+  }
+]
+\`\`\`
+    `,
     resolve: (obj, args, req) => {
       if (!(req.user.type === 'a' || req.user.type === 'service')) {
         throw new Error('UNAUTHORIZED import entities');

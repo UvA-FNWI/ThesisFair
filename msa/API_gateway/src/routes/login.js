@@ -3,6 +3,11 @@ import { rgraphql } from '../../../libraries/amqpmessaging/index.js';
 
 const loginRouter = Router();
 
+/**
+ * Login using an email and password.
+ * This manual forward to the user service is needed because this and SSO are
+ * the only routes which are allowed to be called when not logged in.
+ */
 loginRouter.post('/', async (req, res, next) => {
   if (!req.body.email ||!req.body.password) {
     next({ status: 401, message: 'No email or password supplied' });
