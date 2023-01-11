@@ -170,7 +170,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       evid: 'ID!',
     },
-    description: 'Delete all votes of an event.'
+    description: 'Delete all votes of an event.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete vote');
