@@ -116,7 +116,7 @@ const genBody = (possibleFields, projection) => {
 
 const fields = {
   UserBase: ['uid', 'firstname', 'lastname', 'email', 'phone'],
-  Student: ['studentnumber', 'websites', 'studies', 'share'],
+  Student: ['studentnumber', 'websites', 'studies', 'share', 'manuallyShared'],
   Representative: ['enid', 'repAdmin'],
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id', 'representatives', 'location'],
   EntityImportResult: ['error', 'entity.enid', 'entity.name', 'entity.description', 'entity.type', 'entity.contact.type', 'entity.contact.content', 'entity.external_id', 'entity.representatives', 'entity.location'],
@@ -513,6 +513,15 @@ export default (url) => {
                 share: { value: share, type: 'Boolean!' },
               },
               cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
+            }),
+          getWhoManuallyShared: (enid, projection) =>
+            genGraphQLBuilder({
+              name: 'getStudentsWhoManuallyShared',
+              functionPath: 'studentsWhoManuallyShared',
+              body: bodies.Student(projection),
+              args: {
+                enid: { value: enid, type: 'ID!' },
+              },
             }),
         },
       },

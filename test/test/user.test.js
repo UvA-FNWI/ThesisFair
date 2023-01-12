@@ -97,7 +97,7 @@ describe('User', () => {
       });
     });
 
-    it.only('query usersOfEntity should return all the representatives of the entity', async () => {
+    it('query usersOfEntity should return all the representatives of the entity', async () => {
       const users = await api.user.getOfEntity(db.entities[0].enid).exec();
       for (const user of db.users) {
         if (user.enid === db.entities[0].enid) {
@@ -137,6 +137,7 @@ describe('User', () => {
         studies: db.users[0].studies,
         email: 'new.email@email.nl',
         share: db.users[0].share,
+        manuallyShared: db.users[0].manuallyShared,
       };
       const updateQuery = { ...updatedStudent };
       delete updateQuery.studentnumber;
@@ -219,6 +220,19 @@ describe('User', () => {
       expect(res).to.be.a('array');
       expect(res).to.have.length(1);
       expect(res[0]).to.be.null;
+    });
+
+    it('query usersWhoManuallyShared should get the correct users', async () => {
+      const res = await api.user.student.getWhoManuallyShared(api.getApiTokenData().enid).exec();
+
+      expect(res).to.be.a('array');
+      for (const user of db.users) {
+        if (user.studentnumber && user.manuallyShared.includes(api.getApiTokenData().enid)) {
+          expect(res).to.deep.contain(user);
+        } else {
+          expect(res).not.to.deep.contain(user);
+        }
+      }
     });
 
     it('query users should check if the representative is an admin', async () => {
@@ -370,6 +384,7 @@ describe('User', () => {
         studies: db.users[0].studies,
         email: 'new.email@email.nl',
         share: db.users[0].share,
+        manuallyShared: db.users[0].manuallyShared,
       };
       const updateQuery = { ...updatedStudent };
       delete updateQuery.studentnumber;
@@ -401,16 +416,17 @@ describe('User', () => {
       const res = await api.user.student.shareInfo(db.users[0].uid, db.entities[1].enid, true).exec();
 
       db.users[0].share.push(db.entities[1].enid);
+      db.users[0].manuallyShared.push(db.entities[1].enid);
       expect(res).to.deep.equal(db.users[0]);
     });
 
     it('mutation user.student.shareInfo should revoke sharing info with an entity', async () => {
       expect(db.users[0].studentnumber).to.exist;
       const res = await api.user.student.shareInfo(db.users[0].uid, db.entities[2].enid, false).exec();
-      expect(res).to.deep.equal({ ...db.users[0], share: db.users[0].share.filter((v) => v !== db.entities[2].enid) });
+      expect(res).to.deep.equal({ ...db.users[0], share: db.users[0].share.filter((v) => v !== db.entities[2].enid), manuallyShared: db.users[0].manuallyShared.filter((v) => v !== db.entities[2].enid) });
     });
 
-    it('mutation user.student.shareInfo should revuse unsharing info with entity student has voted for', async () => {
+    it('mutation user.student.shareInfo should refuse unsharing info with entity student has voted for', async () => {
       expect(db.users[0].studentnumber).to.exist;
       const res = await fail(api.user.student.shareInfo(db.users[0].uid, db.entities[0].enid, false).exec);
       expect(res.errors[0].message).to.contain('vote');

@@ -27,7 +27,10 @@ class Projects extends React.Component {
       const uids = await api.votes.getOfProject(project.pid, this.props.params.evid).exec();
       votedFor[project.pid] = await api.user.getMultiple(uids).exec();
     }
-    this.setState({ votedFor });
+
+    projects.push({ pid: 'manuallyShared', name: 'Students that shared their data but did not vote for a project', description: 'Thesis students explicitly shared their data with your company but have not voted for any of your projects.' });
+    votedFor['manuallyShared'] = await api.user.student.getWhoManuallyShared(api.getApiTokenData().enid).exec();
+    this.setState({ projects, votedFor });
   }
 
   renderStudentModal = () => {

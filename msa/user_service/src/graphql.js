@@ -273,6 +273,22 @@ schemaComposer.Query.addNestedFields({
       }
     }
   },
+  studentsWhoManuallyShared: {
+    type: '[Student]',
+    args: {
+      enid: 'ID!',
+    },
+    description: 'Get all users who manually shared their info with an entity.',
+    resolve: async (obj, args, req) => {
+      if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enid === args.enid))) {
+        throw new Error('UNAUTHORIZED to get the users who voted from another entity.');
+      }
+
+      return Student.find({
+        manuallyShared: { $elemMatch: { $eq: args.enid } }
+      });
+    }
+  },
   cv: {
     type: 'String',
     args: {
@@ -571,9 +587,9 @@ schemaComposer.Mutation.addNestedFields({
 
       let operation;
       if (args.share) {
-        operation = { $push: { share: args.enid } };
+        operation = { $addToSet: { share: args.enid, manuallyShared: args.enid, } };
       } else {
-        operation = { $pull: { share: args.enid } };
+        operation = { $pull: { share: args.enid, manuallyShared: args.enid, } };
       }
 
       return Student.findByIdAndUpdate(args.uid, operation, { new: true });

@@ -161,6 +161,7 @@ const configs = {
         websites: ['https://qrcsoftware.nl', 'https://softwareify.nl'],
         studies: ['UvA Informatica'],
         share: [db.entities[0].enid, db.entities[2].enid],
+        manuallyShared: [db.entities[0].enid, db.entities[2].enid],
         __t: "Student",
       },
       {
@@ -172,6 +173,7 @@ const configs = {
         websites: ['https://johannes.nl', 'https://sebastiaan.nl'],
         studies: ['UvA Kunstmatige Intellegentie', 'VU Rechten'],
         share: [db.entities[0].enid, db.entities[1].enid],
+        manuallyShared: [db.entities[0].enid],
         __t: "Student",
       },
       {
@@ -218,6 +220,7 @@ const configs = {
         websites: [],
         studies: ['UvA Kunstmatige Intellegentie',],
         share: [],
+        manuallyShared: [],
         __t: "Student",
       },
     ],
