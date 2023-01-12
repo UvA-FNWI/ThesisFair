@@ -100,12 +100,6 @@ class EntitiesProjects extends React.Component {
     this.setState({ sharedEntities });
   }
 
-  shareAll = async () => {
-    for (const { enid } of this.props.entities) {
-      await this.setShare(enid, true);
-    }
-  }
-
   render() {
     return (
       <>

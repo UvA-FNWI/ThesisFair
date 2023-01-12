@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, CloseButton } from 'react-bootstrap';
 import cvUploadedIcon from 'bootstrap-icons/icons/file-earmark-check.svg';
 import api, { downloadCV, getFileContent } from '../../api';
@@ -25,6 +26,9 @@ class StudentAccount extends React.Component {
 
       savingLinks: false,
       showLinksSaved: false,
+
+      sharingAll: false,
+      shareAllDone: false,
     };
   }
 
@@ -89,6 +93,15 @@ class StudentAccount extends React.Component {
     this.setState({ savingCV: false, cvPresence: true, errorCV: null });
   }
 
+  shareAll = async () => {
+    this.setState({ sharingAll: true });
+    const event = await api.event.get(this.props.params.evid, { entities: true }).exec();
+    for (const enid of event.entities) {
+      await api.user.student.shareInfo(api.getApiTokenData().uid, enid, true).exec();
+    }
+
+    this.setState({ sharingAll: false, shareAllDone: true });
+  }
 
 
   render() {
@@ -152,6 +165,13 @@ class StudentAccount extends React.Component {
         </div>
 
         <div>
+          <h2 className='mb-0'>Profile Sharing Permissions</h2>
+          <p className='fs-6'><em>The options below determine which organisations can see your profile and uploaded CV</em></p>
+          <Button disabled={this.state.sharingAll || this.state.shareAllDone} onClick={this.shareAll}>Give all companies access</Button>
+          { this.state.shareAllDone ? <p style={{color: 'green' }}>All companies have been given access to your data</p> : null }
+        </div>
+
+        <div>
           <h2 className='mb-0'>Links</h2>
           <p className='fs-6'><em>I.e. your LinkedIn/websites/GitHub/blog posts</em></p>
           {this.state.websites.map((website, i) =>
@@ -172,4 +192,10 @@ class StudentAccount extends React.Component {
   }
 }
 
-export default StudentAccount;
+function StudentAccountWithParams(props) {
+  const params = useParams();
+
+  return <StudentAccount {...props} params={params} />
+};
+
+export default StudentAccountWithParams;
