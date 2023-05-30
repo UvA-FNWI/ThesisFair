@@ -10,3 +10,6 @@ push:
 
 dev:
 	docker run -it --rm -v "$$(pwd)/tmp:/app/node/tmp" --entrypoint /bin/bash ${imageName}
+
+npmInstall:
+	npm ci

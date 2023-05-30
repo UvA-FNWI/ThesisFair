@@ -1,0 +1,2 @@
+npmInstall:
+	npm ci
