@@ -1,16 +1,16 @@
-import axios from 'axios';
-import GraphQLBuilder from './GraphQLBuilder.js';
-import NodeCache from 'node-cache';
+import axios from "axios";
+import GraphQLBuilder from "./GraphQLBuilder.js";
+import NodeCache from "node-cache";
 
 let tracing = false;
-const browser = typeof localStorage !== 'undefined';
+const browser = typeof localStorage !== "undefined";
 
 /**
  * Enable tracing for *ALL* instances of the API
  */
 export const enableTrace = () => {
   if (tracing) {
-    console.error('Tried to enable tracing twice!');
+    console.error("Tried to enable tracing twice!");
     return;
   }
   tracing = true;
@@ -29,33 +29,41 @@ export const enableTrace = () => {
 
 const getApiToken = () => {
   if (browser && document.cookie) {
-    const cookies = document.cookie.split(';').map((cookie) => cookie.split('='));
-    const token = cookies.find((cookie) => cookie[0].trim() === 'apiToken');
+    const cookies = document.cookie
+      .split(";")
+      .map((cookie) => cookie.split("="));
+    const token = cookies.find((cookie) => cookie[0].trim() === "apiToken");
 
     if (token) {
       token.shift(); // Remove name
-      const apiToken = token.join('='); // Join the rest in case it has '='
-      localStorage.setItem('apiToken', apiToken);
-      document.cookie = 'apiToken=;max-age=0; Path=/;'; // Clear cookies
+      const apiToken = token.join("="); // Join the rest in case it has '='
+      localStorage.setItem("apiToken", apiToken);
+      document.cookie = "apiToken=;max-age=0; Path=/;"; // Clear cookies
 
       return apiToken;
     }
   }
 
-  return localStorage.getItem('apiToken');
-}
+  return localStorage.getItem("apiToken");
+};
 
 const unpackToken = (token) => {
-  if (!token) { return null; }
-
-  const split = token.split('.');
-  if (split.length !== 3) {
-    throw new Error(`Received invalid token. Token has ${split.length} parts, expected 3.`);
+  if (!token) {
+    return null;
   }
 
-  const payload = browser ? atob(split[1]) : (new Buffer.from(split[1], 'base64')).toString();
+  const split = token.split(".");
+  if (split.length !== 3) {
+    throw new Error(
+      `Received invalid token. Token has ${split.length} parts, expected 3.`
+    );
+  }
+
+  const payload = browser
+    ? atob(split[1])
+    : new Buffer.from(split[1], "base64").toString();
   return JSON.parse(payload);
-}
+};
 
 const genBody = (possibleFields, projection) => {
   let fields = Object.keys(projection || {});
@@ -65,31 +73,32 @@ const genBody = (possibleFields, projection) => {
     whitelist = !!projection[fields[0]];
     for (const val in projection) {
       if ((projection[val] && !whitelist) || (!projection[val] && whitelist)) {
-        throw new Error('Mixing white and blacklist techniques');
+        throw new Error("Mixing white and blacklist techniques");
       }
     }
   }
 
-  if (!whitelist) { // Invert fields
+  if (!whitelist) {
+    // Invert fields
     fields = [...possibleFields].filter((field) => !fields.includes(field));
   }
 
   const structuredOutput = {
-    '$': fields.filter((v) => !v.includes('.') && possibleFields.includes(v))
+    $: fields.filter((v) => !v.includes(".") && possibleFields.includes(v)),
   };
-  for (const field of fields.filter((v) => v.includes('.'))) {
-    const path = field.split('.');
+  for (const field of fields.filter((v) => v.includes("."))) {
+    const path = field.split(".");
     const leaf = path.pop();
 
     let cur = structuredOutput;
     for (const parent of path) {
       if (!(parent in cur)) {
-        cur[parent] = { '$': [] };
+        cur[parent] = { $: [] };
       }
 
       cur = cur[parent];
     }
-    cur['$'].push(leaf);
+    cur["$"].push(leaf);
   }
 
   /**
@@ -98,10 +107,10 @@ const genBody = (possibleFields, projection) => {
    * @returns GraphQL query items.
    */
   const genString = (structuredOutput) => {
-    let res = '';
+    let res = "";
     for (const field in structuredOutput) {
-      if (field === '$') {
-        res += structuredOutput[field].join(' ');
+      if (field === "$") {
+        res += structuredOutput[field].join(" ");
         continue;
       }
 
@@ -109,71 +118,142 @@ const genBody = (possibleFields, projection) => {
     }
 
     return res;
-  }
+  };
 
   return genString(structuredOutput);
 };
 
 const fields = {
-  UserBase: ['uid', 'firstname', 'lastname', 'email', 'phone'],
-  Student: ['studentnumber', 'websites', 'studies', 'share', 'manuallyShared'],
-  Representative: ['enid', 'repAdmin'],
-  Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id', 'representatives', 'location'],
-  EntityImportResult: ['error', 'entity.enid', 'entity.name', 'entity.description', 'entity.type', 'entity.contact.type', 'entity.contact.content', 'entity.external_id', 'entity.representatives', 'entity.location'],
-  Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities', 'external_id'],
-  EventImportResult: ['error', 'event.evid', 'event.enabled', 'event.name', 'event.description', 'event.start', 'event.location', 'event.studentSubmitDeadline', 'event.entities', 'event.external_id'],
-  Project: ['pid', 'enid', 'evids', 'name', 'description', 'datanoseLink', 'external_id'],
-  ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evids', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
-  StudentVote: ['uid', 'pid'],
-  VoteImportResult: ['error'],
-  Schedule: ['sid', 'uid', 'enid', 'slot'],
-}
+  UserBase: ["uid", "firstname", "lastname", "email", "phone"],
+  Student: ["studentnumber", "websites", "studies", "share", "manuallyShared"],
+  Representative: ["enid", "repAdmin"],
+  Entity: [
+    "enid",
+    "name",
+    "description",
+    "type",
+    "contact.type",
+    "contact.content",
+    "external_id",
+    "representatives",
+    "location",
+  ],
+  EntityImportResult: [
+    "error",
+    "entity.enid",
+    "entity.name",
+    "entity.description",
+    "entity.type",
+    "entity.contact.type",
+    "entity.contact.content",
+    "entity.external_id",
+    "entity.representatives",
+    "entity.location",
+  ],
+  Event: [
+    "evid",
+    "enabled",
+    "name",
+    "description",
+    "start",
+    "location",
+    "studentSubmitDeadline",
+    "entities",
+    "external_id",
+  ],
+  EventImportResult: [
+    "error",
+    "event.evid",
+    "event.enabled",
+    "event.name",
+    "event.description",
+    "event.start",
+    "event.location",
+    "event.studentSubmitDeadline",
+    "event.entities",
+    "event.external_id",
+  ],
+  Project: [
+    "pid",
+    "enid",
+    "evids",
+    "name",
+    "description",
+    "datanoseLink",
+    "external_id",
+  ],
+  ProjectImportResult: [
+    "error",
+    "project.pid",
+    "project.enid",
+    "project.evids",
+    "project.name",
+    "project.description",
+    "project.datanoseLink",
+    "project.external_id",
+  ],
+  StudentVote: ["uid", "pid"],
+  VoteImportResult: ["error"],
+  Schedule: ["sid", "uid", "enid", "slot"],
+};
 
 const bodies = {
   User: (projection) => {
     const userBase = genBody(fields.UserBase, projection);
     const student = genBody(fields.Student, projection);
     const rep = genBody(fields.Representative, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + (student ? `... on Student {${student}} ` : '') + (rep ? `... on Representative {${rep}}` : '');
+    return (
+      (userBase ? `... on UserBase {${userBase}} ` : "") +
+      (student ? `... on Student {${student}} ` : "") +
+      (rep ? `... on Representative {${rep}}` : "")
+    );
   },
   Student: (projection) => {
     const userBase = genBody(fields.UserBase, projection);
     const student = genBody(fields.Student, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + student;
+    return (userBase ? `... on UserBase {${userBase}} ` : "") + student;
   },
   Representative: (projection) => {
     const userBase = genBody(fields.UserBase, projection);
     const rep = genBody(fields.Representative, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + rep;
+    return (userBase ? `... on UserBase {${userBase}} ` : "") + rep;
   },
   Entity: (projection) => genBody(fields.Entity, projection),
-  EntityImportResult: (projection) => genBody(fields.EntityImportResult, projection),
+  EntityImportResult: (projection) =>
+    genBody(fields.EntityImportResult, projection),
   Event: (projection) => genBody(fields.Event, projection),
-  EventImportResult: (projection) => genBody(fields.EventImportResult, projection),
+  EventImportResult: (projection) =>
+    genBody(fields.EventImportResult, projection),
   Project: (projection) => genBody(fields.Project, projection),
-  ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
+  ProjectImportResult: (projection) =>
+    genBody(fields.ProjectImportResult, projection),
   StudentVote: (projection) => genBody(fields.StudentVote, projection),
-  VoteImportResult: (projection) => genBody(fields.VoteImportResult, projection),
+  VoteImportResult: (projection) =>
+    genBody(fields.VoteImportResult, projection),
   Schedule: (projection) => genBody(fields.Schedule, projection),
-}
+};
 
 export default (url) => {
-  url ||= typeof window !== 'undefined' ? '/' : 'http://localhost:3000/';
+  url ||= typeof window !== "undefined" ? "/" : "http://172.16.239.130:3000/";
   let trace = [];
   let caching = false;
   let cache;
-  let tokenChangeCallback = () => { };
+  let tokenChangeCallback = () => {};
 
   let apiToken = browser ? getApiToken() : null;
   let apiTokenData = unpackToken(apiToken) || null;
-  let apiTokenDataOverride = browser ? JSON.parse(localStorage.getItem('apiTokenOverride')) : null;
+  let apiTokenDataOverride = browser
+    ? JSON.parse(localStorage.getItem("apiTokenOverride"))
+    : null;
+
   const login = async (email, password) => {
-    const res = await axios.post(url + 'login',
+    const res = await axios.post(
+      url + "login",
       { email, password },
       {
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
       }
     );
@@ -185,15 +265,15 @@ export default (url) => {
 
     if (tracing) {
       trace.push({
-        fn: 'user.login',
+        fn: "user.login",
         startTime: res.config.startTime,
-        duration: res.config.duration
-      })
+        duration: res.config.duration,
+      });
     }
 
     apiToken = res.data;
     if (browser) {
-      localStorage.setItem('apiToken', apiToken);
+      localStorage.setItem("apiToken", apiToken);
     }
     apiTokenData = unpackToken(apiToken);
     tokenChangeCallback(apiTokenData);
@@ -212,13 +292,13 @@ export default (url) => {
     let response;
     try {
       response = await axios.post(
-        url + 'graphql',
+        url + "graphql",
         { query, variables },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            Authorization: `Bearer ${apiToken}`
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${apiToken}`,
           },
         }
       );
@@ -229,17 +309,19 @@ export default (url) => {
 
       if (error.response.status === 401) {
         if (!apiTokenData) {
-          throw new Error('APItoken expired and already logged out');
+          throw new Error("APItoken expired and already logged out");
         }
 
         if (Date.now() > apiTokenData.exp) {
           logout();
-          throw new Error('APItoken expired');
+          throw new Error("APItoken expired");
         }
 
-        throw new Error('APItoken does not give rights to access this resource');
+        throw new Error(
+          "APItoken does not give rights to access this resource"
+        );
       } else if (error.response.status === 413) {
-        throw new Error('Payload too big');
+        throw new Error("Payload too big");
       }
 
       throw error.response.data;
@@ -249,8 +331,8 @@ export default (url) => {
       trace.push({
         fn: functionPath,
         startTime: response.config.startTime,
-        duration: response.config.duration
-      })
+        duration: response.config.duration,
+      });
     }
 
     const data = response.data;
@@ -259,66 +341,80 @@ export default (url) => {
     }
 
     return data.data;
-  }
+  };
 
-  const genGraphQLBuilder = (options) => new GraphQLBuilder({ ...options, executor: graphql });
+  const genGraphQLBuilder = (options) =>
+    new GraphQLBuilder({ ...options, executor: graphql });
 
   return {
-    clearTrace: () => { trace = []; },
+    clearTrace: () => {
+      trace = [];
+    },
     getTrace: () => trace,
     enableCaching: (ttl) => {
       if (caching) {
-        console.error('Tried to enable caching twice!');
+        console.error("Tried to enable caching twice!");
         return;
       }
       caching = true;
 
-      cache = new NodeCache({ deleteOnExpire: true, checkperiod: ttl + 1, stdTTL: ttl, useClones: false });
+      cache = new NodeCache({
+        deleteOnExpire: true,
+        checkperiod: ttl + 1,
+        stdTTL: ttl,
+        useClones: false,
+      });
     },
     api: {
       getApiTokenData: () => apiTokenDataOverride || apiTokenData,
       overrideApiTokenData: (newData) => {
         if (browser) {
-          localStorage.setItem('apiTokenOverride', JSON.stringify(newData));
+          localStorage.setItem("apiTokenOverride", JSON.stringify(newData));
         }
         apiTokenDataOverride = newData;
-        tokenChangeCallback(apiTokenDataOverride)
+        tokenChangeCallback(apiTokenDataOverride);
       },
       apiTokenOverriden: () => !!apiTokenDataOverride,
-      setTokenChangeCallback: (cb) => { tokenChangeCallback = cb; },
+      setTokenChangeCallback: (cb) => {
+        tokenChangeCallback = cb;
+      },
       user: {
         login: login,
         logout: logout,
 
         get: (uid, projection) =>
           genGraphQLBuilder({
-            name: 'getUser',
-            functionPath: 'user',
+            name: "getUser",
+            functionPath: "user",
             body: bodies.User(projection),
             args: {
-              uid: { value: uid, type: 'ID!' },
+              uid: { value: uid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'user', key: 'uid' } : false,
+            cache: caching
+              ? { instance: cache, type: "user", key: "uid" }
+              : false,
           }),
 
         getMultiple: (uids, projection) =>
           genGraphQLBuilder({
-            name: 'getUsers',
-            functionPath: 'users',
+            name: "getUsers",
+            functionPath: "users",
             body: bodies.User(projection),
             args: {
-              uids: { value: uids, type: '[ID!]!' },
+              uids: { value: uids, type: "[ID!]!" },
             },
-            cache: caching ? { instance: cache, type: 'user', key: 'uid', keys: 'uids', } : false,
+            cache: caching
+              ? { instance: cache, type: "user", key: "uid", keys: "uids" }
+              : false,
           }),
 
         getOfEntity: (enid, projection) =>
           genGraphQLBuilder({
-            name: 'getUsersOfEntity',
-            functionPath: 'usersOfEntity',
+            name: "getUsersOfEntity",
+            functionPath: "usersOfEntity",
             body: bodies.User(projection),
             args: {
-              enid: { value: enid, type: 'ID!' },
+              enid: { value: enid, type: "ID!" },
             },
           }),
 
@@ -331,40 +427,44 @@ export default (url) => {
          */
         getAll: (filter, projection) =>
           genGraphQLBuilder({
-            name: 'getAllUsers',
-            functionPath: 'usersAll',
+            name: "getAllUsers",
+            functionPath: "usersAll",
             body: bodies.User(projection),
             args: {
-              filter: { value: filter, type: 'String' },
+              filter: { value: filter, type: "String" },
             },
           }),
 
         delete: (uid, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'delUser',
-            functionPath: 'user.delete',
+            type: "mutation",
+            name: "delUser",
+            functionPath: "user.delete",
             body: bodies.User(projection),
             args: {
-              uid: { value: uid, type: 'ID!' },
+              uid: { value: uid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'user', key: 'uid', delete: true } : false,
+            cache: caching
+              ? { instance: cache, type: "user", key: "uid", delete: true }
+              : false,
           }),
 
         ssoLogin: (student, external_id, email, firstname, lastname) => {
-          if (process.env.NODE_ENV === 'production') {
-            throw new Error('This route is only for testing the proper implementation of the permissions and should NEVER succeed.');
+          if (process.env.NODE_ENV === "production") {
+            throw new Error(
+              "This route is only for testing the proper implementation of the permissions and should NEVER succeed."
+            );
           }
 
           return genGraphQLBuilder({
-            name: 'testssoLogin',
-            functionPath: 'ssoLogin',
+            name: "testssoLogin",
+            functionPath: "ssoLogin",
             args: {
-              student: { value: student, type: 'Boolean!' },
-              external_id: { value: external_id, type: 'ID!' },
-              email: { value: email, type: 'String!' },
-              firstname: { value: firstname, type: 'String' },
-              lastname: { value: lastname, type: 'String' },
+              student: { value: student, type: "Boolean!" },
+              external_id: { value: external_id, type: "ID!" },
+              email: { value: email, type: "String!" },
+              firstname: { value: firstname, type: "String" },
+              lastname: { value: lastname, type: "String" },
             },
           });
         },
@@ -372,15 +472,17 @@ export default (url) => {
         admin: {
           update: (admin, projection) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'updateAdministrator',
-              functionPath: 'user.admin.update',
+              type: "mutation",
+              name: "updateAdministrator",
+              functionPath: "user.admin.update",
               body: bodies.User(projection),
               args: {
-                uid: { value: admin.uid, type: 'ID!' },
-                email: { value: admin.email, type: 'String' },
+                uid: { value: admin.uid, type: "ID!" },
+                email: { value: admin.email, type: "String" },
               },
-              cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
+              cache: caching
+                ? { instance: cache, type: "user", key: "uid", update: true }
+                : false,
             }),
         },
 
@@ -397,19 +499,21 @@ export default (url) => {
            */
           create: (representative, projection) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'createRepresentative',
-              functionPath: 'user.representative.create',
+              type: "mutation",
+              name: "createRepresentative",
+              functionPath: "user.representative.create",
               body: bodies.Representative(projection),
               args: {
-                enid: { value: representative.enid, type: 'ID!' },
-                firstname: { value: representative.firstname, type: 'String' },
-                lastname: { value: representative.lastname, type: 'String' },
-                email: { value: representative.email, type: 'String!' },
-                phone: { value: representative.phone, type: 'String' },
-                repAdmin: { value: representative.repAdmin, type: 'Boolean' },
+                enid: { value: representative.enid, type: "ID!" },
+                firstname: { value: representative.firstname, type: "String" },
+                lastname: { value: representative.lastname, type: "String" },
+                email: { value: representative.email, type: "String!" },
+                phone: { value: representative.phone, type: "String" },
+                repAdmin: { value: representative.repAdmin, type: "Boolean" },
               },
-              cache: caching ? { instance: cache, type: 'user', key: 'uid', create: true } : false,
+              cache: caching
+                ? { instance: cache, type: "user", key: "uid", create: true }
+                : false,
             }),
 
           /**
@@ -426,29 +530,31 @@ export default (url) => {
            */
           update: (representative, projection) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'updateRepresentative',
-              functionPath: 'user.representative.update',
+              type: "mutation",
+              name: "updateRepresentative",
+              functionPath: "user.representative.update",
               body: bodies.Representative(projection),
               args: {
-                uid: { value: representative.uid, type: 'ID!' },
-                enid: { value: representative.enid, type: 'ID' },
-                firstname: { value: representative.firstname, type: 'String' },
-                lastname: { value: representative.lastname, type: 'String' },
-                email: { value: representative.email, type: 'String' },
-                phone: { value: representative.phone, type: 'String' },
-                repAdmin: { value: representative.repAdmin, type: 'Boolean' },
-                password: { value: representative.password, type: 'String' },
+                uid: { value: representative.uid, type: "ID!" },
+                enid: { value: representative.enid, type: "ID" },
+                firstname: { value: representative.firstname, type: "String" },
+                lastname: { value: representative.lastname, type: "String" },
+                email: { value: representative.email, type: "String" },
+                phone: { value: representative.phone, type: "String" },
+                repAdmin: { value: representative.repAdmin, type: "Boolean" },
+                password: { value: representative.password, type: "String" },
               },
-              cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
+              cache: caching
+                ? { instance: cache, type: "user", key: "uid", update: true }
+                : false,
             }),
           import: (file) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'importRepresentatives',
-              functionPath: 'user.representative.import',
+              type: "mutation",
+              name: "importRepresentatives",
+              functionPath: "user.representative.import",
               args: {
-                file: { value: file, type: 'String!' },
+                file: { value: file, type: "String!" },
               },
             }),
         },
@@ -456,13 +562,15 @@ export default (url) => {
         student: {
           getCV: (uid, check = false) =>
             genGraphQLBuilder({
-              name: 'getCVStudent',
-              functionPath: 'cv',
+              name: "getCVStudent",
+              functionPath: "cv",
               args: {
-                uid: { value: uid, type: 'ID!' },
-                check: { value: check, type: 'Boolean' },
+                uid: { value: uid, type: "ID!" },
+                check: { value: check, type: "Boolean" },
               },
-              cache: caching ? { instance: cache, type: 'userCV', key: 'uid' } : false,
+              cache: caching
+                ? { instance: cache, type: "userCV", key: "uid" }
+                : false,
             }),
           /**
            * @param {Object} student
@@ -476,51 +584,57 @@ export default (url) => {
            */
           update: (student, projection) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'updateStudent',
-              functionPath: 'user.student.update',
+              type: "mutation",
+              name: "updateStudent",
+              functionPath: "user.student.update",
               body: bodies.Student(projection),
               args: {
-                uid: { value: student.uid, type: 'ID!' },
-                firstname: { value: student.firstname, type: 'String' },
-                lastname: { value: student.lastname, type: 'String' },
-                email: { value: student.email, type: 'String' },
-                phone: { value: student.phone, type: 'String' },
-                websites: { value: student.websites, type: '[String!]' },
+                uid: { value: student.uid, type: "ID!" },
+                firstname: { value: student.firstname, type: "String" },
+                lastname: { value: student.lastname, type: "String" },
+                email: { value: student.email, type: "String" },
+                phone: { value: student.phone, type: "String" },
+                websites: { value: student.websites, type: "[String!]" },
               },
-              cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
+              cache: caching
+                ? { instance: cache, type: "user", key: "uid", update: true }
+                : false,
             }),
           uploadCV: (uid, file) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'uploadCVStudent',
-              functionPath: 'user.student.uploadCV',
+              type: "mutation",
+              name: "uploadCVStudent",
+              functionPath: "user.student.uploadCV",
               args: {
-                uid: { value: uid, type: 'ID!' },
-                file: { value: file, type: 'String!' },
+                uid: { value: uid, type: "ID!" },
+                file: { value: file, type: "String!" },
               },
-              cache: caching ? { instance: cache, type: 'userCV', key: 'uid', update: true } : false,
+              cache: caching
+                ? { instance: cache, type: "userCV", key: "uid", update: true }
+                : false,
             }),
           shareInfo: (uid, enid, share, projection) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'updateStudentShare',
-              functionPath: 'user.student.shareInfo',
+              type: "mutation",
+              name: "updateStudentShare",
+              functionPath: "user.student.shareInfo",
               body: bodies.Student(projection),
               args: {
-                uid: { value: uid, type: 'ID!' },
-                enid: { value: enid, type: 'ID!' },
-                share: { value: share, type: 'Boolean!' },
+                uid: { value: uid, type: "ID!" },
+                enid: { value: enid, type: "ID!" },
+                share: { value: share, type: "Boolean!" },
               },
-              cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
+              cache: caching
+                ? { instance: cache, type: "user", key: "uid", update: true }
+                : false,
             }),
           getWhoManuallyShared: (enid, projection) =>
             genGraphQLBuilder({
-              name: 'getStudentsWhoManuallyShared',
-              functionPath: 'studentsWhoManuallyShared',
+              name: "getStudentsWhoManuallyShared",
+              functionPath: "studentsWhoManuallyShared",
               body: bodies.Student(projection),
               args: {
-                enid: { value: enid, type: 'ID!' },
+                enid: { value: enid, type: "ID!" },
               },
             }),
         },
@@ -528,430 +642,484 @@ export default (url) => {
       entity: {
         get: (enid, projection) =>
           genGraphQLBuilder({
-            name: 'getEntity',
-            functionPath: 'entity',
+            name: "getEntity",
+            functionPath: "entity",
             body: bodies.Entity(projection),
             args: {
-              enid: { value: enid, type: 'ID!' },
+              enid: { value: enid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
+            cache: caching
+              ? { instance: cache, type: "entity", key: "enid" }
+              : false,
           }),
         getAll: (evid, projection) =>
           genGraphQLBuilder({
-            name: 'getAllEntity',
-            functionPath: 'entitiesAll',
+            name: "getAllEntity",
+            functionPath: "entitiesAll",
             body: bodies.Entity(projection),
-            cache: caching ? { instance: cache, type: 'entity', key: 'enid', multiple: true } : false,
+            cache: caching
+              ? { instance: cache, type: "entity", key: "enid", multiple: true }
+              : false,
           }),
         getMultiple: (enids, projection) =>
           genGraphQLBuilder({
-            name: 'getEntities',
-            functionPath: 'entities',
+            name: "getEntities",
+            functionPath: "entities",
             body: bodies.Entity(projection),
             args: {
-              enids: { value: enids, type: '[ID!]!' },
+              enids: { value: enids, type: "[ID!]!" },
             },
-            cache: caching ? { instance: cache, type: 'entity', key: 'enid', keys: 'enids' } : false,
+            cache: caching
+              ? { instance: cache, type: "entity", key: "enid", keys: "enids" }
+              : false,
           }),
 
         create: (entity, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'createEntity',
-            functionPath: 'entity.create',
+            type: "mutation",
+            name: "createEntity",
+            functionPath: "entity.create",
             body: bodies.Entity(projection),
             args: {
-              name: { value: entity.name, type: 'String!' },
-              description: { value: entity.description, type: 'String' },
-              type: { value: entity.type, type: 'String!' },
-              contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
-              external_id: { value: entity.external_id, type: 'Int' },
-              representatives: { value: entity.representatives, type: 'Int' },
-              location: { value: entity.location, type: 'String' },
+              name: { value: entity.name, type: "String!" },
+              description: { value: entity.description, type: "String" },
+              type: { value: entity.type, type: "String!" },
+              contact: {
+                value: entity.contact,
+                type: "[EntityContactInfoIn!]",
+              },
+              external_id: { value: entity.external_id, type: "Int" },
+              representatives: { value: entity.representatives, type: "Int" },
+              location: { value: entity.location, type: "String" },
             },
-            cache: caching ? { instance: cache, type: 'entity', key: 'enid', create: true } : false,
+            cache: caching
+              ? { instance: cache, type: "entity", key: "enid", create: true }
+              : false,
           }),
         update: (entity, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'updateEntity',
-            functionPath: 'entity.update',
+            type: "mutation",
+            name: "updateEntity",
+            functionPath: "entity.update",
             body: bodies.Entity(projection),
             args: {
-              enid: { value: entity.enid, type: 'ID!' },
-              name: { value: entity.name, type: 'String' },
-              description: { value: entity.description, type: 'String' },
-              type: { value: entity.type, type: 'String' },
-              contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
-              external_id: { value: entity.external_id, type: 'Int' },
-              representatives: { value: entity.representatives, type: 'Int' },
-              location: { value: entity.location, type: 'String' },
+              enid: { value: entity.enid, type: "ID!" },
+              name: { value: entity.name, type: "String" },
+              description: { value: entity.description, type: "String" },
+              type: { value: entity.type, type: "String" },
+              contact: {
+                value: entity.contact,
+                type: "[EntityContactInfoIn!]",
+              },
+              external_id: { value: entity.external_id, type: "Int" },
+              representatives: { value: entity.representatives, type: "Int" },
+              location: { value: entity.location, type: "String" },
             },
-            cache: caching ? { instance: cache, type: 'entity', key: 'enid', update: true } : false,
+            cache: caching
+              ? { instance: cache, type: "entity", key: "enid", update: true }
+              : false,
           }),
         delete: (enid, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'deleteEntity',
-            functionPath: 'entity.delete',
+            type: "mutation",
+            name: "deleteEntity",
+            functionPath: "entity.delete",
             body: bodies.Entity(projection),
             args: {
-              enid: { value: enid, type: 'ID!' },
+              enid: { value: enid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'entity', key: 'enid', delete: true } : false,
+            cache: caching
+              ? { instance: cache, type: "entity", key: "enid", delete: true }
+              : false,
           }),
         import: (entities, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'importEntity',
-            functionPath: 'entity.import',
+            type: "mutation",
+            name: "importEntity",
+            functionPath: "entity.import",
             body: bodies.EntityImportResult(projection),
             args: {
-              entities: { value: entities, type: '[EntityImport!]!' },
+              entities: { value: entities, type: "[EntityImport!]!" },
             },
           }),
       },
       event: {
         get: (evid, projection) =>
           genGraphQLBuilder({
-            name: 'getEvent',
-            functionPath: 'event',
+            name: "getEvent",
+            functionPath: "event",
             body: bodies.Event(projection),
             args: {
-              evid: { value: evid, type: 'ID!' },
+              evid: { value: evid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'event', key: 'evid' } : false,
+            cache: caching
+              ? { instance: cache, type: "event", key: "evid" }
+              : false,
           }),
         getImage: (evid, type) =>
           genGraphQLBuilder({
-            name: 'getEventImage',
-            functionPath: 'eventImage',
+            name: "getEventImage",
+            functionPath: "eventImage",
             args: {
-              evid: { value: evid, type: 'ID!' },
-              type: { value: type, type: 'String!' },
+              evid: { value: evid, type: "ID!" },
+              type: { value: type, type: "String!" },
             },
           }),
         getAll: (all = false, projection) =>
           genGraphQLBuilder({
-            name: 'getEvents',
-            functionPath: 'events',
+            name: "getEvents",
+            functionPath: "events",
             body: bodies.Event(projection),
             args: {
-              all: { value: all, type: 'Boolean' },
+              all: { value: all, type: "Boolean" },
             },
-            cache: caching ? { instance: cache, type: 'event', key: 'evid', multiple: true } : false,
+            cache: caching
+              ? { instance: cache, type: "event", key: "evid", multiple: true }
+              : false,
           }),
         create: (event, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'createEvent',
-            functionPath: 'event.create',
+            type: "mutation",
+            name: "createEvent",
+            functionPath: "event.create",
             body: bodies.Event(projection),
             args: {
-              enabled: { value: event.enabled, type: 'Boolean' },
-              name: { value: event.name, type: 'String!' },
-              description: { value: event.description, type: 'String' },
-              start: { value: event.start, type: 'Date' },
-              location: { value: event.location, type: 'String' },
-              studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
-              entities: { value: event.entities, type: '[ID!]' },
-              external_id: { value: event.external_id, type: 'Int!' },
+              enabled: { value: event.enabled, type: "Boolean" },
+              name: { value: event.name, type: "String!" },
+              description: { value: event.description, type: "String" },
+              start: { value: event.start, type: "Date" },
+              location: { value: event.location, type: "String" },
+              studentSubmitDeadline: {
+                value: event.studentSubmitDeadline,
+                type: "Date",
+              },
+              entities: { value: event.entities, type: "[ID!]" },
+              external_id: { value: event.external_id, type: "Int!" },
             },
-            cache: caching ? { instance: cache, type: 'event', key: 'evid', create: true } : false,
+            cache: caching
+              ? { instance: cache, type: "event", key: "evid", create: true }
+              : false,
           }),
         update: (event, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'updateEvent',
-            functionPath: 'event.update',
+            type: "mutation",
+            name: "updateEvent",
+            functionPath: "event.update",
             body: bodies.Event(projection),
             args: {
-              evid: { value: event.evid, type: 'ID!' },
-              enabled: { value: event.enabled, type: 'Boolean' },
-              name: { value: event.name, type: 'String!' },
-              description: { value: event.description, type: 'String' },
-              start: { value: event.start, type: 'Date' },
-              location: { value: event.location, type: 'String' },
-              studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
-              entities: { value: event.entities, type: '[ID!]' },
-              external_id: { value: event.external_id, type: 'Int' },
+              evid: { value: event.evid, type: "ID!" },
+              enabled: { value: event.enabled, type: "Boolean" },
+              name: { value: event.name, type: "String!" },
+              description: { value: event.description, type: "String" },
+              start: { value: event.start, type: "Date" },
+              location: { value: event.location, type: "String" },
+              studentSubmitDeadline: {
+                value: event.studentSubmitDeadline,
+                type: "Date",
+              },
+              entities: { value: event.entities, type: "[ID!]" },
+              external_id: { value: event.external_id, type: "Int" },
             },
-            cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
+            cache: caching
+              ? { instance: cache, type: "event", key: "evid", update: true }
+              : false,
           }),
         updateImage: (evid, type, image) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'updateEventImage',
-            functionPath: 'event.updateImage',
+            type: "mutation",
+            name: "updateEventImage",
+            functionPath: "event.updateImage",
             args: {
-              evid: { value: evid, type: 'ID!' },
-              type: { value: type, type: 'String!' },
-              image: { value: image, type: 'String!' },
+              evid: { value: evid, type: "ID!" },
+              type: { value: type, type: "String!" },
+              image: { value: image, type: "String!" },
             },
           }),
         delete: (evid, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'deleteEvent',
-            functionPath: 'event.delete',
+            type: "mutation",
+            name: "deleteEvent",
+            functionPath: "event.delete",
             body: bodies.Event(projection),
             args: {
-              evid: { value: evid, type: 'ID!' },
+              evid: { value: evid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'event', key: 'evid', delete: true } : false,
+            cache: caching
+              ? { instance: cache, type: "event", key: "evid", delete: true }
+              : false,
           }),
         import: (events, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'importEvents',
-            functionPath: 'event.import',
+            type: "mutation",
+            name: "importEvents",
+            functionPath: "event.import",
             body: bodies.EventImportResult(projection),
             args: {
-              events: { value: events, type: '[EventImport!]!' }
-            }
+              events: { value: events, type: "[EventImport!]!" },
+            },
           }),
         entity: {
           add: (evid, enid, projection) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'addEntityToEvent',
-              functionPath: 'event.entity.add',
+              type: "mutation",
+              name: "addEntityToEvent",
+              functionPath: "event.entity.add",
               body: bodies.Event(projection),
               args: {
-                evid: { value: evid, type: 'ID!' },
-                enid: { value: enid, type: 'ID!' },
+                evid: { value: evid, type: "ID!" },
+                enid: { value: enid, type: "ID!" },
               },
-              cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
+              cache: caching
+                ? { instance: cache, type: "event", key: "evid", update: true }
+                : false,
             }),
           del: (evid, enid, projection) =>
             genGraphQLBuilder({
-              type: 'mutation',
-              name: 'delEntityToEvent',
-              functionPath: 'event.entity.del',
+              type: "mutation",
+              name: "delEntityToEvent",
+              functionPath: "event.entity.del",
               body: bodies.Event(projection),
               args: {
-                evid: { value: evid, type: 'ID!' },
-                enid: { value: enid, type: 'ID!' },
+                evid: { value: evid, type: "ID!" },
+                enid: { value: enid, type: "ID!" },
               },
-              cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
+              cache: caching
+                ? { instance: cache, type: "event", key: "evid", update: true }
+                : false,
             }),
-        }
+        },
       },
       project: {
         get: (pid, projection) =>
           genGraphQLBuilder({
-            name: 'getProject',
-            functionPath: 'project',
+            name: "getProject",
+            functionPath: "project",
             body: bodies.Project(projection),
             args: {
-              pid: { value: pid, type: 'ID!' },
+              pid: { value: pid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid' } : false,
+            cache: caching
+              ? { instance: cache, type: "project", key: "pid" }
+              : false,
           }),
         getMultiple: (pids, projection) =>
           genGraphQLBuilder({
-            name: 'getProjects',
-            functionPath: 'projects',
+            name: "getProjects",
+            functionPath: "projects",
             body: bodies.Project(projection),
             args: {
-              pids: { value: pids, type: '[ID!]!' },
+              pids: { value: pids, type: "[ID!]!" },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid', keys: 'pids' } : false,
+            cache: caching
+              ? { instance: cache, type: "project", key: "pid", keys: "pids" }
+              : false,
           }),
         getOfEntity: (evid, enid, projection) =>
           genGraphQLBuilder({
-            name: 'getProjectsOfEntity',
-            functionPath: 'projectsOfEntity',
+            name: "getProjectsOfEntity",
+            functionPath: "projectsOfEntity",
             body: bodies.Project(projection),
             args: {
-              evid: { value: evid, type: 'ID!' },
-              enid: { value: enid, type: 'ID!' },
+              evid: { value: evid, type: "ID!" },
+              enid: { value: enid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
+            cache: caching
+              ? { instance: cache, type: "project", key: "pid", multiple: true }
+              : false,
           }),
         getOfEvent: (evid, projection) =>
           genGraphQLBuilder({
-            name: 'getProjectsOfEvent',
-            functionPath: 'projectsOfEvent',
+            name: "getProjectsOfEvent",
+            functionPath: "projectsOfEvent",
             body: bodies.Project(projection),
             args: {
-              evid: { value: evid, type: 'ID!' },
+              evid: { value: evid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
+            cache: caching
+              ? { instance: cache, type: "project", key: "pid", multiple: true }
+              : false,
           }),
 
         create: (project, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'createProject',
-            functionPath: 'project.create',
+            type: "mutation",
+            name: "createProject",
+            functionPath: "project.create",
             body: bodies.Project(projection),
             args: {
-              enid: { value: project.enid, type: 'ID!' },
-              evid: { value: project.evid, type: 'ID!' },
-              name: { value: project.name, type: 'String!' },
-              description: { value: project.description, type: 'String' },
-              datanoseLink: { value: project.datanoseLink, type: 'String' },
-              external_id: { value: project.external_id, type: 'Int' },
+              enid: { value: project.enid, type: "ID!" },
+              evid: { value: project.evid, type: "ID!" },
+              name: { value: project.name, type: "String!" },
+              description: { value: project.description, type: "String" },
+              datanoseLink: { value: project.datanoseLink, type: "String" },
+              external_id: { value: project.external_id, type: "Int" },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid', create: true } : false,
+            cache: caching
+              ? { instance: cache, type: "project", key: "pid", create: true }
+              : false,
           }),
         update: (project, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'updateProject',
-            functionPath: 'project.update',
+            type: "mutation",
+            name: "updateProject",
+            functionPath: "project.update",
             body: bodies.Project(projection),
             args: {
-              pid: { value: project.pid, type: 'ID!' },
-              enid: { value: project.enid, type: 'ID' },
-              evid: { value: project.evid, type: 'ID' },
-              name: { value: project.name, type: 'String' },
-              description: { value: project.description, type: 'String' },
-              datanoseLink: { value: project.datanoseLink, type: 'String' },
+              pid: { value: project.pid, type: "ID!" },
+              enid: { value: project.enid, type: "ID" },
+              evid: { value: project.evid, type: "ID" },
+              name: { value: project.name, type: "String" },
+              description: { value: project.description, type: "String" },
+              datanoseLink: { value: project.datanoseLink, type: "String" },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,
+            cache: caching
+              ? { instance: cache, type: "project", key: "pid", update: true }
+              : false,
           }),
         delete: (pid, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'deleteProject',
-            functionPath: 'project.delete',
+            type: "mutation",
+            name: "deleteProject",
+            functionPath: "project.delete",
             body: bodies.Project(projection),
             args: {
-              pid: { value: pid, type: 'ID!' },
+              pid: { value: pid, type: "ID!" },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid', delete: true } : false,
+            cache: caching
+              ? { instance: cache, type: "project", key: "pid", delete: true }
+              : false,
           }),
         deleteOfEntity: (enid) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'deleteProjectOfEntity',
-            functionPath: 'project.deleteOfEntity',
+            type: "mutation",
+            name: "deleteProjectOfEntity",
+            functionPath: "project.deleteOfEntity",
             args: {
-              enid: { value: enid, type: 'ID!' },
-            }
+              enid: { value: enid, type: "ID!" },
+            },
           }),
         import: (projects, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'importProject',
-            functionPath: 'project.import',
+            type: "mutation",
+            name: "importProject",
+            functionPath: "project.import",
             body: bodies.ProjectImportResult(projection),
             args: {
-              projects: { value: projects, type: '[ProjectImport!]!' },
+              projects: { value: projects, type: "[ProjectImport!]!" },
             },
-            cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
+            cache: caching
+              ? { instance: cache, type: "project", key: "pid", multiple: true }
+              : false,
           }),
       },
       votes: {
         getOfStudent: (uid, evid) =>
           genGraphQLBuilder({
-            name: 'getVotesOfStudent',
-            functionPath: 'votesOfStudent',
+            name: "getVotesOfStudent",
+            functionPath: "votesOfStudent",
             args: {
-              uid: { value: uid, type: 'ID!' },
-              evid: { value: evid, type: 'ID!' },
-            }
+              uid: { value: uid, type: "ID!" },
+              evid: { value: evid, type: "ID!" },
+            },
           }),
         getOfEntity: (enid, evid, projection) =>
           genGraphQLBuilder({
-            name: 'getVotesOfEntity',
-            functionPath: 'votesOfEntity',
+            name: "getVotesOfEntity",
+            functionPath: "votesOfEntity",
             body: bodies.StudentVote(projection),
             args: {
-              enid: { value: enid, type: 'ID!' },
-              evid: { value: evid, type: 'ID!' },
-            }
+              enid: { value: enid, type: "ID!" },
+              evid: { value: evid, type: "ID!" },
+            },
           }),
         getOfProject: (pid, evid) =>
           genGraphQLBuilder({
-            name: 'getVotesOfProject',
-            functionPath: 'votesOfProject',
+            name: "getVotesOfProject",
+            functionPath: "votesOfProject",
             args: {
-              pid: { value: pid, type: 'ID!' },
-              evid: { value: evid, type: 'ID!' },
-            }
+              pid: { value: pid, type: "ID!" },
+              evid: { value: evid, type: "ID!" },
+            },
           }),
         import: (votes, evid, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'importVotes',
-            functionPath: 'vote.import',
+            type: "mutation",
+            name: "importVotes",
+            functionPath: "vote.import",
             body: bodies.VoteImportResult(projection),
             args: {
-              votes: { value: votes, type: '[VoteImport!]!' },
-              evid: { value: evid, type: 'ID!' },
-            }
+              votes: { value: votes, type: "[VoteImport!]!" },
+              evid: { value: evid, type: "ID!" },
+            },
           }),
       },
       schedule: {
         generate: (evid) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'generateSchedule',
-            functionPath: 'schedule.generate',
+            type: "mutation",
+            name: "generateSchedule",
+            functionPath: "schedule.generate",
             args: {
-              evid: { value: evid, type: 'ID!' },
+              evid: { value: evid, type: "ID!" },
             },
           }),
         import: (evid, file) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'importSchedule',
-            functionPath: 'schedule.import',
+            type: "mutation",
+            name: "importSchedule",
+            functionPath: "schedule.import",
             args: {
-              evid: { value: evid, type: 'ID!' },
-              file: { value: file, type: 'String!' },
+              evid: { value: evid, type: "ID!" },
+              file: { value: file, type: "String!" },
             },
           }),
         getAll: (evid, projection) =>
           genGraphQLBuilder({
-            name: 'getFullSchedule',
-            functionPath: 'scheduleAdmin',
+            name: "getFullSchedule",
+            functionPath: "scheduleAdmin",
             body: bodies.Schedule(projection),
             args: {
-              evid: { value: evid, type: 'ID!' },
+              evid: { value: evid, type: "ID!" },
             },
           }),
         update: (appointment, projection) =>
           genGraphQLBuilder({
-            type: 'mutation',
-            name: 'updateAppointment',
-            functionPath: 'schedule.update',
+            type: "mutation",
+            name: "updateAppointment",
+            functionPath: "schedule.update",
             body: bodies.Schedule(projection),
             args: {
-              sid: { value: appointment.sid, type: 'ID!' },
-              uid: { value: appointment.uid, type: 'ID' },
-              enid: { value: appointment.enid, type: 'ID' },
-              slot: { value: appointment.slot, type: 'String' },
-            }
+              sid: { value: appointment.sid, type: "ID!" },
+              uid: { value: appointment.uid, type: "ID" },
+              enid: { value: appointment.enid, type: "ID" },
+              slot: { value: appointment.slot, type: "String" },
+            },
           }),
         representative: {
           get: (enid, evid, projection) =>
             genGraphQLBuilder({
-              name: 'getRepresentativeSchedule',
-              functionPath: 'scheduleRepresentative',
+              name: "getRepresentativeSchedule",
+              functionPath: "scheduleRepresentative",
               body: bodies.Schedule(projection),
               args: {
-                enid: { value: enid, type: 'ID!' },
-                evid: { value: evid, type: 'ID!' },
-              }
-            })
+                enid: { value: enid, type: "ID!" },
+                evid: { value: evid, type: "ID!" },
+              },
+            }),
         },
         student: {
           get: (uid, evid, projection) =>
             genGraphQLBuilder({
-              name: 'getStudentSchedule',
-              functionPath: 'scheduleStudent',
+              name: "getStudentSchedule",
+              functionPath: "scheduleStudent",
               body: bodies.Schedule(projection),
               args: {
-                uid: { value: uid, type: 'ID!' },
-                evid: { value: evid, type: 'ID!' },
+                uid: { value: uid, type: "ID!" },
+                evid: { value: evid, type: "ID!" },
               },
             }),
         },
       },
-    }
-  }
+    },
+  };
 };

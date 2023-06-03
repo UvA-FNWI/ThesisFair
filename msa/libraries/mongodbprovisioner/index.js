@@ -1,15 +1,20 @@
 const normalize = (objects, hide = []) => {
-  hide ||= [];
+  // hide ||= [];
+
+  // The logical OR above does not work in node 12, so we need to do this:
+  hide || (hide = []);
 
   const normalizeValue = (value) => {
     if (value instanceof Object) {
       // The check below needs to hapen dirty because every ObjectId is from another mongoose library instance.
-      if (value.constructor.name === 'ObjectId') {
+      if (value.constructor.name === "ObjectId") {
         return value.toString();
       } else if (value instanceof Date) {
         return value.toISOString();
       } else if (Array.isArray(value)) {
-        if (value.length === 0) { return value; }
+        if (value.length === 0) {
+          return value;
+        }
 
         for (const i in value) {
           value[i] = normalizeValue(value[i]);
@@ -18,7 +23,7 @@ const normalize = (objects, hide = []) => {
     }
 
     return value;
-  }
+  };
 
   const normalizeDocument = (object) => {
     delete object.id;
@@ -35,15 +40,15 @@ const normalize = (objects, hide = []) => {
     }
 
     return object;
-  }
+  };
 
   return objects.map((object) =>
     object.toObject({
       virtuals: true,
-      transform: (_, doc) => normalizeDocument(doc)
+      transform: (_, doc) => normalizeDocument(doc),
     })
   );
-}
+};
 
 export class MongoDBProvisioner {
   constructor(configs) {
@@ -74,7 +79,6 @@ export class MongoDBProvisioner {
     return libs;
   };
 
-
   init = async () => {
     this.libraries = await this.importLibraries();
 
@@ -86,7 +90,9 @@ export class MongoDBProvisioner {
 
       for (const object of config.objects || [config.object]) {
         if (object in this.models) {
-          throw new Error(`Duplicate model name '${object}'! Could not merge into one models object.`);
+          throw new Error(
+            `Duplicate model name '${object}'! Could not merge into one models object.`
+          );
         }
 
         this.models[object] = this.libraries[name][object];
@@ -94,11 +100,11 @@ export class MongoDBProvisioner {
     }
 
     await Promise.all(promises);
-  }
+  };
 
   provision = async () => {
     if (!this.libraries) {
-      throw new Error('init function needs to be called before main');
+      throw new Error("init function needs to be called before main");
     }
 
     this.db = {};
@@ -108,9 +114,14 @@ export class MongoDBProvisioner {
       const lib = this.libraries[name];
 
       await lib[config.object].deleteMany();
-      this.db[name] = normalize(await lib[config.object].insertMany(await config.get(this.db, this.models)), config.hide);
+      this.db[name] = normalize(
+        await lib[config.object].insertMany(
+          await config.get(this.db, this.models)
+        ),
+        config.hide
+      );
     }
-  }
+  };
 
   disconnect = async () => {
     const promises = [];
