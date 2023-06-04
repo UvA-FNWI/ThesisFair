@@ -1,0 +1,23 @@
+// Import the index.scss
+@import "../../index.scss";
+
+.list {
+  display: flex;
+  flex-direction: column;
+  width: 20rem;
+
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  // Add a thick red border on the left side
+  border: 1px solid #e0e0e0;
+  border-right: 2px solid #e0e0e0;
+  border-left: 0;
+
+  &--red-border {
+    // Add a thick red border on the left side
+    border-left: 0.25rem solid #bc0031;
+    max-height: 100%;
+  }
+}

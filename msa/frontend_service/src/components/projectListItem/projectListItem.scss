@@ -19,6 +19,12 @@
   &__icon {
     &--grip {
       margin-right: 0.5rem;
+
+      cursor: grab;
+
+      &:active {
+        cursor: grabbing;
+      }
     }
 
     &--expand {
@@ -38,6 +44,8 @@
     &--close {
       margin-left: auto;
       margin-right: 0.5rem;
+
+      cursor: pointer;
     }
   }
 
@@ -60,6 +68,7 @@
     justify-content: space-between;
 
     margin-left: auto;
+    margin-right: 0.25rem;
   }
 
   &__tag {
@@ -87,6 +96,7 @@
     width: 100%;
     padding: 0.5rem;
     background-color: #fcfcfc;
+    border-bottom: 1px solid #e0e0e0;
   }
 
   &__buttons {
@@ -139,6 +149,18 @@
 
       &:active {
         background-color: rgb(255, 168, 168);
+      }
+    }
+
+    &--unhide {
+      border-color: rgb(94, 198, 208);
+
+      &:hover {
+        background-color: rgb(188, 250, 255);
+      }
+
+      &:active {
+        background-color: rgb(168, 235, 250);
       }
     }
   }

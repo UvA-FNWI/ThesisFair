@@ -5,10 +5,10 @@ import chevronDownIcon from "bootstrap-icons/icons/chevron-down.svg";
 import closeIcon from "bootstrap-icons/icons/x-lg.svg";
 import gripIcon from "bootstrap-icons/icons/grip-vertical.svg";
 
-import "./registrationList.scss";
+import "./projectListItem.scss";
 import api from "../../api";
 
-function RegistrationListItem(props) {
+function ProjectListItem(props) {
   const params = useParams();
   const type = api.getApiTokenData().type;
 
@@ -18,14 +18,24 @@ function RegistrationListItem(props) {
     setIsExpanded(!isExpanded);
   };
 
-  const addRegistration = () => {
-    // TODO: Add registration
-    console.warn("Add registration not implemented");
+  const addProject = () => {
+    // TODO: Add project
+    console.warn("Add project not implemented");
   };
 
-  const removeRegistration = () => {
-    // TODO: Remove registration
-    console.warn("Remove registration not implemented");
+  const removeProject = () => {
+    // TODO: Remove project
+    console.warn("Remove project not implemented");
+  };
+
+  const hideProject = () => {
+    // TODO: Hide project
+    console.warn("Hide project not implemented");
+  };
+
+  const unhideProject = () => {
+    // TODO: Unhide project
+    console.warn("Unhide project not implemented");
   };
 
   return (
@@ -39,8 +49,6 @@ function RegistrationListItem(props) {
           />
         )}
 
-        {/* Add list-item__icon, list-item__icon--expand and add a rotated class if isExpanded */}
-
         <img
           className={`list-item__icon list-item__icon--expand${
             isExpanded ? " list-item__icon--rotated" : ""
@@ -51,13 +59,13 @@ function RegistrationListItem(props) {
         />
 
         <div className="list-item__title">
-          <p>{props.registration.name}</p>
+          <p>{props.project.name}</p>
         </div>
 
         {/* TODO: Show only MSc tags when expanded */}
-        {props.registration.tags && !props.selected && (
+        {props.project.tags && !props.selected && (
           <div className="list-item__tags">
-            {props.registration.tags.map(({ fullTag, abbreviation }) => (
+            {props.project.tags.map(({ fullTag, abbreviation }) => (
               <div className="list-item__tag" key={fullTag}>
                 <p>{abbreviation.toString()}</p>
               </div>
@@ -70,7 +78,7 @@ function RegistrationListItem(props) {
             className="list-item__icon list-item__icon--close"
             src={closeIcon}
             alt="close icon"
-            onClick={removeRegistration}
+            onClick={removeProject}
           />
         )}
       </div>
@@ -78,24 +86,38 @@ function RegistrationListItem(props) {
       {/* Expanded view */}
       {isExpanded && (
         <div className="list-item__expanded">
-          <p className="list-item__email">{props.registration.email}</p>
+          <p className="list-item__email">{props.project.email}</p>
 
-          <p className="list-item__description">
-            {props.registration.description}
-          </p>
+          <p className="list-item__description">{props.project.description}</p>
 
-          {!props.selected && (
+          {!props.selected && !props.hidden ? (
             <div className="list-item__buttons">
               <button
                 className="list-item__button list-item__button--hide"
-                onClick={toggleExpanded}
+                onClick={hideProject}
               >
                 Hide
               </button>
 
               <button
                 className="list-item__button list-item__button--add"
-                onClick={addRegistration}
+                onClick={addProject}
+              >
+                Add
+              </button>
+            </div>
+          ) : (
+            <div className="list-item__buttons">
+              <button
+                className="list-item__button list-item__button--unhide"
+                onClick={unhideProject}
+              >
+                Unhide
+              </button>
+
+              <button
+                className="list-item__button list-item__button--add"
+                onClick={removeProject}
               >
                 Add
               </button>
@@ -107,4 +129,4 @@ function RegistrationListItem(props) {
   );
 }
 
-export default RegistrationListItem;
+export default ProjectListItem;

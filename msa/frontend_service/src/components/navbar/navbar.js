@@ -76,6 +76,12 @@ function CustomNavbar(props) {
                   <span>Testing</span>
                 </Link>
               </Nav.Item>
+              <Nav.Item>
+                <Link to={`/register`}>
+                  <img src={overrideUserIcon} alt="" />
+                  <span>Register</span>
+                </Link>
+              </Nav.Item>
             </>
           ) : null}
           {type === "s" ? (
