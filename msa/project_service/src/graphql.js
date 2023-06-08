@@ -111,72 +111,71 @@ schemaComposer.Query.addNestedFields({
 });
 
 schemaComposer.Mutation.addNestedFields({
-  //! Left in the project due to possible future usage.
-  // 'project.create': {
-  //   type: 'Project',
-  //   args: {
-  //     enid: 'ID!',
-  //     evid: 'ID!',
-  //     name: 'String!',
-  //     description: 'String',
-  //     datanoseLink: 'String',
-  //     external_id: 'Int!',
-  //   },
-  //   description: JSON.stringify({
-  //     caching: { type: 'project', key: 'pid', create: true }
-  //   }),
-  //   resolve: async (obj, args, req) => {
-  //     if (req.user.type !== 'a') {
-  //       throw new Error('UNAUTHORIZED create project');
-  //     }
+  'project.create': {
+    type: 'Project',
+    args: {
+      enid: 'ID!',
+      evid: 'ID!',
+      name: 'String!',
+      description: 'String',
+      datanoseLink: 'String',
+      external_id: 'Int!',
+    },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', create: true }
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED create project');
+      }
 
-  //     const res = await Promise.all([
-  //       evidExists(args.evid),
-  //       enidExists(args.enid),
-  //     ]);
+      const res = await Promise.all([
+        evidExists(args.evid),
+        enidExists(args.enid),
+      ]);
 
-  //     if (!res[0]) {
-  //       throw new Error('The given evid does not exist');
-  //     }
+      if (!res[0]) {
+        throw new Error('The given evid does not exist');
+      }
 
-  //     if (!res[1]) {
-  //       throw new Error('The given enid does not exist');
-  //     }
+      if (!res[1]) {
+        throw new Error('The given enid does not exist');
+      }
 
-  //     return Project.create(args);
-  //   }
-  // },
-  // 'project.update': {
-  //   type: 'Project',
-  //   args: {
-  //     pid: 'ID!',
-  //     enid: 'ID',
-  //     evid: 'ID',
-  //     name: 'String',
-  //     description: 'String',
-  //     datanoseLink: 'String',
-  //   },
-  //   description: JSON.stringify({
-  //     caching: { type: 'project', key: 'pid', update: true }
-  //   }),
-  //   resolve: async (obj, args, req) => {
-  //     if (req.user.type !== 'a') {
-  //       throw new Error('UNAUTHORIZED update project');
-  //     }
+      return Project.create(args);
+    }
+  },
+  'project.update': {
+    type: 'Project',
+    args: {
+      pid: 'ID!',
+      enid: 'ID',
+      evid: 'ID',
+      name: 'String',
+      description: 'String',
+      datanoseLink: 'String',
+    },
+    description: JSON.stringify({
+      caching: { type: 'project', key: 'pid', update: true }
+    }),
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED update project');
+      }
 
-  //     if (args.evid && !(await evidExists(args.evid))) {
-  //       throw new Error('The given evid does not exist');
-  //     }
+      if (args.evid && !(await evidExists(args.evid))) {
+        throw new Error('The given evid does not exist');
+      }
 
-  //     if (args.enid && !(await enidExists(args.enid))) {
-  //       throw new Error('The given enid does not exist');
-  //     }
+      if (args.enid && !(await enidExists(args.enid))) {
+        throw new Error('The given enid does not exist');
+      }
 
-  //     const pid = args.pid;
-  //     delete args.pid;
-  //     return Project.findByIdAndUpdate(pid, { $set: args }, { new: true });
-  //   },
-  // },
+      const pid = args.pid;
+      delete args.pid;
+      return Project.findByIdAndUpdate(pid, { $set: args }, { new: true });
+    },
+  },
   'project.delete': {
     type: 'Project',
     args: {
