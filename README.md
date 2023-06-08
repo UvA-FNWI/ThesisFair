@@ -344,6 +344,21 @@ Example payload:
 ```
 
 # Development notes
+## Initializing dev environment
+1. Duplicate the file `/msa/.env.examle`, name it `/msa/.env` and fill in the blanks.
+1. Run `make ci` or `make install` in the root of the project to run `npm ci` or `npm install` respectively for each microservice.
+
+## /scripts/runCmd.sh
+This is a simple utility script which allows you to run the same command in every microservice folder.
+```
+Usage: runCmd.sh <root> <command>
+```
+
+So from the root of the project running `npm ci` is:
+```sh
+./scripts/runCmd.sh ./msa "npm ci"
+```
+
 ## Docker compose
 The docker-files in the different service folders should be executed from `/msa`.
 

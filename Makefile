@@ -1,3 +1,9 @@
+ci:
+	./scripts/runCmd.sh ./msa "npm ci"
+
+install:
+	./scripts/runCmd.sh ./msa "npm install"
+
 update:
 	./scripts/updateContainerRepo.sh ./msa
 
