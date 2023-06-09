@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip, Form } from 'react-bootstrap';
 import downloadIcon from 'bootstrap-icons/icons/download.svg';
 import { useParams } from 'react-router-dom';
 import api, { downloadCV } from '../../api';
@@ -117,20 +117,22 @@ class ProjectListing extends React.Component {
 }
 
 class ProjectEditor extends React.Component {
+  // TODO: have a controlled input rather than uncontrolled (i.e. update state
+  // as form is edited)
   constructor(props) {
     super(props);
 
     this.state = {
-      // evid: this.props.params.evid,
+      evid: this.props.params.evid,
       name: "",
       description: "",
     };
+
+    this.submit = this.submit.bind(this)
   }
 
   async componentDidMount() {
-      console.log("BOOOOOOOOOOOO");
     if (this.props.params.pid) {
-      console.log("AAAAAAAAAAAAAAA");
       const project = await api.project.get(this.props.params.pid).exec();
       this.setState({
         name: project.name,
@@ -139,12 +141,66 @@ class ProjectEditor extends React.Component {
     }
   }
 
-  submitChanges() {
-    // TODO: make an API call to write this new project to the database
+  async submit(e) {
+    // Make sure the page does not reload
+    e.preventDefault();
+
+    const formData = Object.fromEntries(new FormData(e.target).entries());
+
+    console.log({
+        enid: api.getApiTokenData().enid,
+        pid: this.props.params.pid,
+        name: formData.name,
+        description: formData.description,
+      });
+    if (this.props.params.pid) {
+      return await api.project.update({
+        enid: api.getApiTokenData().enid,
+        pid: this.props.params.pid,
+        name: formData.name,
+        description: formData.description,
+      }).exec();
+    }
+
+    return await api.project.create({
+      enid: api.getApiTokenData().enid,
+      evid: this.props.params.evid,
+      name: formData.name,
+      description: formData.description,
+    }).exec();
   }
 
   render() {
-    return <p>Hi!</p>;
+    return <Form onSubmit={this.submit}>
+      <Form.Group className="mb-3" controlId="name">
+        <Form.Label>Project Name</Form.Label>
+        <Form.Control
+          name="name"
+          type="text"
+          placeholder="Enter a concise title for your project"
+          defaultValue={this.state.name}
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="description">
+        <Form.Label>Project description</Form.Label>
+        <Form.Control
+          name="description"
+          as="textarea"
+          rows={8}
+          placeholder="Your project's full description"
+          defaultValue={this.state.description}
+        />
+      </Form.Group>
+
+      <Button variant="primary" type="submit">
+        Submit
+      </Button>
+
+      <Button variant="secondary" type="cancel">
+        Cancel
+      </Button>
+    </Form>;
   }
 }
 
