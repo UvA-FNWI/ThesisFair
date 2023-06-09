@@ -1,4 +1,7 @@
 import React from 'react'
+import MDEditor from '@uiw/react-md-editor'
+import rehypeSanitize from 'rehype-sanitize'
+
 import { Modal, Accordion, Button } from 'react-bootstrap'
 import { Navigate } from 'react-router-dom'
 import api from '../api'
@@ -38,13 +41,20 @@ class EventPicker extends React.Component {
             {this.state.events.map((event, i) => (
               <Accordion.Item key={i} eventKey={i}>
                 <Accordion.Header>
-                  {event.name}
-                  <Button className='ms-auto' onClick={() => this.setState({ redirect: `/${event.evid}` })}>
-                    Select
-                  </Button>
+                  <div className='w-100 d-flex align-items-center me-3'>
+                    <p style={{ margin: 0 }}>{event.name}</p>
+                    <Button className='ms-auto' onClick={() => this.setState({ redirect: `/${event.evid}` })}>
+                      Select
+                    </Button>
+                  </div>
                 </Accordion.Header>
-                <Accordion.Body>
-                  <div dangerouslySetInnerHTML={{ __html: event.description }} />
+                <Accordion.Body data-color-mode='light'>
+                  <MDEditor.Markdown
+                    source={event.description}
+                    previewOptions={{
+                      rehypePlugins: [[rehypeSanitize]],
+                    }}
+                  />
                 </Accordion.Body>
               </Accordion.Item>
             ))}

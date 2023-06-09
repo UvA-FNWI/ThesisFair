@@ -72,13 +72,14 @@ class ProjectListing extends React.Component {
             {this.state.projects.map((project, projectIndex) => (
               <Accordion.Item key={projectIndex} eventKey={projectIndex}>
                 <Accordion.Header>
-                  <div className='d-flex justify-content-between w-100 me-2'>
-                    <span>{project.name}</span>
+                  <div className='d-flex justify-content-between align-items-center w-100 me-3'>
+                    <span className='me-auto'>{project.name}</span>
                     <ProjectEditorTrigger params={{ ...project, edit: this.props.params.edit }} />
                     <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
                       <Button
                         size='sm'
                         variant='outline-primary'
+                        className='ms-2'
                         onClick={e => {
                           e.stopPropagation()
                           this.downloadAllCVs(project)
@@ -89,8 +90,13 @@ class ProjectListing extends React.Component {
                     </OverlayTrigger>
                   </div>
                 </Accordion.Header>
-                <Accordion.Body>
-                  <div dangerouslySetInnerHTML={{ __html: project.description }} />
+                <Accordion.Body data-color-mode='light'>
+                  <MDEditor.Markdown
+                    source={project.description}
+                    previewOptions={{
+                      rehypePlugins: [[rehypeSanitize]],
+                    }}
+                  />
 
                   <h4 className='mt-4'>Students</h4>
                   <div>
@@ -293,11 +299,9 @@ class ProjectEditorTrigger extends React.Component {
   render() {
     if (this.props.params.pid != 'manuallyShared') {
       return (
-        <Container className='mt-2 project-list'>
-          <Button size='sm' variant='outline-primary' onClick={this.onClick}>
-            {this.buttonText()}
-          </Button>
-        </Container>
+        <Button size='sm' variant='outline-primary' onClick={this.onClick}>
+          {this.buttonText()}
+        </Button>
       )
     }
   }
@@ -333,7 +337,9 @@ class Projects extends React.Component {
         return (
           <div>
             <ProjectListing params={{ ...this.props.params, edit: this.edit }} />
-            <ProjectEditorTrigger params={{ pid: null, edit: this.edit }} />
+            <Container className='mt-2 project-list'>
+              <ProjectEditorTrigger params={{ pid: null, edit: this.edit }} />
+            </Container>
           </div>
         )
       default:

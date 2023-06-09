@@ -37,7 +37,7 @@ const createApp = async () => {
   newApp.use('/login', login)
   newApp.use('/sso', sso)
   newApp.use(auth)
-  newApp.use('/graphql', graphql)
+  newApp.use('/graphql', await graphql())
 
   // catch 404 and forward to error handler
   newApp.use((req, res, next) => {
