@@ -193,6 +193,27 @@ class ProjectEditor extends React.Component {
     // Make sure the page does not reload
     e.preventDefault()
 
+    // Get the `data-submit-type` attribute of the button that was clicked
+    // (either `submit`, `cancel` or `delete`)
+    const submitType = e.nativeEvent.submitter.getAttribute('data-submit-type')
+
+    switch (submitType) {
+      case 'submit':
+        await this.createProject(e)
+        break
+      case 'cancel':
+        this.cancel(e)
+        break
+      case 'delete':
+        // TODO: Delete project
+        // this.delete(e)
+        break
+      default:
+        throw new Error(`Unknown submit type: ${submitType}`)
+    }
+  }
+
+  async createProject(e) {
     const formData = Object.fromEntries(new FormData(e.target).entries())
 
     // TODO: handle errors and show to user
@@ -258,15 +279,15 @@ class ProjectEditor extends React.Component {
             />
           </Form.Group>
 
-          <Button variant='primary' type='submit'>
+          <Button variant='primary' type='submit' data-submit-type='submit'>
             Submit
           </Button>
 
-          <Button variant='secondary' type='cancel'>
+          <Button variant='secondary' type='cancel' data-submit-type='cancel'>
             Cancel
           </Button>
 
-          <Button variant='secondary' type='cancel'>
+          <Button variant='secondary' type='cancel' data-submit-type='delete'>
             Delete project
           </Button>
         </Form>
@@ -321,7 +342,7 @@ class Projects extends React.Component {
 
   edit(pid) {
     this.setState({
-      editor: <ProjectEditor params={{ pid: pid, ...this.props.params, submit: this.close }} />,
+      editor: <ProjectEditor params={{ pid: pid, ...this.props.params, close: this.close }} />,
     })
   }
 
