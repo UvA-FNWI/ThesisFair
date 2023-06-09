@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Modal, Card } from 'react-bootstrap'
+import { Button, Card } from 'react-bootstrap'
 import makeAdminIcon from 'bootstrap-icons/icons/star.svg'
 import isAdminIcon from 'bootstrap-icons/icons/star-fill.svg'
 import deleteIcon from 'bootstrap-icons/icons/x-lg.svg'

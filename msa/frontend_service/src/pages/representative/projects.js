@@ -297,7 +297,7 @@ class ProjectEditorTrigger extends React.Component {
   }
 
   render() {
-    if (this.props.params.pid != 'manuallyShared') {
+    if (this.props.params.pid !== 'manuallyShared') {
       return (
         <Button size='sm' variant='outline-primary' onClick={this.onClick}>
           {this.buttonText()}

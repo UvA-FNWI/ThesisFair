@@ -4,10 +4,6 @@ import ProjectList from '../components/projectList/projectList'
 import './testing.scss'
 
 class Testing extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
   data = [
     {
       selected: true,

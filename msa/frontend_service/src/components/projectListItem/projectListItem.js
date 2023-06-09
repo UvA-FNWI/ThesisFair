@@ -2,18 +2,13 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { useParams } from 'react-router-dom'
 import chevronDownIcon from 'bootstrap-icons/icons/chevron-down.svg'
 import closeIcon from 'bootstrap-icons/icons/x-lg.svg'
 import gripIcon from 'bootstrap-icons/icons/grip-vertical.svg'
 
 import './projectListItem.scss'
-import api from '../../api'
 
 function ProjectListItem(props) {
-  const params = useParams()
-  const type = api.getApiTokenData().type
-
   const [isExpanded, setIsExpanded] = React.useState(false)
 
   const toggleExpanded = () => {
