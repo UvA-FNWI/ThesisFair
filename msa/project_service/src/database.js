@@ -10,7 +10,8 @@ const projectSchema = new mongoose.Schema({
   name: { type: String },
   description: { type: String },
   datanoseLink: { type: String },
-  external_id: { type: Number, index: true, unique: true, required: true },
+  // external_id: { type: Number, index: true, unique: true, required: true },
+  external_id: { type: Number },
 });
 projectSchema.virtual('pid').get(function () { return this._id; }); // Create _id alias
 

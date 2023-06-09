@@ -39,7 +39,7 @@ const enidExists = async (enid) => {
 }
 
 const getEvid = async (external_id) => {
-  const res = await rgraphql('api-event', 'query getEvid($external_id: ID!) { eventByExtID(external_id: $external_id) { evid } }', { external_id });
+  const res = await rgraphql('api-event', 'query getEvid($external_id: ID) { eventByExtID(external_id: $external_id) { evid } }', { external_id });
 
   if (res.errors || !res.data) {
     console.error(res);
@@ -54,7 +54,7 @@ const getEvid = async (external_id) => {
 };
 
 const getEnid = async (external_id) => {
-  const res = await rgraphql('api-entity', 'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
+  const res = await rgraphql('api-entity', 'query getEnid($external_id: ID) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
   if (res.errors || !res.data) {
     console.error(res);
     throw new Error('An unkown error occured while checking if the enid is valid');
@@ -140,6 +140,8 @@ schemaComposer.Mutation.addNestedFields({
       if (!res[1]) {
         throw new Error('The given enid does not exist');
       }
+
+      args.evids = [args.evid];
 
       return Project.create(args);
     }
