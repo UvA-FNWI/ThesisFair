@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react'
 
 // import { useParams } from "react-router-dom";
 
-import RegistrationListItem from "../projectListItem/projectListItem";
+import RegistrationListItem from '../projectListItem/projectListItem'
 
-import "./projectList.scss";
+import './projectList.scss'
 // import api from "../../api";
 
 function RegistrationList(props) {
@@ -12,20 +12,15 @@ function RegistrationList(props) {
   // const type = api.getApiTokenData().type;
 
   return (
-    <div className="list--red-border">
-      <div className="list" style={{ maxHeight: props.maxHeight }}>
+    <div className='list--red-border'>
+      <div className='list' style={{ maxHeight: props.maxHeight }}>
         {/* Map to project and index */}
         {props.projects.map((project, index) => (
-          <RegistrationListItem
-            key={index}
-            selected={props.selected}
-            hidden={props.hidden}
-            project={project}
-          />
+          <RegistrationListItem key={index} selected={props.selected} hidden={props.hidden} project={project} />
         ))}
       </div>
     </div>
-  );
+  )
 }
 
-export default RegistrationList;
+export default RegistrationList

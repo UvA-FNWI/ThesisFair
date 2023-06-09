@@ -1,49 +1,55 @@
-import React from 'react';
-import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip, Form } from 'react-bootstrap';
-import downloadIcon from 'bootstrap-icons/icons/download.svg';
-import { useParams } from 'react-router-dom';
-import api, { downloadCV } from '../../api';
-import StudentPopup from '../../components/studentPopup/studentPopup';
+import React from 'react'
+import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import downloadIcon from 'bootstrap-icons/icons/download.svg'
+import { useParams } from 'react-router-dom'
+import api, { downloadCV } from '../../api'
+import StudentPopup from '../../components/studentPopup/studentPopup'
 
-const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`;
+const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
 class ProjectListing extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       projects: [],
       votedFor: {},
       popup: false,
-    };
+    }
   }
 
-  async componentDidMount() { // Optimisation: Store student only once in state
-    const projects = await api.project.getOfEntity(this.props.params.evid, api.getApiTokenData().enid).exec();
-    this.setState({ projects });
+  async componentDidMount() {
+    // Optimisation: Store student only once in state
+    const projects = await api.project.getOfEntity(this.props.params.evid, api.getApiTokenData().enid).exec()
+    this.setState({ projects })
 
-    const votedFor = {};
+    const votedFor = {}
     for (const project of projects) {
-      const uids = await api.votes.getOfProject(project.pid, this.props.params.evid).exec();
-      votedFor[project.pid] = await api.user.getMultiple(uids).exec();
+      const uids = await api.votes.getOfProject(project.pid, this.props.params.evid).exec()
+      votedFor[project.pid] = await api.user.getMultiple(uids).exec()
     }
 
-    projects.push({ pid: 'manuallyShared', name: 'Students that shared their data but did not vote for a project', description: 'Thesis students explicitly shared their data with your company but have not voted for any of your projects.' });
-    votedFor['manuallyShared'] = await api.user.student.getWhoManuallyShared(api.getApiTokenData().enid).exec();
-    this.setState({ projects, votedFor });
+    projects.push({
+      pid: 'manuallyShared',
+      name: 'Students that shared their data but did not vote for a project',
+      description:
+        'Thesis students explicitly shared their data with your company but have not voted for any of your projects.',
+    })
+    votedFor['manuallyShared'] = await api.user.student.getWhoManuallyShared(api.getApiTokenData().enid).exec()
+    this.setState({ projects, votedFor })
   }
 
   renderStudentModal = () => {
-    const { projectIndex, studentIndex } = this.state.popup;
-    const project = this.state.projects[projectIndex];
-    const student = this.state.votedFor[project.pid][studentIndex];
+    const { projectIndex, studentIndex } = this.state.popup
+    const project = this.state.projects[projectIndex]
+    const student = this.state.votedFor[project.pid][studentIndex]
 
     return <StudentPopup student={student} onHide={() => this.setState({ popup: false })} />
   }
 
-  downloadAllCVs = async (project) => {
+  downloadAllCVs = async project => {
     for (const student of this.state.votedFor[project.pid]) {
-      await downloadCV(student.uid, genCVName(student, project));
+      await downloadCV(student.uid, genCVName(student, project))
     }
   }
 
@@ -63,9 +69,18 @@ class ProjectListing extends React.Component {
                 <Accordion.Header>
                   <div className='d-flex justify-content-between w-100 me-2'>
                     <span>{project.name}</span>
-                    <ProjectEditorTrigger params={{...project, edit: this.props.params.edit}}/>
+                    <ProjectEditorTrigger params={{ ...project, edit: this.props.params.edit }} />
                     <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
-                      <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); this.downloadAllCVs(project); }}><img src={downloadIcon} alt='download' /></Button>
+                      <Button
+                        size='sm'
+                        variant='outline-primary'
+                        onClick={e => {
+                          e.stopPropagation()
+                          this.downloadAllCVs(project)
+                        }}
+                      >
+                        <img src={downloadIcon} alt='download' />
+                      </Button>
                     </OverlayTrigger>
                   </div>
                 </Accordion.Header>
@@ -74,33 +89,57 @@ class ProjectListing extends React.Component {
 
                   <h4 className='mt-4'>Students</h4>
                   <div>
-                    {this.state.votedFor[project.pid] ? this.state.votedFor[project.pid].length > 0 ? this.state.votedFor[project.pid].map((student, studentIndex) => {
-                      const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0;
-                      return (
-                        <Card key={studentIndex} className='mb-2 hoverable' bg={studentInfoPresent ? 'white' : 'gray'} onClick={studentInfoPresent ? (e) => this.setState({ popup: { projectIndex, studentIndex, cv: false } }) : null}>
-                          <Card.Body className='d-flex justify-content-between align-items-center'>
-                            { studentInfoPresent ?
-                              <>
-                                <p className='m-0'>
-                                  {student.firstname} {student.lastname}<span className='d-none d-sm-inline ps-2 pe-2'>-</span><span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
-                                </p>
-                                <div>
-                                  <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
-                                    <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(student.uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
-                                  </OverlayTrigger>
-                                </div>
-                              </>
-                              :
-                              <p className='m-0'>
-                                Student has not logged in yet
-                              </p>
-                            }
-                          </Card.Body>
-                        </Card>
+                    {this.state.votedFor[project.pid] ? (
+                      this.state.votedFor[project.pid].length > 0 ? (
+                        this.state.votedFor[project.pid].map((student, studentIndex) => {
+                          const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0
+                          return (
+                            <Card
+                              key={studentIndex}
+                              className='mb-2 hoverable'
+                              bg={studentInfoPresent ? 'white' : 'gray'}
+                              onClick={
+                                studentInfoPresent
+                                  ? e => this.setState({ popup: { projectIndex, studentIndex, cv: false } })
+                                  : null
+                              }
+                            >
+                              <Card.Body className='d-flex justify-content-between align-items-center'>
+                                {studentInfoPresent ? (
+                                  <>
+                                    <p className='m-0'>
+                                      {student.firstname} {student.lastname}
+                                      <span className='d-none d-sm-inline ps-2 pe-2'>-</span>
+                                      <span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
+                                    </p>
+                                    <div>
+                                      <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
+                                        <Button
+                                          size='sm'
+                                          variant='outline-primary'
+                                          onClick={e => {
+                                            e.stopPropagation()
+                                            downloadCV(student.uid, genCVName(student, project))
+                                          }}
+                                        >
+                                          <img src={downloadIcon} alt='download' />
+                                        </Button>
+                                      </OverlayTrigger>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <p className='m-0'>Student has not logged in yet</p>
+                                )}
+                              </Card.Body>
+                            </Card>
+                          )
+                        })
+                      ) : (
+                        <h6>
+                          <em>No students have voted for this project.</em>
+                        </h6>
                       )
-                    })
-                      : <h6><em>No students have voted for this project.</em></h6>
-                      : null}
+                    ) : null}
                   </div>
                 </Accordion.Body>
               </Accordion.Item>
@@ -108,11 +147,9 @@ class ProjectListing extends React.Component {
           </Accordion>
         </Container>
 
-        {this.state.popup ?
-          this.renderStudentModal()
-          : null}
+        {this.state.popup ? this.renderStudentModal() : null}
       </>
-    );
+    )
   }
 }
 
@@ -120,32 +157,32 @@ class ProjectEditor extends React.Component {
   // TODO: have a controlled input rather than uncontrolled (i.e. update state
   // as form is edited)
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       evid: this.props.params.evid,
-      name: "",
-      description: "",
-    };
+      name: '',
+      description: '',
+    }
 
     this.submit = this.submit.bind(this)
   }
 
   async componentDidMount() {
     if (this.props.params.pid) {
-      const project = await api.project.get(this.props.params.pid).exec();
+      const project = await api.project.get(this.props.params.pid).exec()
       this.setState({
         name: project.name,
         description: project.description,
-      });
+      })
     }
   }
 
   async submit(e) {
     // Make sure the page does not reload
-    e.preventDefault();
+    e.preventDefault()
 
-    const formData = Object.fromEntries(new FormData(e.target).entries());
+    const formData = Object.fromEntries(new FormData(e.target).entries())
 
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
@@ -173,31 +210,32 @@ class ProjectEditor extends React.Component {
   }
 
   render() {
-    return <Form onSubmit={this.submit}>
-      <Form.Group className="mb-3" controlId="name">
-        <Form.Label>Project Name</Form.Label>
-        <Form.Control
-          name="name"
-          type="text"
-          placeholder="Enter a concise title for your project"
-          defaultValue={this.state.name}
-        />
-      </Form.Group>
+    return (
+      <Form onSubmit={this.submit}>
+        <Form.Group className='mb-3' controlId='name'>
+          <Form.Label>Project Name</Form.Label>
+          <Form.Control
+            name='name'
+            type='text'
+            placeholder='Enter a concise title for your project'
+            defaultValue={this.state.name}
+          />
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="description">
-        <Form.Label>Project description</Form.Label>
-        <Form.Control
-          name="description"
-          as="textarea"
-          rows={8}
-          placeholder="Your project's full description"
-          defaultValue={this.state.description}
-        />
-      </Form.Group>
+        <Form.Group className='mb-3' controlId='description'>
+          <Form.Label>Project description</Form.Label>
+          <Form.Control
+            name='description'
+            as='textarea'
+            rows={8}
+            placeholder="Your project's full description"
+            defaultValue={this.state.description}
+          />
+        </Form.Group>
 
-      <Button variant="primary" type="submit">
-        Submit
-      </Button>
+        <Button variant='primary' type='submit'>
+          Submit
+        </Button>
 
       <Button variant="secondary" type="cancel">
         Cancel
@@ -206,13 +244,13 @@ class ProjectEditor extends React.Component {
       <Button variant="secondary" type="cancel">
         Delete project
       </Button>
-    </Form>;
+    </Form>
   }
 }
 
 class ProjectEditorTrigger extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.buttonText = this.buttonText.bind(this)
     this.onClick = this.onClick.bind(this)
@@ -220,9 +258,9 @@ class ProjectEditorTrigger extends React.Component {
 
   buttonText() {
     if (this.props.params.pid) {
-      return "Edit";
+      return 'Edit'
     } else {
-      return "Create new project";
+      return 'Create new project'
     }
   }
 
@@ -233,15 +271,19 @@ class ProjectEditorTrigger extends React.Component {
 
   render() {
     if (this.props.params.pid != 'manuallyShared') {
-      return <Button size='sm' variant='outline-primary' onClick={this.onClick}>{this.buttonText()}</Button>;
+      return (
+        <Button size='sm' variant='outline-primary' onClick={this.onClick}>
+          {this.buttonText()}
+        </Button>
+      )
     }
   }
 }
 
 class Projects extends React.Component {
   constructor(props) {
-    super(props);
-    
+    super(props)
+
     this.state = {
       editor: null,
     }
@@ -264,28 +306,23 @@ class Projects extends React.Component {
 
   render() {
     switch (this.state.editor) {
-      case null: 
+      case null:
         return (
           <div>
-            <ProjectListing params={{...this.props.params, edit: this.edit}}/>
-            <ProjectEditorTrigger params={{pid: null, edit: this.edit}}/>
+            <ProjectListing params={{ ...this.props.params, edit: this.edit }} />
+            <ProjectEditorTrigger params={{ pid: null, edit: this.edit }} />
           </div>
-        );
+        )
       default:
-        return (
-          <div>
-            {this.state.editor}
-          </div>
-        );
-      }
+        return <div>{this.state.editor}</div>
+    }
   }
 }
 
-
 function ProjectsWithParams(props) {
-  const params = useParams();
+  const params = useParams()
 
   return <Projects {...props} params={params} />
-};
+}
 
 export default ProjectsWithParams

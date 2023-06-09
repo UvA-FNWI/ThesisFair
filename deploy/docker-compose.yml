@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   traefik:
     image: traefik:2.8
@@ -13,12 +13,11 @@ services:
       - ./dynamic-config:/dynamic-config:ro
       - ${FS_ROOT}/data/traefik:/data
 
-
   rabbitmq:
     image: rabbitmq:3-management
     restart: unless-stopped
     volumes:
-    - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
+      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/11-custom.conf
     ports:
       - 15672:15672
       - 15692:15692
@@ -32,7 +31,6 @@ services:
     ports:
       - 27017:27017
 
-
   api-gateway:
     image: ghcr.io/quinten1333/thesisfair-api_gateway:base
     restart: unless-stopped
@@ -44,13 +42,12 @@ services:
       - OPENID_REDIRECT_URL=${OPENID_REDIRECT_URL}
       - OPENID_RESOURCE=${OPENID_RESOURCE}
     labels:
-      traefik.enable: "true"
+      traefik.enable: 'true'
       traefik.http.routers.apiGateway.rule: Host(`${URL}`) && (PathPrefix(`/api`) || PathPrefix(`/sso`))
       traefik.http.routers.apiGateway.middlewares: apiGatewayStrip
       traefik.http.middlewares.apiGatewayStrip.stripprefix.prefixes: /api
     depends_on:
       - rabbitmq
-
 
   api-entity:
     image: ghcr.io/quinten1333/thesisfair-entity_service:base
@@ -63,7 +60,6 @@ services:
       - rabbitmq
       - mongodb
 
-
   api-event:
     image: ghcr.io/quinten1333/thesisfair-event_service:base
     restart: unless-stopped
@@ -75,12 +71,11 @@ services:
       - rabbitmq
       - mongodb
 
-
   frontend:
     image: ghcr.io/quinten1333/thesisfair-frontend_service:base
     restart: unless-stopped
     labels:
-      traefik.enable: "true"
+      traefik.enable: 'true'
       traefik.http.routers.frontend.rule: Host(`${URL}`)
 
   api-project:
@@ -91,7 +86,6 @@ services:
     depends_on:
       - rabbitmq
       - mongodb
-
 
   api-user:
     image: ghcr.io/quinten1333/thesisfair-user_service:base
@@ -109,7 +103,6 @@ services:
     depends_on:
       - rabbitmq
       - mongodb
-
 
   api-vote:
     image: ghcr.io/quinten1333/thesisfair-vote_service:base

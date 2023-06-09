@@ -19,6 +19,6 @@ type Project {
 }
 
 type ProjectImportResult {
-  project: Project,
-  error: String,
+  project: Project
+  error: String
 }

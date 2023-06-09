@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   api_gateway:
     build:
@@ -14,8 +14,7 @@ services:
       - OPENID_REDIRECT_URL=${OPENID_REDIRECT_URL}
       - OPENID_RESOURCE=${OPENID_RESOURCE}
     labels:
-      traefik.enable: "true"
-      traefik.docker.network: thesisfair
+      traefik.enable: 'true'
       traefik.http.routers.apiGateway.rule: (PathPrefix(`/api`) || PathPrefix(`/sso`))
       traefik.http.routers.apiGateway.middlewares: apiGatewayStrip
       traefik.http.middlewares.apiGatewayStrip.stripprefix.prefixes: /api

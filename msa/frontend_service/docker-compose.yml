@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   frontend:
     build:
@@ -11,7 +11,7 @@ services:
       - PORT=3000
       - REACT_APP_API_ENDPOINT=http://localhost:3000/api/
     labels:
-      traefik.enable: "true"
+      traefik.enable: 'true'
       traefik.http.routers.frontend.rule: PathPrefix(`/`)
       traefik.http.services.frontend.loadbalancer.server.port: 3000
     volumes:
