@@ -1,0 +1,13 @@
+.create-project {
+  & > form {
+    width: 100%;
+  }
+
+  & .description > textarea {
+    display: none;
+  }
+}
+
+.project-list > button {
+  margin-top: 1rem;
+}

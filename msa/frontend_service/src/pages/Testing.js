@@ -24,7 +24,7 @@ class Testing extends React.Component {
             abbreviation: 'SE',
           },
         ],
-        description: 'This is a description',
+        description: '## This is a description',
       },
     },
     {
@@ -60,7 +60,7 @@ class Testing extends React.Component {
             abbreviation: 'SE',
           },
         ],
-        description: 'This is a description',
+        description: '## This is a description',
       },
     },
     {

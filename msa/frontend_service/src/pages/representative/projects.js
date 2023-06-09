@@ -1,9 +1,14 @@
 import React from 'react'
+import MDEditor from '@uiw/react-md-editor'
+import rehypeSanitize from 'rehype-sanitize'
+
 import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip, Form } from 'react-bootstrap'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
 import api, { downloadCV } from '../../api'
 import StudentPopup from '../../components/studentPopup/studentPopup'
+
+import './projects.scss'
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
@@ -186,65 +191,81 @@ class ProjectEditor extends React.Component {
 
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
-      await api.project.update({
-        enid: api.getApiTokenData().enid,
-        pid: this.props.params.pid,
-        name: formData.name,
-        description: formData.description,
-      }).exec();
+      await api.project
+        .update({
+          enid: api.getApiTokenData().enid,
+          pid: this.props.params.pid,
+          name: formData.name,
+          description: formData.description,
+        })
+        .exec()
     } else {
-      await api.project.create({
-        enid: api.getApiTokenData().enid,
-        evid: this.props.params.evid,
-        name: formData.name,
-        description: formData.description,
-      }).exec();
+      await api.project
+        .create({
+          enid: api.getApiTokenData().enid,
+          evid: this.props.params.evid,
+          name: formData.name,
+          description: formData.description,
+        })
+        .exec()
     }
 
-    this.props.params.close();
+    this.props.params.close()
   }
 
   cancel(e) {
     e.preventDefault()
-    this.props.params.close();
+    this.props.params.close()
   }
 
   render() {
     return (
-      <Form onSubmit={this.submit}>
-        <Form.Group className='mb-3' controlId='name'>
-          <Form.Label>Project Name</Form.Label>
-          <Form.Control
-            name='name'
-            type='text'
-            placeholder='Enter a concise title for your project'
-            defaultValue={this.state.name}
-          />
-        </Form.Group>
+      <Container className='mt-2 create-project'>
+        <h1 className='mb-4'>{this.props.params.pid ? 'Edit' : 'Create'} Project</h1>
+        <Form onSubmit={this.submit}>
+          <Form.Group className='mb-3' controlId='name'>
+            <Form.Label>Project Name</Form.Label>
+            <Form.Control
+              name='name'
+              type='text'
+              placeholder='Enter a concise title for your project'
+              defaultValue={this.state.name}
+            />
+          </Form.Group>
 
-        <Form.Group className='mb-3' controlId='description'>
-          <Form.Label>Project description</Form.Label>
-          <Form.Control
-            name='description'
-            as='textarea'
-            rows={8}
-            placeholder="Your project's full description"
-            defaultValue={this.state.description}
-          />
-        </Form.Group>
+          <Form.Group className='mb-3 description' controlId='description'>
+            <Form.Label>Project description (Markdown)</Form.Label>
+            <MDEditor
+              value={this.state.description}
+              onChange={value => this.setState({ description: value })}
+              height={500}
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
+              }}
+            />
+            <Form.Control
+              name='description'
+              as='textarea'
+              rows={8}
+              placeholder="Your project's full description"
+              defaultValue={this.state.description}
+            />
+          </Form.Group>
 
-        <Button variant='primary' type='submit'>
-          Submit
-        </Button>
+          <Button variant='primary' type='submit'>
+            Submit
+          </Button>
 
-      <Button variant="secondary" type="cancel">
-        Cancel
-      </Button>
+          <Button variant='secondary' type='cancel'>
+            Cancel
+          </Button>
 
-      <Button variant="secondary" type="cancel">
-        Delete project
-      </Button>
-    </Form>
+          <Button variant='secondary' type='cancel'>
+            Delete project
+          </Button>
+        </Form>
+      </Container>
+    )
   }
 }
 
@@ -272,9 +293,11 @@ class ProjectEditorTrigger extends React.Component {
   render() {
     if (this.props.params.pid != 'manuallyShared') {
       return (
-        <Button size='sm' variant='outline-primary' onClick={this.onClick}>
-          {this.buttonText()}
-        </Button>
+        <Container className='mt-2 project-list'>
+          <Button size='sm' variant='outline-primary' onClick={this.onClick}>
+            {this.buttonText()}
+          </Button>
+        </Container>
       )
     }
   }
@@ -288,20 +311,20 @@ class Projects extends React.Component {
       editor: null,
     }
 
-    this.edit = this.edit.bind(this);
-    this.close = this.close.bind(this);
+    this.edit = this.edit.bind(this)
+    this.close = this.close.bind(this)
   }
 
   edit(pid) {
     this.setState({
-      editor: <ProjectEditor params={{pid: pid, ...this.props.params, submit: this.close}}/>
-    });
+      editor: <ProjectEditor params={{ pid: pid, ...this.props.params, submit: this.close }} />,
+    })
   }
 
   close() {
     this.setState({
       editor: null,
-    });
+    })
   }
 
   render() {

@@ -15,7 +15,9 @@ class EventPicker extends React.Component {
   }
 
   async componentDidMount() {
+    console.log('EventPicker: componentDidMount')
     const events = await api.event.getAll().exec()
+    console.log('EventPicker: componentDidMount: got events', events)
     this.setState({ events, loading: false })
   }
 

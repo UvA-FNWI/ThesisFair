@@ -110,6 +110,7 @@ export const rpc = (queue, data) => {
       replyTo: replyQueue.queue,
       timestamp: Date.now(),
     })
+
     debug('Message send with corrolation id %d', id)
   })
 }

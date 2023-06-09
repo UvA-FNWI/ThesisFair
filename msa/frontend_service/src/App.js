@@ -142,6 +142,7 @@ class App extends React.Component {
 
   getRoutes() {
     const tokenData = api.getApiTokenData()
+
     if (!tokenData) {
       return this.guestRoutes()
     }

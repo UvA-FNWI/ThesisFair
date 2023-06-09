@@ -1,4 +1,6 @@
 import React from 'react'
+import MDEditor from '@uiw/react-md-editor'
+import rehypeSanitize from 'rehype-sanitize'
 
 import { useParams } from 'react-router-dom'
 import chevronDownIcon from 'bootstrap-icons/icons/chevron-down.svg'
@@ -77,10 +79,15 @@ function ProjectListItem(props) {
 
       {/* Expanded view */}
       {isExpanded && (
-        <div className='list-item__expanded'>
+        <div className='list-item__expanded' data-color-mode='light'>
           <p className='list-item__email'>{props.project.email}</p>
 
-          <p className='list-item__description'>{props.project.description}</p>
+          <MDEditor.Markdown
+            source={props.project.description}
+            previewOptions={{
+              rehypePlugins: [[rehypeSanitize]],
+            }}
+          />
 
           {!props.selected && !props.hidden ? (
             <div className='list-item__buttons'>

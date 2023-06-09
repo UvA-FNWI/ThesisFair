@@ -100,9 +100,13 @@ export default class GraphQLBuilder {
 
     let res = await this.executor(this.functionPath, this.genQuery(), this.genVariablesDict())
 
+    console.log('res', res)
+
     for (const key of this.functionPath.split('.')) {
       res = res[key]
     }
+
+    console.log('res post-for', res)
 
     if (res && this.cache) {
       if (this.cache.keys || this.cache.multiple) {

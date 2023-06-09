@@ -61,7 +61,7 @@ class Register extends React.Component {
             abbreviation: 'SE',
           },
         ],
-        description: 'This is a description',
+        description: '### This is a description',
       },
     },
     {
