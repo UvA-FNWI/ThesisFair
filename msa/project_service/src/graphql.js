@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Project } from './database.js';
 
-import { entityWriteAccess, projectWriteAccess } from './permissions';
+import { entityWriteAccess, projectWriteAccess } from './permissions.js';
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
 
@@ -120,7 +120,7 @@ schemaComposer.Mutation.addNestedFields({
       name: 'String!',
       description: 'String',
       datanoseLink: 'String',
-      external_id: 'Int!',
+      external_id: 'Int',
     },
     description: JSON.stringify({
       caching: { type: 'project', key: 'pid', create: true }

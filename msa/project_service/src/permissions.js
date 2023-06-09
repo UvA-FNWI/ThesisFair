@@ -1,5 +1,3 @@
-export const projectWriteAccess = entityWriteAccess;
-
 export const entityWriteAccess = (user, entity) => {
   switch (user.type) {
     case 'a':
@@ -17,3 +15,5 @@ export const entityWriteAccess = (user, entity) => {
       throw new Error('UNAUTHORIZED invalid user type');
   }
 }
+
+export const projectWriteAccess = entityWriteAccess;

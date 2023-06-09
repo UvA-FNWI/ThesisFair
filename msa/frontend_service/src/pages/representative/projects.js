@@ -7,7 +7,7 @@ import StudentPopup from '../../components/studentPopup/studentPopup';
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`;
 
-class Projects extends React.Component {
+class ProjectListing extends React.Component {
   constructor(props) {
     super(props);
 
@@ -63,6 +63,7 @@ class Projects extends React.Component {
                 <Accordion.Header>
                   <div className='d-flex justify-content-between w-100 me-2'>
                     <span>{project.name}</span>
+                    <ProjectEditorTrigger params={{...project, edit: this.props.params.edit}}/>
                     <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
                       <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); this.downloadAllCVs(project); }}><img src={downloadIcon} alt='download' /></Button>
                     </OverlayTrigger>
@@ -114,6 +115,103 @@ class Projects extends React.Component {
     );
   }
 }
+
+class ProjectEditor extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      // evid: this.props.params.evid,
+      name: "",
+      description: "",
+    };
+  }
+
+  async componentDidMount() {
+      console.log("BOOOOOOOOOOOO");
+    if (this.props.params.pid) {
+      console.log("AAAAAAAAAAAAAAA");
+      const project = await api.project.get(this.props.params.pid).exec();
+      this.setState({
+        name: project.name,
+        description: project.description,
+      });
+    }
+  }
+
+  submitChanges() {
+    // TODO: make an API call to write this new project to the database
+  }
+
+  render() {
+    return <p>Hi!</p>;
+  }
+}
+
+class ProjectEditorTrigger extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.buttonText = this.buttonText.bind(this)
+    this.onClick = this.onClick.bind(this)
+  }
+
+  buttonText() {
+    if (this.props.params.pid) {
+      return "Edit";
+    } else {
+      return "Create new project";
+    }
+  }
+
+  onClick(e) {
+    e.stopPropagation()
+    this.props.params.edit(this.props.params.pid)
+  }
+
+  render() {
+    if (this.props.params.pid != 'manuallyShared') {
+      return <Button size='sm' variant='outline-primary' onClick={this.onClick}>{this.buttonText()}</Button>;
+    }
+  }
+}
+
+class Projects extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      editor: null,
+    }
+
+    this.edit = this.edit.bind(this)
+  }
+
+  edit(pid) {
+    this.setState({
+      editor: <ProjectEditor params={{pid: pid, ...this.props.params}}/>
+    })
+  }
+
+  render() {
+    switch (this.state.editor) {
+      case null: 
+        return (
+          <div>
+            <ProjectListing params={{...this.props.params, edit: this.edit}}/>
+            <ProjectEditorTrigger params={{pid: null, edit: this.edit}}/>
+          </div>
+        );
+      default:
+        return (
+          <div>
+            {this.state.editor}
+          </div>
+        );
+      }
+  }
+}
+
 
 function ProjectsWithParams(props) {
   const params = useParams();
