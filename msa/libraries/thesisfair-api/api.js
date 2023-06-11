@@ -792,7 +792,7 @@ export default (url) => {
               name: { value: project.name, type: 'String!' },
               description: { value: project.description, type: 'String' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
-              external_id: { value: project.external_id, type: 'Int!' },
+              external_id: { value: project.external_id, type: 'Int' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', create: true } : false,
           }),
