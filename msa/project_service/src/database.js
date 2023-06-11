@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
-import debugLib from 'debug';
+import mongoose from 'mongoose'
+import debugLib from 'debug'
 
-const debug = debugLib('project_service:database');
-let conn;
+const debug = debugLib('project_service:database')
+let conn
 
 const projectSchema = new mongoose.Schema({
   enid: { type: mongoose.Schema.ObjectId, required: true },
@@ -12,20 +12,22 @@ const projectSchema = new mongoose.Schema({
   datanoseLink: { type: String },
   // external_id: { type: Number, index: true, unique: true, required: true },
   external_id: { type: Number },
-});
-projectSchema.virtual('pid').get(function () { return this._id; }); // Create _id alias
+})
+projectSchema.virtual('pid').get(function () {
+  return this._id
+}) // Create _id alias
 
-export let Project;
+export let Project
 
-export const connect = async (uri) => {
-  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/project_service';
-  conn = mongoose.createConnection(conStr);
-  debug(`Connected to database: ${conStr}`);
+export const connect = async uri => {
+  const conStr = uri || process.env.mongodbConStr || 'mongodb://mongodb/project_service'
+  conn = mongoose.createConnection(conStr)
+  debug(`Connected to database: ${conStr}`)
 
-  Project = conn.model('Project', projectSchema);
-  return conn;
+  Project = conn.model('Project', projectSchema)
+  return conn
 }
 
 export const disconnect = async () => {
-  await conn.close();
+  await conn.close()
 }

@@ -1,10 +1,10 @@
-import React from 'react';
-import { Modal, Spinner } from 'react-bootstrap';
-import api from '../../api';
+import React from 'react'
+import { Modal, Spinner } from 'react-bootstrap'
+import api from '../../api'
 
 class StudentPopup extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       cv: false,
@@ -12,22 +12,25 @@ class StudentPopup extends React.Component {
   }
 
   render() {
-    const { student } = this.props;
-    const { cv } = this.state;
+    const { student } = this.props
+    const { cv } = this.state
 
     if (this.state.cv === false) {
-      api.user.student.getCV(student.uid).exec().then((cv) => {
-        this.setState({ cv });
-      })
+      api.user.student
+        .getCV(student.uid)
+        .exec()
+        .then(cv => {
+          this.setState({ cv })
+        })
     }
 
     return (
       <Modal show={true} onHide={this.props.onHide} size='xl'>
-        <Modal.Header closeButton>
-          Student information
-        </Modal.Header>
+        <Modal.Header closeButton>Student information</Modal.Header>
         <Modal.Body>
-          <h1>{student.firstname} {student.lastname}</h1>
+          <h1>
+            {student.firstname} {student.lastname}
+          </h1>
 
           <div className='row'>
             <div className='col-12 col-sm-6 col-lg-4'>
@@ -39,32 +42,39 @@ class StudentPopup extends React.Component {
             <div className='col-12 col-sm-6 col-lg-4'>
               <h4 className='mt-4'>Links</h4>
               <ul>
-                {student.websites.map((website, i) => <li key={i}><a href={website} target='_blank' rel='noreferrer'>{website}</a></li>)}
+                {student.websites.map((website, i) => (
+                  <li key={i}>
+                    <a href={website} target='_blank' rel='noreferrer'>
+                      {website}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
             <div className='col-12 col-sm-6 col-lg-4'>
               <h4 className='mt-4'>Studies</h4>
               <ul>
-                {student.studies.map((study, i) => <li key={i}>{study}</li>)}
+                {student.studies.map((study, i) => (
+                  <li key={i}>{study}</li>
+                ))}
               </ul>
             </div>
           </div>
 
-
           <div className='mt-4'>
             <h4>CV</h4>
-            {cv ?
+            {cv ? (
               <embed style={{ width: '100%', minHeight: '95vh' }} src={cv} />
-              :
-              cv === false ?
-                <div style={{ width: '100%', minHeight: '95vh' }} className='d-flex justify-content-center align-items-center'>
-                  <Spinner animation="border" />
-                </div>
-                :
-                <h6>
-                  This student has not uploaded a CV.
-                </h6>
-            }
+            ) : cv === false ? (
+              <div
+                style={{ width: '100%', minHeight: '95vh' }}
+                className='d-flex justify-content-center align-items-center'
+              >
+                <Spinner animation='border' />
+              </div>
+            ) : (
+              <h6>This student has not uploaded a CV.</h6>
+            )}
           </div>
         </Modal.Body>
       </Modal>
@@ -72,4 +82,4 @@ class StudentPopup extends React.Component {
   }
 }
 
-export default StudentPopup;
+export default StudentPopup

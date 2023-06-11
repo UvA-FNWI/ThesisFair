@@ -1,70 +1,78 @@
-import { graphql } from 'graphql';
-import { schemaComposer } from 'graphql-compose';
-import { readFileSync } from 'fs';
+import { graphql } from 'graphql'
+import { schemaComposer } from 'graphql-compose'
+import { readFileSync } from 'fs'
 
-import { rgraphql } from '../../libraries/amqpmessaging/index.js';
-import { Project } from './database.js';
+import { rgraphql } from '../../libraries/amqpmessaging/index.js'
+import { Project } from './database.js'
 
-import { entityWriteAccess, projectWriteAccess } from './permissions.js';
+import { entityWriteAccess, projectWriteAccess } from './permissions.js'
 
-schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
+schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
 
-const evidExists = async (evid) => {
-  const res = await rgraphql('api-event', 'query checkEVID($evid: ID!) { event(evid: $evid) { evid } }', { evid });
+const evidExists = async evid => {
+  const res = await rgraphql('api-event', 'query checkEVID($evid: ID!) { event(evid: $evid) { evid } }', { evid })
 
   if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the evid is valid');
+    console.error(res)
+    throw new Error('An unkown error occured while checking if the evid is valid')
   }
 
   if (!res.data.event) {
-    return false;
+    return false
   }
 
-  return true;
-};
+  return true
+}
 
-const enidExists = async (enid) => {
-  const res = await rgraphql('api-entity', 'query checkENID($enid: ID!) { entity(enid: $enid) { enid } }', { enid });
+const enidExists = async enid => {
+  const res = await rgraphql('api-entity', 'query checkENID($enid: ID!) { entity(enid: $enid) { enid } }', { enid })
   if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the enid is valid');
+    console.error(res)
+    throw new Error('An unkown error occured while checking if the enid is valid')
   }
 
   if (!res.data.entity) {
-    return false;
+    return false
   }
 
-  return true;
+  return true
 }
 
-const getEvid = async (external_id) => {
-  const res = await rgraphql('api-event', 'query getEvid($external_id: ID) { eventByExtID(external_id: $external_id) { evid } }', { external_id });
+const getEvid = async external_id => {
+  const res = await rgraphql(
+    'api-event',
+    'query getEvid($external_id: ID) { eventByExtID(external_id: $external_id) { evid } }',
+    { external_id }
+  )
 
   if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the evid is valid');
+    console.error(res)
+    throw new Error('An unkown error occured while checking if the evid is valid')
   }
 
   if (!res.data.eventByExtID) {
-    return false;
+    return false
   }
 
-  return res.data.eventByExtID.evid;
-};
+  return res.data.eventByExtID.evid
+}
 
-const getEnid = async (external_id) => {
-  const res = await rgraphql('api-entity', 'query getEnid($external_id: ID) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
+const getEnid = async external_id => {
+  const res = await rgraphql(
+    'api-entity',
+    'query getEnid($external_id: ID) { entityByExtID(external_id: $external_id) { enid } }',
+    { external_id }
+  )
   if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the enid is valid');
+    console.error(res)
+    throw new Error('An unkown error occured while checking if the enid is valid')
   }
 
   if (!res.data.entityByExtID) {
-    return false;
+    return false
   }
 
-  return res.data.entityByExtID.enid;
+  return res.data.entityByExtID.enid
 }
 
 schemaComposer.Query.addNestedFields({
@@ -87,7 +95,7 @@ schemaComposer.Query.addNestedFields({
   projects: {
     type: '[Project!]',
     args: {
-      pids: '[ID!]!'
+      pids: '[ID!]!',
     },
     description: 'Get a list of projects using their project ids. Result is not in original order!',
     resolve: (obj, args) => Project.find({ _id: { $in: args.pids } }),
@@ -104,12 +112,12 @@ schemaComposer.Query.addNestedFields({
   projectsOfEvent: {
     type: '[Project!]',
     args: {
-      evid: 'ID!'
+      evid: 'ID!',
     },
     description: 'Get the projects available on an event.',
     resolve: (obj, args) => Project.find({ evids: args.evid }),
   },
-});
+})
 
 schemaComposer.Mutation.addNestedFields({
   'project.create': {
@@ -123,28 +131,25 @@ schemaComposer.Mutation.addNestedFields({
       external_id: 'Int',
     },
     description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', create: true }
+      caching: { type: 'project', key: 'pid', create: true },
     }),
     resolve: async (obj, args, req) => {
-      projectWriteAccess(req.user, args);
+      projectWriteAccess(req.user, args)
 
-      const res = await Promise.all([
-        evidExists(args.evid),
-        enidExists(args.enid),
-      ]);
+      const res = await Promise.all([evidExists(args.evid), enidExists(args.enid)])
 
       if (!res[0]) {
-        throw new Error('The given evid does not exist');
+        throw new Error('The given evid does not exist')
       }
 
       if (!res[1]) {
-        throw new Error('The given enid does not exist');
+        throw new Error('The given enid does not exist')
       }
 
-      args.evids = [args.evid];
+      args.evids = [args.evid]
 
-      return Project.create(args);
-    }
+      return Project.create(args)
+    },
   },
   'project.update': {
     type: 'Project',
@@ -157,22 +162,22 @@ schemaComposer.Mutation.addNestedFields({
       datanoseLink: 'String',
     },
     description: JSON.stringify({
-      caching: { type: 'project', key: 'pid', update: true }
+      caching: { type: 'project', key: 'pid', update: true },
     }),
     resolve: async (obj, args, req) => {
-      projectWriteAccess(req.user, args);
+      projectWriteAccess(req.user, args)
 
       if (args.evid && !(await evidExists(args.evid))) {
-        throw new Error('The given evid does not exist');
+        throw new Error('The given evid does not exist')
       }
 
       if (args.enid && !(await enidExists(args.enid))) {
-        throw new Error('The given enid does not exist');
+        throw new Error('The given enid does not exist')
       }
 
-      const pid = args.pid;
-      delete args.pid;
-      return Project.findByIdAndUpdate(pid, { $set: args }, { new: true });
+      const pid = args.pid
+      delete args.pid
+      return Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
     },
   },
   'project.delete': {
@@ -182,9 +187,9 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Delete a project.',
     resolve: (obj, args, req) => {
-      projectWriteAccess(req.user, args);
+      projectWriteAccess(req.user, args)
 
-      return Project.findByIdAndDelete(args.pid);
+      return Project.findByIdAndDelete(args.pid)
     },
   },
   'project.deleteOfEntity': {
@@ -194,10 +199,10 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Delete all projects of an entity.',
     resolve: async (obj, args, req) => {
-      entityWriteAccess(req.user, args);
+      entityWriteAccess(req.user, args)
 
-      await Project.deleteMany({ enid: args.enid });
-    }
+      await Project.deleteMany({ enid: args.enid })
+    },
   },
   'project.deleteOfEvent': {
     type: 'String',
@@ -206,10 +211,10 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Delete all projects of an event.',
     resolve: async (obj, args, req) => {
-      entityWriteAccess(req.user, args);
+      entityWriteAccess(req.user, args)
 
-      await Project.updateMany({ $pull: { evids: args.evid} });
-    }
+      await Project.updateMany({ $pull: { evids: args.evid } })
+    },
   },
   'project.import': {
     type: '[ProjectImportResult!]!',
@@ -255,68 +260,77 @@ Example payload:
     `,
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || req.user.type === 'service')) {
-        throw new Error('UNAUTHORIZED import projects');
+        throw new Error('UNAUTHORIZED import projects')
       }
 
       return Promise.all(
-        args.projects.map(async ({ ID: external_id, entityID: external_enid, name, description, datanoseLink, enabled, evids: external_evids }) => {
-          const evids = external_evids ? await Promise.all(external_evids.map(getEvid)) : [];
-          for (let i = 0; i < evids.length; i++) {
-            if (!evids[i]) {
-              return { error: `Event with ID "${external_evids[i]}" could not be found!.` };
-            }
-          }
-
-          const project = await Project.findOne({ external_id: external_id });
-          if (project) {
-            if (enabled) { // Update project
-              if (name)
-                project.name = name;
-              if (description)
-                project.description = description;
-              if (datanoseLink)
-                project.datanoseLink = datanoseLink;
-              if (evids)
-                project.evids = evids;
-
-              await project.save();
-              return {
-                object: project,
-              };
+        args.projects.map(
+          async ({
+            ID: external_id,
+            entityID: external_enid,
+            name,
+            description,
+            datanoseLink,
+            enabled,
+            evids: external_evids,
+          }) => {
+            const evids = external_evids ? await Promise.all(external_evids.map(getEvid)) : []
+            for (let i = 0; i < evids.length; i++) {
+              if (!evids[i]) {
+                return { error: `Event with ID "${external_evids[i]}" could not be found!.` }
+              }
             }
 
-            // Delete project
-            await Project.deleteOne({ external_id: external_id });
-            return {};
-          }
+            const project = await Project.findOne({ external_id: external_id })
+            if (project) {
+              if (enabled) {
+                // Update project
+                if (name) project.name = name
+                if (description) project.description = description
+                if (datanoseLink) project.datanoseLink = datanoseLink
+                if (evids) project.evids = evids
 
-          if (!enabled) { // Project already deleted
-            return {};
-          }
+                await project.save()
+                return {
+                  object: project,
+                }
+              }
 
-          const enid = await getEnid(external_enid);
-          if (!enid) {
-            return { error: `Entity with ID ${external_enid} could not be found!` };
-          }
+              // Delete project
+              await Project.deleteOne({ external_id: external_id })
+              return {}
+            }
 
-          // Create project
-          return {
-            project: await Project.create({
-              evids,
-              enid,
-              name: name,
-              description,
-              datanoseLink,
-              external_id,
-            }),
+            if (!enabled) {
+              // Project already deleted
+              return {}
+            }
+
+            const enid = await getEnid(external_enid)
+            if (!enid) {
+              return { error: `Entity with ID ${external_enid} could not be found!` }
+            }
+
+            // Create project
+            return {
+              project: await Project.create({
+                evids,
+                enid,
+                name: name,
+                description,
+                datanoseLink,
+                external_id,
+              }),
+            }
           }
-        })
+        )
       )
-    }
-  }
-});
+    },
+  },
+})
 
-const schema = schemaComposer.buildSchema();
+const schema = schemaComposer.buildSchema()
 
-const executeGraphql = ({ query, variables = {}, context = {} }) => graphql({ schema, source: query, variableValues: variables, contextValue: context });
-export default executeGraphql;
+const executeGraphql = ({ query, variables = {}, context = {} }) =>
+  graphql({ schema, source: query, variableValues: variables, contextValue: context })
+export default executeGraphql

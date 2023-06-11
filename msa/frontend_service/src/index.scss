@@ -1,12 +1,12 @@
 $theme-colors: (
-  "primary": #BC0031,
-  "gray": #ced4da,
-  "white": #ffffff,
-  "light": #f8f9fa,
-  "dark":#212529,
+  'primary': #bc0031,
+  'gray': #ced4da,
+  'white': #ffffff,
+  'light': #f8f9fa,
+  'dark': #212529,
 );
 
-@import "~bootstrap/scss/bootstrap";
+@import '~bootstrap/scss/bootstrap';
 
 .hoverable:hover {
   box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;

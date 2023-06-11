@@ -1,60 +1,70 @@
-import { graphql } from 'graphql';
-import { schemaComposer } from 'graphql-compose';
-import { readFileSync, mkdirSync, existsSync, constants } from 'fs';
-import { writeFile, readFile, access } from 'fs/promises';
+import { graphql } from 'graphql'
+import { schemaComposer } from 'graphql-compose'
+import { readFileSync, mkdirSync, existsSync, constants } from 'fs'
+import { writeFile, readFile, access } from 'fs/promises'
 
-import { rgraphql } from '../../libraries/amqpmessaging/index.js';
-import { Event } from './database.js';
-import { canGetEvent, canGetEvents } from './permissions.js';
+import { rgraphql } from '../../libraries/amqpmessaging/index.js'
+import { Event } from './database.js'
+import { canGetEvent, canGetEvents } from './permissions.js'
 
 const imageTypes = ['student', 'rep']
 
-const checkEntitiesExist = async (entities) => {
-  const res = await rgraphql('api-entity', 'query($enids: [ID!]!){entities(enids:$enids){enid}}', { enids: entities });
+const checkEntitiesExist = async entities => {
+  const res = await rgraphql('api-entity', 'query($enids: [ID!]!){entities(enids:$enids){enid}}', { enids: entities })
   if (res.errors) {
-    console.error('Checking entities failed', res.errors);
-    throw new Error('Unexpected error occured while checking if entities exist');
+    console.error('Checking entities failed', res.errors)
+    throw new Error('Unexpected error occured while checking if entities exist')
   }
 
-  const enids = res.data.entities.map((entity) => entity ? entity.enid : null);
+  const enids = res.data.entities.map(entity => (entity ? entity.enid : null))
   for (const enid of entities) {
     if (!enids.includes(enid)) {
-      throw new Error(`Entity ${enid} does not exist!`);
+      throw new Error(`Entity ${enid} does not exist!`)
     }
   }
 }
 
-const getEnid = async (external_id) => {
-  const res = await rgraphql('api-entity', 'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
+const getEnid = async external_id => {
+  const res = await rgraphql(
+    'api-entity',
+    'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }',
+    { external_id }
+  )
   if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the enid is valid');
+    console.error(res)
+    throw new Error('An unkown error occured while checking if the enid is valid')
   }
 
   if (!res.data.entityByExtID) {
-    return false;
+    return false
   }
 
-  return res.data.entityByExtID.enid;
+  return res.data.entityByExtID.enid
 }
 
-const deleteEvent = async (evid) => {
+const deleteEvent = async evid => {
   const calls = await Promise.all([
-    rgraphql('api-project', 'mutation deleteLinkedProjects($evid: ID!) { project { deleteOfEvent(evid: $evid) } }', { evid: evid }),
-    rgraphql('api-schedule', 'mutation deleteLinkedSchedules($evid: ID!) { schedule { deleteOfEvent(evid: $evid) } }', { evid: evid }),
-    rgraphql('api-vote', 'mutation deleteLinkedVotes($evid: ID!) { vote { deleteOfEvent(evid: $evid) } }', { evid: evid }),
-  ]);
+    rgraphql('api-project', 'mutation deleteLinkedProjects($evid: ID!) { project { deleteOfEvent(evid: $evid) } }', {
+      evid: evid,
+    }),
+    rgraphql('api-schedule', 'mutation deleteLinkedSchedules($evid: ID!) { schedule { deleteOfEvent(evid: $evid) } }', {
+      evid: evid,
+    }),
+    rgraphql('api-vote', 'mutation deleteLinkedVotes($evid: ID!) { vote { deleteOfEvent(evid: $evid) } }', {
+      evid: evid,
+    }),
+  ])
   for (const call of calls) {
     if (call.errors) {
-      console.error('Deleting linked objects failed', call.errors);
-      throw new Error('Deleting all linked objects failed');
+      console.error('Deleting linked objects failed', call.errors)
+      throw new Error('Deleting all linked objects failed')
     }
   }
 
-  return Event.findByIdAndDelete(evid);
+  return Event.findByIdAndDelete(evid)
 }
 
-schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
+schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
 
 schemaComposer.Query.addNestedFields({
   event: {
@@ -64,10 +74,12 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get an event by evid.',
     resolve: async (obj, args, req) => {
-      const event = await Event.findById(args.evid);
-      if (!event) { return null; }
-      canGetEvent(req, args, event);
-      return event;
+      const event = await Event.findById(args.evid)
+      if (!event) {
+        return null
+      }
+      canGetEvent(req, args, event)
+      return event
     },
   },
   eventByExtID: {
@@ -77,10 +89,12 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get an event using the external identifier.',
     resolve: async (obj, args, req) => {
-      const event = await Event.findOne({ external_id: args.external_id });
-      if (!event) { return null; }
-      canGetEvent(req, args, event);
-      return event;
+      const event = await Event.findOne({ external_id: args.external_id })
+      if (!event) {
+        return null
+      }
+      canGetEvent(req, args, event)
+      return event
     },
   },
   eventImage: {
@@ -92,18 +106,18 @@ schemaComposer.Query.addNestedFields({
     description: 'Get the event image for the student or rep.',
     resolve: async (obj, args, req) => {
       if (!imageTypes.includes(args.type)) {
-        throw new Error('Invalid image type. Options are: ' + imageTypes.join(','));
+        throw new Error('Invalid image type. Options are: ' + imageTypes.join(','))
       }
 
-      const file = `./data/${args.evid}-${args.type}`;
+      const file = `./data/${args.evid}-${args.type}`
       try {
-        await access(file, constants.R_OK);
+        await access(file, constants.R_OK)
       } catch (error) {
-        return null;
+        return null
       }
 
-      return readFile(file).then((content) => content.toString());
-    }
+      return readFile(file).then(content => content.toString())
+    },
   },
   events: {
     type: '[Event!]',
@@ -112,11 +126,11 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get all visible events or get all events.',
     resolve: (obj, args, req) => {
-      canGetEvents(req, args);
+      canGetEvents(req, args)
 
-      const filter = {};
+      const filter = {}
       if (!args.all) {
-        filter.enabled = true;
+        filter.enabled = true
       }
       if (req.user.type === 'r') {
         filter.entities = {
@@ -124,10 +138,10 @@ schemaComposer.Query.addNestedFields({
         }
       }
 
-      return Event.find(filter);
+      return Event.find(filter)
     },
   },
-});
+})
 
 schemaComposer.Mutation.addNestedFields({
   'event.create': {
@@ -145,14 +159,14 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Create new event.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED create a new event');
+        throw new Error('UNAUTHORIZED create a new event')
       }
 
       if (args.entities) {
-        await checkEntitiesExist(args.entities);
+        await checkEntitiesExist(args.entities)
       }
 
-      return Event.create(args);
+      return Event.create(args)
     },
   },
   'event.update': {
@@ -171,16 +185,16 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Update an event.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED update an event');
+        throw new Error('UNAUTHORIZED update an event')
       }
 
       if (args.entities) {
-        await checkEntitiesExist(args.entities);
+        await checkEntitiesExist(args.entities)
       }
 
-      const evid = args.evid;
-      delete args.evid;
-      return Event.findByIdAndUpdate(evid, { $set: args }, { new: true });
+      const evid = args.evid
+      delete args.evid
+      return Event.findByIdAndUpdate(evid, { $set: args }, { new: true })
     },
   },
   'event.updateImage': {
@@ -193,19 +207,19 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Update the event image.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED update an event');
+        throw new Error('UNAUTHORIZED update an event')
       }
 
       if (!imageTypes.includes(args.type)) {
-        throw new Error('Invalid image type. Options are: ' + imageTypes.join(','));
+        throw new Error('Invalid image type. Options are: ' + imageTypes.join(','))
       }
 
-      const event = Event.findById(args.evid);
+      const event = Event.findById(args.evid)
       if (!event) {
-        throw new Error('event does not exist');
+        throw new Error('event does not exist')
       }
 
-      await writeFile(`./data/${args.evid}-${args.type}`, args.image);
+      await writeFile(`./data/${args.evid}-${args.type}`, args.image)
     },
   },
   'event.delete': {
@@ -216,10 +230,10 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Delete an event.',
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED create delete an event');
+        throw new Error('UNAUTHORIZED create delete an event')
       }
 
-      return deleteEvent(args.evid);
+      return deleteEvent(args.evid)
     },
   },
   'event.removeEntity': {
@@ -230,10 +244,10 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Remove the given entity id from all events.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED remove an entity from events');
+        throw new Error('UNAUTHORIZED remove an entity from events')
       }
 
-      await Event.updateMany({ $pull: { entities: args.enid } });
+      await Event.updateMany({ $pull: { entities: args.enid } })
     },
   },
 
@@ -246,19 +260,19 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Add an entity to an event.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED add an entity to an event');
+        throw new Error('UNAUTHORIZED add an entity to an event')
       }
 
-      const res = await rgraphql('api-entity', 'query($enid:ID!) { entity(enid:$enid) { enid } } ', { enid: args.enid });
+      const res = await rgraphql('api-entity', 'query($enid:ID!) { entity(enid:$enid) { enid } } ', { enid: args.enid })
       if (res.errors) {
-        console.error('Checking entity failed:', res.errors);
-        throw new Error('Unexpected error while checking if entity exists');
+        console.error('Checking entity failed:', res.errors)
+        throw new Error('Unexpected error while checking if entity exists')
       }
       if (!res.data.entity) {
-        throw new Error('Could not find an entity with that enid');
+        throw new Error('Could not find an entity with that enid')
       }
 
-      return Event.findByIdAndUpdate(args.evid, { $push: { entities: args.enid } }, { new: true });
+      return Event.findByIdAndUpdate(args.evid, { $push: { entities: args.enid } }, { new: true })
     },
   },
   'event.entity.del': {
@@ -270,10 +284,10 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Remove an entity from an event.',
     resolve: (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED delete an entity from an event');
+        throw new Error('UNAUTHORIZED delete an entity from an event')
       }
 
-      return Event.findByIdAndUpdate(args.evid, { $pull: { entities: args.enid } }, { new: true });
+      return Event.findByIdAndUpdate(args.evid, { $pull: { entities: args.enid } }, { new: true })
     },
   },
   'event.import': {
@@ -320,69 +334,69 @@ The EventImport type has the following fields:
     `,
     resolve: (obj, args, req) => {
       if (!(req.user.type === 'a' || req.user.type === 'service')) {
-        throw new Error('UNAUTHORIZED import events');
+        throw new Error('UNAUTHORIZED import events')
       }
 
       return Promise.all(
-        args.events.map(async ({ ID: external_id, enabled, name, description, start, location, entities: external_enids }) => {
-          const entities = external_enids ? await Promise.all(external_enids.map(getEnid)) : null;
-          for (let i = 0; i < entities.length; i++) {
-            if (!entities[i]) {
-              return { error: `Entity with ID "${external_enids[i]}" could not be found!.` };
-            }
-          }
-
-          const event = await Event.findOne({ external_id: external_id });
-          if (event) {
-            if (enabled) { // Update project
-              if (name)
-                event.name = name;
-              if (description)
-                event.description = description;
-              if (start)
-                event.start = start;
-              if (location)
-                event.location = location;
-              if (entities)
-                event.entities = entities;
-
-              await event.save();
-              return {
-                object: event,
-              };
+        args.events.map(
+          async ({ ID: external_id, enabled, name, description, start, location, entities: external_enids }) => {
+            const entities = external_enids ? await Promise.all(external_enids.map(getEnid)) : null
+            for (let i = 0; i < entities.length; i++) {
+              if (!entities[i]) {
+                return { error: `Entity with ID "${external_enids[i]}" could not be found!.` }
+              }
             }
 
-            // Delete project
-            await Event.deleteOne({ external_id: external_id });
-            return {};
-          }
+            const event = await Event.findOne({ external_id: external_id })
+            if (event) {
+              if (enabled) {
+                // Update project
+                if (name) event.name = name
+                if (description) event.description = description
+                if (start) event.start = start
+                if (location) event.location = location
+                if (entities) event.entities = entities
 
-          if (!enabled) { // Project already deleted
-            return {};
-          }
+                await event.save()
+                return {
+                  object: event,
+                }
+              }
 
-          return {
-            event: await Event.create({
-              enabled: true,
-              name,
-              description,
-              start,
-              location,
-              entities,
-              external_id,
-            })
+              // Delete project
+              await Event.deleteOne({ external_id: external_id })
+              return {}
+            }
+
+            if (!enabled) {
+              // Project already deleted
+              return {}
+            }
+
+            return {
+              event: await Event.create({
+                enabled: true,
+                name,
+                description,
+                start,
+                location,
+                entities,
+                external_id,
+              }),
+            }
           }
-        })
+        )
       )
     },
-  }
+  },
 })
 
 if (!existsSync('./data')) {
-  mkdirSync('./data');
+  mkdirSync('./data')
 }
 
-const schema = schemaComposer.buildSchema();
+const schema = schemaComposer.buildSchema()
 
-const executeGraphql = ({ query, variables = {}, context = {} }) => graphql({ schema, source: query, variableValues: variables, contextValue: context });
-export default executeGraphql;
+const executeGraphql = ({ query, variables = {}, context = {} }) =>
+  graphql({ schema, source: query, variableValues: variables, contextValue: context })
+export default executeGraphql

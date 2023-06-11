@@ -1,16 +1,17 @@
-import { graphqlHTTP } from 'express-graphql';
-import { print } from 'graphql';
-import { introspectSchema } from '@graphql-tools/wrap';
-import { stitchSchemas } from '@graphql-tools/stitch';
-import debugLib from 'debug';
+import { graphqlHTTP } from 'express-graphql'
+import { print } from 'graphql'
+import { introspectSchema } from '@graphql-tools/wrap'
+import { stitchSchemas } from '@graphql-tools/stitch'
+import debugLib from 'debug'
 
-import { channel, rgraphql } from '../../libraries/amqpmessaging/index.js';
-import { graphqlConfig } from './config.js';
-import errors from './errors.js';
+import { channel, rgraphql } from '../../libraries/amqpmessaging/index.js'
+import { graphqlConfig } from './config.js'
+import errors from './errors.js'
 
-const debug = debugLib('API_gateway:graphql');
+const debug = debugLib('API_gateway:graphql')
 
-const executor = (queue, { document, variables, context }) => rgraphql(queue, print(document), variables, context ? { user: context.user } : {});
+const executor = (queue, { document, variables, context }) =>
+  rgraphql(queue, print(document), variables, context ? { user: context.user } : {})
 
 /**
  * Assert all configured messaging queues and introspect the schema of the queues
@@ -18,42 +19,42 @@ const executor = (queue, { document, variables, context }) => rgraphql(queue, pr
  * @returns ExpressJS middleware
  */
 const getMiddleware = async () => {
-    const subschemas = [];
-    for (const queue of graphqlConfig.queues) {
-        debug('Loading queue %s', queue);
-        if (channel) {
-          await channel.assertQueue(queue, {
-              durable: false,
-          });
-        }
-
-        const subexecutor = (args) => executor(queue, args);
-        subschemas.push({
-            schema: await introspectSchema(subexecutor),
-            executor: subexecutor,
-        });
+  const subschemas = []
+  for (const queue of graphqlConfig.queues) {
+    debug('Loading queue %s', queue)
+    if (channel) {
+      await channel.assertQueue(queue, {
+        durable: false,
+      })
     }
 
-    const schema = stitchSchemas({
-        subschemas
-    });
+    const subexecutor = args => executor(queue, args)
+    subschemas.push({
+      schema: await introspectSchema(subexecutor),
+      executor: subexecutor,
+    })
+  }
 
-    debug('Done initializing graphql middleware');
-    return graphqlHTTP({
-        schema,
-        graphiql: !!process.env.DEBUG,
-        customFormatErrorFn: (err) => {
-          if (!process.env.DEBUG && err.message) {
-            const split = err.message.split(' ');
-            if (split.length > 0 && errors[split[0]]) {
-              const error = errors[split[0]];
-              err.message = error.message + err.message.substring(split[0].length + 1);
-            }
-          }
+  const schema = stitchSchemas({
+    subschemas,
+  })
 
-          return err;
+  debug('Done initializing graphql middleware')
+  return graphqlHTTP({
+    schema,
+    graphiql: !!process.env.DEBUG,
+    customFormatErrorFn: err => {
+      if (!process.env.DEBUG && err.message) {
+        const split = err.message.split(' ')
+        if (split.length > 0 && errors[split[0]]) {
+          const error = errors[split[0]]
+          err.message = error.message + err.message.substring(split[0].length + 1)
         }
-    });
+      }
+
+      return err
+    },
+  })
 }
 
-export default getMiddleware;
+export default getMiddleware

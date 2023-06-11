@@ -1,40 +1,41 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
-import EntitiesProjects from '../../components/entitiesProjects/entitiesProjects';
-import api from '../../api';
-
+import React from 'react'
+import { useParams } from 'react-router-dom'
+import { Container } from 'react-bootstrap'
+import EntitiesProjects from '../../components/entitiesProjects/entitiesProjects'
+import api from '../../api'
 
 class EventProjects extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       event: {},
       entities: [],
       projects: [],
-    };
+    }
   }
 
   async componentDidMount() {
-    const event = await api.event.get(this.props.params.evid, { entities: true }).exec();
-    const entities = await api.entity.getMultiple(event.entities).exec();
-    this.setState({ entities });
+    const event = await api.event.get(this.props.params.evid, { entities: true }).exec()
+    const entities = await api.entity.getMultiple(event.entities).exec()
+    this.setState({ entities })
 
-    const projects = {};
+    const projects = {}
     for (const { enid } of entities) {
-      projects[enid] = await api.project.getOfEntity(this.props.params.evid, enid).exec();
+      projects[enid] = await api.project.getOfEntity(this.props.params.evid, enid).exec()
     }
 
-    this.setState({ projects });
+    this.setState({ projects })
   }
 
   setEnabled = async (evid, enabled) => {
-    if (this.state.saving) { return; }
+    if (this.state.saving) {
+      return
+    }
 
-    this.setState({ saving: true });
-    await api.event.update({ evid, enabled: !enabled }).exec();
-    this.setState({ saving: false });
+    this.setState({ saving: true })
+    await api.event.update({ evid, enabled: !enabled }).exec()
+    this.setState({ saving: false })
   }
 
   render() {
@@ -43,16 +44,16 @@ class EventProjects extends React.Component {
         <h1>{this.state.event.name}</h1>
         <p>{this.state.event.description}</p>
 
-        <EntitiesProjects entities={this.state.entities} projects={this.state.projects}  />
+        <EntitiesProjects entities={this.state.entities} projects={this.state.projects} />
       </Container>
-    );
+    )
   }
 }
 
 function EventProjectsWithParams(props) {
-  const params = useParams();
+  const params = useParams()
 
   return <EventProjects {...props} params={params} />
 }
 
-export default EventProjectsWithParams;
+export default EventProjectsWithParams

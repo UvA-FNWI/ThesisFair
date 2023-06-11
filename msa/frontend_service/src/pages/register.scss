@@ -1,0 +1,30 @@
+.page {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  width: 100%;
+  padding: 1rem;
+
+  &__list {
+    &--left {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 50%;
+      padding: 1rem;
+    }
+
+    &--hidden {
+      margin-top: 1rem;
+      max-height: 10rem;
+    }
+
+    &--right {
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      width: 50%;
+      padding: 1rem;
+    }
+  }
+}

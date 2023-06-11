@@ -4,19 +4,19 @@
 export const entityWriteAccess = (user, entity) => {
   switch (user.type) {
     case 'a':
-      return true;
+      return true
 
     case 'r':
-      if (user.enid === entity.enid) return true;
+      if (user.enid === entity.enid) return true
 
-      throw new Error('UNAUTHORIZED representative has no access to entity');
+      throw new Error('UNAUTHORIZED representative has no access to entity')
 
     case 's':
-      throw new Error('UNAUTHORIZED students cannot create/edit a project');
+      throw new Error('UNAUTHORIZED students cannot create/edit a project')
 
     default:
-      throw new Error('UNAUTHORIZED invalid user type');
+      throw new Error('UNAUTHORIZED invalid user type')
   }
 }
 
-export const projectWriteAccess = entityWriteAccess;
+export const projectWriteAccess = entityWriteAccess
