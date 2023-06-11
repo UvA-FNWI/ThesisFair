@@ -147,27 +147,29 @@ class ProjectEditor extends React.Component {
 
     const formData = Object.fromEntries(new FormData(e.target).entries());
 
-    console.log({
-        enid: api.getApiTokenData().enid,
-        pid: this.props.params.pid,
-        name: formData.name,
-        description: formData.description,
-      });
+    // TODO: handle errors and show to user
     if (this.props.params.pid) {
-      return await api.project.update({
+      await api.project.update({
         enid: api.getApiTokenData().enid,
         pid: this.props.params.pid,
         name: formData.name,
         description: formData.description,
       }).exec();
+    } else {
+      await api.project.create({
+        enid: api.getApiTokenData().enid,
+        evid: this.props.params.evid,
+        name: formData.name,
+        description: formData.description,
+      }).exec();
     }
 
-    return await api.project.create({
-      enid: api.getApiTokenData().enid,
-      evid: this.props.params.evid,
-      name: formData.name,
-      description: formData.description,
-    }).exec();
+    this.props.params.close();
+  }
+
+  cancel(e) {
+    e.preventDefault()
+    this.props.params.close();
   }
 
   render() {
@@ -199,6 +201,10 @@ class ProjectEditor extends React.Component {
 
       <Button variant="secondary" type="cancel">
         Cancel
+      </Button>
+
+      <Button variant="secondary" type="cancel">
+        Delete project
       </Button>
     </Form>;
   }
@@ -240,13 +246,20 @@ class Projects extends React.Component {
       editor: null,
     }
 
-    this.edit = this.edit.bind(this)
+    this.edit = this.edit.bind(this);
+    this.close = this.close.bind(this);
   }
 
   edit(pid) {
     this.setState({
-      editor: <ProjectEditor params={{pid: pid, ...this.props.params}}/>
-    })
+      editor: <ProjectEditor params={{pid: pid, ...this.props.params, submit: this.close}}/>
+    });
+  }
+
+  close() {
+    this.setState({
+      editor: null,
+    });
   }
 
   render() {
