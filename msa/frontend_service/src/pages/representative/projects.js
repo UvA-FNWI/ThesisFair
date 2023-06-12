@@ -319,9 +319,11 @@ class ProjectEditor extends React.Component {
             Cancel
           </Button>
           
-          <Button variant='secondary' type='cancel' data-submit-type='delete'>
-            Delete project
-          </Button>
+          {this.props.params.pid &&
+            <Button variant='secondary' type='cancel' data-submit-type='delete'>
+              Delete project
+            </Button>
+          }
         </Form>
       </Container>
     )
