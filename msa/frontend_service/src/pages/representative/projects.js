@@ -5,7 +5,7 @@ import rehypeSanitize from 'rehype-sanitize'
 import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip, Form, Row, Col } from 'react-bootstrap'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
-import api, { downloadCV } from '../../api'
+import api, { downloadCV, degrees } from '../../api'
 import StudentPopup from '../../components/studentPopup/studentPopup'
 
 import './projects.scss'
@@ -167,7 +167,7 @@ class ProjectListing extends React.Component {
 
 class ProjectEditor extends React.Component {
   // TODO: have a controlled input rather than uncontrolled (i.e. update state
-  // as form is edited)
+  // as form is edited) for name
   constructor(props) {
     super(props)
 
@@ -175,9 +175,11 @@ class ProjectEditor extends React.Component {
       evid: this.props.params.evid,
       name: '',
       description: '',
+      degrees: [],
     }
 
     this.submit = this.submit.bind(this)
+    this.handleMasterCheck = this.handleMasterCheck.bind(this)
   }
 
   async componentDidMount() {
@@ -186,7 +188,8 @@ class ProjectEditor extends React.Component {
       this.setState({
         name: project.name,
         description: project.description,
-      })
+        degrees: project.degrees,
+      });
     }
   }
 
@@ -200,11 +203,9 @@ class ProjectEditor extends React.Component {
 
     switch (submitType) {
       case 'submit':
-        await this.updateProject(e)
-        break
+        return await this.updateProject(e)
       case 'cancel':
-        this.cancel(e)
-        break
+        return this.cancel(e)
       case 'delete':
         // TODO: Delete project
         // this.delete(e)
@@ -217,8 +218,6 @@ class ProjectEditor extends React.Component {
   async updateProject(e) {
     const formData = Object.fromEntries(new FormData(e.target).entries())
 
-    console.log(formData)
-
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
       await api.project
@@ -226,7 +225,8 @@ class ProjectEditor extends React.Component {
           enid: api.getApiTokenData().enid,
           pid: this.props.params.pid,
           name: formData.name,
-          description: formData.description,
+          description: this.state.description,
+          degrees: this.state.degrees,
         })
         .exec()
     } else {
@@ -235,7 +235,8 @@ class ProjectEditor extends React.Component {
           enid: api.getApiTokenData().enid,
           evid: this.props.params.evid,
           name: formData.name,
-          description: formData.description,
+          description: this.state.description,
+          degrees: this.state.degrees,
         })
         .exec()
     }
@@ -248,12 +249,19 @@ class ProjectEditor extends React.Component {
     this.props.params.close()
   }
 
-  // TODO: put tags in library, with database info, and import from there
-  tags = [
-    'AI',
-    'SE',
-    'CS',
-  ]
+  handleMasterCheck(e) {
+    const degree = e.target.attributes.name.value
+
+    if (e.target.checked) {
+        this.setState({
+          degrees: [...this.state.degrees, degree]
+        })
+    } else {
+        this.setState({
+          degrees: this.state.degrees.filter(item => item !== degree)
+        })
+    }
+  }
 
   render() {
     // TODO: master tags should be greyed out when clicked, no checkboxes -
@@ -276,14 +284,14 @@ class ProjectEditor extends React.Component {
             </Col>
 
             <Col xs='auto'>
-              <Form.Group as={Col} controlId='tags'>
+              <Form.Group as={Col} controlId='degrees'>
                 <Form.Label>Applicable masters</Form.Label>
                 <div className='mt-2 list-item__tags'>
-                  {this.tags.map(tag => (
-                    <Form.Check inline>
-                      <Form.Check.Input name={'tags.' + tag} key={tag}/>
+                  {Object.entries(degrees).map(([degree, fullname]) => (
+                    <Form.Check inline title={fullname} key={degree}>
+                      <Form.Check.Input name={degree} checked={this.state.degrees.includes(degree)} onChange={this.handleMasterCheck}/>
                       <Form.Check.Label className='list-item__tag'>
-                        <p>{tag.toString()}</p>
+                        <p>{degree}</p>
                       </Form.Check.Label>
                     </Form.Check>
                   ))}

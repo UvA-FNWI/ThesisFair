@@ -9,8 +9,8 @@ const projectSchema = new mongoose.Schema({
   evids: [{ type: mongoose.Schema.ObjectId }],
   name: { type: String },
   description: { type: String },
+  degrees: [{ type: String }],
   datanoseLink: { type: String },
-  // external_id: { type: Number, index: true, unique: true, required: true },
   external_id: { type: Number },
 })
 projectSchema.virtual('pid').get(function () {

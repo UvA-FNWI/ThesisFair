@@ -1,3 +1,10 @@
+enum Degree {
+  AI
+  CPS
+  CS
+  SE
+}
+
 input ProjectImport {
   ID: ID!
   entityID: ID!
@@ -13,6 +20,7 @@ type Project {
   enid: ID!
   evids: [ID!]
   name: String!
+  degrees: [Degree]
   description: String
   datanoseLink: String
   external_id: Int

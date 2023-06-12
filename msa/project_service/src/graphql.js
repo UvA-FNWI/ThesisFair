@@ -127,6 +127,7 @@ schemaComposer.Mutation.addNestedFields({
       evid: 'ID!',
       name: 'String!',
       description: 'String',
+      degrees: '[Degree]',
       datanoseLink: 'String',
       external_id: 'Int',
     },
@@ -159,6 +160,7 @@ schemaComposer.Mutation.addNestedFields({
       evid: 'ID',
       name: 'String',
       description: 'String',
+      degrees: '[Degree]',
       datanoseLink: 'String',
     },
     description: JSON.stringify({
@@ -217,6 +219,7 @@ schemaComposer.Mutation.addNestedFields({
     },
   },
   'project.import': {
+    // TODO: also import degree tags from DataNose
     type: '[ProjectImportResult!]!',
     args: {
       projects: '[ProjectImport!]!',

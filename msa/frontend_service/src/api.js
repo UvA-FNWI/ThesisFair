@@ -50,3 +50,10 @@ export const getFileContent = (text = false) => {
     input.click()
   })
 }
+
+export const degrees = {
+  'AI': 'MSc Artificial Intelligence',
+  'CPS': 'MSc Computational Science',
+  'CS': 'MSc Computer Science',
+  'SE': 'MSc Software Engineering',
+}
