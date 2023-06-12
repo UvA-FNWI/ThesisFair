@@ -1,8 +1,8 @@
 import { Project } from './database.js'
 
 export function entityWriteAccess(user, entity) {
-  if (entity == null) {
-    throw new Error('BAD REQUEST invalid entity or project ID')
+  if (entity == null || entity.enid == null) {
+    throw new Error('BAD REQUEST missing entity ID')
   }
 
   switch (user.type) {
@@ -24,7 +24,13 @@ export function entityWriteAccess(user, entity) {
 
 export async function projectWriteAccess(user, project) {
   if (project.pid) {
-    project = await Project.findById(project.pid)
+    project = await Project.findById(project.pid).exec()
+  } else if (project.enid == null) {
+    throw new Error('BAD REQUEST missing entity ID')
+  }
+
+  if (project == null || project.enid == null) {
+    throw new Error('BAD REQUEST invalid project ID')
   }
 
   return entityWriteAccess(user, project)

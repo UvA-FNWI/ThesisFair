@@ -207,9 +207,7 @@ class ProjectEditor extends React.Component {
       case 'cancel':
         return this.cancel(e)
       case 'delete':
-        // TODO: Delete project
-        // this.delete(e)
-        break
+        return this.deleteProject(e)
       default:
         throw new Error(`Unknown submit type: ${submitType}`)
     }
@@ -241,6 +239,11 @@ class ProjectEditor extends React.Component {
         .exec()
     }
 
+    this.props.params.close()
+  }
+
+  async deleteProject(_e) {
+    await api.project.delete(this.props.params.pid).exec()
     this.props.params.close()
   }
 
