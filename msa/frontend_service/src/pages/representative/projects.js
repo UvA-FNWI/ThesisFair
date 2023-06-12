@@ -2,13 +2,14 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip, Form } from 'react-bootstrap'
+import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip, Form, Row, Col } from 'react-bootstrap'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
 import api, { downloadCV } from '../../api'
 import StudentPopup from '../../components/studentPopup/studentPopup'
 
 import './projects.scss'
+import '../../components/projectListItem/projectListItem.scss'
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
@@ -199,7 +200,7 @@ class ProjectEditor extends React.Component {
 
     switch (submitType) {
       case 'submit':
-        await this.createProject(e)
+        await this.updateProject(e)
         break
       case 'cancel':
         this.cancel(e)
@@ -213,8 +214,10 @@ class ProjectEditor extends React.Component {
     }
   }
 
-  async createProject(e) {
+  async updateProject(e) {
     const formData = Object.fromEntries(new FormData(e.target).entries())
+
+    console.log(formData)
 
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
@@ -245,20 +248,49 @@ class ProjectEditor extends React.Component {
     this.props.params.close()
   }
 
+  // TODO: put tags in library, with database info, and import from there
+  tags = [
+    'AI',
+    'SE',
+    'CS',
+  ]
+
   render() {
+    // TODO: master tags should be greyed out when clicked, no checkboxes -
+    // would save space and look nicer
     return (
       <Container className='mt-2 create-project'>
         <h1 className='mb-4'>{this.props.params.pid ? 'Edit' : 'Create'} Project</h1>
         <Form onSubmit={this.submit}>
-          <Form.Group className='mb-3' controlId='name'>
-            <Form.Label>Project Name</Form.Label>
-            <Form.Control
-              name='name'
-              type='text'
-              placeholder='Enter a concise title for your project'
-              defaultValue={this.state.name}
-            />
-          </Form.Group>
+          <Row className='mb-3'>
+            <Col>
+              <Form.Group as={Col} controlId='name'>
+                <Form.Label>Project Name</Form.Label>
+                <Form.Control
+                  name='name'
+                  type='text'
+                  placeholder='Enter a concise title for your project'
+                  defaultValue={this.state.name}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col xs='auto'>
+              <Form.Group as={Col} controlId='tags'>
+                <Form.Label>Applicable masters</Form.Label>
+                <div className='mt-2 list-item__tags'>
+                  {this.tags.map(tag => (
+                    <Form.Check inline>
+                      <Form.Check.Input name={'tags.' + tag} key={tag}/>
+                      <Form.Check.Label className='list-item__tag'>
+                        <p>{tag.toString()}</p>
+                      </Form.Check.Label>
+                    </Form.Check>
+                  ))}
+                </div>
+              </Form.Group>
+            </Col>
+          </Row>
 
           <Form.Group className='mb-3 description' controlId='description'>
             <Form.Label>Project description (Markdown)</Form.Label>
@@ -286,7 +318,7 @@ class ProjectEditor extends React.Component {
           <Button variant='secondary' type='cancel' data-submit-type='cancel'>
             Cancel
           </Button>
-
+          
           <Button variant='secondary' type='cancel' data-submit-type='delete'>
             Delete project
           </Button>
