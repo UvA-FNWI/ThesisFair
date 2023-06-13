@@ -3,6 +3,7 @@ import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
 import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip, Form, Row, Col } from 'react-bootstrap'
+import { Typeahead } from 'react-bootstrap-typeahead'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
 import api, { downloadCV, degrees } from '../../api'
@@ -176,10 +177,14 @@ class ProjectEditor extends React.Component {
       name: '',
       description: '',
       degrees: [],
+      tags: [],
+      allTags: [],
     }
 
     this.submit = this.submit.bind(this)
     this.handleMasterCheck = this.handleMasterCheck.bind(this)
+    this.addTags = this.addTags.bind(this)
+    this.removeTags = this.removeTags.bind(this)
   }
 
   async componentDidMount() {
@@ -189,8 +194,14 @@ class ProjectEditor extends React.Component {
         name: project.name,
         description: project.description,
         degrees: project.degrees,
-      });
+        tags: project.tags,
+      })
     }
+
+    const tags = await api.project.tags().exec()
+    this.setState({
+      allTags: tags,
+    })
   }
 
   async submit(e) {
@@ -225,6 +236,7 @@ class ProjectEditor extends React.Component {
           name: formData.name,
           description: this.state.description,
           degrees: this.state.degrees,
+          tags: this.state.tags,
         })
         .exec()
     } else {
@@ -235,6 +247,7 @@ class ProjectEditor extends React.Component {
           name: formData.name,
           description: this.state.description,
           degrees: this.state.degrees,
+          tags: this.state.tags,
         })
         .exec()
     }
@@ -266,6 +279,21 @@ class ProjectEditor extends React.Component {
     }
   }
 
+  addTags(tags) {
+    tags = tags.map(val => val.label ? val.label : val)
+
+    this.setState({
+      tags: [...new Set([...this.state.tags, ...tags])],
+      allTags: [...new Set([...this.state.allTags, ...tags])],
+    })
+  }
+
+  removeTags(tags) {
+    this.setState({
+      tags: this.state.tags.filter(tag => !tags.includes(tag)),
+    })
+  }
+
   render() {
     // TODO: master tags should be greyed out when clicked, no checkboxes -
     // would save space and look nicer
@@ -292,7 +320,7 @@ class ProjectEditor extends React.Component {
                 <div className='mt-2 list-item__tags'>
                   {Object.entries(degrees).map(([degree, fullname]) => (
                     <Form.Check inline title={fullname} key={degree}>
-                      <Form.Check.Input name={degree} checked={this.state.degrees.includes(degree)} onChange={this.handleMasterCheck}/>
+                      <Form.Check.Input name={degree} key={degree} checked={this.state.degrees.includes(degree)} onChange={this.handleMasterCheck}/>
                       <Form.Check.Label className='list-item__tag'>
                         <p>{degree}</p>
                       </Form.Check.Label>
@@ -320,6 +348,31 @@ class ProjectEditor extends React.Component {
               placeholder="Your project's full description"
               defaultValue={this.state.description}
             />
+          </Form.Group>
+          
+          <Form.Group className='mb-3 tags' controlId='tags'>
+            <Form.Label>Tags</Form.Label>
+            <Row>
+              <Col xs='8'>
+                <div className='mt-2 list-item__tags'>
+                    {this.state.tags.map(tag => (
+                      <div style={{'display': 'flex', 'align-items': 'center', 'margin-right': '0.5em'}}>
+                        <div className='list-item__tag'><p>{tag}</p></div>
+                        <Button variant='secondary' size='sm' onClick={() => this.removeTags(tag)}>x</Button>
+                      </div>
+                    ))}
+                </div>
+              </Col>
+              <Col>
+                <Typeahead
+                  onChange={this.addTags}
+                  options={this.state.allTags.filter(tag => !this.state.tags.includes(tag))}
+                  placeholder='Add a tag'
+                  allowNew
+                  id='tags'
+                />
+              </Col>
+            </Row>
           </Form.Group>
 
           <Button variant='primary' type='submit' data-submit-type='submit'>

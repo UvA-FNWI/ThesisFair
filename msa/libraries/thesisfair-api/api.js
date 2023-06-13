@@ -167,7 +167,7 @@ const fields = {
     'event.entities',
     'event.external_id',
   ],
-  Project: ['pid', 'enid', 'evids', 'name', 'description', 'degrees', 'datanoseLink', 'external_id'],
+  Project: ['pid', 'enid', 'evids', 'name', 'description', 'degrees', 'tags', 'datanoseLink', 'external_id'],
   ProjectImportResult: [
     'error',
     'project.pid',
@@ -821,6 +821,12 @@ export default url => {
         },
       },
       project: {
+        tags: (projection) =>
+          genGraphQLBuilder({
+            name: 'getAllTags',
+            functionPath: 'tags',
+            // body: bodies.Project(projection),
+          }),
         get: (pid, projection) =>
           genGraphQLBuilder({
             name: 'getProject',
@@ -862,7 +868,6 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
-
         create: (project, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
@@ -875,6 +880,7 @@ export default url => {
               name: { value: project.name, type: 'String!' },
               description: { value: project.description, type: 'String' },
               degrees: {value: project.degrees, type: '[Degree]' },
+              tags: {value: project.tags, type: '[String]' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
               external_id: { value: project.external_id, type: 'Int' },
             },
@@ -893,6 +899,7 @@ export default url => {
               name: { value: project.name, type: 'String' },
               description: { value: project.description, type: 'String' },
               degrees: {value: project.degrees, type: '[Degree]' },
+              tags: {value: project.tags, type: '[String]' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,

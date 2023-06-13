@@ -76,6 +76,17 @@ const getEnid = async external_id => {
 }
 
 schemaComposer.Query.addNestedFields({
+  tags: {
+    type: '[String]',
+    args: {},
+    description: 'Get a list of every tag assigned to any project',
+    resolve: async (obj, args) => {
+      const docs = await Project.find({}, {tags: 1}).exec()
+      const tags = [... new Set(docs.map(({tags}) => tags).flat())]
+
+      return tags
+    },
+  },
   project: {
     type: 'Project',
     args: {
@@ -128,6 +139,7 @@ schemaComposer.Mutation.addNestedFields({
       name: 'String!',
       description: 'String',
       degrees: '[Degree]',
+      tags: '[String]',
       datanoseLink: 'String',
       external_id: 'Int',
     },
@@ -160,6 +172,7 @@ schemaComposer.Mutation.addNestedFields({
       evid: 'ID',
       name: 'String',
       description: 'String',
+      tags: '[String]',
       degrees: '[Degree]',
       datanoseLink: 'String',
     },

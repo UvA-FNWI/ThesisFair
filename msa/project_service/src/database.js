@@ -10,6 +10,7 @@ const projectSchema = new mongoose.Schema({
   name: { type: String },
   description: { type: String },
   degrees: [{ type: String }],
+  tags: [{type: String}],
   datanoseLink: { type: String },
   external_id: { type: Number },
 })
