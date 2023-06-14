@@ -11,6 +11,7 @@ const projectSchema = new mongoose.Schema({
   description: { type: String },
   degrees: [{ type: String }],
   tags: [{type: String}],
+  approval: {type: String, default: () => 'awaiting'},
   datanoseLink: { type: String },
   external_id: { type: Number },
 })

@@ -195,6 +195,24 @@ schemaComposer.Mutation.addNestedFields({
       return Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
     },
   },
+  'project.approval': {
+    type: 'Project',
+    args: {
+      pid: 'ID!',
+      approval: 'ApprovalStatus!',
+    },
+    description: 'Set the approval status for the given project',
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED approve projects')
+      }
+
+      console.log(args)
+      const pid = args.pid
+      delete args.pid
+      return Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
+    },
+  },
   'project.delete': {
     type: 'Project',
     args: {

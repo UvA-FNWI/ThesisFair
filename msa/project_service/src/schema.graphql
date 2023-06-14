@@ -1,3 +1,9 @@
+enum ApprovalStatus {
+  awaiting
+  approved
+  rejected
+}
+
 enum Degree {
   AI
   CPS
@@ -23,6 +29,7 @@ type Project {
   degrees: [Degree]
   tags: [String]
   description: String
+  approval: ApprovalStatus
   datanoseLink: String
   external_id: Int
 }
