@@ -2,7 +2,7 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip, Form, Row, Col } from 'react-bootstrap'
+import { Container, Accordion, Button, Badge, Card, OverlayTrigger, Tooltip, Form, Row, Col } from 'react-bootstrap'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
@@ -13,6 +13,19 @@ import './projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
+
+function approvalBadge(project) {
+  switch (project.approval) {
+    case 'approved':
+      return <Badge variant='success'>Approved</Badge>
+    case 'rejected':
+      return <Badge variant='danger'>Rejected</Badge>
+    case 'awaiting':
+      return <Badge variant='warning'>Awaiting approval</Badge>
+    default:
+      return null
+  }
+}
 
 class ProjectListing extends React.Component {
   constructor(props) {
@@ -75,7 +88,9 @@ class ProjectListing extends React.Component {
               <Accordion.Item key={projectIndex} eventKey={projectIndex}>
                 <Accordion.Header>
                   <div className='d-flex justify-content-between align-items-center w-100 me-3'>
-                    <span className='me-auto'>{project.name}</span>
+                    <span className='me-3'>{project.name}</span>
+                    {approvalBadge(project)}
+                    <span className='me-auto'/>
                     <ProjectEditorTrigger params={{ ...project, edit: this.props.params.edit }} />
                     <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
                       <Button
@@ -195,6 +210,7 @@ class ProjectEditor extends React.Component {
         description: project.description,
         degrees: project.degrees,
         tags: project.tags,
+        approval: project.approval,
       })
     }
 
@@ -388,6 +404,8 @@ class ProjectEditor extends React.Component {
               Delete project
             </Button>
           }
+
+          // {this.props.params.pid && approvalBadge(this.project)}
         </Form>
       </Container>
     )
