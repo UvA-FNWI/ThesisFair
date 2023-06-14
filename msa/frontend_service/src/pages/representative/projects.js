@@ -2,7 +2,7 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Accordion, Button, Badge, Card, OverlayTrigger, Tooltip, Form, Row, Col } from 'react-bootstrap'
+import { Container, Accordion, Button, Badge, CloseButton, Card, OverlayTrigger, Tooltip, Form, Row, Col } from 'react-bootstrap'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
@@ -15,6 +15,10 @@ import '../../components/projectListItem/projectListItem.scss'
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
 function approvalBadge(project) {
+  if (!project) {
+    return
+  }
+
   switch (project.approval) {
     case 'approved':
       return <Badge variant='success'>Approved</Badge>
@@ -23,7 +27,7 @@ function approvalBadge(project) {
     case 'awaiting':
       return <Badge variant='warning'>Awaiting approval</Badge>
     default:
-      return null
+      return
   }
 }
 
@@ -374,7 +378,7 @@ class ProjectEditor extends React.Component {
                     {this.state.tags.map(tag => (
                       <div style={{'display': 'flex', 'align-items': 'center', 'margin-right': '0.5em'}}>
                         <div className='list-item__tag'><p>{tag}</p></div>
-                        <Button variant='secondary' size='sm' onClick={() => this.removeTags(tag)}>x</Button>
+                        <CloseButton onClick={() => this.removeTags(tag)}/>
                       </div>
                     ))}
                 </div>
@@ -404,8 +408,6 @@ class ProjectEditor extends React.Component {
               Delete project
             </Button>
           }
-
-          // {this.props.params.pid && approvalBadge(this.project)}
         </Form>
       </Container>
     )
