@@ -13,6 +13,7 @@ class EntitiesProjects extends React.Component {
       popup: false,
 
       shareError: {},
+      projects: this.props.projects,
     }
   }
 
@@ -26,7 +27,7 @@ class EntitiesProjects extends React.Component {
   renderProjectModal = () => {
     const { enid, entityIndex, projectIndex } = this.state.popup
     const entity = this.props.entities[entityIndex]
-    const project = this.props.projects[enid][projectIndex]
+    const project = this.state.projects[enid][projectIndex]
 
     return (
       <Modal show={true} onHide={() => this.setState({ popup: false })} fullscreen={true}>
@@ -106,6 +107,33 @@ class EntitiesProjects extends React.Component {
     this.setState({ sharedEntities })
   }
 
+  approvalButton = (project) => {
+    const setApproval = (approval) => async () => {
+      const pid = project.pid
+      await api.project.setApproval({approval: approval, pid: pid}).exec()
+
+      const projects = Object.assign({}, this.state.projects)
+      const stateProject = projects[project.enid].find(e => e.pid === pid)
+      
+      if (stateProject) {
+        project.approval = approval
+      }
+
+      this.setState({projects})
+    }
+
+    switch (project.approval) {
+      case 'approved':
+        return <Button onClick={setApproval('rejected')} variant='success'>Approved</Button>
+      case 'rejected':
+        return <Button onClick={setApproval('awaiting')} variant='danger'>Rejected</Button>
+      case 'awaiting':
+        return <Button onClick={setApproval('approved')} variant='warning'>Awaiting approval</Button>
+      default:
+        return null
+    }
+  }
+
   render() {
     return (
       <>
@@ -143,20 +171,23 @@ class EntitiesProjects extends React.Component {
 
                   <h4 className='mt-4'>Projects</h4>
                   <Accordion>
-                    {this.props.projects[entity.enid]
-                      ? this.props.projects[entity.enid].map((project, projectIndex) => (
+                    {this.state.projects[entity.enid]
+                      ? this.state.projects[entity.enid].map((project, projectIndex) => (
                           <Accordion.Item key={projectIndex} eventKey={projectIndex}>
-                            <Accordion.Header>{project.name}</Accordion.Header>
+                            <Accordion.Header>
+                              {project.name}
+                            </Accordion.Header>
                             <Accordion.Body>
                               <div dangerouslySetInnerHTML={{ __html: project.description }} />
 
-                              <Button
-                                onClick={() =>
+                              <Button onClick={() =>
                                   this.setState({ popup: { enid: entity.enid, entityIndex, projectIndex } })
                                 }
                               >
                                 More information
                               </Button>
+
+                              {this.approvalButton(project)}
                             </Accordion.Body>
                           </Accordion.Item>
                         ))

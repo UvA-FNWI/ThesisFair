@@ -16,7 +16,9 @@ class EventProjects extends React.Component {
   }
 
   async componentDidMount() {
-    const event = await api.event.get(this.props.params.evid, { entities: true }).exec()
+    const event = await api.event.get(this.props.params.evid).exec()
+    this.setState({ event })
+
     const entities = await api.entity.getMultiple(event.entities).exec()
     this.setState({ entities })
 
@@ -39,6 +41,7 @@ class EventProjects extends React.Component {
   }
 
   render() {
+    console.log(this.state.projects)
     return (
       <Container className='mt-2'>
         <h1>{this.state.event.name}</h1>
