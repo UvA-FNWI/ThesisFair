@@ -167,7 +167,7 @@ const fields = {
     'event.entities',
     'event.external_id',
   ],
-  Project: ['pid', 'enid', 'evids', 'name', 'description', 'degrees', 'tags', 'datanoseLink', 'external_id'],
+  Project: ['pid', 'enid', 'evids', 'name', 'description', 'degrees', 'tags', 'approval', 'datanoseLink', 'external_id'],
   ProjectImportResult: [
     'error',
     'project.pid',
@@ -903,6 +903,17 @@ export default url => {
               datanoseLink: { value: project.datanoseLink, type: 'String' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,
+          }),
+        setApproval: (args, projection) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'setProjectApproval',
+            functionPath: 'project.approval',
+            body: bodies.Project(projection),
+            args: {
+              pid: { value: args.pid, type: 'ID!' },
+              approval: { value: args.approval, type: 'ApprovalStatus!' },
+            },
           }),
         delete: (pid, projection) =>
           genGraphQLBuilder({
