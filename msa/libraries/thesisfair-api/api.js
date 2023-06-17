@@ -1,6 +1,7 @@
 import axios from 'axios';
 import GraphQLBuilder from './GraphQLBuilder.js';
 import NodeCache from 'node-cache';
+import fields from './graphqlFields.json';
 
 let tracing = false;
 const browser = typeof localStorage !== 'undefined';
@@ -113,21 +114,6 @@ const genBody = (possibleFields, projection) => {
 
   return genString(structuredOutput);
 };
-
-const fields = {
-  UserBase: ['uid', 'firstname', 'lastname', 'email', 'phone'],
-  Student: ['studentnumber', 'websites', 'studies', 'share', 'manuallyShared'],
-  Representative: ['enid', 'repAdmin'],
-  Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id', 'representatives', 'location'],
-  EntityImportResult: ['error', 'entity.enid', 'entity.name', 'entity.description', 'entity.type', 'entity.contact.type', 'entity.contact.content', 'entity.external_id', 'entity.representatives', 'entity.location'],
-  Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities', 'external_id'],
-  EventImportResult: ['error', 'event.evid', 'event.enabled', 'event.name', 'event.description', 'event.start', 'event.location', 'event.studentSubmitDeadline', 'event.entities', 'event.external_id'],
-  Project: ['pid', 'enid', 'evids', 'name', 'description', 'datanoseLink', 'external_id'],
-  ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evids', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
-  StudentVote: ['uid', 'pid'],
-  VoteImportResult: ['error'],
-  Schedule: ['sid', 'uid', 'enid', 'slot'],
-}
 
 const bodies = {
   User: (projection) => {
