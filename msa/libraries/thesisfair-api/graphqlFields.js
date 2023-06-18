@@ -51,6 +51,20 @@ export default {
 		"UserBase:email",
 		"UserBase:phone"
 	],
+	"User": [
+		"UserBase:uid",
+		"UserBase:firstname",
+		"UserBase:lastname",
+		"UserBase:email",
+		"UserBase:phone",
+		"Student:studentnumber",
+		"Student:websites",
+		"Student:studies",
+		"Student:share",
+		"Student:manuallyShared",
+		"Representative:enid",
+		"Representative:repAdmin"
+	],
 	"Schedule": [
 		"sid",
 		"uid",

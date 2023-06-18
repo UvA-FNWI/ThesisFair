@@ -21,12 +21,22 @@ function typeComposerVariant(tc) {
  * if a field is inherited from another type, it is included, prefixed by
  * "{the original type}:" */
 function expandedFieldNames(tc) {
-  const names = []
+  if (typeComposerVariant(tc) === 'union') {
+    return [... new Set([].concat(
+      ...tc.getTypes().map(
+        t => expandedFieldNames(t).map(
+          name => name.includes(':') ? name : `${t.getTypeName()}:${name}`
+        )
+      )
+    ))]
+  }
 
   // Map from interface name (e.g. userBase) to list of the interface's fields 
   const ifaces = Object.fromEntries(
     tc.getInterfaces().map(i => [i.getTypeName(), i.getFieldNames()])
   )
+
+  const names = []
 
   for (const name of tc.getFieldNames()) {
     const field = tc.getFieldTC(name)
@@ -53,7 +63,7 @@ function expandedFieldNames(tc) {
  * their field names, only outputs fields for enums, interfaces and objects,
  * not for compound, scalar or input types */
 function schemaToFields(schema) {
-  const relevantVariants = ['object', 'enum', 'interface']
+  const relevantVariants = ['object', 'enum', 'interface', 'union']
   
   const tm = new TypeMapper(new SchemaComposer)
   const types = tm.parseTypesFromString(schema)

@@ -117,32 +117,46 @@ const genBody = (possibleFields, projection) => {
   return genString(structuredOutput);
 };
 
+function genBodyWrapped(fields, projection) {
+  const ifaceMap = new Map()
+  const ownFields = []
+
+  for (const field of fields) {
+    if (field.includes(':')) {
+      const [iface, name] = field.split(':')
+      if (!ifaceMap.get(iface)) {
+        ifaceMap.set(iface, [])
+      }
+
+      ifaceMap.get(iface).push(name)
+    } else {
+      ownFields.push(field)
+    }
+  }
+
+  const ifaceBodies = new Map([...ifaceMap.entries()].map(
+    ([iface, ifaceFields]) => [iface, genBody(ifaceFields, projection)]
+  ))
+  const ownBody = genBody(ownFields, projection)
+
+  return [...ifaceBodies.entries()].map(
+    ([iface, body]) => body ? `... on ${iface} {${body}}` : ''
+  ).join(' ') + ' ' + ownBody
+}
+
 const bodies = {
-  User: (projection) => {
-    const userBase = genBody(fields.UserBase, projection);
-    const student = genBody(fields.Student, projection);
-    const rep = genBody(fields.Representative, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + (student ? `... on Student {${student}} ` : '') + (rep ? `... on Representative {${rep}}` : '');
-  },
-  Student: (projection) => {
-    const userBase = genBody(fields.UserBase, projection);
-    const student = genBody(fields.Student, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + student;
-  },
-  Representative: (projection) => {
-    const userBase = genBody(fields.UserBase, projection);
-    const representative = genBody(fields.Representative, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + representative;
-  },
-  Entity: (projection) => genBody(fields.Entity, projection),
-  EntityImportResult: (projection) => genBody(fields.EntityImportResult, projection),
-  Event: (projection) => genBody(fields.Event, projection),
-  EventImportResult: (projection) => genBody(fields.EventImportResult, projection),
-  Project: (projection) => genBody(fields.Project, projection),
-  ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
-  StudentVote: (projection) => genBody(fields.StudentVote, projection),
-  VoteImportResult: (projection) => genBody(fields.VoteImportResult, projection),
-  Schedule: (projection) => genBody(fields.Schedule, projection),
+  User: (projection) => genBodyWrapped(fields.User, projection),
+  Student: (projection) => genBodyWrapped(fields.Student, projection),
+  Representative: (projection) => genBodyWrapped(fields.Representative, projection),
+  Entity: (projection) => genBodyWrapped(fields.Entity, projection),
+  EntityImportResult: (projection) => genBodyWrapped(fields.EntityImportResult, projection),
+  Event: (projection) => genBodyWrapped(fields.Event, projection),
+  EventImportResult: (projection) => genBodyWrapped(fields.EventImportResult, projection),
+  Project: (projection) => genBodyWrapped(fields.Project, projection),
+  ProjectImportResult: (projection) => genBodyWrapped(fields.ProjectImportResult, projection),
+  StudentVote: (projection) => genBodyWrapped(fields.StudentVote, projection),
+  VoteImportResult: (projection) => genBodyWrapped(fields.VoteImportResult, projection),
+  Schedule: (projection) => genBodyWrapped(fields.Schedule, projection),
 }
 
 export default (url) => {
