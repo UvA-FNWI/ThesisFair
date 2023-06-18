@@ -1,7 +1,7 @@
 import axios from 'axios';
 import GraphQLBuilder from './GraphQLBuilder.js';
 import NodeCache from 'node-cache';
-import fields from './graphqlFields.json';
+import fields from './graphqlFields.js'; // assert { type: 'json' };
 
 let tracing = false;
 const browser = typeof localStorage !== 'undefined';
@@ -59,6 +59,8 @@ const unpackToken = (token) => {
 }
 
 const genBody = (possibleFields, projection) => {
+  possibleFields = possibleFields.filter(field => !field.includes(':'))
+
   let fields = Object.keys(projection || {});
   let whitelist = false;
 
@@ -129,8 +131,8 @@ const bodies = {
   },
   Representative: (projection) => {
     const userBase = genBody(fields.UserBase, projection);
-    const rep = genBody(fields.Representative, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + rep;
+    const representative = genBody(fields.Representative, projection);
+    return (userBase ? `... on UserBase {${userBase}} ` : '') + representative;
   },
   Entity: (projection) => genBody(fields.Entity, projection),
   EntityImportResult: (projection) => genBody(fields.EntityImportResult, projection),

@@ -1,5 +1,3 @@
-//@preval
-
 import { SchemaComposer, TypeMapper } from 'graphql-compose'
 import { readFileSync } from 'fs'
 import { globSync } from 'glob'
@@ -19,30 +17,36 @@ function typeComposerVariant(tc) {
 /* Takes a TypeComposer (InputTypeComposer, EnumTypeComposer,
  * InterfaceTypeComposer or ObjectTypeComposer and returns the field names of
  * this typecomposer. If a field's value is another TypeComposer, the fields of
- * this child composer are included individually, prefixed by "{its name}." */
+ * this child composer are included individually, prefixed by "{its name}."
+ * if a field is inherited from another type, it is included, prefixed by
+ * "{the original type}:" */
 function expandedFieldNames(tc) {
-  const fieldNames = []
+  const names = []
 
-  for (let [name, field] of Object.entries(tc.getFields())) {
-    // Remove list, nonnull, etc. wrappers
-    while (field.type || field.ofType) {
-      if (field.type) {
-        field = field.type
-      }
+  // Map from interface name (e.g. userBase) to list of the interface's fields 
+  const ifaces = Object.fromEntries(
+    tc.getInterfaces().map(i => [i.getTypeName(), i.getFieldNames()])
+  )
 
-      if (field.ofType) {
-        field = field.ofType
-      }
-    }
+  for (const name of tc.getFieldNames()) {
+    const field = tc.getFieldTC(name)
+    const iface = Object.keys(ifaces).find(
+      ifaceName => ifaces[ifaceName].includes(name)
+    )
 
-    if (typeComposerVariant(field) !== 'object') {
-      fieldNames.push(name)
+    if (iface) {
+      // Inherited fields
+      names.push(`${iface}:${name}`)
+    } else if (typeComposerVariant(field) !== 'object') {
+      // Plain fields
+      names.push(name)
     } else {
-      fieldNames.push(...expandedFieldNames(field).map(childName => `${name}.${childName}`))
+      // Nested fields (object type has other children)
+      names.push(...expandedFieldNames(field).map(childName => `${name}.${childName}`))
     }
   }
 
-  return fieldNames
+  return names
 }
 
 /* Takes in a graphql schema as a string and returns a mapping from types to
@@ -69,4 +73,4 @@ const fields = schemaToFields(schema)
 
 // Write result to json file
 // writeFileSync('graphqlFields.json', JSON.stringify(fields))
-console.log(JSON.stringify(fields, null, '\t'))
+console.log("export default " + JSON.stringify(fields, null, '\t'))
