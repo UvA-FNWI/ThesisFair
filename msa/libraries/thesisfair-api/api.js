@@ -144,20 +144,11 @@ function genBodyWrapped(fields, projection) {
   ).join(' ') + ' ' + ownBody
 }
 
-const bodies = {
-  User: (projection) => genBodyWrapped(fields.User, projection),
-  Student: (projection) => genBodyWrapped(fields.Student, projection),
-  Representative: (projection) => genBodyWrapped(fields.Representative, projection),
-  Entity: (projection) => genBodyWrapped(fields.Entity, projection),
-  EntityImportResult: (projection) => genBodyWrapped(fields.EntityImportResult, projection),
-  Event: (projection) => genBodyWrapped(fields.Event, projection),
-  EventImportResult: (projection) => genBodyWrapped(fields.EventImportResult, projection),
-  Project: (projection) => genBodyWrapped(fields.Project, projection),
-  ProjectImportResult: (projection) => genBodyWrapped(fields.ProjectImportResult, projection),
-  StudentVote: (projection) => genBodyWrapped(fields.StudentVote, projection),
-  VoteImportResult: (projection) => genBodyWrapped(fields.VoteImportResult, projection),
-  Schedule: (projection) => genBodyWrapped(fields.Schedule, projection),
-}
+const bodies = Object.fromEntries(
+  Object.entries(fields).map(
+    ([type, fields]) => [type, (projection) => genBodyWrapped(fields, projection)]
+  )
+)
 
 export default (url) => {
   url ||= typeof window !== 'undefined' ? '/' : 'http://localhost:3000/';
