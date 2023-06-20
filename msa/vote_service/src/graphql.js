@@ -113,7 +113,7 @@ schemaComposer.Query.addNestedFields({
     type: '[ID!]',
     args: {
       pid: 'ID!',
-      evid: 'ID!'
+      evid: 'ID'
     },
     description: 'Get the students who voted for a project on an event.',
     resolve: async (obj, args, req) => {
@@ -121,7 +121,8 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED get votes of projects');
       }
 
-      const query = { evid: args.evid };
+      const query = args.evid ? { evid: args.evid } : {};
+
       if (req.user.type === 'a') {
         query['votes.pid'] = args.pid;
       } else if (req.user.type === 'r') {

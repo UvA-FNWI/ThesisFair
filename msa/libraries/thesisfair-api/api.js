@@ -870,7 +870,7 @@ export default (url) => {
             functionPath: 'votesOfProject',
             args: {
               pid: { value: pid, type: 'ID!' },
-              evid: { value: evid, type: 'ID!' },
+              evid: { value: evid, type: 'ID' },
             }
           }),
         import: (votes, evid, projection) =>
