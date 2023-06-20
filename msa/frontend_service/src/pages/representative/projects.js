@@ -12,37 +12,43 @@ class Projects extends React.Component {
     super(props);
 
     this.state = {
-      projects: [],
-      votedFor: {},
+      projects: {}, // Map from PID to project
+      votes: {}, // Map from PID to users that voted for it
       popup: false,
     };
   }
 
   async componentDidMount() { // Optimisation: Store student only once in state
-    const projects = await api.project.getOfEntity(this.props.params.evid, api.getApiTokenData().enid).exec();
-    this.setState({ projects });
+    var projects = await api.project.getOfEntity(null, api.getApiTokenData().enid).exec();
+    projects = Object.fromEntries(projects.map(project => [project.pid, project]))
 
-    const votedFor = {};
-    for (const project of projects) {
-      const uids = await api.votes.getOfProject(project.pid, this.props.params.evid).exec();
-      votedFor[project.pid] = await api.user.getMultiple(uids).exec();
+    var votes = {}
+    for (const pid in projects) {
+      // TODO: test and remove params.evid
+      const uids = await api.votes.getOfProject(pid, this.props.params.evid).exec();
+      votes[pid] = await api.user.getMultiple(uids).exec();
     }
 
-    projects.push({ pid: 'manuallyShared', name: 'Students that shared their data but did not vote for a project', description: 'Thesis students explicitly shared their data with your company but have not voted for any of your projects.' });
-    votedFor['manuallyShared'] = await api.user.student.getWhoManuallyShared(api.getApiTokenData().enid).exec();
-    this.setState({ projects, votedFor });
+    projects['manuallyShared'] = {
+      pid: 'manuallyShared',
+      name: 'Students that shared their data but did not vote for a project',
+      description: 'Thesis students explicitly shared their data with your company but have not voted for any of your projects.'
+    };
+    votes['manuallyShared'] = await api.user.student.getWhoManuallyShared(api.getApiTokenData().enid).exec();
+
+    this.setState({projects, votes});
   }
 
   renderStudentModal = () => {
     const { projectIndex, studentIndex } = this.state.popup;
     const project = this.state.projects[projectIndex];
-    const student = this.state.votedFor[project.pid][studentIndex];
+    const student = this.state.votes[project.pid][studentIndex];
 
     return <StudentPopup student={student} onHide={() => this.setState({ popup: false })} />
   }
 
   downloadAllCVs = async (project) => {
-    for (const student of this.state.votedFor[project.pid]) {
+    for (const student of this.state.votes[project.pid]) {
       await downloadCV(student.uid, genCVName(student, project));
     }
   }
@@ -58,8 +64,8 @@ class Projects extends React.Component {
           {this.state.projects.length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
 
           <Accordion defaultActiveKey={0}>
-            {this.state.projects.map((project, projectIndex) => (
-              <Accordion.Item key={projectIndex} eventKey={projectIndex}>
+            {Object.entries(this.state.projects).map(([pid, project]) => (
+              <Accordion.Item key={pid} eventKey={pid}>
                 <Accordion.Header>
                   <div className='d-flex justify-content-between w-100 me-2'>
                     <span>{project.name}</span>
@@ -73,10 +79,10 @@ class Projects extends React.Component {
 
                   <h4 className='mt-4'>Students</h4>
                   <div>
-                    {this.state.votedFor[project.pid] ? this.state.votedFor[project.pid].length > 0 ? this.state.votedFor[project.pid].map((student, studentIndex) => {
+                    {this.state.votes[project.pid] ? this.state.votes[project.pid].length > 0 ? this.state.votes[project.pid].map((student, studentIndex) => {
                       const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0;
                       return (
-                        <Card key={studentIndex} className='mb-2 hoverable' bg={studentInfoPresent ? 'white' : 'gray'} onClick={studentInfoPresent ? (e) => this.setState({ popup: { projectIndex, studentIndex, cv: false } }) : null}>
+                        <Card key={studentIndex} className='mb-2 hoverable' bg={studentInfoPresent ? 'white' : 'gray'} onClick={studentInfoPresent ? (e) => this.setState({ popup: { pid, studentIndex, cv: false } }) : null}>
                           <Card.Body className='d-flex justify-content-between align-items-center'>
                             { studentInfoPresent ?
                               <>
