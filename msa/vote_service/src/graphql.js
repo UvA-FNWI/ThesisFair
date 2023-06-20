@@ -1,6 +1,9 @@
 import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync } from 'fs';
+import mongoose from 'mongoose';
+
+const ObjectId = mongoose.Types.ObjectId
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Vote } from './database.js';
@@ -83,18 +86,20 @@ schemaComposer.Query.addNestedFields({
       canGetEntityVotes(req, args);
 
       const match = args.evid ?
-        {evid: args.evid, 'votes.enid': args.enid} : 
-        {'votes.enid': args.enid}
+        {evid: new ObjectId(args.evid), 'votes.enid': new ObjectId(args.enid)} : 
+        {'votes.enid': new ObjectId(args.enid)}
+
+      console.log(match)
 
       const votes = await Vote.aggregate([
         {'$match': match},
         {'$project': {
-          uid: "$uid",
+          uid: '$uid',
           votes: {
             '$filter': {
-              input: "$votes",
-              as: "vote",
-              cond: { $eq: [ "$$vote.enid", args.enid ] }
+              input: '$votes',
+              as: 'vote',
+              cond: { $eq: [ '$$vote.enid', new ObjectId(args.enid) ] }
             }
           }
         }},
@@ -104,7 +109,7 @@ schemaComposer.Query.addNestedFields({
         return null;
       }
 
-      const bingo = votes.map(({uid, votes}) => votes.map(({pid}) => ({uid, pid})));
+      const bingo = votes.map(({uid, votes}) => votes.map(({pid}) => ({uid, pid}))).flat();
       console.log(bingo)
       return bingo
     }
