@@ -121,6 +121,7 @@ const fields = {
   Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id', 'representatives', 'location'],
   EntityImportResult: ['error', 'entity.enid', 'entity.name', 'entity.description', 'entity.type', 'entity.contact.type', 'entity.contact.content', 'entity.external_id', 'entity.representatives', 'entity.location'],
   Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities', 'external_id'],
+  PlainEvent: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline'],
   EventImportResult: ['error', 'event.evid', 'event.enabled', 'event.name', 'event.description', 'event.start', 'event.location', 'event.studentSubmitDeadline', 'event.entities', 'event.external_id'],
   Project: ['pid', 'enid', 'evids', 'name', 'description', 'datanoseLink', 'external_id'],
   ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evids', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
@@ -149,6 +150,7 @@ const bodies = {
   Entity: (projection) => genBody(fields.Entity, projection),
   EntityImportResult: (projection) => genBody(fields.EntityImportResult, projection),
   Event: (projection) => genBody(fields.Event, projection),
+  PlainEvent: (projection) => genBody(fields.PlainEvent, projection),
   EventImportResult: (projection) => genBody(fields.EventImportResult, projection),
   Project: (projection) => genBody(fields.Project, projection),
   ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
@@ -629,6 +631,15 @@ export default (url) => {
             args: {
               evid: { value: evid, type: 'ID!' },
               type: { value: type, type: 'String!' },
+            },
+          }),
+        getOfEntity: (enid, projection) =>
+          genGraphQLBuilder({
+            name: 'getEventsOfEntity',
+            functionPath: 'eventsOfEntity',
+            body: bodies.PlainEvent(projection),
+            args: {
+              enid: { value: enid, type: 'ID!' },
             },
           }),
         getAll: (all = false, projection) =>

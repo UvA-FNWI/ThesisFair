@@ -10,3 +10,15 @@ export const canGetEvents = (req, args) => {
     throw new Error('UNAUTHORIZED list all events');
   }
 }
+
+export const entityReadAccess = (req, enid) => {
+  if (req.user.type == 'r' && enid == req.user.enid) {
+    return
+  }
+  
+  if (req.user.type == 'a') {
+    return
+  }
+
+  throw new Error('UNAUTHORIZED view information about this entity');
+}

@@ -5,7 +5,7 @@ import { writeFile, readFile, access } from 'fs/promises';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Event } from './database.js';
-import { canGetEvent, canGetEvents } from './permissions.js';
+import { canGetEvent, canGetEvents, entityReadAccess } from './permissions.js';
 
 const imageTypes = ['student', 'rep']
 
@@ -70,6 +70,31 @@ schemaComposer.Query.addNestedFields({
       return event;
     },
   },
+  eventsOfEntity: {
+    type: '[PlainEvent]',
+    args: {
+      enid: 'ID!',
+    },
+    description: 'Get all events an entity participates in (stripped of some information)',
+    resolve: async (obj, args, req) => {
+      entityReadAccess(req, args.enid)
+
+      const bruh = await Event.aggregate([
+        // {$match: {entities: args.enid}},
+        {$project: {
+          evid: '$_id',
+          name: '$name',
+          enabled: '$enabled',
+          description: '$description',
+          start: '$start',
+          location: '$location',
+          studentSubmitDeadline: '$studentSubmitDeadline',
+        }}
+      ])
+      console.log(bruh)
+      return bruh
+    },
+  },
   eventByExtID: {
     type: 'Event',
     args: {
@@ -106,7 +131,7 @@ schemaComposer.Query.addNestedFields({
     }
   },
   events: {
-    type: '[Event!]',
+    type: '[PlainEvent!]',
     args: {
       all: 'Boolean',
     },
