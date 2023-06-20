@@ -76,25 +76,37 @@ schemaComposer.Query.addNestedFields({
     type: '[StudentVote!]',
     args: {
       enid: 'ID!',
-      evid: 'ID!'
+      evid: 'ID'
     },
     description: 'Get the students that voted for an entity on an event.',
     resolve: async (obj, args, req) => {
       canGetEntityVotes(req, args);
 
-      const votes = await Vote.find({ evid: args.evid, 'votes.enid': args.enid });
-      if (!votes) { return null; }
+      const match = args.evid ?
+        {evid: args.evid, 'votes.enid': args.enid} : 
+        {'votes.enid': args.enid}
 
-      const res = [];
-      for (const studentVote of votes) {
-        for (const vote of studentVote.votes) {
-          if (args.enid == vote.enid) {
-            res.push({ uid: studentVote.uid, pid: vote.pid })
+      const votes = await Vote.aggregate([
+        {'$match': match},
+        {'$project': {
+          uid: "$uid",
+          votes: {
+            '$filter': {
+              input: "$votes",
+              as: "vote",
+              cond: { $eq: [ "$$vote.enid", args.enid ] }
+            }
           }
-        }
+        }},
+      ])
+
+      if (!votes) {
+        return null;
       }
 
-      return res;
+      const bingo = votes.map(({uid, votes}) => votes.map(({pid}) => ({uid, pid})));
+      console.log(bingo)
+      return bingo
     }
   },
   votesOfProject: {

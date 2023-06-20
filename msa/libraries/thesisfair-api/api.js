@@ -861,7 +861,7 @@ export default (url) => {
             body: bodies.StudentVote(projection),
             args: {
               enid: { value: enid, type: 'ID!' },
-              evid: { value: evid, type: 'ID!' },
+              evid: { value: evid, type: 'ID' },
             }
           }),
         getOfProject: (pid, evid) =>
