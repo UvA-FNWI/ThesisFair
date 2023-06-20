@@ -764,7 +764,7 @@ export default (url) => {
             functionPath: 'projectsOfEntity',
             body: bodies.Project(projection),
             args: {
-              evid: { value: evid, type: 'ID!' },
+              evid: { value: evid, type: 'ID' },
               enid: { value: enid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,

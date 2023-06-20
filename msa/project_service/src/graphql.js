@@ -94,11 +94,17 @@ schemaComposer.Query.addNestedFields({
   projectsOfEntity: {
     type: '[Project!]',
     args: {
-      evid: 'ID!',
+      evid: 'ID',
       enid: 'ID!',
     },
     description: 'Get the projects of a given entity and event.',
-    resolve: (obj, args) => Project.find({ enid: args.enid, evids: args.evid }),
+    resolve: (obj, args) => {
+      if (args.evid) {
+        return Project.find({ enid: args.enid, evid: args.evid })
+      }
+      
+      return Project.find({ enid: args.enid })
+    },
   },
   projectsOfEvent: {
     type: '[Project!]',
