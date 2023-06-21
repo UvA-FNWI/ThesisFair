@@ -52,9 +52,8 @@ class Projects extends React.Component {
   }
 
   renderStudentModal = () => {
-    const { projectIndex, studentIndex } = this.state.popup;
-    const project = this.state.projects[projectIndex];
-    const student = this.state.votes[project.pid][studentIndex];
+    const { pid, uid } = this.state.popup;
+    const student = this.state.votes[pid].find(user => user.uid == uid);
 
     return <StudentPopup student={student} onHide={() => this.setState({ popup: false })} />
   }
@@ -66,14 +65,13 @@ class Projects extends React.Component {
   }
 
   renderProjectListing(projects) {
-    console.log(projects)
     if (projects.length <= 0) {
       return (<p>No projects for this event</p>)
     }
 
     return (
       <Accordion defaultActiveKey={0}>
-        {Object.entries(projects).map(([pid, project]) => (
+        {projects.map(({pid, ...project}) => (
           <Accordion.Item key={pid} eventKey={pid}>
             <Accordion.Header>
               <div className='d-flex justify-content-between w-100 me-2'>
@@ -88,10 +86,10 @@ class Projects extends React.Component {
 
               <h4 className='mt-4'>Students</h4>
               <div>
-                {this.state.votes[project.pid] ? this.state.votes[project.pid].length > 0 ? this.state.votes[project.pid].map((student, studentIndex) => {
+                {this.state.votes[pid] ? this.state.votes[pid].length > 0 ? this.state.votes[pid].map(({uid, ...student}) => {
                   const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0;
                   return (
-                    <Card key={studentIndex} className='mb-2 hoverable' bg={studentInfoPresent ? 'white' : 'gray'} onClick={studentInfoPresent ? (e) => this.setState({ popup: { pid, studentIndex, cv: false } }) : null}>
+                    <Card key={uid} className='mb-2 hoverable' bg={studentInfoPresent ? 'white' : 'gray'} onClick={studentInfoPresent ? (e) => this.setState({ popup: { pid, uid, cv: false } }) : null}>
                       <Card.Body className='d-flex justify-content-between align-items-center'>
                         { studentInfoPresent ?
                           <>
@@ -100,7 +98,7 @@ class Projects extends React.Component {
                             </p>
                             <div>
                               <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
-                                <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(student.uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
+                                <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
                               </OverlayTrigger>
                             </div>
                           </>
@@ -138,17 +136,16 @@ class Projects extends React.Component {
               const projects = pids.map(pid => this.state.projects[pid])
               const event = this.state.events[evid]
 
-              console.log(new Date(event.start))
               return (
                 <>
                 <br/>
                 <span className='d-flex justify-content-between'>
-                  <h3 style={{'align-self': 'flex-end'}}>{event.name}</h3>
-                  <time style={{'align-self': 'flex-end'}} datetime={event.start}>
+                  <h3 style={{alignSelf: 'flex-end'}}>{event.name}</h3>
+                  <time style={{alignSelf: 'flex-end'}} dateTime={event.start}>
                     {(new Date(event.start)).toLocaleDateString()}
                   </time>
                 </span>
-                <hr style={{'margin-top': 0, 'margin-bottom': '1.25em'}}/>
+                <hr style={{marginTop: 0, marginBottom: '1.25em'}}/>
                 {this.renderProjectListing(projects)}
                 </>
               )
