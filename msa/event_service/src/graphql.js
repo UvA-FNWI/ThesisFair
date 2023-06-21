@@ -2,6 +2,9 @@ import { graphql } from 'graphql';
 import { schemaComposer } from 'graphql-compose';
 import { readFileSync, mkdirSync, existsSync, constants } from 'fs';
 import { writeFile, readFile, access } from 'fs/promises';
+import mongoose from 'mongoose'
+
+const ObjectId = mongoose.Types.ObjectId
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js';
 import { Event } from './database.js';
@@ -80,7 +83,7 @@ schemaComposer.Query.addNestedFields({
       entityReadAccess(req, args.enid)
 
       const bruh = await Event.aggregate([
-        // {$match: {entities: args.enid}},
+        {$match: {entities: ObjectId(args.enid)}},
         {$project: {
           evid: '$_id',
           name: '$name',
