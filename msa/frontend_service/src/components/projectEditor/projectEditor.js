@@ -2,7 +2,7 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Tab, Button, Form, Row, Col, Nav, CloseButton } from 'react-bootstrap'
+import { Container, Tab, Button, Form, Row, Col, Nav, CloseButton, ToggleButton, ButtonGroup } from 'react-bootstrap'
 // import { Typeahead } from 'react-bootstrap-typeahead'
 import api, { degrees, tags as allTags } from '../../api'
 
@@ -19,24 +19,28 @@ class ProjectEditor extends React.Component {
       name: '',
       description: '',
       environment: '',
+      attendance: null,
       degrees: [],
       tags: [],
     }
 
     this.submit = this.submit.bind(this)
-    this.handleMasterCheck = this.handleMasterCheck.bind(this)
-    this.handleTagCheck = this.handleTagCheck.bind(this)
     this.removeTag = this.removeTag.bind(this)
+    this.handleTagCheck = this.handleTagCheck.bind(this)
+    this.handleMasterCheck = this.handleMasterCheck.bind(this)
+    this.handleAttendanceChange = this.handleAttendanceChange.bind(this)
   }
 
   async componentDidMount() {
-    // TODO: add environment and expectations to database
+    // TODO: add environment, attendance and expectations to database
     if (this.props.params.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
       this.setState({
         name: project.name,
         description: project.description,
         // environment: project.environment,
+        // attendance: project.attendance,
+        // expectations: project.expectations,
         degrees: project.degrees,
         tags: project.tags,
         approval: project.approval,
@@ -138,6 +142,20 @@ class ProjectEditor extends React.Component {
     })
   }
 
+  attendanceOptions = [
+    'Yes',
+    'No',
+  ]
+
+  handleAttendanceChange(e) {
+    console.log(e.currentTarget.value)
+    if (e.currentTarget.value === this.state.attendance) {
+      this.setState({attendance: null})
+    } else {
+      this.setState({attendance: e.currentTarget.value})
+    }
+  }
+
   render() {
     // TODO: master tags should be greyed out when clicked, no checkboxes -
     // would save space and look nicer
@@ -147,7 +165,7 @@ class ProjectEditor extends React.Component {
         <Form onSubmit={this.submit}>
           <Row className='mb-3'>
             <Col>
-              <Form.Group as={Col} controlId='name'>
+              <Form.Group controlId='name'>
                 <Form.Label>Project Name</Form.Label>
                 <Form.Control
                   name='name'
@@ -159,7 +177,7 @@ class ProjectEditor extends React.Component {
             </Col>
 
             <Col xs='auto'>
-              <Form.Group as={Col} controlId='degrees'>
+              <Form.Group controlId='degrees'>
                 <Form.Label>Applicable masters</Form.Label>
                 <div className='mt-2 list-item__tags'>
                   {Object.entries(degrees).map(([degree, fullname]) => (
@@ -170,6 +188,29 @@ class ProjectEditor extends React.Component {
                       </Form.Check.Label>
                     </Form.Check>
                   ))}
+                </div>
+              </Form.Group>
+            </Col>
+            
+            <Col xs='auto'>
+              <Form.Group controlId='attendance'>
+                <Form.Label>Attending</Form.Label>
+                <div classname='mt-2'>
+                  <ButtonGroup>
+                    {this.attendanceOptions.map(option => (
+                      <ToggleButton
+                        key={option}
+                        id={`attendance-${option}`}
+                        type='radio'
+                        name='attendance'
+                        value={option}
+                        checked={this.state.attendance === option}
+                        onChange={this.handleAttendanceChange}
+                      >
+                        {option}
+                      </ToggleButton>
+                    ))}
+                  </ButtonGroup>
                 </div>
               </Form.Group>
             </Col>
@@ -222,10 +263,10 @@ class ProjectEditor extends React.Component {
           <Form.Group className='mb-3 tags' controlId='tags'>
             <Form.Label>Tags</Form.Label>
             <Row>
-              <Tab.Container id="left-tabs-example" defaultActiveKey={Object.keys(allTags)[0]}>
+              <Tab.Container id='left-tabs-example' defaultActiveKey={Object.keys(allTags)[0]}>
                 <Col xs='3'>
                   <Form.Label>Category</Form.Label>
-                  <Nav variant="pills" style={{maxHeight: '20vh', overflowY: 'scroll'}}>
+                  <Nav variant='pills' style={{maxHeight: '20vh', overflowY: 'scroll'}}>
                     {Object.keys(allTags).map(category => (
                       <Nav.Item style={{width: '100%'}}>
                         <Nav.Link eventKey={category}>{category}</Nav.Link>
@@ -286,42 +327,5 @@ class ProjectEditor extends React.Component {
     )
   }
 }
-
-                        // <Form.Check inline title={fullname} key={degree}>
-                          // <Form.Check.Input name={degree} key={degree} checked={this.state.degrees.includes(degree)} onChange={this.handleMasterCheck}/>
-                          // <Form.Check.Label className='list-item__tag'>
-                            // <p>{degree}</p>
-                          // </Form.Check.Label>
-                        // </Form.Check>
-// {tags.map(tag => (
-  // <Card key={`${category}.${tags}`}>
-    // <Card.Body>{tag}</Card.Body>
-  // </Card>
-// ))}
-
-// <Form.Group className='mb-3 tags' controlId='tags'>
-  // <Form.Label>Tags</Form.Label>
-  // <Row>
-    // <Col xs='8'>
-      // <div className='mt-2 list-item__tags'>
-          // {this.state.tags.map(tag => (
-            // <div style={{'display': 'flex', 'align-items': 'center', 'margin-right': '0.5em'}}>
-              // <div className='list-item__tag'><p>{tag}</p></div>
-              // <CloseButton onClick={() => this.removeTags(tag)}/>
-            // </div>
-          // ))}
-      // </div>
-    // </Col>
-    // <Col>
-      // <Typeahead
-        // onChange={this.addTags}
-        // options={this.state.allTags.filter(tag => !this.state.tags.includes(tag))}
-        // placeholder='Add a tag'
-        // allowNew
-        // id='tags'
-      // />
-    // </Col>
-  // </Row>
-// </Form.Group>
 
 export default ProjectEditor
