@@ -138,6 +138,7 @@ schemaComposer.Mutation.addNestedFields({
       evid: 'ID!',
       name: 'String!',
       description: 'String',
+      attendance: 'Attendance!',
       degrees: '[Degree]',
       tags: '[String]',
       datanoseLink: 'String',
@@ -171,6 +172,7 @@ schemaComposer.Mutation.addNestedFields({
       enid: 'ID',
       evid: 'ID',
       name: 'String',
+      attendance: 'Attendance',
       description: 'String',
       tags: '[String]',
       degrees: '[Degree]',
@@ -192,7 +194,7 @@ schemaComposer.Mutation.addNestedFields({
 
       const pid = args.pid
       delete args.pid
-      return Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
+      await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
     },
   },
   'project.approval': {
@@ -210,7 +212,7 @@ schemaComposer.Mutation.addNestedFields({
       console.log(args)
       const pid = args.pid
       delete args.pid
-      return Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
+      await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
     },
   },
   'project.delete': {
@@ -219,10 +221,10 @@ schemaComposer.Mutation.addNestedFields({
       pid: 'ID!',
     },
     description: 'Delete a project.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       projectWriteAccess(req.user, args)
 
-      return Project.findByIdAndDelete(args.pid)
+      Project.findByIdAndDelete(args.pid)
     },
   },
   'project.deleteOfEntity': {

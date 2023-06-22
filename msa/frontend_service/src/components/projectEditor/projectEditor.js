@@ -35,16 +35,17 @@ class ProjectEditor extends React.Component {
     // TODO: add environment, attendance and expectations to database
     if (this.props.params.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
-      this.setState({
-        name: project.name,
-        description: project.description,
-        // environment: project.environment,
+      this.setState(project)
+      // this.setState({
+        // name: project.name,
+        // description: project.description,
+        // // environment: project.environment,
         // attendance: project.attendance,
-        // expectations: project.expectations,
-        degrees: project.degrees,
-        tags: project.tags,
-        approval: project.approval,
-      })
+        // // expectations: project.expectations,
+        // degrees: project.degrees,
+        // tags: project.tags,
+        // approval: project.approval,
+      // })
     }
   }
 
@@ -76,28 +77,23 @@ class ProjectEditor extends React.Component {
   async updateProject(e) {
     const formData = Object.fromEntries(new FormData(e.target).entries())
 
+    const project = {
+      enid: api.getApiTokenData().enid,
+      name: formData.name,
+      description: this.state.description,
+      degrees: this.state.degrees,
+      tags: this.state.tags,
+      attendance: this.state.attendance,
+    }
+
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
       await api.project
-        .update({
-          enid: api.getApiTokenData().enid,
-          pid: this.props.params.pid,
-          name: formData.name,
-          description: this.state.description,
-          degrees: this.state.degrees,
-          tags: this.state.tags,
-        })
+        .update({...project, pid: this.props.params.pid})
         .exec()
     } else {
       await api.project
-        .create({
-          enid: api.getApiTokenData().enid,
-          evid: this.props.params.evid,
-          name: formData.name,
-          description: this.state.description,
-          degrees: this.state.degrees,
-          tags: this.state.tags,
-        })
+        .create({...project, evid: this.props.params.evid})
         .exec()
     }
   }
@@ -143,12 +139,11 @@ class ProjectEditor extends React.Component {
   }
 
   attendanceOptions = [
-    'Yes',
-    'No',
+    {value: 'yes', name: 'Yes'},
+    {value: 'no', name: 'No'},
   ]
 
   handleAttendanceChange(e) {
-    console.log(e.currentTarget.value)
     if (e.currentTarget.value === this.state.attendance) {
       this.setState({attendance: null})
     } else {
@@ -182,7 +177,11 @@ class ProjectEditor extends React.Component {
                 <div className='mt-2 list-item__tags'>
                   {Object.entries(degrees).map(([degree, fullname]) => (
                     <Form.Check inline title={fullname} key={degree}>
-                      <Form.Check.Input name={degree} key={degree} checked={this.state.degrees.includes(degree)} onChange={this.handleMasterCheck}/>
+                      <Form.Check.Input name={degree}
+                        key={degree}
+                        checked={this.state.degrees.includes(degree)}
+                        onChange={this.handleMasterCheck}
+                      />
                       <Form.Check.Label className='list-item__tag'>
                         <p>{degree}</p>
                       </Form.Check.Label>
@@ -197,17 +196,17 @@ class ProjectEditor extends React.Component {
                 <Form.Label>Attending</Form.Label>
                 <div classname='mt-2'>
                   <ButtonGroup>
-                    {this.attendanceOptions.map(option => (
+                    {this.attendanceOptions.map(({value, name}) => (
                       <ToggleButton
-                        key={option}
-                        id={`attendance-${option}`}
+                        key={value}
+                        id={`attendance-${value}`}
                         type='radio'
                         name='attendance'
-                        value={option}
-                        checked={this.state.attendance === option}
+                        value={value}
+                        checked={this.state.attendance === value}
                         onChange={this.handleAttendanceChange}
                       >
-                        {option}
+                        {name}
                       </ToggleButton>
                     ))}
                   </ButtonGroup>

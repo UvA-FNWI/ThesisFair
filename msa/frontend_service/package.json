@@ -22,7 +22,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "prestart": "npm run build --prefix './src/api/'",
+    "prestart": "npm run build --prefix './src/api'",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
