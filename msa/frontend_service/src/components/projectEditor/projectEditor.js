@@ -18,6 +18,7 @@ class ProjectEditor extends React.Component {
       evid: this.props.params.evid,
       name: '',
       description: '',
+      environment: '',
       degrees: [],
       tags: [],
     }
@@ -29,11 +30,13 @@ class ProjectEditor extends React.Component {
   }
 
   async componentDidMount() {
+    // TODO: add environment and expectations to database
     if (this.props.params.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
       this.setState({
         name: project.name,
         description: project.description,
+        // environment: project.environment,
         degrees: project.degrees,
         tags: project.tags,
         approval: project.approval,
@@ -182,14 +185,39 @@ class ProjectEditor extends React.Component {
                 rehypePlugins: [[rehypeSanitize]],
               }}
             />
-            <Form.Control
-              name='description'
-              as='textarea'
-              rows={8}
-              placeholder="Your project's full description"
-              defaultValue={this.state.description}
-            />
           </Form.Group>
+
+          <Row>
+            <Col>
+              <Form.Group className='mb-3 environment' controlId='environment'>
+                <Form.Label>Work environment</Form.Label>
+                <MDEditor
+                  value={this.state.environment}
+                  onChange={value => this.setState({ environment: value })}
+                  height={200}
+                  preview='edit'
+                  previewOptions={{
+                    rehypePlugins: [[rehypeSanitize]],
+                  }}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col>
+              <Form.Group className='mb-3 expectations' controlId='expectations'>
+                <Form.Label>Expectations</Form.Label>
+                <MDEditor
+                  value={this.state.expectations}
+                  onChange={value => this.setState({ expectations: value })}
+                  height={200}
+                  preview='edit'
+                  previewOptions={{
+                    rehypePlugins: [[rehypeSanitize]],
+                  }}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
           
           <Form.Group className='mb-3 tags' controlId='tags'>
             <Form.Label>Tags</Form.Label>
