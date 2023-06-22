@@ -2,9 +2,9 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Accordion, Button, CloseButton, Form, Row, Col } from 'react-bootstrap'
-import { Typeahead } from 'react-bootstrap-typeahead'
-import api, { degrees } from '../../api'
+import { Container, Tab, Button, Form, Row, Col, Nav, CloseButton } from 'react-bootstrap'
+// import { Typeahead } from 'react-bootstrap-typeahead'
+import api, { degrees, tags as allTags } from '../../api'
 
 import '../../components/projectListItem/projectListItem.scss'
 
@@ -20,13 +20,12 @@ class ProjectEditor extends React.Component {
       description: '',
       degrees: [],
       tags: [],
-      allTags: [],
     }
 
     this.submit = this.submit.bind(this)
     this.handleMasterCheck = this.handleMasterCheck.bind(this)
-    this.addTags = this.addTags.bind(this)
-    this.removeTags = this.removeTags.bind(this)
+    this.handleTagCheck = this.handleTagCheck.bind(this)
+    this.removeTag = this.removeTag.bind(this)
   }
 
   async componentDidMount() {
@@ -40,11 +39,6 @@ class ProjectEditor extends React.Component {
         approval: project.approval,
       })
     }
-
-    const tags = await api.project.tags().exec()
-    this.setState({
-      allTags: tags,
-    })
   }
 
   async submit(e) {
@@ -113,28 +107,31 @@ class ProjectEditor extends React.Component {
     const degree = e.target.attributes.name.value
 
     if (e.target.checked) {
-        this.setState({
-          degrees: [...this.state.degrees, degree]
-        })
+      this.setState({
+        degrees: [...this.state.degrees, degree]
+      })
     } else {
-        this.setState({
-          degrees: this.state.degrees.filter(item => item !== degree)
-        })
+      this.setState({
+        degrees: this.state.degrees.filter(item => item !== degree)
+      })
     }
   }
 
-  addTags(tags) {
-    tags = tags.map(val => val.label ? val.label : val)
+  handleTagCheck(e) {
+    const tag = e.target.attributes.name.value
 
-    this.setState({
-      tags: [...new Set([...this.state.tags, ...tags])],
-      allTags: [...new Set([...this.state.allTags, ...tags])],
-    })
+    if (e.target.checked) {
+      this.setState({
+        tags: [...this.state.tags, tag]
+      })
+    } else {
+      this.removeTag(tag)
+    }
   }
 
-  removeTags(tags) {
+  removeTag(tag) {
     this.setState({
-      tags: this.state.tags.filter(tag => !tags.includes(tag)),
+      tags: this.state.tags.filter(item => item !== tag)
     })
   }
 
@@ -197,24 +194,48 @@ class ProjectEditor extends React.Component {
           <Form.Group className='mb-3 tags' controlId='tags'>
             <Form.Label>Tags</Form.Label>
             <Row>
-              <Col xs='8'>
-                <div className='mt-2 list-item__tags'>
-                    {this.state.tags.map(tag => (
-                      <div style={{'display': 'flex', 'align-items': 'center', 'margin-right': '0.5em'}}>
-                        <div className='list-item__tag'><p>{tag}</p></div>
-                        <CloseButton onClick={() => this.removeTags(tag)}/>
-                      </div>
+              <Tab.Container id="left-tabs-example" defaultActiveKey={Object.keys(allTags)[0]}>
+                <Col xs='3'>
+                  <Form.Label>Category</Form.Label>
+                  <Nav variant="pills" style={{maxHeight: '20vh', overflowY: 'scroll'}}>
+                    {Object.keys(allTags).map(category => (
+                      <Nav.Item style={{width: '100%'}}>
+                        <Nav.Link eventKey={category}>{category}</Nav.Link>
+                      </Nav.Item>
                     ))}
-                </div>
-              </Col>
+                  </Nav>
+                </Col>
+                <Col>
+                  <Form.Label>Tags</Form.Label>
+                  <Tab.Content>
+                    {Object.entries(allTags).map(([category, tags]) => (
+                      <Tab.Pane eventKey={category}>
+                        {tags.map(tag => (
+                          <Form.Check inline key={`${category}.${tag}`}>
+                            <Form.Check.Input
+                              name={`${category}.${tag}`}
+                              key={`${category}.${tag}`}
+                              checked={this.state.tags.includes(`${category}.${tag}`)}
+                              onChange={this.handleTagCheck}
+                            />
+                            <Form.Check.Label className='list-item__tag'>
+                              <p>{tag}</p>
+                            </Form.Check.Label>
+                          </Form.Check>
+                        ))}
+                      </Tab.Pane>
+                    ))}
+                  </Tab.Content>
+                </Col>
+              </Tab.Container>
               <Col>
-                <Typeahead
-                  onChange={this.addTags}
-                  options={this.state.allTags.filter(tag => !this.state.tags.includes(tag))}
-                  placeholder='Add a tag'
-                  allowNew
-                  id='tags'
-                />
+                <Form.Label>Currently selected</Form.Label>
+                {this.state.tags.map(fullTag => (
+                  <div style={{'display': 'flex', 'align-items': 'center', 'margin-right': '0.5em'}}>
+                    <div className='list-item__tag'><p>{fullTag.split('.')[1]}</p></div>
+                    <CloseButton onClick={() => this.removeTag(fullTag)}/>
+                  </div>
+                ))}
               </Col>
             </Row>
           </Form.Group>
@@ -237,5 +258,42 @@ class ProjectEditor extends React.Component {
     )
   }
 }
+
+                        // <Form.Check inline title={fullname} key={degree}>
+                          // <Form.Check.Input name={degree} key={degree} checked={this.state.degrees.includes(degree)} onChange={this.handleMasterCheck}/>
+                          // <Form.Check.Label className='list-item__tag'>
+                            // <p>{degree}</p>
+                          // </Form.Check.Label>
+                        // </Form.Check>
+// {tags.map(tag => (
+  // <Card key={`${category}.${tags}`}>
+    // <Card.Body>{tag}</Card.Body>
+  // </Card>
+// ))}
+
+// <Form.Group className='mb-3 tags' controlId='tags'>
+  // <Form.Label>Tags</Form.Label>
+  // <Row>
+    // <Col xs='8'>
+      // <div className='mt-2 list-item__tags'>
+          // {this.state.tags.map(tag => (
+            // <div style={{'display': 'flex', 'align-items': 'center', 'margin-right': '0.5em'}}>
+              // <div className='list-item__tag'><p>{tag}</p></div>
+              // <CloseButton onClick={() => this.removeTags(tag)}/>
+            // </div>
+          // ))}
+      // </div>
+    // </Col>
+    // <Col>
+      // <Typeahead
+        // onChange={this.addTags}
+        // options={this.state.allTags.filter(tag => !this.state.tags.includes(tag))}
+        // placeholder='Add a tag'
+        // allowNew
+        // id='tags'
+      // />
+    // </Col>
+  // </Row>
+// </Form.Group>
 
 export default ProjectEditor
