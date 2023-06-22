@@ -1,6 +1,7 @@
-import axios from 'axios'
-import GraphQLBuilder from './GraphQLBuilder.js'
-import NodeCache from 'node-cache'
+import axios from 'axios';
+import GraphQLBuilder from './GraphQLBuilder.js';
+import NodeCache from 'node-cache';
+import fields from './graphqlFields.js'; // assert { type: 'json' };
 
 let tracing = false
 const browser = typeof localStorage !== 'undefined'
@@ -60,6 +61,8 @@ const unpackToken = token => {
 }
 
 const genBody = (possibleFields, projection) => {
+  possibleFields = possibleFields.filter(field => !field.includes(':'))
+
   let fields = Object.keys(projection || {})
   let whitelist = false
 
@@ -117,103 +120,38 @@ const genBody = (possibleFields, projection) => {
   return genString(structuredOutput)
 }
 
-const fields = {
-  UserBase: ['uid', 'firstname', 'lastname', 'email', 'phone'],
-  Student: ['studentnumber', 'websites', 'studies', 'share', 'manuallyShared'],
-  Representative: ['enid', 'repAdmin'],
-  Entity: [
-    'enid',
-    'name',
-    'description',
-    'type',
-    'contact.type',
-    'contact.content',
-    'external_id',
-    'representatives',
-    'location',
-  ],
-  EntityImportResult: [
-    'error',
-    'entity.enid',
-    'entity.name',
-    'entity.description',
-    'entity.type',
-    'entity.contact.type',
-    'entity.contact.content',
-    'entity.external_id',
-    'entity.representatives',
-    'entity.location',
-  ],
-  Event: [
-    'evid',
-    'enabled',
-    'name',
-    'description',
-    'start',
-    'location',
-    'studentSubmitDeadline',
-    'entities',
-    'external_id',
-  ],
-  EventImportResult: [
-    'error',
-    'event.evid',
-    'event.enabled',
-    'event.name',
-    'event.description',
-    'event.start',
-    'event.location',
-    'event.studentSubmitDeadline',
-    'event.entities',
-    'event.external_id',
-  ],
-  Project: ['pid', 'enid', 'evids', 'name', 'description', 'degrees', 'tags', 'approval', 'datanoseLink', 'external_id'],
-  ProjectImportResult: [
-    'error',
-    'project.pid',
-    'project.enid',
-    'project.evids',
-    'project.name',
-    'project.description',
-    'project.datanoseLink',
-    'project.external_id',
-  ],
-  StudentVote: ['uid', 'pid'],
-  VoteImportResult: ['error'],
-  Schedule: ['sid', 'uid', 'enid', 'slot'],
+function genBodyWrapped(fields, projection) {
+  const ifaceMap = new Map()
+  const ownFields = []
+
+  for (const field of fields) {
+    if (field.includes(':')) {
+      const [iface, name] = field.split(':')
+      if (!ifaceMap.get(iface)) {
+        ifaceMap.set(iface, [])
+      }
+
+      ifaceMap.get(iface).push(name)
+    } else {
+      ownFields.push(field)
+    }
+  }
+
+  const ifaceBodies = new Map([...ifaceMap.entries()].map(
+    ([iface, ifaceFields]) => [iface, genBody(ifaceFields, projection)]
+  ))
+  const ownBody = genBody(ownFields, projection)
+
+  return [...ifaceBodies.entries()].map(
+    ([iface, body]) => body ? `... on ${iface} {${body}}` : ''
+  ).join(' ') + ' ' + ownBody
 }
 
-const bodies = {
-  User: projection => {
-    const userBase = genBody(fields.UserBase, projection)
-    const student = genBody(fields.Student, projection)
-    const rep = genBody(fields.Representative, projection)
-    return (
-      (userBase ? `... on UserBase {${userBase}} ` : '') +
-      (student ? `... on Student {${student}} ` : '') +
-      (rep ? `... on Representative {${rep}}` : '')
-    )
-  },
-  Student: projection => {
-    const userBase = genBody(fields.UserBase, projection)
-    const student = genBody(fields.Student, projection)
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + student
-  },
-  Representative: projection => {
-    const userBase = genBody(fields.UserBase, projection)
-    const rep = genBody(fields.Representative, projection)
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + rep
-  },
-  Entity: projection => genBody(fields.Entity, projection),
-  EntityImportResult: projection => genBody(fields.EntityImportResult, projection),
-  Event: projection => genBody(fields.Event, projection),
-  EventImportResult: projection => genBody(fields.EventImportResult, projection),
-  Project: projection => genBody(fields.Project, projection),
-  ProjectImportResult: projection => genBody(fields.ProjectImportResult, projection),
-  StudentVote: projection => genBody(fields.StudentVote, projection),
-  VoteImportResult: projection => genBody(fields.VoteImportResult, projection),
-  Schedule: projection => genBody(fields.Schedule, projection),
-}
+const bodies = Object.fromEntries(
+  Object.entries(fields).map(
+    ([type, fields]) => [type, (projection) => genBodyWrapped(fields, projection)]
+  )
+)
 
 export default url => {
   url ||= typeof window !== 'undefined' ? '/' : 'http://172.16.239.130:3000/'
