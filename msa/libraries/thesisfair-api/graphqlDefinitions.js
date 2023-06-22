@@ -31,6 +31,10 @@ function expandedFieldNames(tc) {
     ))]
   }
 
+  if (typeComposerVariant(tc) === 'enum') {
+    return tc.getFieldNames()
+  }
+
   // Map from interface name (e.g. userBase) to list of the interface's fields 
   const ifaces = Object.fromEntries(
     tc.getInterfaces().map(i => [i.getTypeName(), i.getFieldNames()])
