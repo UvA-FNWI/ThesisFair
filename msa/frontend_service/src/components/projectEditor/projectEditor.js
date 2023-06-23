@@ -15,7 +15,6 @@ class ProjectEditor extends React.Component {
     super(props)
 
     this.state = {
-      evid: this.props.params.evid,
       name: '',
       description: '',
       environment: '',
@@ -76,11 +75,9 @@ class ProjectEditor extends React.Component {
   }
 
   async updateProject(e) {
-    const formData = Object.fromEntries(new FormData(e.target).entries())
-
     const project = {
       enid: api.getApiTokenData().enid,
-      name: formData.name,
+      name: this.state.name,
       description: this.state.description,
       degrees: this.state.degrees,
       tags: this.state.tags,
@@ -88,6 +85,8 @@ class ProjectEditor extends React.Component {
       environment: this.state.environment,
       expectations: this.state.expectations,
     }
+
+    console.log(project)
 
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
@@ -162,17 +161,16 @@ class ProjectEditor extends React.Component {
         <h1 className='mb-4'>{this.props.params.pid ? 'Edit' : 'Create'} Project</h1>
         <Form onSubmit={this.submit}>
           <Row className='mb-3'>
-            <Col>
-              <Form.Group controlId='name'>
-                <Form.Label>Project Name</Form.Label>
-                <Form.Control
-                  name='name'
-                  type='text'
-                  placeholder='Enter a concise title for your project'
-                  defaultValue={this.state.name}
-                />
-              </Form.Group>
-            </Col>
+            <Form.Group as={Col} controlId='name'>
+              <Form.Label>Project Name</Form.Label>
+              <Form.Control
+                name='name'
+                type='text'
+                placeholder='Enter a concise title for your project'
+                value={this.state.name}
+                onChange={e => this.setState({name: e.target.value})}
+              />
+            </Form.Group>
 
             <Col xs='auto'>
               <Form.Group controlId='degrees'>
