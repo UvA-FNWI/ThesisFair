@@ -137,12 +137,12 @@ schemaComposer.Mutation.addNestedFields({
       enid: 'ID!',
       evid: 'ID!',
       name: 'String!',
-      description: 'String',
-      attendance: 'Attendance!',
-      expectations: 'String',
-      environment: 'String',
       degrees: '[Degree]',
       tags: '[String]',
+      description: 'String',
+      attendance: 'Attendance',
+      environment: 'String',
+      expectations: 'String',
       datanoseLink: 'String',
       external_id: 'Int',
     },
@@ -164,7 +164,7 @@ schemaComposer.Mutation.addNestedFields({
 
       args.evids = [args.evid]
 
-      return Project.create(args)
+      return await Project.create(args)
     },
   },
   'project.update': {
@@ -213,7 +213,6 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED approve projects')
       }
 
-      console.log(args)
       const pid = args.pid
       delete args.pid
       await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
