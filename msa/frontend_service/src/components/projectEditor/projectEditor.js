@@ -2,11 +2,11 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Tab, Button, Form, Row, Col, Nav, CloseButton, ToggleButton, ButtonGroup } from 'react-bootstrap'
+import { Container, Tab, Button, Form, Row, Col, Nav, CloseButton, ToggleButton, ButtonGroup, FormControl } from 'react-bootstrap'
 // import { Typeahead } from 'react-bootstrap-typeahead'
 import api, { degrees, tags as allTags } from '../../api'
 
-import '../../components/projectListItem/projectListItem.scss'
+import './style.scss'
 
 class ProjectEditor extends React.Component {
   // TODO: have a controlled input rather than uncontrolled (i.e. update state
@@ -59,6 +59,11 @@ class ProjectEditor extends React.Component {
 
     switch (submitType) {
       case 'submit':
+        if (!this.validate()) {
+          e.stopPropagation()
+          return
+        }
+
         await this.updateProject(e)
         break
       case 'cancel':
@@ -153,6 +158,23 @@ class ProjectEditor extends React.Component {
     }
   }
 
+  validate = () => {
+    console.log(this.validation)
+    let bruh = Object.values(this.validation).every(f => f() === true)
+    console.log(bruh)
+    return bruh
+  }
+
+  validation = {
+    name: () => this.state.name.length > 0,
+    degrees: () => this.state.degrees.length > 0,
+    attendance: () => this.attendanceOptions.map(({value}) => value).includes(this.state.attendance),
+    description: () => this.state.description.length > 0,
+    expectations: () => true,
+    environment: () => true,
+    tags: () => this.state.tags.length > 0 && this.state.tags.length <= 3,
+  }
+
   render() {
     // TODO: master tags should be greyed out when clicked, no checkboxes -
     // would save space and look nicer
@@ -169,13 +191,19 @@ class ProjectEditor extends React.Component {
                 placeholder='Enter a concise title for your project'
                 value={this.state.name}
                 onChange={e => this.setState({name: e.target.value})}
+                isInvalid={!this.validation.name()}
+                required
               />
+              <Form.Control.Feedback type='invalid'>
+                Please enter a title for your project
+              </Form.Control.Feedback>
             </Form.Group>
 
             <Col xs='auto'>
               <Form.Group controlId='degrees'>
                 <Form.Label>Applicable masters</Form.Label>
-                <div className='mt-2 list-item__tags'>
+                <br/>
+                <ButtonGroup className={'mt-2 ' + (this.validation.degrees() ? '' : 'is-invalid')}> 
                   {Object.entries(degrees).map(([degree, fullname]) => (
                     <Form.Check inline title={fullname} key={degree}>
                       <Form.Check.Input name={degree}
@@ -188,30 +216,35 @@ class ProjectEditor extends React.Component {
                       </Form.Check.Label>
                     </Form.Check>
                   ))}
-                </div>
+                </ButtonGroup>
+                <Form.Control.Feedback type='invalid'>
+                  Please specify at least one degree
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             
             <Col xs='auto'>
               <Form.Group controlId='attendance'>
                 <Form.Label>Attending</Form.Label>
-                <div classname='mt-2'>
-                  <ButtonGroup>
-                    {this.attendanceOptions.map(({value, name}) => (
-                      <ToggleButton
-                        key={value}
-                        id={`attendance-${value}`}
-                        type='radio'
-                        name='attendance'
-                        value={value}
-                        checked={this.state.attendance === value}
-                        onChange={this.handleAttendanceChange}
-                      >
-                        {name}
-                      </ToggleButton>
-                    ))}
-                  </ButtonGroup>
-                </div>
+                <br/>
+                <ButtonGroup className={this.validation.attendance() || 'is-invalid'}>
+                  {this.attendanceOptions.map(({value, name}) => (
+                    <ToggleButton
+                      key={value}
+                      id={`attendance-${value}`}
+                      type='radio'
+                      name='attendance'
+                      value={value}
+                      checked={this.state.attendance === value}
+                      onChange={this.handleAttendanceChange}
+                    >
+                      {name}
+                    </ToggleButton>
+                  ))}
+                </ButtonGroup>
+                <Form.Control.Feedback type='invalid'>
+                  Specify
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
