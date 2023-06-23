@@ -1,73 +1,73 @@
 groups:
-- name: Linux
-  rules:
-  - alert: CPU usage
-    expr: sum by (instance) (rate(node_cpu_seconds_total{mode='idle'}[20s])) < 0.2
-    labels:
-      severity: warning
-    annotations:
-      summary: High cpu usage on {{ $labels.instance }}
-  - alert: CPU usage
-    expr: sum by (instance) (rate(node_cpu_seconds_total{mode='idle'}[20s])) < 0.05
-    labels:
-      severity: critical
-    annotations:
-      summary: Critical cpu usage on {{ $labels.instance }}
+  - name: Linux
+    rules:
+      - alert: CPU usage
+        expr: sum by (instance) (rate(node_cpu_seconds_total{mode='idle'}[20s])) < 0.2
+        labels:
+          severity: warning
+        annotations:
+          summary: High cpu usage on {{ $labels.instance }}
+      - alert: CPU usage
+        expr: sum by (instance) (rate(node_cpu_seconds_total{mode='idle'}[20s])) < 0.05
+        labels:
+          severity: critical
+        annotations:
+          summary: Critical cpu usage on {{ $labels.instance }}
 
-  - alert: RAM usage
-    expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.8
-    # for: 2m
-    labels:
-      severity: warning
-    annotations:
-      summary: High ram usage on {{ $labels.instance }}
-  - alert: RAM usage
-    expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.95
-    for: 2m
-    labels:
-      severity: critical
-    annotations:
-      summary: Critical ram usage on {{ $labels.instance }}
+      - alert: RAM usage
+        expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.8
+        # for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: High ram usage on {{ $labels.instance }}
+      - alert: RAM usage
+        expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Critical ram usage on {{ $labels.instance }}
 
-  - alert: Disk usage
-    expr: node_filesystem_avail_bytes{ mountpoint=~"/opt/thesisfair|/" } < 8589934592 # 8 GiB
-    labels:
-      severity: warning
-    annotations:
-      summary: Low disk space on {{ $labels.mountpoint }}
+      - alert: Disk usage
+        expr: node_filesystem_avail_bytes{ mountpoint=~"/opt/thesisfair|/" } < 8589934592 # 8 GiB
+        labels:
+          severity: warning
+        annotations:
+          summary: Low disk space on {{ $labels.mountpoint }}
 
-- name: Queues
-  rules:
-  - alert: Queue overloaded
-    expr: rabbitmq_queue_messages_ready > 0 # Requests queued
-    for: 1m
-    labels:
-      severity: info
-    annotations:
-      summary: Messages are being queued for service {{ $labels.queue }}.
+  - name: Queues
+    rules:
+      - alert: Queue overloaded
+        expr: rabbitmq_queue_messages_ready > 0 # Requests queued
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: Messages are being queued for service {{ $labels.queue }}.
 
-  - alert: Queue overloaded
-    expr: rabbitmq_queue_messages_ready > 15 # Requests queued
-    for: 30s
-    labels:
-      severity: warning
-    annotations:
-      summary: "Queue {{ $labels.queue }} is getting full."
+      - alert: Queue overloaded
+        expr: rabbitmq_queue_messages_ready > 15 # Requests queued
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Queue {{ $labels.queue }} is getting full.'
 
-  - alert: Queue overloaded
-    expr: rabbitmq_queue_messages_ready > 30 # Requests queued
-    for: 30s
-    labels:
-      severity: critical
-    annotations:
-      summary: "Service {{ $labels.queue }} is overloaded with requests."
+      - alert: Queue overloaded
+        expr: rabbitmq_queue_messages_ready > 30 # Requests queued
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Service {{ $labels.queue }} is overloaded with requests.'
 
-- name: Traefik
-  rules:
-  - alert: Requests are erroring
-    expr: rate(traefik_router_requests_total{ router="webSec-apiGateway@docker", code!="200", code!="302" }[20s]) > 5
-    for: 1m
-    labels:
-      severity: warning
-    annotations:
-      summary: "Traefik is returning a lot of {{ $labels.code }} error requests."
+  - name: Traefik
+    rules:
+      - alert: Requests are erroring
+        expr: rate(traefik_router_requests_total{ router="webSec-apiGateway@docker", code!="200", code!="302" }[20s]) > 5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Traefik is returning a lot of {{ $labels.code }} error requests.'

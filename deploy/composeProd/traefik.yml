@@ -1,17 +1,17 @@
 entrypoints:
   web:
-    address: ":80"
+    address: ':80'
     http:
       redirections:
         entrypoint:
           to: webSec
           scheme: https
   webSec:
-    address: ":443"
+    address: ':443'
     http:
       tls: {}
   metrics:
-    address: ":8082"
+    address: ':8082'
 
 providers:
   docker:
