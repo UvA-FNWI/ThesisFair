@@ -167,12 +167,14 @@ class ProjectEditor extends React.Component {
 
   validation = {
     name: () => this.state.name.length > 0,
+    description: () => this.state.description.length > 0,
+    environment: () => this.state.environment.length > 0,
+
     degrees: () => this.state.degrees.length > 0,
     attendance: () => this.attendanceOptions.map(({value}) => value).includes(this.state.attendance),
-    description: () => this.state.description.length > 0,
-    expectations: () => true,
-    environment: () => true,
     tags: () => this.state.tags.length > 0 && this.state.tags.length <= 3,
+
+    expectations: () => true,
   }
 
   render() {
