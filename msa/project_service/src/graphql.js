@@ -228,7 +228,7 @@ schemaComposer.Mutation.addNestedFields({
     resolve: async (obj, args, req) => {
       projectWriteAccess(req.user, args)
 
-      Project.findByIdAndDelete(args.pid)
+      await Project.findByIdAndDelete(args.pid)
     },
   },
   'project.deleteOfEntity': {

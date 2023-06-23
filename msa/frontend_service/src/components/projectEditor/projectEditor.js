@@ -89,22 +89,16 @@ class ProjectEditor extends React.Component {
       expectations: this.state.expectations,
     }
 
-    console.log(project)
-
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
-      console.log("Updating project")
       await api.project
         .update({...project, pid: this.props.params.pid})
         .exec()
     } else {
-      console.log("Creating project")
       await api.project
         .create({...project, evid: this.props.params.evid})
         .exec()
     }
-
-    console.log("ASDF")
   }
 
   async deleteProject(_e) {
