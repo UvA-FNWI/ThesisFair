@@ -37,6 +37,8 @@ type Project {
   degrees: [Degree]
   tags: [String]
   description: String
+  environment: String
+  expectations: String
   approval: ApprovalStatus
   attendance: Attendance
   datanoseLink: String

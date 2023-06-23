@@ -9,6 +9,8 @@ const projectSchema = new mongoose.Schema({
   evids: [{ type: mongoose.Schema.ObjectId }],
   name: { type: String },
   description: { type: String },
+  environment: { type: String },
+  expectations: { type: String },
   degrees: [{ type: String }],
   tags: [{type: String}],
   attendance: { type: String },

@@ -19,6 +19,7 @@ class ProjectEditor extends React.Component {
       name: '',
       description: '',
       environment: '',
+      expectations: '',
       attendance: null,
       degrees: [],
       tags: [],
@@ -84,18 +85,26 @@ class ProjectEditor extends React.Component {
       degrees: this.state.degrees,
       tags: this.state.tags,
       attendance: this.state.attendance,
+      environment: this.state.environment,
+      expectations: this.state.expectations,
     }
+
+    console.log(project)
 
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
+      console.log("Updating project")
       await api.project
         .update({...project, pid: this.props.params.pid})
         .exec()
     } else {
+      console.log("Creating project")
       await api.project
         .create({...project, evid: this.props.params.evid})
         .exec()
     }
+
+    console.log("ASDF")
   }
 
   async deleteProject(_e) {
