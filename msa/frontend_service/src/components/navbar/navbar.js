@@ -7,7 +7,6 @@ import accountIcon from 'bootstrap-icons/icons/person-circle.svg';
 import likesIcon from 'bootstrap-icons/icons/heart.svg';
 import organisationsIcon from 'bootstrap-icons/icons/building.svg';
 import projectsIcon from 'bootstrap-icons/icons/list-task.svg';
-import scheduleIcon from 'bootstrap-icons/icons/calendar.svg';
 import eventIcon from 'bootstrap-icons/icons/calendar-event.svg';
 import userIcon from 'bootstrap-icons/icons/people.svg';
 import overrideUserIcon from 'bootstrap-icons/icons/person.svg';
@@ -59,9 +58,6 @@ function CustomNavbar(props) {
                 <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
               </Nav.Item>
               <Nav.Item>
-                <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
-              </Nav.Item>
-              <Nav.Item>
                 <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
               </Nav.Item>
               <Nav.Item>
@@ -83,9 +79,6 @@ function CustomNavbar(props) {
               }
               <Nav.Item>
                 <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
               </Nav.Item>
               <Nav.Item>
                 <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>

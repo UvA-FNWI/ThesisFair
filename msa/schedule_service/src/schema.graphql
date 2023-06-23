@@ -1,7 +1,0 @@
-
-type Schedule {
-    sid: ID!
-    uid: ID!
-    enid: ID!
-    slot: String
-}

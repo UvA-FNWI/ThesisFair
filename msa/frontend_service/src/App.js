@@ -13,7 +13,6 @@ import Error from './pages/Error';
 
 import Event from './pages/admin/Event';
 import EventEntities from './pages/admin/EventEntities';
-import EventSchedule from './pages/admin/EventSchedule';
 import EventProjects from './pages/admin/EventProjects';
 import Events from './pages/admin/Events';
 import Students from './pages/admin/Students';
@@ -23,11 +22,9 @@ import LoginAs from './pages/admin/LoginAs';
 import StudentAccount from './pages/student/StudentAccount';
 import Organisations from './pages/student/Organisations';
 import Votes from './pages/student/Votes';
-import StudentSchedule from './pages/student/Schedule';
 
 import RepAccount from './pages/representative/RepAccount';
 import Projects from './pages/representative/projects';
-import RepSchedule from './pages/representative/Schedule';
 
 import OrganisationDashboard from './pages/adminRepresentative/OrganisationDashboard';
 
@@ -87,7 +84,6 @@ class App extends React.Component {
         <Route path='account' element={<Page page={<AdminAccount />} />} />
         <Route path='event/:evid/' element={<Page page={<Event />} />} />
         <Route path='event/:evid/entities' element={<Page page={<EventEntities />} />} />
-        <Route path='event/:evid/schedule' element={<Page page={<EventSchedule />} />} />
         <Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />
         <Route path='students' element={<Page page={<Students />} />} />
         <Route path='loginAs' element={<Page page={<LoginAs />} />} />
@@ -103,7 +99,6 @@ class App extends React.Component {
         <Route path='account' element={<Page page={<StudentAccount />} />} />
         <Route path='organisations' element={<Page page={<Organisations />} />} />
         <Route path='votes' element={<Page page={<Votes />} />} />
-        <Route path='schedule' element={<Page page={<StudentSchedule />} />} />
       </>
     );
   }
@@ -114,7 +109,6 @@ class App extends React.Component {
         <Route path='' element={<Navigate to='account' replace={true} />} />
         <Route path="account" element={<Page page={<RepAccount />} />} />
         <Route path="projects" element={<Page page={<Projects />} />} />
-        <Route path='schedule' element={<Page page={<RepSchedule />} />} />
       </>
     );
   }
