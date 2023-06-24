@@ -10,6 +10,7 @@
     "axios": "^0.27.2",
     "bootstrap": "^5.1.3",
     "bootstrap-icons": "^1.8.3",
+    "clsx": "^1.2.1",
     "node-cache": "^5.1.2",
     "react": "^18.2.0",
     "react-bootstrap": "^2.4.0",
@@ -22,7 +23,6 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "prestart": "npm run build --prefix './src/api'",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

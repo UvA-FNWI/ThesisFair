@@ -1,0 +1,34 @@
+.tag {
+  height: fit-content;
+  width: fit-content;
+  align-items: center;
+
+  background-color: rgb(28, 68, 180);
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.5rem;
+
+  margin: 0 0.125rem;
+
+  & p {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  &--AI {
+    background-color: rgb(141, 26, 183);
+  }
+
+  &--CS {
+    background-color: rgb(185, 67, 17);
+  }
+
+  &--SE {
+    background-color: rgb(14, 134, 20);
+  }
+
+  &--CPS {
+    background-color: rgb(161, 25, 25);
+  }
+}

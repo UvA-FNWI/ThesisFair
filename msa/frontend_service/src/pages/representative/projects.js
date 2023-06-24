@@ -2,7 +2,19 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Accordion, Button, Badge, CloseButton, Card, OverlayTrigger, Tooltip, Form, Row, Col } from 'react-bootstrap'
+import {
+  Container,
+  Accordion,
+  Button,
+  Badge,
+  CloseButton,
+  Card,
+  OverlayTrigger,
+  Tooltip,
+  Form,
+  Row,
+  Col,
+} from 'react-bootstrap'
 import { Typeahead } from 'react-bootstrap-typeahead'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
@@ -88,14 +100,14 @@ class ProjectListing extends React.Component {
 
           {this.state.projects.length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
 
-          <Accordion defaultActiveKey={0}>
+          <Accordion>
             {this.state.projects.map((project, projectIndex) => (
               <Accordion.Item key={projectIndex} eventKey={projectIndex}>
                 <Accordion.Header>
                   <div className='d-flex justify-content-between align-items-center w-100 me-3'>
                     <span className='me-3'>{project.name}</span>
                     {approvalBadge(project)}
-                    <span className='me-auto'/>
+                    <span className='me-auto' />
                     <ProjectEditorTrigger params={{ ...project, edit: this.props.params.edit }} />
                     <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
                       <Button
@@ -186,7 +198,6 @@ class ProjectListing extends React.Component {
   }
 }
 
-
 class ProjectEditorTrigger extends React.Component {
   constructor(props) {
     super(props)
@@ -233,7 +244,7 @@ class Projects extends React.Component {
 
   edit(pid) {
     this.setState({
-      editor: <ProjectEditor onClose={this.close} params={{pid: pid, ...this.props.params}} />,
+      editor: <ProjectEditor onClose={this.close} params={{ pid: pid, ...this.props.params }} />,
     })
   }
 

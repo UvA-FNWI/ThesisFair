@@ -7,6 +7,9 @@ import closeIcon from 'bootstrap-icons/icons/x-lg.svg'
 import gripIcon from 'bootstrap-icons/icons/grip-vertical.svg'
 
 import './projectListItem.scss'
+import Tag from '../tag/tag'
+
+import cl from 'clsx'
 
 function ProjectListItem(props) {
   const [isExpanded, setIsExpanded] = React.useState(false)
@@ -51,14 +54,13 @@ function ProjectListItem(props) {
           <p>{props.project.name}</p>
         </div>
 
-        {/* TODO: Show only MSc tags when expanded */}
-        {props.project.tags && !props.selected && (
+        {props.project.tags && (
           <div className='list-item__tags'>
-            {props.project.tags.map(({ fullTag, abbreviation }) => (
-              <div className='list-item__tag' key={fullTag}>
-                <p>{abbreviation.toString()}</p>
-              </div>
-            ))}
+            {props.project.tags
+              .filter(tag => ['AI', 'SE', 'CS', 'CPS'].includes(tag))
+              .map(tag => (
+                <Tag key={tag} tag={tag} />
+              ))}
           </div>
         )}
 
@@ -73,40 +75,42 @@ function ProjectListItem(props) {
       </div>
 
       {/* Expanded view */}
-      {isExpanded && (
-        <div className='list-item__expanded' data-color-mode='light'>
-          <p className='list-item__email'>{props.project.email}</p>
-
-          <MDEditor.Markdown
-            source={props.project.description}
-            previewOptions={{
-              rehypePlugins: [[rehypeSanitize]],
-            }}
-          />
-
-          {!props.selected && !props.hidden ? (
-            <div className='list-item__buttons'>
-              <button className='list-item__button list-item__button--hide' onClick={hideProject}>
-                Hide
-              </button>
-
-              <button className='list-item__button list-item__button--add' onClick={addProject}>
-                Add
-              </button>
+      <div
+        className={cl('list-item__expander', { 'list-item__expander--expanded': isExpanded })}
+        data-color-mode='light'
+      >
+        <div className={cl('list-item__expander-content', { 'list-item__expander-content--expanded': isExpanded })}>
+          <div className='list-item__expand-content'>
+            <div className='list-item__email-tags'>
+              <a className='list-item__email' href={`mailto:${props.project.email}`}>
+                {props.project.email}
+              </a>
+              <div className='list-item__tags'>
+                {props.project.tags
+                  .filter(tag => !['AI', 'SE', 'CS', 'CPS'].includes(tag))
+                  .map(tag => (
+                    <Tag key={tag} tag={tag} />
+                  ))}
+              </div>
             </div>
-          ) : (
-            <div className='list-item__buttons'>
-              <button className='list-item__button list-item__button--unhide' onClick={unhideProject}>
-                Unhide
-              </button>
 
-              <button className='list-item__button list-item__button--add' onClick={removeProject}>
-                Add
-              </button>
+            <MDEditor.Markdown
+              source={props.project.description}
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
+              }}
+            />
+
+            <div className='list-item__buttons'>
+              {props.project.buttons.map(({ label, colour, onClick }) => (
+                <button key={label} className={`list-item__button list-item__button--${colour}`} onClick={onClick}>
+                  {label}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
         </div>
-      )}
+      </div>
     </li>
   )
 }

@@ -45,23 +45,80 @@ class Register extends React.Component {
     this.setState({ event, schedule })
   }
 
+  button_sets = project => ({
+    student: {
+      unselected: [
+        {
+          label: 'Hide',
+          colour: 'red',
+          onClick: () => this.hideProject(project),
+        },
+        {
+          label: 'Add',
+          colour: 'green',
+          onClick: () => this.addProject(project),
+        },
+      ],
+      selected: [
+        {
+          label: 'Remove',
+          colour: 'red',
+          onClick: () => this.removeProject(project),
+        },
+      ],
+      hidden: [
+        {
+          label: 'Unhide',
+          colour: 'blue',
+          onClick: () => this.unhideProject(project),
+        },
+        {
+          label: 'Add',
+          colour: 'green',
+          onClick: () => this.addProject(project),
+        },
+      ],
+    },
+    admin: {
+      unapproved: [
+        {
+          label: 'Disapprove',
+          colour: 'red',
+          onClick: () => this.disapproveProject(project),
+        },
+        {
+          label: 'Approve',
+          colour: 'green',
+          onClick: () => this.approveProject(project),
+        },
+      ],
+      approved: [
+        {
+          label: 'Disapprove',
+          colour: 'red',
+          onClick: () => this.disapproveProject(project),
+        },
+      ],
+      disapproved: [],
+    },
+    representative: {
+      default: {
+        label: 'Edit',
+        colour: 'blue',
+        onClick: () => this.editProject(project),
+      },
+    },
+  })
+
   data = [
     {
       selected: true,
       project: {
         name: 'Topic 1',
         email: 'abc@example.com',
-        tags: [
-          {
-            fullTag: 'AI',
-            abbreviation: 'AI',
-          },
-          {
-            fullTag: 'SE',
-            abbreviation: 'SE',
-          },
-        ],
+        tags: ['AI', 'SE', 'CS', 'Custom Tag', 'Magic'],
         description: '### This is a description',
+        buttons: this.button_sets(null).student.selected,
       },
     },
     {
@@ -69,53 +126,29 @@ class Register extends React.Component {
       project: {
         name: 'Topic 8',
         email: 'abc@example.com',
-        tags: [
-          {
-            fullTag: 'AI',
-            abbreviation: 'AI',
-          },
-          {
-            fullTag: 'SE',
-            abbreviation: 'SE',
-          },
-        ],
+        tags: ['AI', 'SE', 'CS', 'Custom Tag', 'Magic'],
         description: 'This is a description',
+        buttons: this.button_sets(null).student.selected,
       },
     },
     {
       selected: true,
       project: {
-        name: 'Topic 5',
-        email: 'abc@example.com',
-        tags: [
-          {
-            fullTag: 'AI',
-            abbreviation: 'AI',
-          },
-          {
-            fullTag: 'SE',
-            abbreviation: 'SE',
-          },
-        ],
-        description: 'This is a description',
+        name: 'Computer Science Project',
+        email: 'standard@example.com',
+        tags: ['CPS', 'CS', 'Custom Tag', 'Magic'],
+        description: '# This is a sample project\n\nIt is hardcoded for testing',
+        buttons: this.button_sets(null).student.selected,
       },
     },
     {
       selected: false,
       project: {
-        name: 'Topic 2',
-        email: 'def@example.com',
-        tags: [
-          {
-            fullTag: 'AI',
-            abbreviation: 'AI',
-          },
-          {
-            fullTag: 'SE',
-            abbreviation: 'SE',
-          },
-        ],
-        description: 'This is a description',
+        name: 'Thesis Fair Update',
+        email: 'contact@thesisfair.uva.nl',
+        tags: ['SE', 'CS', 'Example Tag 1', 'Another Tag'],
+        description: '# This is Markdown\n\nThis is the description of the project',
+        buttons: this.button_sets(null).student.unselected,
       },
     },
     {
@@ -123,17 +156,9 @@ class Register extends React.Component {
       project: {
         name: 'Topic 5',
         email: 'def@example.com',
-        tags: [
-          {
-            fullTag: 'AI',
-            abbreviation: 'AI',
-          },
-          {
-            fullTag: 'SE',
-            abbreviation: 'SE',
-          },
-        ],
+        tags: ['AI', 'SE', 'CS', 'Currently not', 'Selected'],
         description: 'This is a description',
+        buttons: this.button_sets(null).student.unselected,
       },
     },
     {
@@ -142,17 +167,9 @@ class Register extends React.Component {
       project: {
         name: 'Topic 6',
         email: 'def@example.com',
-        tags: [
-          {
-            fullTag: 'AI',
-            abbreviation: 'AI',
-          },
-          {
-            fullTag: 'SE',
-            abbreviation: 'SE',
-          },
-        ],
+        tags: ['AI', 'SE', 'CS', 'Custom Tag', 'Magic'],
         description: 'This is a description',
+        buttons: this.button_sets(null).student.hidden,
       },
     },
   ]
