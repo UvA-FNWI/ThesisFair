@@ -54,7 +54,7 @@ class Events extends React.Component {
       <Container className='mt-2'>
         <h1>Events</h1>
 
-        <Table bordered hover>
+        <Table striped hover>
           <thead>
             <tr>
               <th>Name</th>

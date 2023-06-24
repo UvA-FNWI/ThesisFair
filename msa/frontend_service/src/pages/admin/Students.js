@@ -55,7 +55,7 @@ class Students extends React.Component {
         <div className='mb-4'>
           <h1>Students</h1>
         </div>
-        <Table striped bordered hover>
+        <Table striped hover>
           <thead>
             <tr>
               <th>StudentID</th>

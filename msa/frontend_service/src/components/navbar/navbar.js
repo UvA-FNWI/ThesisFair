@@ -64,7 +64,7 @@ function CustomNavbar(props) {
             <img src='/images/uvalogo.svg' width='64' height='64' alt='UvA Logo' />
           </Link>
 
-          {navigationBarItems(props.evid)[type].map(({ name, icon, link }, index) => (
+          {navigationBarItems(params.evid)[type].map(({ name, icon, link }, index) => (
             <Nav.Item key={index}>
               <Link className={`nav-link ${currentPage === name.toLowerCase() ? 'active' : ''}`} to={link}>
                 <img src={icon} alt='' />

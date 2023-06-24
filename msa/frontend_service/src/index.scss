@@ -31,3 +31,11 @@ $theme-colors: (
   color: white;
   background-color: map-get($theme-colors, 'primary-dark');
 }
+
+.table > :not(:first-child) {
+  border-top: 2px solid map-get($theme-colors, 'primary');
+}
+
+td {
+  vertical-align: middle !important;
+}
