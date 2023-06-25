@@ -8,6 +8,7 @@ $navbarWidth: 84px;
 
 .navbar {
   background-color: map.get($theme-colors, 'primary');
+  position: absolute;
 
   .logo {
     display: block;

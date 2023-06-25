@@ -59,7 +59,7 @@ function CustomNavbar(props) {
       </Navbar.Brand>
       <Navbar.Toggle aria-controls='topNavbar' />
       <Navbar.Collapse id='topNavbar' className='justify-content-end'>
-        <Nav className='sidebar navbar flex-row flex-md-column justify-content-start'>
+        <Nav className='sidebar navbar position-fixed flex-row flex-md-column justify-content-start'>
           <Link className='logo d-none d-md-block' to={`/${params.evid || ''}`}>
             <img src='/images/uvalogo.svg' width='64' height='64' alt='UvA Logo' />
           </Link>

@@ -113,13 +113,13 @@ class ProjectListing extends React.Component {
                       <Button
                         size='sm'
                         variant='outline-primary'
-                        className='ms-2'
+                        className='ms-2 cv-button'
                         onClick={e => {
                           e.stopPropagation()
                           this.downloadAllCVs(project)
                         }}
                       >
-                        <img src={downloadIcon} alt='download' />
+                        <img className='cv-button__image' src={downloadIcon} alt='download' />
                       </Button>
                     </OverlayTrigger>
                   </div>
@@ -162,12 +162,13 @@ class ProjectListing extends React.Component {
                                         <Button
                                           size='sm'
                                           variant='outline-primary'
+                                          className='cv-button'
                                           onClick={e => {
                                             e.stopPropagation()
                                             downloadCV(student.uid, genCVName(student, project))
                                           }}
                                         >
-                                          <img src={downloadIcon} alt='download' />
+                                          <img className='cv-button__image' src={downloadIcon} alt='download' />
                                         </Button>
                                       </OverlayTrigger>
                                     </div>

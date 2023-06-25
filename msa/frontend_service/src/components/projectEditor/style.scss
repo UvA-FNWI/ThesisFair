@@ -1,3 +1,5 @@
+@import '../../index.scss';
+
 .create-project {
   & > form {
     width: 100%;
@@ -10,4 +12,85 @@
 
 .project-list > button {
   margin-top: 1rem;
+}
+
+.list-item {
+  padding: 0;
+  margin: 0 0.25rem;
+  background-color: transparent;
+
+  &__checkbox {
+    visibility: hidden;
+    width: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.button-attending {
+  color: black;
+  background-color: #dcdcdc;
+  border-color: #dcdcdc;
+
+  &:hover {
+    color: map-get($theme-colors, 'text-on-primary');
+    background-color: map-get($theme-colors, 'primary-hover');
+    border-color: map-get($theme-colors, 'primary-hover');
+  }
+
+  &:focus,
+  &:focus-visible,
+  &:focus-within {
+    outline: none;
+  }
+}
+
+.btn-check:checked + .button-attending {
+  color: map-get($theme-colors, 'text-on-primary');
+  background-color: map-get($theme-colors, 'primary-dark');
+  border-color: map-get($theme-colors, 'primary-dark');
+}
+
+.tag-category {
+  max-height: 20vh;
+  overflow-y: scroll;
+
+  &__item {
+    width: 100%;
+
+    & a {
+      color: map-get($theme-colors, 'accent');
+
+      &.nav-link {
+        &.active {
+          background-color: map-get($theme-colors, 'accent-dark');
+          color: white;
+        }
+
+        &:hover {
+          background-color: map-get($theme-colors, 'accent-hover');
+          color: white;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
+.tab-content > .active.selectable-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  & > .selectable-tag {
+    width: fit-content;
+    margin: 0;
+  }
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding-top: 2px;
 }

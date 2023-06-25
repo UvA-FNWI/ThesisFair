@@ -11,3 +11,13 @@
 .project-list > button {
   margin-top: 1rem;
 }
+
+.cv-button {
+  &__image {
+    filter: invert(68%) sepia(11%) saturate(1087%) hue-rotate(90deg) brightness(97%) contrast(90%);
+  }
+
+  &:hover &__image {
+    filter: invert(100%);
+  }
+}

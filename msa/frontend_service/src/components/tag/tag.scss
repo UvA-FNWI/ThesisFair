@@ -1,9 +1,14 @@
+@use 'sass:map';
+@import '../../index.scss';
+
 .tag {
+  display: flex;
   height: fit-content;
   width: fit-content;
   align-items: center;
+  overflow: hidden;
 
-  background-color: rgb(28, 68, 180);
+  background-color: map-get($theme-colors, 'primary');
   padding: 0.125rem 0.5rem;
   border-radius: 0.5rem;
 
@@ -16,19 +21,77 @@
     margin: 0;
   }
 
-  &--AI {
-    background-color: rgb(141, 26, 183);
+  &__icon {
+    margin-left: 0.5rem;
+    filter: invert(100%);
+    transform: rotate(0deg) scale(1);
+    transition: transform 150ms ease-in-out;
+
+    &--rotated {
+      transform: rotate(45deg) scale(0.8);
+    }
   }
 
   &--CS {
-    background-color: rgb(185, 67, 17);
+    background-color: rgb(183, 26, 115);
   }
 
-  &--SE {
-    background-color: rgb(14, 134, 20);
+  &--AI {
+    background-color: rgb(183, 26, 26);
   }
 
   &--CPS {
-    background-color: rgb(161, 25, 25);
+    background-color: rgb(183, 97, 26);
+  }
+
+  &--DS {
+    background-color: rgb(123, 183, 26);
+  }
+
+  &--IS {
+    background-color: rgb(26, 183, 99);
+  }
+
+  &--MoL {
+    background-color: rgb(26, 167, 183);
+  }
+
+  &--SE {
+    background-color: rgb(102, 26, 183);
+  }
+
+  &--disabled {
+    background-color: rgb(225, 225, 225);
+    filter: brightness(1) !important;
+
+    & .tag__icon {
+      transform: rotate(0deg);
+    }
+
+    &:hover {
+      cursor: not-allowed !important;
+      filter: brightness(1) !important;
+    }
+
+    &:active {
+      cursor: not-allowed !important;
+      filter: brightness(1) !important;
+    }
+  }
+
+  &:not(.tag--selected) {
+    // Make the tag look almost grey but retain a bit of its colour
+    filter: brightness(1.2) saturate(0.125);
+
+    &.tag--hoverable:hover {
+      filter: brightness(1.1) saturate(0.125);
+    }
+  }
+
+  &--hoverable:hover {
+    // box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    cursor: pointer;
+
+    filter: brightness(1.1);
   }
 }

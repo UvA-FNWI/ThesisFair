@@ -1,10 +1,13 @@
 @use 'sass:map';
 
 $theme-colors: (
-  'primary': #74b88d,
+  'primary': #75b88e,
   'primary-hover': #5e9e73,
   'primary-dark': #4b9363,
   'text-on-primary': #ffffff,
+  'accent': rgb(254, 189, 2),
+  'accent-hover': rgb(243, 177, 23),
+  'accent-dark': rgb(235, 161, 24),
   'gray': #ced4da,
   'white': #ffffff,
   'light': #f8f9fa,
@@ -22,14 +25,18 @@ $theme-colors: (
   color: white;
 }
 
+.btn-outline-primary:hover,
 .btn-primary:hover {
   color: white;
   background-color: map-get($theme-colors, 'primary-hover');
+  border-color: map-get($theme-colors, 'primary-hover');
 }
 
+.btn-outline-primary:active,
 .btn-primary:active {
   color: white;
   background-color: map-get($theme-colors, 'primary-dark');
+  border-color: map-get($theme-colors, 'primary-hover');
 }
 
 .table > :not(:first-child) {
@@ -38,4 +45,12 @@ $theme-colors: (
 
 td {
   vertical-align: middle !important;
+}
+
+.accordion-button:not(.collapsed) {
+  color: map-get($theme-colors, 'primary-dark');
+}
+
+.accordion-button:not(.collapsed)::after {
+  filter: saturate(0) invert(68%) sepia(11%) saturate(1087%) hue-rotate(90deg) brightness(97%) contrast(90%);
 }
