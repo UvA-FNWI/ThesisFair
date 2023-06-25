@@ -1,20 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import {
-  Container,
-  Tab,
-  Button,
-  Form,
-  Row,
-  Col,
-  Nav,
-  CloseButton,
-  ToggleButton,
-  ButtonGroup,
-  FormControl,
-} from 'react-bootstrap'
+import { Container, Tab, Button, Form, Row, Col, Nav, ToggleButton, ButtonGroup } from 'react-bootstrap'
 // import { Typeahead } from 'react-bootstrap-typeahead'
 import api, { degrees, tags as allTags } from '../../api'
 
@@ -37,6 +25,8 @@ class ProjectEditor extends React.Component {
       attendance: null,
       degrees: [],
       tags: [],
+      email: '',
+      numberOfStudents: null,
       hasBeenInteractedWith: {
         name: false,
         description: false,
@@ -45,6 +35,8 @@ class ProjectEditor extends React.Component {
         attendance: false,
         degrees: false,
         tags: false,
+        email: false,
+        numberOfStudents: false,
       },
     }
 
@@ -114,6 +106,8 @@ class ProjectEditor extends React.Component {
       attendance: this.state.attendance,
       environment: this.state.environment,
       expectations: this.state.expectations,
+      email: this.state.email,
+      numberOfStudents: this.state.numberOfStudents,
     }
 
     // TODO: handle errors and show to user
@@ -210,6 +204,13 @@ class ProjectEditor extends React.Component {
     return bruh
   }
 
+  validateEmail = email =>
+    String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      )
+
   validation = {
     name: () => this.state.name.length > 0,
     description: () => this.state.description.length > 0,
@@ -220,6 +221,11 @@ class ProjectEditor extends React.Component {
     tags: () => this.state.tags.length >= 1 && this.state.tags.length <= 3,
 
     expectations: () => true,
+    email: () => this.validateEmail(this.state.email),
+    numberOfStudents: () => {
+      const numberOfStudents = Number(this.state.numberOfStudents)
+      return this.state.numberOfStudents === '' || (numberOfStudents > 0 && Number.isInteger(numberOfStudents))
+    },
   }
 
   render() {
@@ -313,6 +319,63 @@ class ProjectEditor extends React.Component {
                 <Form.Control.Feedback type='invalid'>Specify</Form.Control.Feedback>
               </Form.Group>
             </Col>
+          </Row>
+
+          <Row className='mb-3'>
+            <Form.Group as={Col} className='mb-3' controlId='email'>
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                name='email'
+                type='email'
+                placeholder='Enter the email for contact about your project'
+                value={this.state.email}
+                onChange={e => {
+                  this.setState({
+                    email: e.target.value,
+                  })
+                }}
+                onBlur={() => {
+                  this.setState({
+                    hasBeenInteractedWith: {
+                      ...this.state.hasBeenInteractedWith,
+                      email: true,
+                    },
+                  })
+                }}
+                isInvalid={this.state.hasBeenInteractedWith.email && !this.validation.email()}
+                required
+              />
+              <Form.Control.Feedback type='invalid'>Please enter a valid email</Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group as={Col} className='mb-3' controlId='numberOfStudents'>
+              <Form.Label>Number of students</Form.Label>
+              <Form.Control
+                name='numberOfStudents'
+                type='text'
+                placeholder='Enter the amount of students you are looking for (optional)'
+                value={this.state.numberOfStudents}
+                min='0'
+                onChange={e => {
+                  if (e.target.value === '0') {
+                    e.target.value = ''
+                  }
+
+                  this.setState({
+                    numberOfStudents: e.target.value,
+                    hasBeenInteractedWith: {
+                      ...this.state.hasBeenInteractedWith,
+                      numberOfStudents: true,
+                    },
+                  })
+                }}
+                isInvalid={
+                  this.state.numberOfStudents !== null &&
+                  this.state.hasBeenInteractedWith.numberOfStudents &&
+                  !this.validation.numberOfStudents()
+                }
+              />
+              <Form.Control.Feedback type='invalid'>Please enter a natural number</Form.Control.Feedback>
+            </Form.Group>
           </Row>
 
           <Form.Group className='mb-3 description' controlId='description'>
@@ -413,7 +476,7 @@ class ProjectEditor extends React.Component {
                   </Nav>
                 </Col>
                 <Col>
-                  <Form.Label>Tags</Form.Label>
+                  <Form.Label>Tags (Select 1 to 3)</Form.Label>
                   <Tab.Content>
                     {Object.entries(allTags).map(([category, tags]) => (
                       <Tab.Pane eventKey={category} key={category} className='selectable-tags'>

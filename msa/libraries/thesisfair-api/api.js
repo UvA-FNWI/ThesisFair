@@ -1,7 +1,7 @@
-import axios from 'axios';
-import GraphQLBuilder from './GraphQLBuilder.js';
-import NodeCache from 'node-cache';
-import fields from './graphqlFields.js'; // assert { type: 'json' };
+import axios from 'axios'
+import GraphQLBuilder from './GraphQLBuilder.js'
+import NodeCache from 'node-cache'
+import fields from './graphqlFields.js' // assert { type: 'json' };
 
 let tracing = false
 const browser = typeof localStorage !== 'undefined'
@@ -137,20 +137,20 @@ function genBodyWrapped(fields, projection) {
     }
   }
 
-  const ifaceBodies = new Map([...ifaceMap.entries()].map(
-    ([iface, ifaceFields]) => [iface, genBody(ifaceFields, projection)]
-  ))
+  const ifaceBodies = new Map(
+    [...ifaceMap.entries()].map(([iface, ifaceFields]) => [iface, genBody(ifaceFields, projection)])
+  )
   const ownBody = genBody(ownFields, projection)
 
-  return [...ifaceBodies.entries()].map(
-    ([iface, body]) => body ? `... on ${iface} {${body}}` : ''
-  ).join(' ') + ' ' + ownBody
+  return (
+    [...ifaceBodies.entries()].map(([iface, body]) => (body ? `... on ${iface} {${body}}` : '')).join(' ') +
+    ' ' +
+    ownBody
+  )
 }
 
 const bodies = Object.fromEntries(
-  Object.entries(fields).map(
-    ([type, fields]) => [type, (projection) => genBodyWrapped(fields, projection)]
-  )
+  Object.entries(fields).map(([type, fields]) => [type, projection => genBodyWrapped(fields, projection)])
 )
 
 export default url => {
@@ -759,7 +759,7 @@ export default url => {
         },
       },
       project: {
-        tags: (projection) =>
+        tags: projection =>
           genGraphQLBuilder({
             name: 'getAllTags',
             functionPath: 'tags',
@@ -817,11 +817,13 @@ export default url => {
               evid: { value: project.evid, type: 'ID!' },
               name: { value: project.name, type: 'String!' },
               description: { value: project.description, type: 'String' },
-              degrees: {value: project.degrees, type: '[Degree]' },
-              tags: {value: project.tags, type: '[String]' },
+              degrees: { value: project.degrees, type: '[Degree]' },
+              tags: { value: project.tags, type: '[String]' },
               attendance: { value: project.attendance, type: 'Attendance' },
               environment: { value: project.environment, type: 'String' },
               expectations: { value: project.expectations, type: 'String' },
+              email: { value: project.email, type: 'String' },
+              numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
               external_id: { value: project.external_id, type: 'Int' },
             },
@@ -844,6 +846,8 @@ export default url => {
               attendance: { value: project.attendance, type: 'Attendance' },
               environment: { value: project.environment, type: 'String' },
               expectations: { value: project.expectations, type: 'String' },
+              email: { value: project.email, type: 'String' },
+              numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,
