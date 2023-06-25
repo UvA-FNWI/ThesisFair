@@ -2,6 +2,74 @@ import React from 'react'
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import api from '../../api'
 
+class OrganizationInfo extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      name: '',
+      description: '',
+      contact: [],
+    }
+  }
+
+  async componentDidMount() {
+    const entity = await api.entity.get(api.getApiTokenData().enid).exec()
+    this.setState({ name: entity.name, description: entity.description, contact: entity.contact })
+  }
+
+  render() {
+    return (
+      <>
+        <Container className='mt-4'>
+          <h2>Organisation Information</h2>
+          <div className='mb-4'>
+            <div>
+              <Form>
+                <div className='mb-2'>
+                  <Form.Group>
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control
+                      placeholder='Enter organisation name'
+                      value={this.state.name}
+                      disabled
+                    />
+                  </Form.Group>
+                  <Form.Group className='mt-2'>
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control
+                      as='textarea'
+                      rows={8}
+                      placeholder='Enter description'
+                      value={this.state.description}
+                      disabled
+                    />
+                  </Form.Group>
+                </div>
+              </Form>
+            </div>
+          </div>
+
+          <div className='mb-4'>
+            <h2>Contact Information</h2>
+            <Form>
+              {this.state.contact.map((contact, _) => (
+                <Form.Group as={Row}>
+                  <Form.Label column sm="2">{contact.type}</Form.Label>
+                  <Col sm="10">
+                    <Form.Control className='mb-2' value={contact.content} disabled />
+                  </Col>
+                </Form.Group>
+              ))}
+            </Form>
+          </div>
+        </Container>
+      </>
+    )
+  }
+}
+
+
 class RepAccount extends React.Component {
   constructor(props) {
     super(props)
@@ -181,4 +249,13 @@ class RepAccount extends React.Component {
   }
 }
 
-export default RepAccount
+class Page extends React.Component {
+  render() {
+    return <>
+      <RepAccount/>
+      <OrganizationInfo/>
+    </>
+  }
+}
+
+export default Page
