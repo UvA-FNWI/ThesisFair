@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
@@ -21,6 +21,8 @@ import api, { degrees, tags as allTags } from '../../api'
 import './style.scss'
 import Tag from '../tag/tag'
 
+import cl from 'clsx'
+
 class ProjectEditor extends React.Component {
   // TODO: have a controlled input rather than uncontrolled (i.e. update state
   // as form is edited) for name
@@ -35,6 +37,15 @@ class ProjectEditor extends React.Component {
       attendance: null,
       degrees: [],
       tags: [],
+      hasBeenInteractedWith: {
+        name: false,
+        description: false,
+        environment: false,
+        expectations: false,
+        attendance: false,
+        degrees: false,
+        tags: false,
+      },
     }
 
     this.submit = this.submit.bind(this)
@@ -113,8 +124,10 @@ class ProjectEditor extends React.Component {
     }
   }
 
-  async deleteProject(_e) {
+  async deleteProject(e) {
+    e.preventDefault()
     await api.project.delete(this.props.params.pid).exec()
+    this.props.onClose()
   }
 
   cancel(e) {
@@ -123,6 +136,13 @@ class ProjectEditor extends React.Component {
   }
 
   handleMasterCheck(degree) {
+    this.setState({
+      hasBeenInteractedWith: {
+        ...this.state.hasBeenInteractedWith,
+        degrees: true,
+      },
+    })
+
     if (!this.state.degrees.includes(degree)) {
       this.setState({
         degrees: [...this.state.degrees, degree],
@@ -135,6 +155,13 @@ class ProjectEditor extends React.Component {
   }
 
   handleTagCheck(tag) {
+    this.setState({
+      hasBeenInteractedWith: {
+        ...this.state.hasBeenInteractedWith,
+        tags: true,
+      },
+    })
+
     if (!this.state.tags.includes(tag)) {
       if (this.state.tags.length >= 3) return
 
@@ -149,6 +176,10 @@ class ProjectEditor extends React.Component {
   removeTag(tag) {
     this.setState({
       tags: this.state.tags.filter(item => item !== tag),
+      hasBeenInteractedWith: {
+        ...this.state.hasBeenInteractedWith,
+        tags: true,
+      },
     })
   }
 
@@ -158,6 +189,13 @@ class ProjectEditor extends React.Component {
   ]
 
   handleAttendanceChange(e) {
+    this.setState({
+      hasBeenInteractedWith: {
+        ...this.state.hasBeenInteractedWith,
+        attendance: true,
+      },
+    })
+
     if (e.currentTarget.value === this.state.attendance) {
       this.setState({ attendance: null })
     } else {
@@ -179,7 +217,7 @@ class ProjectEditor extends React.Component {
 
     degrees: () => this.state.degrees.length > 0,
     attendance: () => this.attendanceOptions.map(({ value }) => value).includes(this.state.attendance),
-    tags: () => this.state.tags.length > 0 && this.state.tags.length <= 3,
+    tags: () => this.state.tags.length >= 1 && this.state.tags.length <= 3,
 
     expectations: () => true,
   }
@@ -199,8 +237,16 @@ class ProjectEditor extends React.Component {
                 type='text'
                 placeholder='Enter a concise title for your project'
                 value={this.state.name}
-                onChange={e => this.setState({ name: e.target.value })}
-                isInvalid={!this.validation.name()}
+                onChange={e => {
+                  this.setState({
+                    name: e.target.value,
+                    hasBeenInteractedWith: {
+                      ...this.state.hasBeenInteractedWith,
+                      name: true,
+                    },
+                  })
+                }}
+                isInvalid={this.state.hasBeenInteractedWith.name && !this.validation.name()}
                 required
               />
               <Form.Control.Feedback type='invalid'>Please enter a title for your project</Form.Control.Feedback>
@@ -210,7 +256,11 @@ class ProjectEditor extends React.Component {
               <Form.Group controlId='degrees'>
                 <Form.Label>Applicable masters</Form.Label>
                 <br />
-                <ButtonGroup className={'mt-2 ' + (this.validation.degrees() ? '' : 'is-invalid')}>
+                <ButtonGroup
+                  className={cl('mt-2', {
+                    'is-invalid': this.state.hasBeenInteractedWith.degrees && !this.validation.degrees(),
+                  })}
+                >
                   {Object.entries(degrees).map(([degree, fullname]) => (
                     <Form.Check className='list-item' inline title={fullname} key={degree}>
                       <Form.Check.Input
@@ -240,7 +290,11 @@ class ProjectEditor extends React.Component {
               <Form.Group controlId='attendance'>
                 <Form.Label>Attending</Form.Label>
                 <br />
-                <ButtonGroup className={this.validation.attendance() || 'is-invalid'}>
+                <ButtonGroup
+                  className={cl({
+                    'is-invalid': this.state.hasBeenInteractedWith.attendance && !this.validation.attendance(),
+                  })}
+                >
                   {this.attendanceOptions.map(({ value, name }) => (
                     <ToggleButton
                       key={value}
@@ -265,12 +319,21 @@ class ProjectEditor extends React.Component {
             <Form.Label>Project description (Markdown)</Form.Label>
             <MDEditor
               value={this.state.description}
-              onChange={value => this.setState({ description: value })}
+              onChange={value => {
+                this.setState({
+                  description: value,
+                  hasBeenInteractedWith: { ...this.state.hasBeenInteractedWith, description: true },
+                })
+              }}
               height={500}
+              className={cl({
+                'is-invalid': this.state.hasBeenInteractedWith.description && !this.validation.description(),
+              })}
               previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],
               }}
             />
+            <Form.Control.Feedback type='invalid'>Please write up a description</Form.Control.Feedback>
           </Form.Group>
 
           <Row>
@@ -279,13 +342,25 @@ class ProjectEditor extends React.Component {
                 <Form.Label>Work environment</Form.Label>
                 <MDEditor
                   value={this.state.environment}
-                  onChange={value => this.setState({ environment: value })}
+                  onChange={value => {
+                    this.setState({
+                      environment: value,
+                      hasBeenInteractedWith: {
+                        ...this.state.hasBeenInteractedWith,
+                        environment: true,
+                      },
+                    })
+                  }}
                   height={200}
+                  className={cl({
+                    'is-invalid': this.state.hasBeenInteractedWith.environment && !this.validation.environment(),
+                  })}
                   preview='edit'
                   previewOptions={{
                     rehypePlugins: [[rehypeSanitize]],
                   }}
                 />
+                <Form.Control.Feedback type='invalid'>Please descibe your working environment</Form.Control.Feedback>
               </Form.Group>
             </Col>
 
@@ -294,19 +369,37 @@ class ProjectEditor extends React.Component {
                 <Form.Label>Expectations</Form.Label>
                 <MDEditor
                   value={this.state.expectations}
-                  onChange={value => this.setState({ expectations: value })}
+                  onChange={value => {
+                    this.setState({
+                      expectations: value,
+                      hasBeenInteractedWith: {
+                        ...this.state.hasBeenInteractedWith,
+                        expectations: true,
+                      },
+                    })
+                  }}
                   height={200}
+                  className={cl({
+                    'is-invalid': this.state.hasBeenInteractedWith.expectations && !this.validation.expectations(),
+                  })}
                   preview='edit'
                   previewOptions={{
                     rehypePlugins: [[rehypeSanitize]],
                   }}
                 />
+                <Form.Control.Feedback type='invalid'>
+                  Please note your expectations of the student
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
 
           <Form.Group className='mb-3 tags' controlId='tags'>
-            <Form.Label>Tags</Form.Label>
+            <Form.Label
+              className={cl({ 'is-invalid': this.state.hasBeenInteractedWith.tags && !this.validation.tags() })}
+            >
+              Tags
+            </Form.Label>
             <Row>
               <Tab.Container id='left-tabs-example' defaultActiveKey={Object.keys(allTags)[0]}>
                 <Col xs='3'>
@@ -320,7 +413,7 @@ class ProjectEditor extends React.Component {
                   </Nav>
                 </Col>
                 <Col>
-                  <Form.Label>Tags (max 3)</Form.Label>
+                  <Form.Label>Tags</Form.Label>
                   <Tab.Content>
                     {Object.entries(allTags).map(([category, tags]) => (
                       <Tab.Pane eventKey={category} key={category} className='selectable-tags'>
@@ -359,6 +452,7 @@ class ProjectEditor extends React.Component {
                     <Tag
                       label={tag.split('.')[1]}
                       id={tag}
+                      key={tag}
                       selectable={true}
                       selected={true}
                       className='selected-tag'
@@ -368,9 +462,31 @@ class ProjectEditor extends React.Component {
                 </div>
               </Col>
             </Row>
+
+            <br />
+            <Form.Control.Feedback type='invalid'>Please select 1-3 tags</Form.Control.Feedback>
           </Form.Group>
 
-          <Button variant='primary' type='submit' data-submit-type='submit'>
+          <Button
+            variant='primary'
+            type='submit'
+            data-submit-type='submit'
+            onClick={e => {
+              e.preventDefault()
+              // Set all hasBeenInteractedWith to true
+              this.setState({
+                hasBeenInteractedWith: {
+                  name: true,
+                  description: true,
+                  environment: true,
+                  expectations: true,
+                  attendance: true,
+                  degrees: true,
+                  tags: true,
+                },
+              })
+            }}
+          >
             Submit
           </Button>
 
