@@ -253,7 +253,7 @@ class Page extends React.Component {
   render() {
     return <>
       <RepAccount/>
-      <OrganizationInfo/>
+      {api.getApiTokenData().repAdmin || <OrganizationInfo/>}
     </>
   }
 }
