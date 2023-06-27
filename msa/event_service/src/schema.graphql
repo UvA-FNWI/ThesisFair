@@ -1,5 +1,14 @@
 scalar Date
 
+enum Degree {
+  AI
+  CPS
+  DS
+  IS
+  MoL
+  SE
+}
+
 input EventImport {
   ID: Int!
   enabled: Boolean
@@ -16,6 +25,8 @@ type Event {
   name: String!
   description: String
   start: Date
+  end: Date
+  degrees: [Degree]
   location: String
   studentSubmitDeadline: Date
   entities: [ID!]

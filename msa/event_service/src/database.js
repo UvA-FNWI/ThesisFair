@@ -9,6 +9,8 @@ const eventSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
   start: { type: Date, required: true },
+  end: { type: Date },
+  degrees: [{ type: Date }],
   location: { type: String },
   studentSubmitDeadline: { type: Date },
   entities: [{ type: mongoose.Schema.ObjectId }],
