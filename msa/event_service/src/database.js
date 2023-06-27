@@ -9,10 +9,12 @@ const eventSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
   start: { type: Date, required: true },
+  end: { type: Date },
   location: { type: String },
   studentSubmitDeadline: { type: Date },
   entities: [{ type: mongoose.Schema.ObjectId }],
   external_id: { type: Number, index: true, unique: true, required: true },
+  degrees: [{ type: String }],
 })
 eventSchema.virtual('evid').get(function () {
   return this._id

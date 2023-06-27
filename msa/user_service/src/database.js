@@ -37,14 +37,18 @@ export const connect = async uri => {
     })
   )
 
-  Representative = User.discriminator(
-    'Representative',
-    new mongoose.Schema({
+  const repSchema = new mongoose.Schema({
       enid: { type: mongoose.Schema.ObjectId, required: true },
-      repAdmin: { type: Boolean, default: false },
       external_id: { type: String, unique: true, sparse: true },
     })
+  // New: every rep is a repadmin
+  repSchema.virtual('repAdmin').get(() => true)
+
+  Representative = User.discriminator(
+    'Representative',
+    repSchema
   )
+
   return conn
 }
 

@@ -79,6 +79,8 @@ schemaComposer.Query.addNestedFields({
         return null
       }
       canGetEvent(req, args, event)
+
+      console.log(event)
       return event
     },
   },
@@ -151,6 +153,8 @@ schemaComposer.Mutation.addNestedFields({
       name: 'String!',
       description: 'String',
       start: 'Date',
+      end: 'Date',
+      degrees: '[Degree]',
       location: 'String',
       studentSubmitDeadline: 'Date',
       entities: '[ID!]',
@@ -177,6 +181,8 @@ schemaComposer.Mutation.addNestedFields({
       name: 'String',
       description: 'String',
       start: 'Date',
+      end: 'Date',
+      degrees: '[Degree]',
       location: 'String',
       studentSubmitDeadline: 'Date',
       entities: '[ID!]',

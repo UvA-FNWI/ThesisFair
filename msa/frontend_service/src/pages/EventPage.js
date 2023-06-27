@@ -1,9 +1,7 @@
 import React from 'react'
-import MDEditor from '@uiw/react-md-editor'
-import rehypeSanitize from 'rehype-sanitize'
 
+import EventView from '../components/eventView/eventView'
 import { useParams } from 'react-router-dom'
-import { Container, Spinner } from 'react-bootstrap'
 import api from '../api'
 
 class EventPage extends React.Component {
@@ -27,29 +25,9 @@ class EventPage extends React.Component {
   }
 
   render() {
-    return (
-      <Container className='mt-2' data-color-mode='light'>
-        <h2>{this.state.event.name}</h2>
-
-        <MDEditor.Markdown
-          source={this.state.event.description}
-          previewOptions={{
-            rehypePlugins: [[rehypeSanitize]],
-          }}
-        />
-
-        {this.state.eventImage ? (
-          <img width='100%' src={this.state.eventImage} alt='Map of the event' />
-        ) : this.state.eventImage === false ? (
-          <div
-            style={{ width: '100%', minHeight: '95vh' }}
-            className='d-flex justify-content-center align-items-center'
-          >
-            <Spinner animation='border' />
-          </div>
-        ) : null}
-      </Container>
-    )
+    return <>
+      <EventView evid={this.props.params.evid}/>
+    </>
   }
 }
 
