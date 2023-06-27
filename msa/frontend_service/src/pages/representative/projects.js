@@ -106,56 +106,97 @@ class ProjectListing extends React.Component {
       return (<p>No projects for this event</p>)
     }
 
-    return (
-      <Accordion defaultActiveKey={0}>
-        {projects.map(({pid, ...project}) => (
-          <Accordion.Item key={pid} eventKey={pid}>
-            <Accordion.Header>
-              <div className='d-flex justify-content-between w-100 me-2'>
-                <span>{project.name}</span>
-                <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
-                  <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); this.downloadAllCVs(project); }}><img src={downloadIcon} alt='download' /></Button>
-                </OverlayTrigger>
-              </div>
-            </Accordion.Header>
-            <Accordion.Body>
-              <div dangerouslySetInnerHTML={{ __html: project.description }} />
+    return <Accordion>
+      {projects.map((project, projectIndex) => (
+        <Accordion.Item key={projectIndex} eventKey={projectIndex}>
+          <Accordion.Header>
+            <div className='d-flex justify-content-between align-items-center w-100 me-3'>
+              <span className='me-3'>{project.name}</span>
+              {approvalBadge(project)}
+              <span className='me-auto' />
+              <ProjectEditorTrigger params={{ ...project, edit: this.props.params.edit }} />
+              <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
+                <Button
+                  size='sm'
+                  variant='outline-primary'
+                  className='ms-2 cv-button'
+                  onClick={e => {
+                    e.stopPropagation()
+                    this.downloadAllCVs(project)
+                  }}
+                >
+                  <img className='cv-button__image' src={downloadIcon} alt='download' />
+                </Button>
+              </OverlayTrigger>
+            </div>
+          </Accordion.Header>
+          <Accordion.Body data-color-mode='light'>
+            <MDEditor.Markdown
+              source={project.description}
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
+              }}
+            />
 
-              <h4 className='mt-4'>Students</h4>
-              <div>
-                {this.state.votes[pid] ? this.state.votes[pid].length > 0 ? this.state.votes[pid].map(({uid, ...student}) => {
-                  const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0;
-                  return (
-                    <Card key={uid} className='mb-2 hoverable' bg={studentInfoPresent ? 'white' : 'gray'} onClick={studentInfoPresent ? (e) => this.setState({ popup: { pid, uid, cv: false } }) : null}>
-                      <Card.Body className='d-flex justify-content-between align-items-center'>
-                        { studentInfoPresent ?
-                          <>
-                            <p className='m-0'>
-                              {student.firstname} {student.lastname}<span className='d-none d-sm-inline ps-2 pe-2'>-</span><span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
-                            </p>
-                            <div>
-                              <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
-                                <Button size='sm' variant='outline-primary' onClick={(e) => { e.stopPropagation(); downloadCV(uid, genCVName(student, project)); }}><img src={downloadIcon} alt='download' /></Button>
-                              </OverlayTrigger>
-                            </div>
-                          </>
-                          :
-                          <p className='m-0'>
-                            Student has not logged in yet
-                          </p>
+            <h4 className='mt-4'>Students</h4>
+            <div>
+              {this.state.votes[project.pid] ? (
+                this.state.votes[project.pid].length > 0 ? (
+                  this.state.votes[project.pid].map((student, studentIndex) => {
+                    const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0
+                    return (
+                      <Card
+                        key={studentIndex}
+                        className='mb-2 hoverable'
+                        bg={studentInfoPresent ? 'white' : 'gray'}
+                        onClick={
+                          studentInfoPresent
+                            ? e => this.setState({ popup: { projectIndex, studentIndex, cv: false } })
+                            : null
                         }
-                      </Card.Body>
-                    </Card>
-                  )
-                })
-                  : <h6><em>No students have voted for this project.</em></h6>
-                  : null}
-              </div>
-            </Accordion.Body>
-          </Accordion.Item>
-        ))}
-      </Accordion>
-    )
+                      >
+                        <Card.Body className='d-flex justify-content-between align-items-center'>
+                          {studentInfoPresent ? (
+                            <>
+                              <p className='m-0'>
+                                {student.firstname} {student.lastname}
+                                <span className='d-none d-sm-inline ps-2 pe-2'>-</span>
+                                <span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
+                              </p>
+                              <div>
+                                <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
+                                  <Button
+                                    size='sm'
+                                    variant='outline-primary'
+                                    className='cv-button'
+                                    onClick={e => {
+                                      e.stopPropagation()
+                                      downloadCV(student.uid, genCVName(student, project))
+                                    }}
+                                  >
+                                    <img className='cv-button__image' src={downloadIcon} alt='download' />
+                                  </Button>
+                                </OverlayTrigger>
+                              </div>
+                            </>
+                          ) : (
+                            <p className='m-0'>Student has not logged in yet</p>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    )
+                  })
+                ) : (
+                  <h6>
+                    <em>No students have voted for this project.</em>
+                  </h6>
+                )
+              ) : null}
+            </div>
+          </Accordion.Body>
+        </Accordion.Item>
+      ))}
+    </Accordion>
   }
 
   render() {
