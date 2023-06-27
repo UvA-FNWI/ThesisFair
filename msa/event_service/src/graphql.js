@@ -79,6 +79,8 @@ schemaComposer.Query.addNestedFields({
         return null
       }
       canGetEvent(req, args, event)
+
+      console.log(event)
       return event
     },
   },
