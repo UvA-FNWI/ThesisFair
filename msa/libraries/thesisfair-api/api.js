@@ -655,11 +655,10 @@ export default url => {
               enid: { value: enid, type: 'ID!' },
             },
           }),
-        getAll: (all = false, projection) =>
-          genGraphQLBuilder({
+        getAll: (all = false, projection) => genGraphQLBuilder({
             name: 'getEvents',
             functionPath: 'events',
-            body: bodies.Event(projection),
+            body: bodies.PlainEvent(projection),
             args: {
               all: { value: all, type: 'Boolean' },
             },
