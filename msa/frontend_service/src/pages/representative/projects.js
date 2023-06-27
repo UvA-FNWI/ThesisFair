@@ -7,18 +7,13 @@ import {
   Accordion,
   Button,
   Badge,
-  CloseButton,
   Card,
   OverlayTrigger,
   Tooltip,
-  Form,
-  Row,
-  Col,
 } from 'react-bootstrap'
-import { Typeahead } from 'react-bootstrap-typeahead'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
-import api, { downloadCV, degrees } from '../../api'
+import api, { downloadCV } from '../../api'
 import StudentPopup from '../../components/studentPopup/studentPopup'
 import ProjectEditor from '../../components/projectEditor/projectEditor'
 
@@ -107,8 +102,8 @@ class ProjectListing extends React.Component {
     }
 
     return <Accordion>
-      {projects.map((project, projectIndex) => (
-        <Accordion.Item key={projectIndex} eventKey={projectIndex}>
+      {projects.map(project => (
+        <Accordion.Item key={project.pid} eventKey={project.pid}>
           <Accordion.Header>
             <div className='d-flex justify-content-between align-items-center w-100 me-3'>
               <span className='me-3'>{project.name}</span>
@@ -142,16 +137,16 @@ class ProjectListing extends React.Component {
             <div>
               {this.state.votes[project.pid] ? (
                 this.state.votes[project.pid].length > 0 ? (
-                  this.state.votes[project.pid].map((student, studentIndex) => {
+                  this.state.votes[project.pid].map(student => {
                     const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0
                     return (
                       <Card
-                        key={studentIndex}
+                        key={student.uid}
                         className='mb-2 hoverable'
                         bg={studentInfoPresent ? 'white' : 'gray'}
                         onClick={
                           studentInfoPresent
-                            ? e => this.setState({ popup: { projectIndex, studentIndex, cv: false } })
+                            ? e => this.setState({ popup: { pid: project.pid, uid: student.uid, cv: false } })
                             : null
                         }
                       >
