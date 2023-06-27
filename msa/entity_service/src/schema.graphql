@@ -16,17 +16,17 @@ input EntityImport {
 }
 
 type Entity {
-    enid: ID!
-    name: String!
-    description: String
-    type: String!
-    contact: [EntityContactInfo!]
-    external_id: Int
-    representatives: Int
-    location: String
+  enid: ID!
+  name: String!
+  description: String
+  type: String!
+  contact: [EntityContactInfo!]
+  external_id: Int
+  representatives: Int
+  location: String
 }
 
 type EntityImportResult {
-  entity: Entity,
-  error: String,
+  entity: Entity
+  error: String
 }

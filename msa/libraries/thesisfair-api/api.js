@@ -1,95 +1,101 @@
 import axios from 'axios';
 import GraphQLBuilder from './GraphQLBuilder.js';
 import NodeCache from 'node-cache';
+import fields from './graphqlFields.js'; // assert { type: 'json' };
 
-let tracing = false;
-const browser = typeof localStorage !== 'undefined';
+let tracing = false
+const browser = typeof localStorage !== 'undefined'
 
 /**
  * Enable tracing for *ALL* instances of the API
  */
 export const enableTrace = () => {
   if (tracing) {
-    console.error('Tried to enable tracing twice!');
-    return;
+    console.error('Tried to enable tracing twice!')
+    return
   }
-  tracing = true;
+  tracing = true
 
-  axios.interceptors.request.use((config) => {
-    config.startTime = Date.now();
+  axios.interceptors.request.use(config => {
+    config.startTime = Date.now()
 
-    return config;
-  });
+    return config
+  })
 
-  axios.interceptors.response.use((response) => {
-    response.config.duration = Date.now() - response.config.startTime;
-    return response;
-  });
-};
+  axios.interceptors.response.use(response => {
+    response.config.duration = Date.now() - response.config.startTime
+    return response
+  })
+}
 
 const getApiToken = () => {
   if (browser && document.cookie) {
-    const cookies = document.cookie.split(';').map((cookie) => cookie.split('='));
-    const token = cookies.find((cookie) => cookie[0].trim() === 'apiToken');
+    const cookies = document.cookie.split(';').map(cookie => cookie.split('='))
+    const token = cookies.find(cookie => cookie[0].trim() === 'apiToken')
 
     if (token) {
-      token.shift(); // Remove name
-      const apiToken = token.join('='); // Join the rest in case it has '='
-      localStorage.setItem('apiToken', apiToken);
-      document.cookie = 'apiToken=;max-age=0; Path=/;'; // Clear cookies
+      token.shift() // Remove name
+      const apiToken = token.join('=') // Join the rest in case it has '='
+      localStorage.setItem('apiToken', apiToken)
+      document.cookie = 'apiToken=;max-age=0; Path=/;' // Clear cookies
 
-      return apiToken;
+      return apiToken
     }
   }
 
-  return localStorage.getItem('apiToken');
+  return localStorage.getItem('apiToken')
 }
 
-const unpackToken = (token) => {
-  if (!token) { return null; }
-
-  const split = token.split('.');
-  if (split.length !== 3) {
-    throw new Error(`Received invalid token. Token has ${split.length} parts, expected 3.`);
+const unpackToken = token => {
+  if (!token) {
+    return null
   }
 
-  const payload = browser ? atob(split[1]) : (new Buffer.from(split[1], 'base64')).toString();
-  return JSON.parse(payload);
+  const split = token.split('.')
+  if (split.length !== 3) {
+    throw new Error(`Received invalid token. Token has ${split.length} parts, expected 3.`)
+  }
+
+  const payload = browser ? atob(split[1]) : new Buffer.from(split[1], 'base64').toString()
+  return JSON.parse(payload)
 }
 
 const genBody = (possibleFields, projection) => {
-  let fields = Object.keys(projection || {});
-  let whitelist = false;
+  possibleFields = possibleFields.filter(field => !field.includes(':'))
+
+  let fields = Object.keys(projection || {})
+  let whitelist = false
 
   if (fields.length) {
-    whitelist = !!projection[fields[0]];
+    whitelist = !!projection[fields[0]]
     for (const val in projection) {
       if ((projection[val] && !whitelist) || (!projection[val] && whitelist)) {
-        throw new Error('Mixing white and blacklist techniques');
+        throw new Error('Mixing white and blacklist techniques')
       }
     }
   }
 
-  if (!whitelist) { // Invert fields
-    fields = [...possibleFields].filter((field) => !fields.includes(field));
+  if (!whitelist) {
+    // Invert fields
+    fields = [...possibleFields].filter(field => !fields.includes(field))
   }
 
   const structuredOutput = {
-    '$': fields.filter((v) => !v.includes('.') && possibleFields.includes(v))
-  };
-  for (const field of fields.filter((v) => v.includes('.'))) {
-    const path = field.split('.');
-    const leaf = path.pop();
+    $: fields.filter(v => !v.includes('.') && possibleFields.includes(v)),
+  }
+  for (const field of fields.filter(v => v.includes('.'))) {
+    const path = field.split('.')
+    const leaf = path.pop()
 
-    let cur = structuredOutput;
+    let cur = structuredOutput
     for (const parent of path) {
       if (!(parent in cur)) {
-        cur[parent] = { '$': [] };
+        cur[parent] = { $: [] }
       }
 
-      cur = cur[parent];
+      cur = cur[parent]
     }
-    cur['$'].push(leaf);
+    cur['$'].push(leaf)
   }
 
   /**
@@ -97,121 +103,111 @@ const genBody = (possibleFields, projection) => {
    * @param {Dict} structuredOutput A dictionary containing the query items. { '$': [<root level items>], object: { '$': [<Nested items>], child: { '$': [<nested nested items>] } } }
    * @returns GraphQL query items.
    */
-  const genString = (structuredOutput) => {
-    let res = '';
+  const genString = structuredOutput => {
+    let res = ''
     for (const field in structuredOutput) {
       if (field === '$') {
-        res += structuredOutput[field].join(' ');
-        continue;
+        res += structuredOutput[field].join(' ')
+        continue
       }
 
-      res += ` ${field} {${genString(structuredOutput[field])}}`;
+      res += ` ${field} {${genString(structuredOutput[field])}}`
     }
 
-    return res;
+    return res
   }
 
-  return genString(structuredOutput);
-};
-
-const fields = {
-  UserBase: ['uid', 'firstname', 'lastname', 'email', 'phone'],
-  Student: ['studentnumber', 'websites', 'studies', 'share', 'manuallyShared'],
-  Representative: ['enid', 'repAdmin'],
-  Entity: ['enid', 'name', 'description', 'type', 'contact.type', 'contact.content', 'external_id', 'representatives', 'location'],
-  EntityImportResult: ['error', 'entity.enid', 'entity.name', 'entity.description', 'entity.type', 'entity.contact.type', 'entity.contact.content', 'entity.external_id', 'entity.representatives', 'entity.location'],
-  Event: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline', 'entities', 'external_id'],
-  PlainEvent: ['evid', 'enabled', 'name', 'description', 'start', 'location', 'studentSubmitDeadline'],
-  EventImportResult: ['error', 'event.evid', 'event.enabled', 'event.name', 'event.description', 'event.start', 'event.location', 'event.studentSubmitDeadline', 'event.entities', 'event.external_id'],
-  Project: ['pid', 'enid', 'evids', 'name', 'description', 'datanoseLink', 'external_id'],
-  ProjectImportResult: ['error', 'project.pid', 'project.enid', 'project.evids', 'project.name', 'project.description', 'project.datanoseLink', 'project.external_id'],
-  StudentVote: ['uid', 'pid'],
-  VoteImportResult: ['error'],
-  Schedule: ['sid', 'uid', 'enid', 'slot'],
+  return genString(structuredOutput)
 }
 
-const bodies = {
-  User: (projection) => {
-    const userBase = genBody(fields.UserBase, projection);
-    const student = genBody(fields.Student, projection);
-    const rep = genBody(fields.Representative, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + (student ? `... on Student {${student}} ` : '') + (rep ? `... on Representative {${rep}}` : '');
-  },
-  Student: (projection) => {
-    const userBase = genBody(fields.UserBase, projection);
-    const student = genBody(fields.Student, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + student;
-  },
-  Representative: (projection) => {
-    const userBase = genBody(fields.UserBase, projection);
-    const rep = genBody(fields.Representative, projection);
-    return (userBase ? `... on UserBase {${userBase}} ` : '') + rep;
-  },
-  Entity: (projection) => genBody(fields.Entity, projection),
-  EntityImportResult: (projection) => genBody(fields.EntityImportResult, projection),
-  Event: (projection) => genBody(fields.Event, projection),
-  PlainEvent: (projection) => genBody(fields.PlainEvent, projection),
-  EventImportResult: (projection) => genBody(fields.EventImportResult, projection),
-  Project: (projection) => genBody(fields.Project, projection),
-  ProjectImportResult: (projection) => genBody(fields.ProjectImportResult, projection),
-  StudentVote: (projection) => genBody(fields.StudentVote, projection),
-  VoteImportResult: (projection) => genBody(fields.VoteImportResult, projection),
-  Schedule: (projection) => genBody(fields.Schedule, projection),
+function genBodyWrapped(fields, projection) {
+  const ifaceMap = new Map()
+  const ownFields = []
+
+  for (const field of fields) {
+    if (field.includes(':')) {
+      const [iface, name] = field.split(':')
+      if (!ifaceMap.get(iface)) {
+        ifaceMap.set(iface, [])
+      }
+
+      ifaceMap.get(iface).push(name)
+    } else {
+      ownFields.push(field)
+    }
+  }
+
+  const ifaceBodies = new Map([...ifaceMap.entries()].map(
+    ([iface, ifaceFields]) => [iface, genBody(ifaceFields, projection)]
+  ))
+  const ownBody = genBody(ownFields, projection)
+
+  return [...ifaceBodies.entries()].map(
+    ([iface, body]) => body ? `... on ${iface} {${body}}` : ''
+  ).join(' ') + ' ' + ownBody
 }
 
-export default (url) => {
-  url ||= typeof window !== 'undefined' ? '/' : 'http://localhost:3000/';
-  let trace = [];
-  let caching = false;
-  let cache;
-  let tokenChangeCallback = () => { };
+const bodies = Object.fromEntries(
+  Object.entries(fields).map(
+    ([type, fields]) => [type, (projection) => genBodyWrapped(fields, projection)]
+  )
+)
 
-  let apiToken = browser ? getApiToken() : null;
-  let apiTokenData = unpackToken(apiToken) || null;
-  let apiTokenDataOverride = browser ? JSON.parse(localStorage.getItem('apiTokenOverride')) : null;
+export default url => {
+  url ||= typeof window !== 'undefined' ? '/' : 'http://172.16.239.130:3000/'
+  let trace = []
+  let caching = false
+  let cache
+  let tokenChangeCallback = () => {}
+
+  let apiToken = browser ? getApiToken() : null
+  let apiTokenData = unpackToken(apiToken) || null
+  let apiTokenDataOverride = browser ? JSON.parse(localStorage.getItem('apiTokenOverride')) : null
+
   const login = async (email, password) => {
-    const res = await axios.post(url + 'login',
+    const res = await axios.post(
+      url + 'login',
       { email, password },
       {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       }
-    );
+    )
 
     if (res.data.errors) {
-      console.error(res.data.errors);
-      throw res.data.errors;
+      console.error(res.data.errors)
+      throw res.data.errors
     }
 
     if (tracing) {
       trace.push({
         fn: 'user.login',
         startTime: res.config.startTime,
-        duration: res.config.duration
+        duration: res.config.duration,
       })
     }
 
-    apiToken = res.data;
+    apiToken = res.data
     if (browser) {
-      localStorage.setItem('apiToken', apiToken);
+      localStorage.setItem('apiToken', apiToken)
     }
-    apiTokenData = unpackToken(apiToken);
-    tokenChangeCallback(apiTokenData);
-  };
+    apiTokenData = unpackToken(apiToken)
+    tokenChangeCallback(apiTokenData)
+  }
 
   const logout = () => {
     if (localStorage) {
-      localStorage.clear();
-      apiToken = null;
-      apiTokenData = null;
-      tokenChangeCallback();
+      localStorage.clear()
+      apiToken = null
+      apiTokenData = null
+      tokenChangeCallback()
     }
-  };
+  }
 
   const graphql = async (functionPath, query, variables) => {
-    let response;
+    let response
     try {
       response = await axios.post(
         url + 'graphql',
@@ -219,75 +215,84 @@ export default (url) => {
         {
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            Authorization: `Bearer ${apiToken}`
+            Accept: 'application/json',
+            Authorization: `Bearer ${apiToken}`,
           },
         }
-      );
+      )
     } catch (error) {
       if (!error.response || !error.response.status) {
-        throw error;
+        throw error
       }
 
       if (error.response.status === 401) {
         if (!apiTokenData) {
-          throw new Error('APItoken expired and already logged out');
+          throw new Error('APItoken expired and already logged out')
         }
 
         if (Date.now() > apiTokenData.exp) {
-          logout();
-          throw new Error('APItoken expired');
+          logout()
+          throw new Error('APItoken expired')
         }
 
-        throw new Error('APItoken does not give rights to access this resource');
+        throw new Error('APItoken does not give rights to access this resource')
       } else if (error.response.status === 413) {
-        throw new Error('Payload too big');
+        throw new Error('Payload too big')
       }
 
-      throw error.response.data;
+      throw error.response.data
     }
 
     if (tracing) {
       trace.push({
         fn: functionPath,
         startTime: response.config.startTime,
-        duration: response.config.duration
+        duration: response.config.duration,
       })
     }
 
-    const data = response.data;
+    const data = response.data
     if (data.errors) {
-      throw data;
+      throw data
     }
 
-    return data.data;
+    return data.data
   }
 
-  const genGraphQLBuilder = (options) => new GraphQLBuilder({ ...options, executor: graphql });
+  const genGraphQLBuilder = options => new GraphQLBuilder({ ...options, executor: graphql })
 
   return {
-    clearTrace: () => { trace = []; },
+    clearTrace: () => {
+      trace = []
+    },
     getTrace: () => trace,
-    enableCaching: (ttl) => {
+    enableCaching: ttl => {
       if (caching) {
-        console.error('Tried to enable caching twice!');
-        return;
+        console.error('Tried to enable caching twice!')
+        return
       }
-      caching = true;
+      caching = true
 
-      cache = new NodeCache({ deleteOnExpire: true, checkperiod: ttl + 1, stdTTL: ttl, useClones: false });
+      cache = new NodeCache({
+        deleteOnExpire: true,
+        checkperiod: ttl + 1,
+        stdTTL: ttl,
+        useClones: false,
+      })
     },
     api: {
       getApiTokenData: () => apiTokenDataOverride || apiTokenData,
-      overrideApiTokenData: (newData) => {
+      overrideApiTokenData: newData => {
         if (browser) {
-          localStorage.setItem('apiTokenOverride', JSON.stringify(newData));
+          localStorage.setItem('apiTokenOverride', JSON.stringify(newData))
         }
-        apiTokenDataOverride = newData;
+        apiTokenDataOverride = newData
         tokenChangeCallback(apiTokenDataOverride)
       },
       apiTokenOverriden: () => !!apiTokenDataOverride,
-      setTokenChangeCallback: (cb) => { tokenChangeCallback = cb; },
+      setTokenChangeCallback: cb => {
+        tokenChangeCallback = cb
+      },
       user: {
         login: login,
         logout: logout,
@@ -311,7 +316,7 @@ export default (url) => {
             args: {
               uids: { value: uids, type: '[ID!]!' },
             },
-            cache: caching ? { instance: cache, type: 'user', key: 'uid', keys: 'uids', } : false,
+            cache: caching ? { instance: cache, type: 'user', key: 'uid', keys: 'uids' } : false,
           }),
 
         getOfEntity: (enid, projection) =>
@@ -355,7 +360,9 @@ export default (url) => {
 
         ssoLogin: (student, external_id, email, firstname, lastname) => {
           if (process.env.NODE_ENV === 'production') {
-            throw new Error('This route is only for testing the proper implementation of the permissions and should NEVER succeed.');
+            throw new Error(
+              'This route is only for testing the proper implementation of the permissions and should NEVER succeed.'
+            )
           }
 
           return genGraphQLBuilder({
@@ -368,7 +375,7 @@ export default (url) => {
               firstname: { value: firstname, type: 'String' },
               lastname: { value: lastname, type: 'String' },
             },
-          });
+          })
         },
 
         admin: {
@@ -444,7 +451,7 @@ export default (url) => {
               },
               cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
             }),
-          import: (file) =>
+          import: file =>
             genGraphQLBuilder({
               type: 'mutation',
               name: 'importRepresentatives',
@@ -566,7 +573,10 @@ export default (url) => {
               name: { value: entity.name, type: 'String!' },
               description: { value: entity.description, type: 'String' },
               type: { value: entity.type, type: 'String!' },
-              contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
+              contact: {
+                value: entity.contact,
+                type: '[EntityContactInfoIn!]',
+              },
               external_id: { value: entity.external_id, type: 'Int' },
               representatives: { value: entity.representatives, type: 'Int' },
               location: { value: entity.location, type: 'String' },
@@ -584,7 +594,10 @@ export default (url) => {
               name: { value: entity.name, type: 'String' },
               description: { value: entity.description, type: 'String' },
               type: { value: entity.type, type: 'String' },
-              contact: { value: entity.contact, type: '[EntityContactInfoIn!]' },
+              contact: {
+                value: entity.contact,
+                type: '[EntityContactInfoIn!]',
+              },
               external_id: { value: entity.external_id, type: 'Int' },
               representatives: { value: entity.representatives, type: 'Int' },
               location: { value: entity.location, type: 'String' },
@@ -663,6 +676,8 @@ export default (url) => {
               name: { value: event.name, type: 'String!' },
               description: { value: event.description, type: 'String' },
               start: { value: event.start, type: 'Date' },
+              end: { value: event.end, type: 'Date' },
+              degrees: { value: event.degrees, type: '[Degree]' },
               location: { value: event.location, type: 'String' },
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
@@ -682,6 +697,8 @@ export default (url) => {
               name: { value: event.name, type: 'String!' },
               description: { value: event.description, type: 'String' },
               start: { value: event.start, type: 'Date' },
+              end: { value: event.end, type: 'Date' },
+              degrees: { value: event.degrees, type: '[Degree]' },
               location: { value: event.location, type: 'String' },
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
@@ -718,8 +735,8 @@ export default (url) => {
             functionPath: 'event.import',
             body: bodies.EventImportResult(projection),
             args: {
-              events: { value: events, type: '[EventImport!]!' }
-            }
+              events: { value: events, type: '[EventImport!]!' },
+            },
           }),
         entity: {
           add: (evid, enid, projection) =>
@@ -746,9 +763,15 @@ export default (url) => {
               },
               cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
             }),
-        }
+        },
       },
       project: {
+        tags: (projection) =>
+          genGraphQLBuilder({
+            name: 'getAllTags',
+            functionPath: 'tags',
+            // body: bodies.Project(projection),
+          }),
         get: (pid, projection) =>
           genGraphQLBuilder({
             name: 'getProject',
@@ -790,7 +813,6 @@ export default (url) => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
-
         create: (project, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
@@ -802,8 +824,13 @@ export default (url) => {
               evid: { value: project.evid, type: 'ID!' },
               name: { value: project.name, type: 'String!' },
               description: { value: project.description, type: 'String' },
+              degrees: {value: project.degrees, type: '[Degree]' },
+              tags: {value: project.tags, type: '[String]' },
+              attendance: { value: project.attendance, type: 'Attendance' },
+              environment: { value: project.environment, type: 'String' },
+              expectations: { value: project.expectations, type: 'String' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
-              external_id: { value: project.external_id, type: 'Int!' },
+              external_id: { value: project.external_id, type: 'Int' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', create: true } : false,
           }),
@@ -819,9 +846,25 @@ export default (url) => {
               evid: { value: project.evid, type: 'ID' },
               name: { value: project.name, type: 'String' },
               description: { value: project.description, type: 'String' },
+              degrees: { value: project.degrees, type: '[Degree]' },
+              tags: { value: project.tags, type: '[String]' },
+              attendance: { value: project.attendance, type: 'Attendance' },
+              environment: { value: project.environment, type: 'String' },
+              expectations: { value: project.expectations, type: 'String' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,
+          }),
+        setApproval: (args, projection) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'setProjectApproval',
+            functionPath: 'project.approval',
+            body: bodies.Project(projection),
+            args: {
+              pid: { value: args.pid, type: 'ID!' },
+              approval: { value: args.approval, type: 'ApprovalStatus!' },
+            },
           }),
         delete: (pid, projection) =>
           genGraphQLBuilder({
@@ -834,14 +877,14 @@ export default (url) => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', delete: true } : false,
           }),
-        deleteOfEntity: (enid) =>
+        deleteOfEntity: enid =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'deleteProjectOfEntity',
             functionPath: 'project.deleteOfEntity',
             args: {
               enid: { value: enid, type: 'ID!' },
-            }
+            },
           }),
         import: (projects, projection) =>
           genGraphQLBuilder({
@@ -863,7 +906,7 @@ export default (url) => {
             args: {
               uid: { value: uid, type: 'ID!' },
               evid: { value: evid, type: 'ID!' },
-            }
+            },
           }),
         getOfEntity: (enid, evid, projection) =>
           genGraphQLBuilder({
@@ -893,11 +936,11 @@ export default (url) => {
             args: {
               votes: { value: votes, type: '[VoteImport!]!' },
               evid: { value: evid, type: 'ID!' },
-            }
+            },
           }),
       },
       schedule: {
-        generate: (evid) =>
+        generate: evid =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'generateSchedule',
@@ -936,7 +979,7 @@ export default (url) => {
               uid: { value: appointment.uid, type: 'ID' },
               enid: { value: appointment.enid, type: 'ID' },
               slot: { value: appointment.slot, type: 'String' },
-            }
+            },
           }),
         representative: {
           get: (enid, evid, projection) =>
@@ -947,8 +990,8 @@ export default (url) => {
               args: {
                 enid: { value: enid, type: 'ID!' },
                 evid: { value: evid, type: 'ID!' },
-              }
-            })
+              },
+            }),
         },
         student: {
           get: (uid, evid, projection) =>
@@ -963,6 +1006,6 @@ export default (url) => {
             }),
         },
       },
-    }
+    },
   }
-};
+}

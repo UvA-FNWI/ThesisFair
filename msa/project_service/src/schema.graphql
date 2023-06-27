@@ -1,3 +1,24 @@
+enum Attendance {
+  yes
+  no
+  maybe
+}
+
+enum ApprovalStatus {
+  awaiting
+  approved
+  rejected
+}
+
+enum Degree {
+  AI
+  CPS
+  DS
+  IS
+  MoL
+  SE
+}
+
 input ProjectImport {
   ID: ID!
   entityID: ID!
@@ -13,12 +34,18 @@ type Project {
   enid: ID!
   evids: [ID!]
   name: String!
+  degrees: [Degree]
+  tags: [String]
   description: String
+  environment: String
+  expectations: String
+  approval: ApprovalStatus
+  attendance: Attendance
   datanoseLink: String
-  external_id: Int!
+  external_id: Int
 }
 
 type ProjectImportResult {
-  project: Project,
-  error: String,
+  project: Project
+  error: String
 }

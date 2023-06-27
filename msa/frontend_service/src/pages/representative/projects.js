@@ -1,15 +1,52 @@
-import React from 'react';
-import { Container, Accordion, Button, Card, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import downloadIcon from 'bootstrap-icons/icons/download.svg';
-import { useParams } from 'react-router-dom';
-import api, { downloadCV } from '../../api';
-import StudentPopup from '../../components/studentPopup/studentPopup';
+import React from 'react'
+import MDEditor from '@uiw/react-md-editor'
+import rehypeSanitize from 'rehype-sanitize'
 
-const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`;
+import {
+  Container,
+  Accordion,
+  Button,
+  Badge,
+  CloseButton,
+  Card,
+  OverlayTrigger,
+  Tooltip,
+  Form,
+  Row,
+  Col,
+} from 'react-bootstrap'
+import { Typeahead } from 'react-bootstrap-typeahead'
+import downloadIcon from 'bootstrap-icons/icons/download.svg'
+import { useParams } from 'react-router-dom'
+import api, { downloadCV, degrees } from '../../api'
+import StudentPopup from '../../components/studentPopup/studentPopup'
+import ProjectEditor from '../../components/projectEditor/projectEditor'
 
-class Projects extends React.Component {
+import './projects.scss'
+import '../../components/projectListItem/projectListItem.scss'
+
+const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
+
+function approvalBadge(project) {
+  if (!project) {
+    return
+  }
+
+  switch (project.approval) {
+    case 'approved':
+      return <Badge variant='success'>Approved</Badge>
+    case 'rejected':
+      return <Badge variant='danger'>Rejected</Badge>
+    case 'awaiting':
+      return <Badge variant='warning'>Awaiting approval</Badge>
+    default:
+      return
+  }
+}
+
+class ProjectListing extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       projects: {}, // Map from PID to project
@@ -17,7 +54,7 @@ class Projects extends React.Component {
       events: {}, // Map from EVID to event info
       eventProjects: {}, // Map from EVID to list of PIDs
       popup: false,
-    };
+    }
   }
 
   async componentDidMount() { // Optimisation: Store student only once in state
@@ -153,18 +190,89 @@ class Projects extends React.Component {
           )}
         </Container>
 
-        {this.state.popup ?
-          this.renderStudentModal()
-          : null}
+        {this.state.popup ? this.renderStudentModal() : null}
       </>
-    );
+    )
+  }
+}
+
+class ProjectEditorTrigger extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.buttonText = this.buttonText.bind(this)
+    this.onClick = this.onClick.bind(this)
+  }
+
+  buttonText() {
+    if (this.props.params.pid) {
+      return 'Edit'
+    } else {
+      return 'Create new project'
+    }
+  }
+
+  onClick(e) {
+    e.stopPropagation()
+    this.props.params.edit(this.props.params.pid)
+  }
+
+  render() {
+    if (this.props.params.pid !== 'manuallyShared') {
+      return (
+        <Button size='sm' variant='outline-primary' onClick={this.onClick}>
+          {this.buttonText()}
+        </Button>
+      )
+    }
+  }
+}
+
+class Projects extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      editor: null,
+    }
+
+    this.edit = this.edit.bind(this)
+    this.close = this.close.bind(this)
+  }
+
+  edit(pid) {
+    this.setState({
+      editor: <ProjectEditor onClose={this.close} params={{ pid: pid, ...this.props.params }} />,
+    })
+  }
+
+  close() {
+    this.setState({
+      editor: null,
+    })
+  }
+
+  render() {
+    switch (this.state.editor) {
+      case null:
+        return (
+          <div>
+            <ProjectListing params={{ ...this.props.params, edit: this.edit }} />
+            <Container className='mt-2 project-list'>
+              <ProjectEditorTrigger params={{ pid: null, edit: this.edit }} />
+            </Container>
+          </div>
+        )
+      default:
+        return <div>{this.state.editor}</div>
+    }
   }
 }
 
 function ProjectsWithParams(props) {
-  const params = useParams();
+  const params = useParams()
 
   return <Projects {...props} params={params} />
-};
+}
 
 export default ProjectsWithParams

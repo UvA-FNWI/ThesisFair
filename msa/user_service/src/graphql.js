@@ -1,77 +1,95 @@
-import { graphql } from 'graphql';
-import { schemaComposer } from 'graphql-compose';
-import { readFileSync, mkdirSync, existsSync, constants } from 'fs';
-import { writeFile, readFile, access } from 'fs/promises';
-import { parse as csvParser } from 'csv-parse';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
-import axios from 'axios';
+import { graphql } from 'graphql'
+import { schemaComposer } from 'graphql-compose'
+import { readFileSync, mkdirSync, existsSync, constants } from 'fs'
+import { writeFile, readFile, access } from 'fs/promises'
+import { parse as csvParser } from 'csv-parse'
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
+import crypto from 'crypto'
+import nodemailer from 'nodemailer'
+import axios from 'axios'
 
-import { rgraphql } from '../../libraries/amqpmessaging/index.js';
-import { User, Student, Representative, isValidObjectId } from './database.js';
-import { canGetUser, canGetUsers } from './permissions.js';
+import { rgraphql } from '../../libraries/amqpmessaging/index.js'
+import { User, Student, Representative, isValidObjectId } from './database.js'
+import { canGetUser, canGetUsers } from './permissions.js'
 
-const saltRounds = process.env.DEBUG ? 0 : 10;
-const hash = (password) => bcrypt.hash(password, saltRounds);
-const randomInt = (min, max) => new Promise((resolve, reject) => crypto.randomInt(min, max, (err, int) => { if (err) { reject(err) } else { resolve(int) } }));
+const saltRounds = process.env.DEBUG ? 0 : 10
+const hash = password => bcrypt.hash(password, saltRounds)
+const randomInt = (min, max) =>
+  new Promise((resolve, reject) =>
+    crypto.randomInt(min, max, (err, int) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(int)
+      }
+    })
+  )
 const randomPassword = async (length = 12) => {
-  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#%&*()';
-  let password = '';
+  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#%&*()'
+  let password = ''
 
   for (let i = 0; i < length; i++) {
-    password += alphabet[await randomInt(0, alphabet.length)];
+    password += alphabet[await randomInt(0, alphabet.length)]
   }
 
-  return password;
-};
+  return password
+}
 
 const mail = nodemailer.createTransport({
   host: process.env.MAILHOST,
   port: parseInt(process.env.MAILPORT),
-  ...(process.env.MAILUSER ? {
-    auth: {
-      user: process.env.MAILUSER,
-      pass: process.env.MAILPASS,
-    }
-  } : null)
-});
+  ...(process.env.MAILUSER
+    ? {
+        auth: {
+          user: process.env.MAILUSER,
+          pass: process.env.MAILPASS,
+        },
+      }
+    : null),
+})
 
-const genApiToken = (user) => {
-  if (!user) { throw new Error('genApiToken did not get a user object.'); }
+const genApiToken = user => {
+  if (!user) {
+    throw new Error('genApiToken did not get a user object.')
+  }
 
-  let additionalData;
+  let additionalData
   if (user.admin) {
-    additionalData = { type: 'a' };
+    additionalData = { type: 'a' }
   } else if (user instanceof Student) {
-    additionalData = { type: 's' };
+    additionalData = { type: 's' }
   } else if (user instanceof Representative) {
-    additionalData = { type: 'r', enid: user.enid };
+    additionalData = { type: 'r', enid: user.enid }
     if (user.repAdmin) {
-      additionalData.repAdmin = true;
+      additionalData.repAdmin = true
     }
   }
 
   return new Promise((resolve, reject) => {
-    jwt.sign({
-      uid: user.uid,
-      ...additionalData,
-    }, process.env.jwtKey, {
-      algorithm: 'HS512',
-      expiresIn: '24h',
-    }, (err, key) => {
-      if (err) {
-        reject(err);
-        return;
-      }
+    jwt.sign(
+      {
+        uid: user.uid,
+        ...additionalData,
+      },
+      process.env.jwtKey,
+      {
+        algorithm: 'HS512',
+        expiresIn: '24h',
+      },
+      (err, key) => {
+        if (err) {
+          reject(err)
+          return
+        }
 
-      resolve(key);
-    });
-  });
+        resolve(key)
+      }
+    )
+  })
 }
 
-const getStudies = async (studentnumber) => {
+const getStudies = async studentnumber => {
   const result = await axios({
     method: 'get',
     baseURL: 'https://api.datanose.nl/Programmes/',
@@ -79,52 +97,64 @@ const getStudies = async (studentnumber) => {
     headers: {
       'Content-Type': 'application/json',
     },
-  });
+  })
 
   if (!Array.isArray(result.data)) {
-    console.error('Could not get studies from ' + studentnumber);
-    return [];
+    console.error('Could not get studies from ' + studentnumber)
+    return []
   }
 
-  return result.data.map((study) => study.Name);
+  return result.data.map(study => study.Name)
 }
 
-const getEnid = async (external_id) => {
-  const res = await rgraphql('api-entity', 'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }', { external_id });
+const getEnid = async external_id => {
+  const res = await rgraphql(
+    'api-entity',
+    'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }',
+    { external_id }
+  )
 
   if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while getting the entity enid');
+    console.error(res)
+    throw new Error('An unkown error occured while getting the entity enid')
   }
 
   if (!res.data.entityByExtID) {
-    return false;
+    return false
   }
 
-  return res.data.entityByExtID.enid;
-};
+  return res.data.entityByExtID.enid
+}
 
 const checkStudentVotedForEntity = async (uid, enid) => {
-  const res = await rgraphql('api-vote', 'query checkStudentVotedForEntity($uid: ID!, $enid: ID!) { voteStudentForEntity(uid: $uid, enid: $enid) }', { uid, enid });
+  const res = await rgraphql(
+    'api-vote',
+    'query checkStudentVotedForEntity($uid: ID!, $enid: ID!) { voteStudentForEntity(uid: $uid, enid: $enid) }',
+    { uid, enid }
+  )
 
   if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the student voted for the entity');
+    console.error(res)
+    throw new Error('An unkown error occured while checking if the student voted for the entity')
   }
 
-  return res.data.voteStudentForEntity;
-};
+  return res.data.voteStudentForEntity
+}
 
 const checkStudentScheduledWithEntity = async (uid, enid) => {
-  const res = await rgraphql('api-schedule', 'query checkStudentScheduledWithEntity($uid: ID!, $enid: ID!) { scheduleStudentForEntity(uid: $uid, enid: $enid) }', { uid, enid });
+  const res = await rgraphql(
+    'api-schedule',
+    'query checkStudentScheduledWithEntity($uid: ID!, $enid: ID!) { scheduleStudentForEntity(uid: $uid, enid: $enid) }',
+    { uid, enid }
+  )
 
   if (res.errors || !res.data) {
-    console.error(res);
-    throw new Error('An unkown error occured while checking if the student is scheduled for the entity');
+    console.error(res)
+    throw new Error('An unkown error occured while checking if the student is scheduled for the entity')
   }
 
-  return res.data.scheduleStudentForEntity;
-};
+  return res.data.scheduleStudentForEntity
+}
 
 /**
  *
@@ -137,9 +167,9 @@ const checkStudentScheduledWithEntity = async (uid, enid) => {
  * @param {String} rep.repAdmin
  * @returns {Object} The new representative
  */
-const createRepresentative = async (rep) => {
-  const password = await randomPassword();
-  rep.password = await hash(password);
+const createRepresentative = async rep => {
+  const password = await randomPassword()
+  rep.password = await hash(password)
 
   await mail.sendMail({
     from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
@@ -151,15 +181,16 @@ const createRepresentative = async (rep) => {
   Your UvA Thesis Fair ${rep.repAdmin ? 'admin ' : ''}representative account has been created.
   You can log in at https://thesisfair.ivi.uva.nl/
 
-  ${rep.repAdmin ?
-        `This admin account gives you the ability to create additional logins for representatives from your organisation.
+  ${
+    rep.repAdmin
+      ? `This admin account gives you the ability to create additional logins for representatives from your organisation.
 Please create subaccounts for all your colleague representatives attending before the event.
 Please ask your colleagues to check their spam folder in case they do not receive an email.
 
   You can create subaccounts by going the bottom of the organisation page and pressing the "Create new account" button.
    `
-        : ''
-      }
+      : ''
+  }
 
   Your credentials are:
   Email: ${rep.email}
@@ -169,21 +200,21 @@ Please ask your colleagues to check their spam folder in case they do not receiv
 
   Kind regards,
   Thesis Fair Team
-  `
+  `,
   })
 
-  return Representative.create(rep);
+  return Representative.create(rep)
 }
 
-schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'));
+schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
 
-schemaComposer.types.get('User').setResolveType((value) => {
+schemaComposer.types.get('User').setResolveType(value => {
   if (value instanceof Student) {
-    return 'Student';
+    return 'Student'
   } else if (value instanceof Representative) {
-    return 'Representative';
+    return 'Representative'
   } else {
-    return 'Admin';
+    return 'Admin'
   }
 })
 
@@ -195,11 +226,13 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get a user by its id.',
     resolve: async (obj, args, req) => {
-      const user = await User.findById(args.uid);
-      if (!user) { return null; }
+      const user = await User.findById(args.uid)
+      if (!user) {
+        return null
+      }
 
-      canGetUser(req, args, user);
-      return user;
+      canGetUser(req, args, user)
+      return user
     },
   },
   student: {
@@ -210,10 +243,10 @@ schemaComposer.Query.addNestedFields({
     description: 'Get a student by its studentnumber',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'system') {
-        throw new Error('UNAUTHORIZED to use this route.');
+        throw new Error('UNAUTHORIZED to use this route.')
       }
 
-      return await Student.findOneAndUpdate({ studentnumber: args.studentnumber }, {}, { new: true, upsert: true }); // Automic find or create
+      return await Student.findOneAndUpdate({ studentnumber: args.studentnumber }, {}, { new: true, upsert: true }) // Automic find or create
     },
   },
   users: {
@@ -223,16 +256,16 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get a list of users using their ids. Result is not in original order!',
     resolve: async (obj, args, req) => {
-      const users = await User.find({ _id: { $in: args.uids } });
+      const users = await User.find({ _id: { $in: args.uids } })
       for (let i = 0; i < users.length; i++) {
         try {
-          canGetUser(req, args, users[i]);
+          canGetUser(req, args, users[i])
         } catch (error) {
-          users[i] = null;
+          users[i] = null
         }
       }
 
-      return users;
+      return users
     },
   },
   usersOfEntity: {
@@ -242,10 +275,10 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get all users of an entity.',
     resolve: async (obj, args, req) => {
-      const users = await Representative.find({ enid: args.enid });
-      canGetUsers(req, args, users);
-      return users;
-    }
+      const users = await Representative.find({ enid: args.enid })
+      canGetUsers(req, args, users)
+      return users
+    },
   },
   usersAll: {
     type: '[User]',
@@ -255,23 +288,23 @@ schemaComposer.Query.addNestedFields({
     description: 'Get all users.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED to get all users');
+        throw new Error('UNAUTHORIZED to get all users')
       }
 
       switch (args.filter) {
         case 'student':
-          return Student.find();
+          return Student.find()
 
         case 'representative':
-          return Representative.find();
+          return Representative.find()
 
         case 'admin':
-          return User.find({ admin: true });
+          return User.find({ admin: true })
 
         default:
-          return User.find();
+          return User.find()
       }
-    }
+    },
   },
   studentsWhoManuallyShared: {
     type: '[Student]',
@@ -281,46 +314,46 @@ schemaComposer.Query.addNestedFields({
     description: 'Get all users who manually shared their info with an entity.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enid === args.enid))) {
-        throw new Error('UNAUTHORIZED to get the users who voted from another entity.');
+        throw new Error('UNAUTHORIZED to get the users who voted from another entity.')
       }
 
       return Student.find({
-        manuallyShared: { $elemMatch: { $eq: args.enid } }
-      });
-    }
+        manuallyShared: { $elemMatch: { $eq: args.enid } },
+      })
+    },
   },
   cv: {
     type: 'String',
     args: {
       uid: 'ID!',
-      check: 'Boolean'
+      check: 'Boolean',
     },
     description: 'Get a students CV or check if a student has uploaded a CV.',
     resolve: async (obj, args, req) => {
       if (!isValidObjectId(args.uid)) {
-        throw new Error('Invalid uid supplied');
+        throw new Error('Invalid uid supplied')
       }
 
-      const user = await User.findById(args.uid);
+      const user = await User.findById(args.uid)
       if (!user) {
-        return null;
+        return null
       }
 
-      canGetUser(req, args, user);
+      canGetUser(req, args, user)
 
-      const file = `./data/${args.uid}`;
+      const file = `./data/${args.uid}`
       try {
-        await access(file, constants.R_OK);
+        await access(file, constants.R_OK)
       } catch (error) {
-        return null;
+        return null
       }
 
       if (args.check) {
-        return 'present';
+        return 'present'
       }
 
-      return readFile(file).then((content) => content.toString());
-    }
+      return readFile(file).then(content => content.toString())
+    },
   },
   login: {
     type: 'String!',
@@ -330,18 +363,20 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Login a user via email/password combination and return the JWT string.',
     resolve: async (obj, args) => {
-      const user = await User.findOne({ email: args.email });
-      if (!user) { throw new Error('No user with that email found.'); }
+      const user = await User.findOne({ email: args.email })
+      if (!user) {
+        throw new Error('No user with that email found.')
+      }
 
       if (process.env.NODE_ENV !== 'development' && user.admin === true) {
-        throw new Error('SSO only account. Please login via Single Sign-on');
+        throw new Error('SSO only account. Please login via Single Sign-on')
       }
 
       if (!(await bcrypt.compare(args.password, user.password))) {
-        throw new Error('Incorrect password');
+        throw new Error('Incorrect password')
       }
 
-      return await genApiToken(user);
+      return await genApiToken(user)
     },
   },
   ssoLogin: {
@@ -362,38 +397,54 @@ schemaComposer.Query.addNestedFields({
      */
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'system') {
-        throw new Error('UNAUTHORIZED to generate apiTokens');
+        throw new Error('UNAUTHORIZED to generate apiTokens')
       }
 
-      let user;
+      let user
       if (args.student) {
-        user = await Student.findOne({ studentnumber: args.external_id });
-        if (!user) { // User does not exist
-          const studies = await getStudies(args.external_id);
-          user = await Student.findOneAndUpdate({ email: args.email }, { studentnumber: args.external_id, firstname: args.firstname, lastname: args.lastname, studies }, { upsert: true, new: true });
-        } else if (!user.email && !user.firstname && !user.lastname) { // Current user data is a placeholder created by "query student", this is the first time the user is logging in via SSO.
-          const studies = await getStudies(args.external_id);
-          await Student.findByIdAndUpdate(user.uid, { email: args.email, firstname: args.firstname, lastname: args.lastname, studies });
+        user = await Student.findOne({ studentnumber: args.external_id })
+        if (!user) {
+          // User does not exist
+          const studies = await getStudies(args.external_id)
+          user = await Student.findOneAndUpdate(
+            { email: args.email },
+            { studentnumber: args.external_id, firstname: args.firstname, lastname: args.lastname, studies },
+            { upsert: true, new: true }
+          )
+        } else if (!user.email && !user.firstname && !user.lastname) {
+          // Current user data is a placeholder created by "query student", this is the first time the user is logging in via SSO.
+          const studies = await getStudies(args.external_id)
+          await Student.findByIdAndUpdate(user.uid, {
+            email: args.email,
+            firstname: args.firstname,
+            lastname: args.lastname,
+            studies,
+          })
         }
       } else {
-        user = await Representative.findOne({ external_id: args.external_id });
+        user = await Representative.findOne({ external_id: args.external_id })
         if (!user) {
-          user = await Representative.findOneAndUpdate({ email: args.email }, { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname });
+          user = await Representative.findOneAndUpdate(
+            { email: args.email },
+            { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname }
+          )
 
           if (!user) {
-            user = await User.findOne({ email: args.email, admin: true }); // Admin login
+            user = await User.findOne({ email: args.email, admin: true }) // Admin login
 
             if (!user) {
-              throw new Error('No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address.');
+              throw new Error(
+                'No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address.'
+              )
             }
           }
         }
       }
 
-      return await genApiToken(user);
+      return await genApiToken(user)
     },
   },
-});
+})
 
 schemaComposer.Mutation.addNestedFields({
   'user.representative.create': {
@@ -408,16 +459,14 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Create a representative account.',
     resolve: async (obj, args, req) => {
-      if (!(req.user.type === 'a' ||
-        (req.user.type === 'r' &&
-          req.user.repAdmin === true &&
-          req.user.enid === args.enid))
+      if (
+        !(req.user.type === 'a' || (req.user.type === 'r' && req.user.repAdmin === true && req.user.enid === args.enid))
       ) {
-        throw new Error('UNAUTHORIZED create user accounts for this entity');
+        throw new Error('UNAUTHORIZED create user accounts for this entity')
       }
 
-      return createRepresentative(args);
-    }
+      return createRepresentative(args)
+    },
   },
   'user.representative.update': {
     type: 'Representative',
@@ -433,30 +482,32 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Update a representative account.',
     resolve: async (obj, args, req) => {
-      const uid = args.uid;
-      delete args.uid;
+      const uid = args.uid
+      delete args.uid
 
-      if (!(req.user.type === 'a' ||
-        req.user.uid === uid ||
-        (req.user.repAdmin === true &&
-          req.user.enid == (await Representative.findById(uid, { enid: 1 })).enid)
-      )) {
-        throw new Error('UNAUTHORIZED update representative');
+      if (
+        !(
+          req.user.type === 'a' ||
+          req.user.uid === uid ||
+          (req.user.repAdmin === true && req.user.enid == (await Representative.findById(uid, { enid: 1 })).enid)
+        )
+      ) {
+        throw new Error('UNAUTHORIZED update representative')
       }
 
       if (args.enid && req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED update enid of representative');
+        throw new Error('UNAUTHORIZED update enid of representative')
       }
 
       if (args.password) {
         if (req.user.uid !== uid) {
-          throw new Error('UNAUTHORIZED update other peoples passwords');
+          throw new Error('UNAUTHORIZED update other peoples passwords')
         }
 
-        args.password = await hash(args.password);
+        args.password = await hash(args.password)
       }
 
-      return Representative.findByIdAndUpdate(uid, { $set: args }, { new: true });
+      return Representative.findByIdAndUpdate(uid, { $set: args }, { new: true })
     },
   },
   'user.representative.import': {
@@ -464,43 +515,55 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       file: 'String!',
     },
-    description: 'Import representatives using a CSV file. The file parameter should be a CSV file with the headers "ID,email" and its content should be the external entity ID and email addresses of the new account. If an account already exists it will not be recreated.',
+    description:
+      'Import representatives using a CSV file. The file parameter should be a CSV file with the headers "ID,email" and its content should be the external entity ID and email addresses of the new account. If an account already exists it will not be recreated.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED to import representatives');
+        throw new Error('UNAUTHORIZED to import representatives')
       }
 
       return new Promise((resolve, reject) => {
-        csvParser(args.file.trim(), { columns: true, skip_empty_lines: true, delimiter: ',' }, async (err, records, info) => {
-          if (err) { reject(err); return; }
-
-          if (records.length === 0) {
-            resolve('Given file does not have records');
-            return;
-          }
-
-          for (let { ID: entity_id, email } of records) {
-            if (!entity_id || !email) { continue; }
-
-            const user = await Representative.findOne({ email });
-            if (user) { continue; } // User already exists
-
-            const enid = await getEnid(entity_id);
-            if (!enid) {
-              resolve(`Entity id ${entity_id} not found!`);
-              return;
+        csvParser(
+          args.file.trim(),
+          { columns: true, skip_empty_lines: true, delimiter: ',' },
+          async (err, records, info) => {
+            if (err) {
+              reject(err)
+              return
             }
-            await createRepresentative({
-              enid: enid,
-              email: email,
-              repAdmin: true,
-            });
-          }
 
-          resolve(null);
-        });
-      });
-    }
+            if (records.length === 0) {
+              resolve('Given file does not have records')
+              return
+            }
+
+            for (let { ID: entity_id, email } of records) {
+              if (!entity_id || !email) {
+                continue
+              }
+
+              const user = await Representative.findOne({ email })
+              if (user) {
+                continue
+              } // User already exists
+
+              const enid = await getEnid(entity_id)
+              if (!enid) {
+                resolve(`Entity id ${entity_id} not found!`)
+                return
+              }
+              await createRepresentative({
+                enid: enid,
+                email: email,
+                repAdmin: true,
+              })
+            }
+
+            resolve(null)
+          }
+        )
+      })
+    },
   },
   'user.admin.update': {
     type: 'User',
@@ -510,15 +573,15 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Update an admin account.',
     resolve: async (obj, args, req) => {
-      const uid = args.uid;
-      delete args.uid;
+      const uid = args.uid
+      delete args.uid
 
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED update admin');
+        throw new Error('UNAUTHORIZED update admin')
       }
 
-      return User.findByIdAndUpdate(uid, { $set: args }, { new: true });
-    }
+      return User.findByIdAndUpdate(uid, { $set: args }, { new: true })
+    },
   },
   'user.student.update': {
     type: 'Student',
@@ -532,14 +595,14 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Update a student account.',
     resolve: async (obj, args, req) => {
-      const uid = args.uid;
-      delete args.uid;
+      const uid = args.uid
+      delete args.uid
 
       if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === uid))) {
-        throw new Error('UNAUTHORIZED update student');
+        throw new Error('UNAUTHORIZED update student')
       }
 
-      return Student.findByIdAndUpdate(uid, { $set: args }, { new: true });
+      return Student.findByIdAndUpdate(uid, { $set: args }, { new: true })
     },
   },
   'user.student.uploadCV': {
@@ -551,15 +614,15 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Upload a CV',
     resolve: async (obj, args, req) => {
       if (!isValidObjectId(args.uid)) {
-        throw new Error('Invalid uid supplied');
+        throw new Error('Invalid uid supplied')
       }
 
       if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
-        throw new Error('UNAUTHORIZED update student');
+        throw new Error('UNAUTHORIZED update student')
       }
 
-      await writeFile(`./data/${args.uid}`, args.file);
-      return true;
+      await writeFile(`./data/${args.uid}`, args.file)
+      return true
     },
   },
   'user.student.shareInfo': {
@@ -567,33 +630,33 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       uid: 'ID!',
       enid: 'ID!',
-      share: 'Boolean!'
+      share: 'Boolean!',
     },
     description: 'Allow or disallow a company to see student data.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
-        throw new Error('UNAUTHORIZED update share information');
+        throw new Error('UNAUTHORIZED update share information')
       }
 
-      const votedForEntity = await checkStudentVotedForEntity(args.uid, args.enid);
+      const votedForEntity = await checkStudentVotedForEntity(args.uid, args.enid)
       if (votedForEntity && !args.share) {
         throw new Error('It is not possible to unshare a company that you have voted for.')
       }
 
-      const scheduledWithEntity = await checkStudentScheduledWithEntity(args.uid, args.enid);
+      const scheduledWithEntity = await checkStudentScheduledWithEntity(args.uid, args.enid)
       if (scheduledWithEntity && !args.share) {
         throw new Error('It is not possible to unshare a company that you are scheduled with.')
       }
 
-      let operation;
+      let operation
       if (args.share) {
-        operation = { $addToSet: { share: args.enid, manuallyShared: args.enid, } };
+        operation = { $addToSet: { share: args.enid, manuallyShared: args.enid } }
       } else {
-        operation = { $pull: { share: args.enid, manuallyShared: args.enid, } };
+        operation = { $pull: { share: args.enid, manuallyShared: args.enid } }
       }
 
-      return Student.findByIdAndUpdate(args.uid, operation, { new: true });
-    }
+      return Student.findByIdAndUpdate(args.uid, operation, { new: true })
+    },
   },
   'user.delete': {
     type: 'User',
@@ -603,19 +666,24 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Delete a user',
     resolve: async (obj, args, req) => {
       const checkEnid = async () => {
-        const user = await Representative.findById(args.uid, { enid: 1 });
-        if (!user) { return false; }
+        const user = await Representative.findById(args.uid, { enid: 1 })
+        if (!user) {
+          return false
+        }
 
-        return req.user.enid == user.enid;
+        return req.user.enid == user.enid
       }
-      if (!(req.user.type === 'a' ||
-        req.user.uid === args.uid ||
-        (req.user.type === 'r' && req.user.repAdmin === true && await checkEnid())
-      )) {
-        throw new Error('UNAUTHORIZED delete user');
+      if (
+        !(
+          req.user.type === 'a' ||
+          req.user.uid === args.uid ||
+          (req.user.type === 'r' && req.user.repAdmin === true && (await checkEnid()))
+        )
+      ) {
+        throw new Error('UNAUTHORIZED delete user')
       }
 
-      return User.findByIdAndDelete(args.uid);
+      return User.findByIdAndDelete(args.uid)
     },
   },
   'user.deleteOfEntity': {
@@ -626,21 +694,22 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Delete all representatives of an entity.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED delete entities');
+        throw new Error('UNAUTHORIZED delete entities')
       }
 
-      await Representative.deleteMany({ enid: args.enid });
-      await Student.updateMany({ $pull: { share: args.enid }});
-      return true;
+      await Representative.deleteMany({ enid: args.enid })
+      await Student.updateMany({ $pull: { share: args.enid } })
+      return true
     },
   },
-});
+})
 
 if (!existsSync('./data')) {
-  mkdirSync('./data');
+  mkdirSync('./data')
 }
 
-const schema = schemaComposer.buildSchema();
+const schema = schemaComposer.buildSchema()
 
-const executeGraphql = ({ query, variables = {}, context = {} }) => graphql({ schema, source: query, variableValues: variables, contextValue: context });
-export default executeGraphql;
+const executeGraphql = ({ query, variables = {}, context = {} }) =>
+  graphql({ schema, source: query, variableValues: variables, contextValue: context })
+export default executeGraphql
