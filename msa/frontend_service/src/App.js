@@ -7,7 +7,6 @@ import LoginPage from './pages/LoginPage'
 import Testing from './pages/Testing'
 import Register from './pages/Register'
 import NotFound from './pages/NotFound'
-import EventPicker from './pages/EventPicker'
 
 import Page from './pages/Page'
 import EventPage from './pages/EventPage'
@@ -29,41 +28,6 @@ import RepAccount from './pages/representative/RepAccount';
 import Projects from './pages/representative/projects';
 
 import OrganisationDashboard from './pages/adminRepresentative/OrganisationDashboard'
-
-function EventChecker(props) {
-  const params = useParams()
-  const [found, setFound] = useState(true)
-  const [redirect, setRedirect] = useState(false)
-
-  api.event
-    .get(params.evid)
-    .exec()
-    .then(event => {
-      setFound(!!event)
-    })
-    .catch(() => {
-      setFound(false)
-    })
-
-  if (!found) {
-    setTimeout(() => setRedirect(true), 3000)
-
-    if (redirect) {
-      return <Navigate to='/events' />
-    }
-  }
-
-  return found ? (
-    <Outlet />
-  ) : (
-    <div className='d-flex mt-4 justify-content-center'>
-      <div>
-        <h1>Event not found :(</h1>
-        You will be redirected after 3 seconds, or you can <a href='/events'>click here</a>.
-      </div>
-    </div>
-  )
-}
 
 class App extends React.Component {
   constructor(props) {
@@ -159,12 +123,9 @@ class App extends React.Component {
 
     return (
       <>
-        <Route path='/' element={<EventPicker />} />
-        <Route path='/events' element={<EventPicker />} />
-        <Route path='/:evid' element={<EventChecker />}>
-          <Route path='event' element={<Page page={<EventPage />} />} />
-          {routes}
-        </Route>
+        <Route path='/' element={<Navigate to='account' replace={true} />} />
+        <Route path='event' element={<Page page={<EventPage />} />} />
+        {routes}
       </>
     )
   }

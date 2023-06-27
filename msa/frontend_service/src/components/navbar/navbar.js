@@ -15,7 +15,7 @@ import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg'
 import './navbar.scss'
 import api from '../../api'
 
-const navigationBarItems = eventId => ({
+const navigationBarItems = {
   a: [
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Events', icon: eventIcon, link: '/' },
@@ -25,23 +25,23 @@ const navigationBarItems = eventId => ({
     { name: 'Register', icon: overrideUserIcon, link: '/register' },
   ],
   s: [
-    { name: 'Account', icon: accountIcon, link: `/${eventId}/account` },
-    { name: 'Event', icon: eventIcon, link: `/${eventId}/event` },
-    { name: 'Orgs', icon: organisationsIcon, link: `/${eventId}/organisations` },
-    { name: 'Votes', icon: likesIcon, link: `/${eventId}/votes` },
+    { name: 'Account', icon: accountIcon, link: '/account' },
+    { name: 'Event', icon: eventIcon, link: '/event' },
+    { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
+    { name: 'Votes', icon: likesIcon, link: '/votes' },
   ],
   r: [
-    { name: 'Account', icon: accountIcon, link: `/${eventId}/account` },
-    { name: 'Event', icon: eventIcon, link: `/${eventId}/event` },
-    { name: 'Projects', icon: projectsIcon, link: `/${eventId}/projects` },
+    { name: 'Account', icon: accountIcon, link: '/account' },
+    { name: 'Event', icon: eventIcon, link: '/event' },
+    { name: 'Projects', icon: projectsIcon, link: '/projects' },
   ],
   ra: [
-    { name: 'Account', icon: accountIcon, link: `/${eventId}/account` },
-    { name: 'Organisation', icon: organisationsIcon, link: `/${eventId}/organisation` },
-    { name: 'Event', icon: eventIcon, link: `/${eventId}/event` },
-    { name: 'Projects', icon: projectsIcon, link: `/${eventId}/projects` },
+    { name: 'Account', icon: accountIcon, link: '/account' },
+    { name: 'Organisation', icon: organisationsIcon, link: '/organisation' },
+    { name: 'Event', icon: eventIcon, link: '/event' },
+    { name: 'Projects', icon: projectsIcon, link: '/projects' },
   ],
-})
+}
 
 function CustomNavbar(props) {
   const params = useParams()
@@ -53,18 +53,18 @@ function CustomNavbar(props) {
   return (
     <Navbar className='ps-2 pe-2 p-md-0' bg='primary' expand='sm'>
       <Navbar.Brand className='d-md-none'>
-        <Link to={`/${params.evid || ''}`}>
+        <Link to={'/'}>
           <img src='/images/uvalogo.svg' width='64' height='64' alt='UvA Logo' />
         </Link>
       </Navbar.Brand>
       <Navbar.Toggle aria-controls='topNavbar' />
       <Navbar.Collapse id='topNavbar' className='justify-content-end'>
         <Nav className='sidebar navbar position-fixed flex-row flex-md-column justify-content-start'>
-          <Link className='logo d-none d-md-block' to={`/${params.evid || ''}`}>
+          <Link className='logo d-none d-md-block' to={'/'}>
             <img src='/images/uvalogo.svg' width='64' height='64' alt='UvA Logo' />
           </Link>
 
-          {navigationBarItems(params.evid)[type].map(({ name, icon, link }, index) => (
+          {navigationBarItems[type].map(({ name, icon, link }, index) => (
             <Nav.Item key={index}>
               <Link className={`nav-link ${currentPage === name.toLowerCase() ? 'active' : ''}`} to={link}>
                 <img src={icon} alt='' />
