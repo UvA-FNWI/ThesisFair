@@ -1,7 +1,5 @@
 import React from 'react'
 import { Button, Card } from 'react-bootstrap'
-import makeAdminIcon from 'bootstrap-icons/icons/star.svg'
-import isAdminIcon from 'bootstrap-icons/icons/star-fill.svg'
 import deleteIcon from 'bootstrap-icons/icons/x-lg.svg'
 import api from '../../api'
 import CreateUserPopup from '../createUserPopup/createUserPopup'
@@ -85,16 +83,9 @@ class RepresentativeList extends React.Component {
               <Card key={userIndex} className='mb-2'>
                 <Card.Body className='d-flex justify-content-between align-items-center'>
                   <p className='m-0'>
-                    {user.firstname} {user.lastname} - {user.email}
+                    {user.firstname} {user.lastname} ({user.email})
                   </p>
                   <div>
-                    <img
-                      src={user.repAdmin ? isAdminIcon : makeAdminIcon}
-                      alt='Toggle admin state'
-                      style={{ cursor: 'pointer' }}
-                      className='me-2'
-                      onClick={() => this.toggleAdmin(userIndex)}
-                    />
                     <img
                       src={deleteIcon}
                       alt='Delete user'
