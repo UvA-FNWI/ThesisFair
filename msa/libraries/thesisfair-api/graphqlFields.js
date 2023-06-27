@@ -70,6 +70,8 @@ export default {
     'project.expectations',
     'project.approval',
     'project.attendance',
+    'project.email',
+    'project.numberOfStudents',
     'project.datanoseLink',
     'project.external_id',
     'error',
