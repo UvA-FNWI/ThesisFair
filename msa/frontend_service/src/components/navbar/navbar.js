@@ -1,101 +1,89 @@
-import React from 'react';
+import React from 'react'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 
-import { Link, useParams } from 'react-router-dom';
-import accountIcon from 'bootstrap-icons/icons/person-circle.svg';
-import likesIcon from 'bootstrap-icons/icons/heart.svg';
-import organisationsIcon from 'bootstrap-icons/icons/building.svg';
-import projectsIcon from 'bootstrap-icons/icons/list-task.svg';
-import scheduleIcon from 'bootstrap-icons/icons/calendar.svg';
-import eventIcon from 'bootstrap-icons/icons/calendar-event.svg';
-import userIcon from 'bootstrap-icons/icons/people.svg';
-import overrideUserIcon from 'bootstrap-icons/icons/person.svg';
-import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg';
+import { Link, useParams } from 'react-router-dom'
+import accountIcon from 'bootstrap-icons/icons/person-circle.svg'
+import likesIcon from 'bootstrap-icons/icons/heart.svg'
+import organisationsIcon from 'bootstrap-icons/icons/building.svg'
+import projectsIcon from 'bootstrap-icons/icons/list-task.svg'
+import eventIcon from 'bootstrap-icons/icons/calendar-event.svg'
+import userIcon from 'bootstrap-icons/icons/people.svg'
+import overrideUserIcon from 'bootstrap-icons/icons/person.svg'
+import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg'
 
-import './navbar.scss';
-import api from '../../api';
+import './navbar.scss'
+import api from '../../api'
+
+const navigationBarItems = {
+  a: [
+    { name: 'Account', icon: accountIcon, link: '/account' },
+    { name: 'Events', icon: eventIcon, link: '/' },
+    { name: 'Students', icon: userIcon, link: '/students' },
+    { name: 'LoginAs', icon: overrideUserIcon, link: '/loginAs' },
+    { name: 'Testing', icon: overrideUserIcon, link: '/testing' },
+    { name: 'Register', icon: overrideUserIcon, link: '/register' },
+  ],
+  s: [
+    { name: 'Account', icon: accountIcon, link: '/account' },
+    { name: 'Events', icon: eventIcon, link: '/event' },
+    { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
+    { name: 'Votes', icon: likesIcon, link: '/votes' },
+  ],
+  r: [
+    { name: 'Account', icon: accountIcon, link: '/account' },
+    { name: 'Events', icon: eventIcon, link: '/event' },
+    { name: 'Projects', icon: projectsIcon, link: '/projects' },
+  ],
+  ra: [
+    { name: 'Account', icon: accountIcon, link: '/account' },
+    { name: 'Organisation', icon: organisationsIcon, link: '/organisation' },
+    { name: 'Events', icon: eventIcon, link: '/event' },
+    { name: 'Projects', icon: projectsIcon, link: '/projects' },
+  ],
+}
 
 function CustomNavbar(props) {
-  const params = useParams();
-  const type = api.getApiTokenData().type;
+  const params = useParams()
+  const type = api.getApiTokenData().type === 'r' && api.getApiTokenData().repAdmin ? 'ra' : api.getApiTokenData().type
+
+  // Get current page
+  const currentPage = window.location.pathname.split('/')[2]
 
   return (
-    <Navbar className='ps-2 pe-2 p-md-0' bg="primary" expand="sm">
+    <Navbar className='ps-2 pe-2 p-md-0' bg='primary' expand='sm'>
       <Navbar.Brand className='d-md-none'>
-        <Link to={`/${params.evid || ''}`}>
-          <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
+        <Link to={'/'}>
+          <img src='/images/uvalogo.svg' width='64' height='64' alt='UvA Logo' />
         </Link>
       </Navbar.Brand>
-      <Navbar.Toggle aria-controls="topNavbar" />
-      <Navbar.Collapse id="topNavbar" className='justify-content-end'>
-        <Nav className="sidebar navbar flex-row flex-md-column justify-content-start">
-          <Link className='logo d-none d-md-block' to={`/${params.evid || ''}`}>
-            <img src="/images/uvalogo.svg" width="64" height="64" alt="UvA Logo" />
+      <Navbar.Toggle aria-controls='topNavbar' />
+      <Navbar.Collapse id='topNavbar' className='justify-content-end'>
+        <Nav className='sidebar navbar position-fixed flex-row flex-md-column justify-content-start'>
+          <Link className='logo d-none d-md-block' to={'/'}>
+            <img src='/images/uvalogo.svg' width='64' height='64' alt='UvA Logo' />
           </Link>
 
-          {type === 'a' ?
-            <>
-              <Nav.Item>
-                <Link to={`/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/`}><img src={eventIcon} alt='' /><span>Events</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/students`}><img src={userIcon} alt='' /><span>Students</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/loginAs`}><img src={overrideUserIcon} alt='' /><span>LoginAs</span></Link>
-              </Nav.Item>
-            </>
-            : null}
-          {type === 's' ?
-            <>
-              <Nav.Item>
-                <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/${params.evid}/organisations`}><img src={organisationsIcon} alt='' /><span>Orgs</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/${params.evid}/votes`}><img src={likesIcon} alt='' /><span>Votes</span></Link>
-              </Nav.Item>
-            </>
-            : null}
-
-          {type === 'r' ?
-            <>
-              <Nav.Item>
-                <Link to={`/${params.evid}/account`}><img src={accountIcon} alt='' /><span>Account</span></Link>
-              </Nav.Item>
-              {api.getApiTokenData().repAdmin === true ?
-                <Nav.Item>
-                  <Link to={`/${params.evid}/organisation`}><img src={organisationsIcon} alt='' /><span>Organisation</span></Link>
-                </Nav.Item>
-                : null
-              }
-              <Nav.Item>
-                <Link to={`/${params.evid}/event`}><img src={eventIcon} alt='' /><span>Event</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/${params.evid}/schedule`}><img src={scheduleIcon} alt='' /><span>Schedule</span></Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link to={`/${params.evid}/projects`}><img src={projectsIcon} alt='' /><span>Projects</span></Link>
-              </Nav.Item>
-            </>
-            : null
-          }
+          {navigationBarItems[type].map(({ name, icon, link }, index) => (
+            <Nav.Item key={index}>
+              <Link className={`nav-link ${currentPage === name.toLowerCase() ? 'active' : ''}`} to={link}>
+                <img src={icon} alt='' />
+                <span>{name}</span>
+              </Link>
+            </Nav.Item>
+          ))}
 
           <Nav.Item className='logout'>
-            <div onClick={api.apiTokenOverriden() ? () => {api.overrideApiTokenData(null); window.location.href='/loginAs'} : api.user.logout}>
+            <div
+              onClick={
+                api.apiTokenOverriden()
+                  ? () => {
+                      api.overrideApiTokenData(null)
+                      window.location.href = '/loginAs'
+                    }
+                  : api.user.logout
+              }
+            >
               <img src={logoutIcon} alt='' />
               <span>{api.apiTokenOverriden() ? 'Return' : 'Logout'}</span>
             </div>
@@ -103,7 +91,7 @@ function CustomNavbar(props) {
         </Nav>
       </Navbar.Collapse>
     </Navbar>
-  );
+  )
 }
 
-export default CustomNavbar;
+export default CustomNavbar

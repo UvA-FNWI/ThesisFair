@@ -1,29 +1,39 @@
 scalar Date
 
-input EventImport {
-    ID: Int!
-    enabled: Boolean
-    name: String!
-    description: String
-    start: Date
-    location: String
-    entities: [ID!]
+enum Degree {
+  AI
+  CPS
+  DS
+  IS
+  MoL
+  SE
 }
 
+input EventImport {
+  ID: Int!
+  enabled: Boolean
+  name: String!
+  description: String
+  start: Date
+  location: String
+  entities: [ID!]
+}
 
 type Event {
-    evid: ID!
-    enabled: Boolean
-    name: String!
-    description: String
-    start: Date
-    location: String
-    studentSubmitDeadline: Date
-    entities: [ID!]
-    external_id: Int!
+  evid: ID!
+  enabled: Boolean
+  name: String!
+  description: String
+  start: Date
+  end: Date
+  degrees: [Degree]
+  location: String
+  studentSubmitDeadline: Date
+  entities: [ID!]
+  external_id: Int!
 }
 
 type EventImportResult {
-  event: Event,
-  error: String,
+  event: Event
+  error: String
 }

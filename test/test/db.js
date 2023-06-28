@@ -1,66 +1,82 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt'
 
-import { MongoDBProvisioner } from '../../msa/libraries/mongodbprovisioner/index.js';
+import { MongoDBProvisioner } from '../../msa/libraries/mongodbprovisioner/index.js'
 
-const saltRounds = 0;
-const hashCache = {};
-const hash = async (password) => {
+const saltRounds = 0
+const hashCache = {}
+const hash = async password => {
   if (hashCache[password]) {
-    return hashCache[password];
+    return hashCache[password]
   }
 
   return (hashCache[password] = await bcrypt.hash(password, saltRounds))
-};
+}
 
 const configs = {
   entities: {
     uri: process.env.mongodbConStrEntity || 'mongodb://localhost:27017/entity_service',
     library: import('../../msa/entity_service/src/database.js'),
     object: 'Entity',
-    get: (db) => [
+    get: db => [
       {
         name: 'New name1 - entity',
         description: 'New description1 - entity',
         type: 'company',
-        contact: [{ type: 'website', content: 'qrcsoftware.nl/1' }, { type: 'email', content: 'info.1@uva.nl' }, { type: 'phonenumber', content: '06 12345671' }],
+        contact: [
+          { type: 'website', content: 'qrcsoftware.nl/1' },
+          { type: 'email', content: 'info.1@uva.nl' },
+          { type: 'phonenumber', content: '06 12345671' },
+        ],
         external_id: 0,
         representatives: 2,
-        location: 'Booth 1'
+        location: 'Booth 1',
       },
       {
         name: 'New name 2',
         description: 'New description 2',
         type: 'research',
-        contact: [{ type: 'website', content: 'qrcsoftware.nl/2' }, { type: 'email', content: 'info.2@uva.nl' }, { type: 'phonenumber', content: '06 12345672' }],
+        contact: [
+          { type: 'website', content: 'qrcsoftware.nl/2' },
+          { type: 'email', content: 'info.2@uva.nl' },
+          { type: 'phonenumber', content: '06 12345672' },
+        ],
         external_id: 1,
         representatives: 2,
-        location: 'Booth 2'
+        location: 'Booth 2',
       },
       {
         name: 'New name 3',
         description: 'New description 3',
         type: 'company',
-        contact: [{ type: 'website', content: 'qrcsoftware.nl/3' }, { type: 'email', content: 'info.3@uva.nl' }, { type: 'phonenumber', content: '06 12345673' }],
+        contact: [
+          { type: 'website', content: 'qrcsoftware.nl/3' },
+          { type: 'email', content: 'info.3@uva.nl' },
+          { type: 'phonenumber', content: '06 12345673' },
+        ],
         external_id: 2,
         representatives: 3,
-        location: 'Booth 3'
+        location: 'Booth 3',
       },
       {
         name: 'New name 4',
         description: 'New description 4',
         type: 'company',
-        contact: [{ type: 'website', content: 'qrcsoftware.nl/4' }, { type: 'email', content: 'info.4@uva.nl' }, { type: 'phonenumber', content: '06 12345674' }],
+        contact: [
+          { type: 'website', content: 'qrcsoftware.nl/4' },
+          { type: 'email', content: 'info.4@uva.nl' },
+          { type: 'phonenumber', content: '06 12345674' },
+        ],
         external_id: 3,
         representatives: 4,
-        location: 'Booth 4'
-      }
+        location: 'Booth 4',
+      },
     ],
   },
   events: {
     uri: process.env.mongodbConStrEvent || 'mongodb://localhost:27017/event_service',
     library: import('../../msa/event_service/src/database.js'),
     object: 'Event',
-    get: (db) => [
+    get: db => [
       {
         external_id: 1,
         enabled: true,
@@ -117,7 +133,7 @@ const configs = {
     uri: process.env.mongodbConStrProject || 'mongodb://localhost:27017/project_service',
     library: import('../../msa/project_service/src/database.js'),
     object: 'Project',
-    get: (db) => [
+    get: db => [
       {
         enid: db.entities[0].enid,
         evids: [db.events[0].evid],
@@ -142,7 +158,7 @@ const configs = {
         datanoseLink: 'https://datanose.nl/projects/newName3',
         external_id: 2,
       },
-    ]
+    ],
   },
   users: {
     uri: process.env.mongodbConStrUser || 'mongodb://localhost:27017/user_service',
@@ -150,7 +166,7 @@ const configs = {
     object: 'User',
     objects: ['User', 'Student', 'Representative'],
     hide: ['password'],
-    get: async (db) => [
+    get: async db => [
       {
         firstname: 'Quinten',
         lastname: 'Coltof',
@@ -162,7 +178,7 @@ const configs = {
         studies: ['UvA Informatica'],
         share: [db.entities[0].enid, db.entities[2].enid],
         manuallyShared: [db.entities[0].enid, db.entities[2].enid],
-        __t: "Student",
+        __t: 'Student',
       },
       {
         firstname: 'Johannes',
@@ -174,7 +190,7 @@ const configs = {
         studies: ['UvA Kunstmatige Intellegentie', 'VU Rechten'],
         share: [db.entities[0].enid, db.entities[1].enid],
         manuallyShared: [db.entities[0].enid],
-        __t: "Student",
+        __t: 'Student',
       },
       {
         firstname: 'John',
@@ -184,7 +200,7 @@ const configs = {
         enid: db.entities[0].enid,
         password: await hash('rep'),
         repAdmin: false,
-        __t: "Representative",
+        __t: 'Representative',
       },
       {
         firstname: 'Edsger',
@@ -194,7 +210,7 @@ const configs = {
         enid: db.entities[0].enid,
         password: await hash('repAdmin'),
         repAdmin: true,
-        __t: "Representative",
+        __t: 'Representative',
       },
       {
         firstname: 'Eduard',
@@ -204,7 +220,7 @@ const configs = {
         enid: db.entities[1].enid,
         password: await hash('helloWorld!'),
         repAdmin: false,
-        __t: "Representative",
+        __t: 'Representative',
       },
       {
         email: 'admin',
@@ -218,10 +234,10 @@ const configs = {
         phone: '+31 6 11134567',
         studentnumber: '22245678',
         websites: [],
-        studies: ['UvA Kunstmatige Intellegentie',],
+        studies: ['UvA Kunstmatige Intellegentie'],
         share: [],
         manuallyShared: [],
-        __t: "Student",
+        __t: 'Student',
       },
     ],
   },
@@ -229,7 +245,7 @@ const configs = {
     uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/vote_service',
     library: import('../../msa/vote_service/src/database.js'),
     object: 'Vote',
-    get: (db) => [
+    get: db => [
       {
         uid: db.users[0].uid,
         evid: db.events[0].evid,
@@ -266,47 +282,25 @@ const configs = {
       },
     ],
   },
-  schedule: {
-    uri: process.env.mongodbConStrVote || 'mongodb://localhost:27017/schedule_service',
-    library: import('../../msa/schedule_service/src/database.js'),
-    object: 'Schedule',
-    get: (db) => [
-      {
-        uid: db.users[0].uid,
-        evid: db.events[4].evid,
-        enid: db.entities[0].enid,
-        slot: 'Slot1',
-      },
-      {
-        uid: db.users[0].uid,
-        evid: db.events[4].evid,
-        enid: db.entities[1].enid,
-        slot: 'Slot2',
-      },
-      {
-        uid: db.users[0].uid,
-        evid: db.events[4].evid,
-        enid: db.entities[3].enid,
-        slot: 'Slot3',
-      },
-    ],
-  },
-};
-
-const provisioner = new MongoDBProvisioner(configs);
-
-export let db;
-export let models;
-export const init = provisioner.init;
-const main = async () => {
-  await provisioner.provision();
-  db = provisioner.db;
-  models = provisioner.models;
 }
-export default main;
-export const disconnect = provisioner.disconnect;
+
+const provisioner = new MongoDBProvisioner(configs)
+
+export let db
+export let models
+export const init = provisioner.init
+const main = async () => {
+  await provisioner.provision()
+  console.log('Provisioned database')
+  db = provisioner.db
+  console.log('Database ready', db)
+  models = provisioner.models
+  console.log('Models ready', models)
+}
+export default main
+export const disconnect = provisioner.disconnect
 
 if (process.argv.length === 3 && process.argv[2] === 'run') {
-  console.log('Initializing database from cli');
-  init().then(main).then(disconnect);
+  console.log('Initializing database from cli')
+  init().then(main).then(disconnect)
 }

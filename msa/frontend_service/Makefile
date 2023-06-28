@@ -12,3 +12,5 @@ build:
 push:
 	docker push ${imageName}
 
+npmInstall:
+	npm ci

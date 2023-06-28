@@ -9,3 +9,6 @@ update:
 
 generateJWTSecret:
 	openssl rand -base64 512
+
+npmInstall:
+	./scripts/npmInstall.sh ./msa

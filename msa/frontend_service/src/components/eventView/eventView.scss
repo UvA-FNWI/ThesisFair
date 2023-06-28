@@ -1,0 +1,28 @@
+.list-item {
+  &__tags {
+    display: flex;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    justify-content: right;
+    margin-right: 0.25rem;
+  }
+
+  &__tag {
+    height: fit-content;
+    width: fit-content;
+    align-items: center;
+
+    background-color: rgb(28, 68, 180);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.5rem;
+
+    margin: 0 0.125rem;
+
+    & p {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin: 0;
+    }
+  }
+}

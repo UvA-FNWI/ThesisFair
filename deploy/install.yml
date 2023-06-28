@@ -1,5 +1,4 @@
 ---
-
 - name: Install docker on ubuntu
   hosts: thesisfair
   become: true
@@ -48,7 +47,6 @@
         state: started
         enabled: true
 
-
     - name: Initialize application directory
       file:
         path: /opt/thesisfair
@@ -74,12 +72,10 @@
         block: /dev/disk/azure/scsi1/lun0-part1 /opt/thesisfair xfs defaults 0 2
       register: fstabUpdate
 
-
     - name: Remount all disks
       shell:
         cmd: mount -a
-      when:
-        fstabUpdate.changed
+      when: fstabUpdate.changed
 
     - name: Compose directory
       file:

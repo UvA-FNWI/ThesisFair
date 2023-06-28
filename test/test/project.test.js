@@ -1,9 +1,8 @@
-import { expect } from 'chai';
+import { expect } from 'chai'
 
-import { fail } from './lib.js';
-import api from './api.js';
-import initDB, { init, disconnect, db } from './db.js';
-
+import { fail } from './lib.js'
+import api from './api.js'
+import initDB, { init, disconnect, db } from './db.js'
 
 const gen_project_import = () => ({
   base: [
@@ -141,86 +140,86 @@ const gen_project_import = () => ({
       datanoseLink: 'https://datanose.nl/project/UvAResearch',
       evids: [db.events[0].evid],
     },
-  ]
-});
+  ],
+})
 
 const testQuery = () => {
   it('query project should get a project', async () => {
-    const res = await api.project.get(db.projects[0].pid).exec();
-    expect(res).to.deep.equal(db.projects[0]);
-  });
+    const res = await api.project.get(db.projects[0].pid).exec()
+    expect(res).to.deep.equal(db.projects[0])
+  })
 
   it('query projects should get the correct projects', async () => {
-    const res = await api.project.getMultiple([db.projects[1].pid, db.projects[0].pid]).exec();
+    const res = await api.project.getMultiple([db.projects[1].pid, db.projects[0].pid]).exec()
 
-    expect(res).to.deep.include(db.projects[0]);
-    expect(res).to.deep.include(db.projects[1]);
-    expect(res).to.not.deep.include(db.projects[2]);
-  });
+    expect(res).to.deep.include(db.projects[0])
+    expect(res).to.deep.include(db.projects[1])
+    expect(res).to.not.deep.include(db.projects[2])
+  })
 
   it('query projectsOfEntity should get the correct projects', async () => {
-    const res = await api.project.getOfEntity(db.events[0].evid, db.entities[0].enid).exec();
+    const res = await api.project.getOfEntity(db.events[0].evid, db.entities[0].enid).exec()
 
     for (const project of db.projects) {
       if (db.projects[0].enid === project.enid) {
-        expect(res).to.deep.include(project);
+        expect(res).to.deep.include(project)
       } else {
-        expect(res).not.to.deep.include(project);
+        expect(res).not.to.deep.include(project)
       }
     }
-  });
+  })
 
   it('query projectsOfEvent should get the correct projects', async () => {
-    const res = await api.project.getOfEvent(db.events[0].evid).exec();
+    const res = await api.project.getOfEvent(db.events[0].evid).exec()
 
     for (const project of db.projects) {
       if (project.evids.includes(db.events[0].evid)) {
-        expect(res).to.deep.include(project);
+        expect(res).to.deep.include(project)
       } else {
-        expect(res).not.to.deep.include(project);
+        expect(res).not.to.deep.include(project)
       }
     }
-  });
+  })
 }
 
 const permissions = {
   create: () => {
     it('mutation create should hanle permissions properly', async () => {
-      const newEntity = { ...db.projects[0] };
-      delete newEntity.pid;
-      await fail(api.project.create(newEntity).exec);
-    });
+      const newEntity = { ...db.projects[0] }
+      delete newEntity.pid
+      await fail(api.project.create(newEntity).exec)
+    })
   },
   update: () => {
     it('mutation update should hanle permissions properly', async () => {
-      const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid };
-      await fail(api.project.update(updatedEntity).exec);
-    });
+      const updatedEntity = { ...db.projects[1], pid: db.projects[0].pid }
+      await fail(api.project.update(updatedEntity).exec)
+    })
   },
   delete: () => {
     it('mutation delete should hanle permissions properly', async () => {
-      await fail(api.project.delete(db.projects[0].pid).exec);
-    });
+      await fail(api.project.delete(db.projects[0].pid).exec)
+    })
   },
   import: () => {
     it('mutation import should hanle permissions properly', async () => {
-      const project_import = gen_project_import();
-      await fail(api.project.import(project_import.csv, db.entities[0].enid).exec);
-    });
+      const project_import = gen_project_import()
+      await fail(api.project.import(project_import.csv, db.entities[0].enid).exec)
+    })
   },
 }
 
 describe('project', () => {
-  before(init);
-  after(disconnect);
-  beforeEach(initDB);
+  before(init)
+  after(disconnect)
+  beforeEach(initDB)
 
   describe('Admin', () => {
     beforeEach(async () => {
-      await api.user.login('admin', 'admin');
-    });
+      await api.user.login('admin', 'admin')
+    })
 
-    testQuery();
+    testQuery()
 
     //! Left in the project due to possible future usage.
     // it('mutation project.create should create an project', async () => {
@@ -260,7 +259,6 @@ describe('project', () => {
     //   await fail(api.project.update({ pid: db.projects[0].pid, enid: '62728401a41b2cfc83a7035b' }).exec);
     // });
 
-
     // it('mutation project.delete should delete the project', async () => {
     //   const res = await api.project.delete(db.projects[0].pid).exec();
     //   expect(res).to.deep.equal(db.projects[0]);
@@ -270,111 +268,111 @@ describe('project', () => {
     // });
 
     it('mutation project.deleteOfEntity should delete all entities projects', async () => {
-      await api.project.deleteOfEntity(db.entities[0].enid).exec();
+      await api.project.deleteOfEntity(db.entities[0].enid).exec()
 
-      let query = await api.project.get(db.projects[0].pid).exec();
-      expect(query).to.be.null;
-      query = await api.project.get(db.projects[1].pid).exec();
-      expect(query).to.be.null;
-      query = await api.project.get(db.projects[2].pid).exec();
-      expect(query).to.deep.equal(db.projects[2]);
-    });
+      let query = await api.project.get(db.projects[0].pid).exec()
+      expect(query).to.be.null
+      query = await api.project.get(db.projects[1].pid).exec()
+      expect(query).to.be.null
+      query = await api.project.get(db.projects[2].pid).exec()
+      expect(query).to.deep.equal(db.projects[2])
+    })
 
     it('mutation project.import should import projects', async () => {
-      const project_import = gen_project_import();
-      const res = await api.project.import(project_import.base).exec();
+      const project_import = gen_project_import()
+      const res = await api.project.import(project_import.base).exec()
 
       for (let i = 0; i < project_import.base.length; i++) {
-        const actual = res[i];
-        delete actual.project.pid;
+        const actual = res[i]
+        delete actual.project.pid
 
-        expect(actual.error).to.be.null;
-        expect(actual.project).to.deep.equal(project_import.expected[i]);
+        expect(actual.error).to.be.null
+        expect(actual.project).to.deep.equal(project_import.expected[i])
       }
-    });
+    })
 
     it('mutation project.import should check if evid exists when creating', async () => {
-      const project_import = gen_project_import();
-      const res = await api.project.import(project_import.invalidEvid).exec();
+      const project_import = gen_project_import()
+      const res = await api.project.import(project_import.invalidEvid).exec()
       for (const item of res) {
-        expect(item.project).to.be.null;
-        expect(item.error).to.be.string;
-        expect(item.error.length).to.be.above(0);
+        expect(item.project).to.be.null
+        expect(item.error).to.be.string
+        expect(item.error.length).to.be.above(0)
       }
-    });
+    })
 
     it('mutation project.import should check if enid exists when creating', async () => {
-      const project_import = gen_project_import();
-      const res = await api.project.import(project_import.invalidEnid).exec();
+      const project_import = gen_project_import()
+      const res = await api.project.import(project_import.invalidEnid).exec()
       for (const item of res) {
-        expect(item.project).to.be.null;
-        expect(item.error).to.be.string;
-        expect(item.error.length).to.be.above(0);
+        expect(item.project).to.be.null
+        expect(item.error).to.be.string
+        expect(item.error.length).to.be.above(0)
       }
-    });
+    })
 
     it('mutation project.import should update existing projects', async () => {
-      const project_import = gen_project_import();
-      await api.project.import(project_import.base).exec();
-      const res = await api.project.import(project_import.update).exec();
+      const project_import = gen_project_import()
+      await api.project.import(project_import.base).exec()
+      const res = await api.project.import(project_import.update).exec()
 
       for (const result of res) {
-        expect(result.error).to.be.null;
+        expect(result.error).to.be.null
       }
-    });
+    })
 
     it('mutation project.import should delete projects', async () => {
-      const project_import = gen_project_import();
-      await api.project.import(project_import.base).exec();
+      const project_import = gen_project_import()
+      await api.project.import(project_import.base).exec()
 
-      const res = await api.project.import(project_import.delete).exec();
+      const res = await api.project.import(project_import.delete).exec()
       for (const item of res) {
-        expect(item.project).to.be.null;
-        expect(item.error).to.be.null;
+        expect(item.project).to.be.null
+        expect(item.error).to.be.null
       }
-    });
+    })
 
     it('mutation project.import should handle double delete properly', async () => {
-      const project_import = gen_project_import();
-      await api.project.import(project_import.base).exec();
+      const project_import = gen_project_import()
+      await api.project.import(project_import.base).exec()
 
-      let res = await api.project.import(project_import.delete).exec();
+      let res = await api.project.import(project_import.delete).exec()
       for (const item of res) {
-        expect(item.project).to.be.null;
-        expect(item.error).to.be.null;
+        expect(item.project).to.be.null
+        expect(item.error).to.be.null
       }
 
-      res = await api.project.import(project_import.delete).exec();
+      res = await api.project.import(project_import.delete).exec()
       for (const item of res) {
-        expect(item.project).to.be.null;
-        expect(item.error).to.be.null;
+        expect(item.project).to.be.null
+        expect(item.error).to.be.null
       }
-    });
-  });
+    })
+  })
 
   describe('Representative', () => {
     beforeEach(async () => {
-      await api.user.login('rep', 'rep');
-    });
+      await api.user.login('rep', 'rep')
+    })
 
-    testQuery();
+    testQuery()
 
-    permissions.create();
-    permissions.update();
-    permissions.delete();
-    permissions.import();
-  });
+    permissions.create()
+    permissions.update()
+    permissions.delete()
+    permissions.import()
+  })
 
   describe('Student', () => {
     beforeEach(async () => {
-      await api.user.login('student', 'student');
-    });
+      await api.user.login('student', 'student')
+    })
 
-    testQuery();
+    testQuery()
 
-    permissions.create();
-    permissions.update();
-    permissions.delete();
-    permissions.import();
-  });
-});
+    permissions.create()
+    permissions.update()
+    permissions.delete()
+    permissions.import()
+  })
+})

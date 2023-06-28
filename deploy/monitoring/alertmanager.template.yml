@@ -6,24 +6,22 @@ route:
   receiver: 'telegramChannel'
   repeat_interval: 1h
 
-
 # Inhibition rules allow to mute a set of alerts given that another alert is
 # firing.
 # We use this to mute any warning-level notifications if the same alert is
 # already critical.
 inhibit_rules:
-- source_match:
-    severity: 'critical'
-  target_match:
-    severity: 'warning'
-  # Apply inhibition if the alertname is the same.
-  equal: ['alertname']
-
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    # Apply inhibition if the alertname is the same.
+    equal: ['alertname']
 
 receivers:
-- name: 'telegramChannel'
-  telegram_configs:
-  - send_resolved: true
-    api_url: https://api.telegram.org
-    bot_token: <ENTER BOT TOKEN>
-    chat_id: <ENTER CHAT ID>
+  - name: 'telegramChannel'
+    telegram_configs:
+      - send_resolved: true
+        api_url: https://api.telegram.org
+        bot_token: <ENTER BOT TOKEN>
+        chat_id: <ENTER CHAT ID>

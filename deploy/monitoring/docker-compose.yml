@@ -4,19 +4,19 @@ services:
     image: prom/prometheus:latest
     restart: unless-stopped
     ports:
-    - 9090:9090
+      - 9090:9090
     command:
-    - --config.file=/etc/prometheus/prometheus.yml
-    - --storage.tsdb.retention.time=1y
-    - --web.enable-lifecycle
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=1y
+      - --web.enable-lifecycle
     volumes:
-    - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    - ./prometheusRules.yml:/etc/prometheus/prometheusRules.yml:ro
-    - /opt/thesisfair/data/prometheus:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheusRules.yml:/etc/prometheus/prometheusRules.yml:ro
+      - /opt/thesisfair/data/prometheus:/prometheus
     depends_on:
-    - alertmanager
-    - node-exporter
-    - cadvisor
+      - alertmanager
+      - node-exporter
+      - cadvisor
     networks:
       - default
       - thesisfair
@@ -53,12 +53,12 @@ services:
     # ports:
     # - 8080:8080
     volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     depends_on:
-    - redis
+      - redis
 
   redis:
     image: redis:latest
@@ -70,11 +70,11 @@ services:
     restart: unless-stopped
     image: grafana/grafana-oss
     volumes:
-    - ./grafana.ini:/etc/grafana/grafana.ini:ro
-    - /opt/thesisfair/data/grafana:/var/lib/grafana
+      - ./grafana.ini:/etc/grafana/grafana.ini:ro
+      - /opt/thesisfair/data/grafana:/var/lib/grafana
     labels:
-      traefik.enable: "true"
-      traefik.docker.network: "thesisfair"
+      traefik.enable: 'true'
+      traefik.docker.network: 'thesisfair'
       traefik.http.routers.grafana.entrypoints: webSec
       traefik.http.routers.grafana.rule: Host(`${URL}`) && PathPrefix(`/grafana`)
       traefik.http.routers.grafana.middlewares: grafanaIpWhitelist
