@@ -1,5 +1,9 @@
 export const canGetEvent = (req, args, event) => {
-  if (!event.enabled && req.user.type !== 'a') {
+  if (event.enabled) {
+    return true
+  }
+
+  if (req.user.type !== 'a' && req.user.type !== 'r') {
     throw new Error('UNAUTHORIZED list disabled event')
   }
 }
