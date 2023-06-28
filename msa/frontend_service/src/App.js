@@ -9,6 +9,7 @@ import Register from './pages/Register'
 import NotFound from './pages/NotFound'
 
 import Page from './pages/Page'
+import EventsPage from './pages/EventsPage'
 import EventPage from './pages/EventPage'
 import Error from './pages/Error'
 
@@ -124,7 +125,8 @@ class App extends React.Component {
     return (
       <>
         <Route path='/' element={<Navigate to='account' replace={true} />} />
-        <Route path='event' element={<Page page={<EventPage />} />} />
+        <Route path='event' element={<Page page={<EventsPage />} />} />
+        <Route path='event/:evid/' element={<Page page={<EventPage />} />} />
         {routes}
       </>
     )

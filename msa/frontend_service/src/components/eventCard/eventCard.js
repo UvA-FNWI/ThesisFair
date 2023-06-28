@@ -1,16 +1,16 @@
 import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
-import { Container, Row, Col } from 'react-bootstrap'
+import { Card, Button } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 
 import api from '../../api'
-import { degrees } from '../../api'
 import graphqlFields from '../../api/graphqlFields'
 import Tag from '../tag/tag'
 
-import './eventView.scss'
+import './eventCard.scss'
 
-class EventView extends React.Component {
+class EventCard extends React.Component {
   constructor(props) {
     super(props)
 
@@ -32,29 +32,12 @@ class EventView extends React.Component {
   }
 
   render() {
-    return <Container className='mt-2' data-color-mode='light'>
-
-      <Row>
-        <Col sm={8}>
-          <h1>{this.state.name}</h1>
-
-          <div className='list-item__tags mb-4'>
-            {this.state.degrees ?
-             this.state.degrees.map(tag => <Tag label={tag} selectable={false}/>) :
-             null}
-          </div>
-
-          <MDEditor.Markdown
-            source={this.state.description}
-            previewOptions={{
-              rehypePlugins: [[rehypeSanitize]],
-            }}
-          />
-        </Col>
-
-        <Col>
-          <h4>When</h4>
-          <p>
+    return <Card style={{ width: '24rem', height: '34rem' }}>
+      <Card.Img variant='top' src={this.state.image} />
+      <Card.Body className='d-flex flex-column'>
+        <Card.Title>{this.state.name}</Card.Title>
+        <Card.Subtitle className='mb-3'>
+          <small className='text-muted'>
             <time dateTime={this.state.start}>
               {(new Date(this.state.start)).toLocaleDateString('NL-nl')}
             </time>
@@ -66,24 +49,28 @@ class EventView extends React.Component {
             <time dateTime={this.state.end}>
               {(new Date(this.state.end)).toLocaleTimeString('NL-nl', {hour: '2-digit', minute: '2-digit'})}
             </time>
-          </p>
+          </small>
+          <div className='list-item__tags mt-3'>
+            {this.state.degrees && this.state.degrees.map(
+              d => <Tag label={d} selectable={false}/>
+            )}
+          </div>
+        </Card.Subtitle>
+        <Card.Text>
+          <MDEditor.Markdown
+            source={this.state.description}
+            previewOptions={{
+              rehypePlugins: [[rehypeSanitize]],
+            }}
+          />
+        </Card.Text>
+        <Link className='mt-auto' to={`${this.state.evid}/`}>
+          <Button variant='primary'>More info</Button>
+        </Link>
 
-          <h4>Degrees</h4>
-            <ul>
-              {this.state.degrees ?
-               this.state.degrees.map(tag => <li>{degrees[tag]}</li>) :
-               null}
-            </ul>
-
-          <h4>Picture</h4>
-          {this.state.image ?
-            <img width='100%' src={this.state.image} alt='Map of the event' /> :
-            <p>Picture unavailable</p>
-          }
-        </Col>
-      </Row>
-    </Container>
+      </Card.Body>
+    </Card>
   }
 }
 
-export default EventView
+export default EventCard
