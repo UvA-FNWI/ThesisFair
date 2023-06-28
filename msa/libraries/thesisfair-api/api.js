@@ -650,18 +650,23 @@ export default url => {
           genGraphQLBuilder({
             name: 'getEventsOfEntity',
             functionPath: 'eventsOfEntity',
-            body: bodies.PlainEvent(projection),
+            body: bodies.Event(projection),
             args: {
               enid: { value: enid, type: 'ID!' },
             },
           }),
-        getAll: (all = false, projection) => genGraphQLBuilder({
-            name: 'getEvents',
+        getActive: (projection) => genGraphQLBuilder({
+            name: 'getActiveEvents',
+            functionPath: 'active',
+            body: bodies.Event(projection),
+            args: {},
+            cache: caching ? { instance: cache, type: 'event', key: 'evid', multiple: true } : false,
+          }),
+        getAll: (projection) => genGraphQLBuilder({
+            name: 'getAllEvents',
             functionPath: 'events',
-            body: bodies.PlainEvent(projection),
-            args: {
-              all: { value: all, type: 'Boolean' },
-            },
+            body: bodies.Event(projection),
+            args: {},
             cache: caching ? { instance: cache, type: 'event', key: 'evid', multiple: true } : false,
           }),
         create: (event, projection) =>

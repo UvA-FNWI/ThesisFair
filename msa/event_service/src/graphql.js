@@ -88,26 +88,15 @@ schemaComposer.Query.addNestedFields({
     },
   },
   eventsOfEntity: {
-    type: '[PlainEvent]',
+    type: '[Event]',
     args: {
       enid: 'ID!'
     },
-    description: 'Get all events an entity participates in (stripped of some information)',
+    description: 'Get all events an entity participates in',
     resolve: async (obj, args, req) => {
       entityReadAccess(req, args.enid)
 
-      return await Event.aggregate([
-        {$match: {entities: ObjectId(args.enid)}},
-        {$project: {
-          evid: '$_id',
-          name: '$name',
-          enabled: '$enabled',
-          description: '$description',
-          start: '$start',
-          location: '$location',
-          studentSubmitDeadline: '$studentSubmitDeadline',
-        }}
-      ])
+      return await Event.find({entities: args.enid})
     },
   },
   eventByExtID: {
@@ -147,31 +136,34 @@ schemaComposer.Query.addNestedFields({
       return readFile(file).then(content => content.toString())
     },
   },
-  events: {
-    type: '[PlainEvent!]',
-    args: {
-      all: 'Boolean',
-    },
-    description: 'Get all visible events or get all events.',
+  active: {
+    type: '[Event!]',
+    args: {},
+    description: 'Get all enabled events',
     resolve: async (obj, args, req) => {
       canGetEvents(req, args)
 
-      const filter = {}
-      if (!args.all) {
-        filter.enabled = true
+      const filter = {
+        enabled: true
       }
+
       if (req.user.type === 'r') {
         filter.entities = {
           $in: req.user.enid,
         }
       }
 
-      console.log(filter)
+      return await Event.find(filter)
+    }
+  },
+  events: {
+    type: '[Event!]',
+    args: {},
+    description: 'Get all events.',
+    resolve: async (obj, args, req) => {
+      canGetEvents(req, args)
 
-      const bongo = await Event.find(filter)
-
-      console.log(bongo)
-      return bongo
+      return await Event.find()
     },
   },
 })

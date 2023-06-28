@@ -33,16 +33,6 @@ type Event {
   external_id: Int!
 }
 
-type PlainEvent {
-  evid: ID!
-  enabled: Boolean
-  name: String!
-  description: String
-  start: Date
-  location: String
-  studentSubmitDeadline: Date
-}
-
 type EventImportResult {
   event: Event
   error: String
