@@ -26,19 +26,19 @@ const navigationBarItems = {
   ],
   s: [
     { name: 'Account', icon: accountIcon, link: '/account' },
-    { name: 'Event', icon: eventIcon, link: '/event' },
+    { name: 'Events', icon: eventIcon, link: '/event' },
     { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
     { name: 'Votes', icon: likesIcon, link: '/votes' },
   ],
   r: [
     { name: 'Account', icon: accountIcon, link: '/account' },
-    { name: 'Event', icon: eventIcon, link: '/event' },
+    { name: 'Events', icon: eventIcon, link: '/event' },
     { name: 'Projects', icon: projectsIcon, link: '/projects' },
   ],
   ra: [
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Organisation', icon: organisationsIcon, link: '/organisation' },
-    { name: 'Event', icon: eventIcon, link: '/event' },
+    { name: 'Events', icon: eventIcon, link: '/event' },
     { name: 'Projects', icon: projectsIcon, link: '/projects' },
   ],
 }

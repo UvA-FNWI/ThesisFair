@@ -26,22 +26,22 @@ class EventsPage extends React.Component {
 
   render() {
     return <>
-      <h1 className='mt-4'>Events</h1>
+      <h1 className='mt-4'>Active events</h1>
       <hr/>
       {this.state.activeEvents ?
         <Row className='g-4'>
           {this.state.activeEvents.map(
-            event => <Col><EventCard evid={event.evid}/></Col>
+            event => <Col md='auto'><EventCard evid={event.evid}/></Col>
           )}
         </Row> :
         <p>No events currently active</p>
       }
-      {this.state.inactiveEvents && <>
-        <h1 className='mt-4'>Inactive events</h1>
+      {this.state.inactiveEvents && api.getApiTokenData().type !== 's' && <>
+        <h1 className='mt-4'>Past events</h1>
         <hr/>
         <Row>
           {this.state.inactiveEvents.map(
-            event => <Col><EventCard evid={event.evid}/></Col>
+            event => <Col md='auto'><EventCard evid={event.evid}/></Col>
           )}
         </Row>
       </>}
