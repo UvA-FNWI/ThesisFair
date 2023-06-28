@@ -174,15 +174,9 @@ schemaComposer.Mutation.addNestedFields({
         enidExists(args.enid)
       ])
 
-        console.log(res)
-      if (!res[0]) {
-        throw new Error('A given evid does not exist')
+      if (res.some(i => !i)) {
+        throw new Error('A given evid or the enid do not exist')
       }
-
-      if (!res[1]) {
-        throw new Error('The given enid does not exist')
-      }
-
 
       return await Project.create(args)
     },
@@ -218,12 +212,8 @@ schemaComposer.Mutation.addNestedFields({
         enidExists(args.enid)
       ])
 
-      if (!res[0]) {
-        throw new Error('A given evid does not exist')
-      }
-
-      if (!res[1]) {
-        throw new Error('The given enid does not exist')
+      if (res.some(i => !i)) {
+        throw new Error('A given evid or the enid do not exist')
       }
 
       const pid = args.pid

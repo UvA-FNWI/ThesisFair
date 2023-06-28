@@ -96,15 +96,18 @@ class ProjectEditor extends React.Component {
     if (this.state.numberOfStudents) project.numberOfStudents = Number(this.state.numberOfStudents)
     if (this.state.expectations) project.expectations = this.state.expectations
 
+    // Add the appropriate events to the project based on the selected degrees
+    const events = await api.event.getActive().exec()
+    project.evids = events.filter(
+      e => project.degrees.some(degree => e.degrees.includes(degree))
+    ).map(e => e.evid)
+
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
       await api.project.update({ ...project, pid: this.props.params.pid }).exec()
     } else {
-      console.log('creating project', project)
-      await api.project.create({ ...project, evid: this.props.params.evid }).exec()
+      await api.project.create(project).exec()
     }
-
-    console.log('project updated')
   }
 
   async deleteProject(e) {

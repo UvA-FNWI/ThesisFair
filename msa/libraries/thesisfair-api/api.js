@@ -817,9 +817,7 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
-        create: (project, projection) => {
-          console.log(project)
-          const bruh = genGraphQLBuilder({
+        create: (project, projection) => genGraphQLBuilder({
             type: 'mutation',
             name: 'createProject',
             functionPath: 'project.create',
@@ -835,14 +833,13 @@ export default url => {
               attendance: { value: project.attendance, type: 'Attendance' },
               environment: { value: project.environment, type: 'String' },
               expectations: { value: project.expectations, type: 'String' },
+              // email: { value: project.email, type: 'String' },
+              // numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
               external_id: { value: project.external_id, type: 'Int' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', create: true } : false,
-          })
-          console.log(bruh)
-          return bruh
-        },
+          }),
         update: (project, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
@@ -861,8 +858,8 @@ export default url => {
               attendance: { value: project.attendance, type: 'Attendance' },
               environment: { value: project.environment, type: 'String' },
               expectations: { value: project.expectations, type: 'String' },
-              email: { value: project.email, type: 'String' },
-              numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
+              // email: { value: project.email, type: 'String' },
+              // numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,

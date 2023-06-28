@@ -108,8 +108,6 @@ schemaComposer.Query.addNestedFields({
         {evid: new ObjectId(args.evid), 'votes.enid': new ObjectId(args.enid)} : 
         {'votes.enid': new ObjectId(args.enid)}
 
-      console.log(match)
-
       const votes = await Vote.aggregate([
         {'$match': match},
         {'$project': {
@@ -128,9 +126,9 @@ schemaComposer.Query.addNestedFields({
         return null;
       }
 
-      const bingo = votes.map(({uid, votes}) => votes.map(({pid}) => ({uid, pid}))).flat();
-      console.log(bingo)
-      return bingo
+      return votes.map(
+        ({uid, votes}) => votes.map(({pid}) => ({uid, pid}))
+      ).flat();
     }
   },
   votesOfProject: {
