@@ -141,7 +141,8 @@ schemaComposer.Mutation.addNestedFields({
     type: 'Project',
     args: {
       enid: 'ID!',
-      evid: 'ID!',
+      evid: 'ID',
+      evids: '[ID]',
       name: 'String!',
       degrees: '[Degree]',
       tags: '[String]',
@@ -158,17 +159,30 @@ schemaComposer.Mutation.addNestedFields({
     resolve: async (obj, args, req) => {
       projectWriteAccess(req.user, args)
 
-      const res = await Promise.all([evidExists(args.evid), enidExists(args.enid)])
+      if (args.evid) {
+        if (args.evids) {
+          args.evids = [...args.evids, args.evid]
+        } else {
+          args.evids = [args.evid]
+        }
 
+        delete args.evid
+      }
+
+      const res = await Promise.all([
+        ...args.evids.map(evid => evidExists(evid)),
+        enidExists(args.enid)
+      ])
+
+        console.log(res)
       if (!res[0]) {
-        throw new Error('The given evid does not exist')
+        throw new Error('A given evid does not exist')
       }
 
       if (!res[1]) {
         throw new Error('The given enid does not exist')
       }
 
-      args.evids = [args.evid]
 
       return await Project.create(args)
     },
@@ -179,6 +193,7 @@ schemaComposer.Mutation.addNestedFields({
       pid: 'ID!',
       enid: 'ID',
       evid: 'ID',
+      evids: '[ID]',
       name: 'String',
       attendance: 'Attendance',
       description: 'String',
@@ -194,11 +209,20 @@ schemaComposer.Mutation.addNestedFields({
     resolve: async (obj, args, req) => {
       projectWriteAccess(req.user, args)
 
-      if (args.evid && !(await evidExists(args.evid))) {
-        throw new Error('The given evid does not exist')
+      if (args.evid) {
+        args.evids = [...args.evids, args.evid]
       }
 
-      if (args.enid && !(await enidExists(args.enid))) {
+      const res = await Promise.all([
+        ...args.evids.map(evid => evidExists(evid)),
+        enidExists(args.enid)
+      ])
+
+      if (!res[0]) {
+        throw new Error('A given evid does not exist')
+      }
+
+      if (!res[1]) {
         throw new Error('The given enid does not exist')
       }
 

@@ -90,13 +90,13 @@ schemaComposer.Query.addNestedFields({
   eventsOfEntity: {
     type: '[PlainEvent]',
     args: {
-      enid: 'ID!',
+      enid: 'ID!'
     },
     description: 'Get all events an entity participates in (stripped of some information)',
     resolve: async (obj, args, req) => {
       entityReadAccess(req, args.enid)
 
-      const bruh = await Event.aggregate([
+      return await Event.aggregate([
         {$match: {entities: ObjectId(args.enid)}},
         {$project: {
           evid: '$_id',
@@ -108,8 +108,6 @@ schemaComposer.Query.addNestedFields({
           studentSubmitDeadline: '$studentSubmitDeadline',
         }}
       ])
-      console.log(bruh)
-      return bruh
     },
   },
   eventByExtID: {
@@ -155,7 +153,7 @@ schemaComposer.Query.addNestedFields({
       all: 'Boolean',
     },
     description: 'Get all visible events or get all events.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       canGetEvents(req, args)
 
       const filter = {}
@@ -168,7 +166,12 @@ schemaComposer.Query.addNestedFields({
         }
       }
 
-      return Event.find(filter)
+      console.log(filter)
+
+      const bongo = await Event.find(filter)
+
+      console.log(bongo)
+      return bongo
     },
   },
 })

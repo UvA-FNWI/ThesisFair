@@ -812,15 +812,17 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
-        create: (project, projection) =>
-          genGraphQLBuilder({
+        create: (project, projection) => {
+          console.log(project)
+          const bruh = genGraphQLBuilder({
             type: 'mutation',
             name: 'createProject',
             functionPath: 'project.create',
             body: bodies.Project(projection),
             args: {
               enid: { value: project.enid, type: 'ID!' },
-              evid: { value: project.evid, type: 'ID!' },
+              evid: { value: project.evid, type: 'ID' },
+              evids: { value: project.evids, type: '[ID]' },
               name: { value: project.name, type: 'String!' },
               description: { value: project.description, type: 'String' },
               degrees: { value: project.degrees, type: '[Degree]' },
@@ -828,13 +830,14 @@ export default url => {
               attendance: { value: project.attendance, type: 'Attendance' },
               environment: { value: project.environment, type: 'String' },
               expectations: { value: project.expectations, type: 'String' },
-              email: { value: project.email, type: 'String' },
-              numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
               external_id: { value: project.external_id, type: 'Int' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', create: true } : false,
-          }),
+          })
+          console.log(bruh)
+          return bruh
+        },
         update: (project, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
@@ -845,6 +848,7 @@ export default url => {
               pid: { value: project.pid, type: 'ID!' },
               enid: { value: project.enid, type: 'ID' },
               evid: { value: project.evid, type: 'ID' },
+              evids: { value: project.evids, type: '[ID]' },
               name: { value: project.name, type: 'String' },
               description: { value: project.description, type: 'String' },
               degrees: { value: project.degrees, type: '[Degree]' },
