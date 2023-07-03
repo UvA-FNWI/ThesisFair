@@ -1,7 +1,6 @@
 import React from 'react'
-import MDEditor from '@uiw/react-md-editor'
-import rehypeSanitize from 'rehype-sanitize'
 
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import closeIcon from 'bootstrap-icons/icons/x-lg.svg'
 import minusIcon from 'bootstrap-icons/icons/dash-lg.svg'
 
@@ -9,26 +8,33 @@ import cl from 'clsx'
 
 import './tag.scss'
 
-function Tag(props) {
-  return (
-    <div
-      className={cl(`tag tag--${props.label}`, {
-        'tag--hoverable': props.selectable,
-        'tag--selected': props.selectable && props.selected,
-        'tag--disabled': props.disabled,
-      })}
-      onClick={() => {
-        props.onClick(props.id)
-      }}
-    >
-      <p>{props.label}</p>
-      <img
-        className={cl('tag__icon', { 'tag__icon--rotated': !props.selected })}
-        src={props.disabled ? minusIcon : closeIcon}
-        alt={props.selected ? 'remove icon' : 'add icon'}
-      />
-    </div>
+const getTag = (label, selectable, selected, disabled, onClick, id) => (
+  <div
+    className={cl(`tag tag--${label.replaceAll(' ', '')}`, {
+      'tag--hoverable': selectable,
+      'tag--selected': selectable && selected,
+      'tag--disabled': disabled,
+    })}
+    onClick={() => {
+      onClick(id)
+    }}
+  >
+    <p>{label}</p>
+    <img
+      className={cl('tag__icon', { 'tag__icon--rotated': !selected, 'tag__icon--visible': selectable })}
+      src={disabled ? minusIcon : closeIcon}
+      alt={selected ? 'remove icon' : 'add icon'}
+    />
+  </div>
+)
+
+const Tag = props =>
+  props.tooltip ? (
+    <OverlayTrigger overlay={<Tooltip>{props.tooltip}</Tooltip>}>
+      {getTag(props.label || '', props.selectable, props.selected, props.disabled, props.onClick, props.id)}
+    </OverlayTrigger>
+  ) : (
+    getTag(props.label || '', props.selectable, props.selected, props.disabled, props.onClick, props.id)
   )
-}
 
 export default Tag

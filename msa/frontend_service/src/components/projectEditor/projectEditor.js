@@ -98,9 +98,7 @@ class ProjectEditor extends React.Component {
 
     // Add the appropriate events to the project based on the selected degrees
     const events = await api.event.getActive().exec()
-    project.evids = events.filter(
-      e => project.degrees.some(degree => e.degrees.includes(degree))
-    ).map(e => e.evid)
+    project.evids = events.filter(e => project.degrees.some(degree => e.degrees.includes(degree))).map(e => e.evid)
 
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
@@ -444,7 +442,7 @@ class ProjectEditor extends React.Component {
             <Form.Label
               className={cl({ 'is-invalid': this.state.hasBeenInteractedWith.tags && !this.validation.tags() })}
             >
-              Tags
+              Research Tags (Select 1 to 3)
             </Form.Label>
             <Row>
               <Tab.Container id='left-tabs-example' defaultActiveKey={Object.keys(allTags)[0]}>
@@ -459,7 +457,7 @@ class ProjectEditor extends React.Component {
                   </Nav>
                 </Col>
                 <Col>
-                  <Form.Label>Tags (Select 1 to 3)</Form.Label>
+                  <Form.Label>Tags</Form.Label>
                   <Tab.Content>
                     {Object.entries(allTags).map(([category, tags]) => (
                       <Tab.Pane eventKey={category} key={category} className='selectable-tags'>

@@ -10,13 +10,16 @@
   }
 }
 
+.form-label {
+  font-weight: 600;
+}
+
 .project-list > button {
   margin-top: 1rem;
 }
 
 .list-item {
   padding: 0;
-  margin: 0 0.25rem;
   background-color: transparent;
 
   &__checkbox {
@@ -59,16 +62,16 @@
     width: 100%;
 
     & a {
-      color: map-get($theme-colors, 'accent');
+      color: black;
 
       &.nav-link {
         &.active {
-          background-color: map-get($theme-colors, 'accent-dark');
+          background-color: map-get($theme-colors, 'primary-dark');
           color: white;
         }
 
         &:hover {
-          background-color: map-get($theme-colors, 'accent-hover');
+          background-color: map-get($theme-colors, 'primary-hover');
           color: white;
           cursor: pointer;
         }

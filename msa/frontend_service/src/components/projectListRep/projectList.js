@@ -1,4 +1,5 @@
 import React from 'react'
+
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
@@ -6,12 +7,32 @@ import chevronDownIcon from 'bootstrap-icons/icons/chevron-down.svg'
 import closeIcon from 'bootstrap-icons/icons/x-lg.svg'
 import gripIcon from 'bootstrap-icons/icons/grip-vertical.svg'
 
-import './projectListItem.scss'
 import Tag from '../tag/tag'
 
 import cl from 'clsx'
 
-function ProjectListItem(props) {
+import './projectListItem.scss'
+import './projectList.scss'
+// import api from "../../api";
+
+function ProjectList(props) {
+  // const params = useParams();
+  // const type = api.getApiTokenData().type;
+
+  return (
+    <div className='list--red-border'>
+      <div className='list' style={{ maxHeight: props.maxHeight }}>
+        {props.children}
+        {/* Map to project and index */}
+        {/* {props.projects.map((project, index) => (
+          <ProjectListItem key={index} selected={props.selected} hidden={props.hidden} project={project} />
+        ))} */}
+      </div>
+    </div>
+  )
+}
+
+function ProjectListItemRep(props) {
   const [isExpanded, setIsExpanded] = React.useState(false)
 
   const toggleExpanded = () => {
@@ -40,7 +61,7 @@ function ProjectListItem(props) {
 
   return (
     <li className='list-item'>
-      <div className='list-item__header'>
+      <div className='list-item__header' onClick={toggleExpanded}>
         {props.selected && <img className='list-item__icon list-item__icon--grip' src={gripIcon} alt='grip icon' />}
 
         <img
@@ -51,18 +72,22 @@ function ProjectListItem(props) {
         />
 
         <div className='list-item__title'>
-          <p>{props.project.name}</p>
+          <p>{props.name}</p>
         </div>
 
-        {props.project.tags && (
+        <div className='list-item__badge'>{props.headerBadge}</div>
+
+        {/* {props.tags && (
           <div className='list-item__tags'>
-            {props.project.tags
-              .filter(tag => ['MSc AI', 'MSc CLSJD', 'MSc IS - IS', 'MSc IS - DS', 'MSc SE', 'MSc Logic'].includes(tag))
+            {props.tags
+              .filter(tag => ['AI', 'SE', 'CS', 'CPS'].includes(tag))
               .map(tag => (
-                <Tag key={tag.tag} label={tag.tag} tooltip={tag.tooltip} />
+                <Tag key={tag} label={tag} />
               ))}
           </div>
-        )}
+        )} */}
+
+        <div className='list-item__buttons'>{props.headerButtons}</div>
 
         {props.selected && (
           <img
@@ -82,12 +107,12 @@ function ProjectListItem(props) {
         <div className={cl('list-item__expander-content', { 'list-item__expander-content--expanded': isExpanded })}>
           <div className='list-item__expand-content'>
             <div className='list-item__email-tags'>
-              <a className='list-item__email' href={`mailto:${props.project.email}`}>
-                {props.project.email}
+              <a className='list-item__email' href={`mailto:${props.email}`}>
+                {props.email}
               </a>
               <div className='list-item__tags'>
-                {props.project.tags
-                  .filter(tag => !['AI', 'SE', 'CS', 'CPS'].includes(tag))
+                {props.tags
+                  ?.filter(tag => !['AI', 'SE', 'CS', 'CPS'].includes(tag))
                   .map(tag => (
                     <Tag key={tag} tag={tag} />
                   ))}
@@ -95,14 +120,14 @@ function ProjectListItem(props) {
             </div>
 
             <MDEditor.Markdown
-              source={props.project.description}
+              source={props.description}
               previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],
               }}
             />
 
             <div className='list-item__buttons'>
-              {props.project.buttons.map(({ label, colour, onClick }) => (
+              {props.buttons?.map(({ label, colour, onClick }) => (
                 <button key={label} className={`list-item__button list-item__button--${colour}`} onClick={onClick}>
                   {label}
                 </button>
@@ -115,4 +140,7 @@ function ProjectListItem(props) {
   )
 }
 
-export default ProjectListItem
+// Export ProjectList and ProjectListItem as ProjectList.Item
+ProjectList.Item = ProjectListItemRep
+
+export default ProjectList
