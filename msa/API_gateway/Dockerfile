@@ -8,7 +8,8 @@ EXPOSE 80
 
 WORKDIR /app
 COPY ./package*.json ./
-RUN npm ci
+COPY ./node_modules ./node_modules
+RUN npm i
 
 COPY ./src ./src
 RUN  find ./src -type f -exec sed -i -E 's/(\.\.\/)*libraries/@amicopo/g' {} +
