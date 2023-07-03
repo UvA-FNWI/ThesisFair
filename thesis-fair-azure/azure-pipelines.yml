@@ -1,0 +1,134 @@
+trigger:
+  - main
+
+variables:
+  - group: k8s
+
+pool: k8s
+
+jobs:
+  - job: BuildServices
+    displayName: BuildServices
+
+    steps:
+      - script: |
+          set -euxo pipefail
+          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/api_gateway:latest" .
+        displayName: Build API Gateway Docker container
+        workingDirectory: ./msa/API_gateway
+
+      - script: |
+          set -euxo pipefail
+          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/entity_service:latest" .
+        displayName: Build Entity Service Docker container
+        workingDirectory: ./msa/entity_service
+
+      - script: |
+          set -euxo pipefail
+          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/event_service:latest" .
+        displayName: Build Event Service Docker container
+        workingDirectory: ./msa/event_service
+
+      - script: |
+          set -euxo pipefail
+          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/frontend_service:latest" .
+        displayName: Build Frontend Service Docker container
+        workingDirectory: ./msa/frontend_service
+
+      - script: |
+          set -euxo pipefail
+          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/project_service:latest" .
+        displayName: Build Project Service Docker container
+        workingDirectory: ./msa/project_service
+
+      - script: |
+          set -euxo pipefail
+          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/schedule_service:latest" .
+        displayName: Build Schedule Service Docker container
+        workingDirectory: ./msa/schedule_service
+
+      - script: |
+          set -euxo pipefail
+          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/user_service:latest" .
+        displayName: Build User Service Docker container
+        workingDirectory: ./msa/user_service
+
+      - script: |
+          set -euxo pipefail
+          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/vote_service:latest" .
+        displayName: Build Vote Service Docker container
+        workingDirectory: ./msa/vote_service
+
+      # Push all services to the registry
+      - script: |
+          set -euxo pipefail
+          docker push "fnwicr.azurecr.io/thesisfair/api_gateway:latest"
+          docker push "fnwicr.azurecr.io/thesisfair/entity_service:latest"
+          docker push "fnwicr.azurecr.io/thesisfair/event_service:latest"
+          docker push "fnwicr.azurecr.io/thesisfair/frontend_service:latest"
+          docker push "fnwicr.azurecr.io/thesisfair/project_service:latest"
+          docker push "fnwicr.azurecr.io/thesisfair/schedule_service:latest"
+          docker push "fnwicr.azurecr.io/thesisfair/user_service:latest"
+          docker push "fnwicr.azurecr.io/thesisfair/vote_service:latest"
+        displayName: Push all services to the registry
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+
+  - job: PackageHelms
+    displayName: PackageHelms
+    dependsOn: BuildServices
+
+    steps:
+      - script: |
+          set -euxo pipefail
+          VERSION="0.${BUILD_BUILDNUMBER}"
+          helm package --version "${VERSION}" --app-version "${VERSION}" charts/API_gateway
+          helm package --version "${VERSION}" --app-version "${VERSION}" charts/entity_service
+          helm package --version "${VERSION}" --app-version "${VERSION}" charts/event_service
+          helm package --version "${VERSION}" --app-version "${VERSION}" charts/frontend_service
+          helm package --version "${VERSION}" --app-version "${VERSION}" charts/project_service
+          helm package --version "${VERSION}" --app-version "${VERSION}" charts/schedule_service
+          helm package --version "${VERSION}" --app-version "${VERSION}" charts/user_service
+          helm package --version "${VERSION}" --app-version "${VERSION}" charts/vote_service
+        displayName: Package Helm charts
+        workingDirectory: ./msa
+
+  - job: PushHelms
+    displayName: PushHelms
+    dependsOn: PackageHelms
+
+    steps:
+      - scripts: |
+          set -euxo pipefail
+          VERSION="0.${BUILD_BUILDNUMBER}"
+          helm push "API_gateway-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+          helm push "entity_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+          helm push "event_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+          helm push "frontend_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+          helm push "project_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+          helm push "schedule_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+          helm push "user_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+          helm push "vote_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+        displayName: Push Helm charts
+        workingDirectory: ./msa
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+
+  - job: UpdateHelmsOnDatanose
+    displayName: UpdateHelmsOnDatanose
+    dependsOn: PushHelms
+
+    steps:
+      - scripts: |
+          set -euxo pipefail
+          VERSION="0.${BUILD_BUILDNUMBER}"
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair/api_gateway&secret=${UPDATER_SECRET}&version=${VERSION}"
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair/entity_service&secret=${UPDATER_SECRET}&version=${VERSION}"
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair/event_service&secret=${UPDATER_SECRET}&version=${VERSION}"
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair/frontend_service&secret=${UPDATER_SECRET}&version=${VERSION}"
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair/project_service&secret=${UPDATER_SECRET}&version=${VERSION}"
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair/schedule_service&secret=${UPDATER_SECRET}&version=${VERSION}"
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair/user_service&secret=${UPDATER_SECRET}&version=${VERSION}"
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair/vote_service&secret=${UPDATER_SECRET}&version=${VERSION}"
+        displayName: Update Helm charts on Datanose
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        env:
+          UPDATER_SECRET: $(DEPLOY_SECRET)

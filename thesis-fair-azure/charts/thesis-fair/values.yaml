@@ -1,0 +1,21 @@
+hostname: thesis-fair.local
+ingressClass: nginx
+image: fnwicr.azurecr.io/thesisfair/api_gateway
+tag: latest
+
+clientId: clientId
+siteId: siteId
+uri: budget-backend.local
+allowedOrigin: budget-frontend.local
+adminClientId: adminClientId
+
+azure:
+  keyvaultName: keyvaultName
+  resourceGroup: resourceGroupName
+  subscriptionId: subscriptionId
+  tenantId: tenantId
+  clientId: clientId
+  identityName: identityName
+  secrets:
+    - name: budget-connectionstring
+      key: ConnectionStrings__DefaultConnection
