@@ -43,12 +43,6 @@ jobs:
 
       - script: |
           set -euxo pipefail
-          docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/schedule_service:latest" .
-        displayName: Build Schedule Service Docker container
-        workingDirectory: ./msa/schedule_service
-
-      - script: |
-          set -euxo pipefail
           docker build -f Dockerfile -t "fnwicr.azurecr.io/thesisfair/user_service:latest" .
         displayName: Build User Service Docker container
         workingDirectory: ./msa/user_service
@@ -67,7 +61,6 @@ jobs:
           docker push "fnwicr.azurecr.io/thesisfair/event_service:latest"
           docker push "fnwicr.azurecr.io/thesisfair/frontend_service:latest"
           docker push "fnwicr.azurecr.io/thesisfair/project_service:latest"
-          docker push "fnwicr.azurecr.io/thesisfair/schedule_service:latest"
           docker push "fnwicr.azurecr.io/thesisfair/user_service:latest"
           docker push "fnwicr.azurecr.io/thesisfair/vote_service:latest"
         displayName: Push all services to the registry
@@ -86,7 +79,6 @@ jobs:
           helm package --version "${VERSION}" --app-version "${VERSION}" charts/event_service
           helm package --version "${VERSION}" --app-version "${VERSION}" charts/frontend_service
           helm package --version "${VERSION}" --app-version "${VERSION}" charts/project_service
-          helm package --version "${VERSION}" --app-version "${VERSION}" charts/schedule_service
           helm package --version "${VERSION}" --app-version "${VERSION}" charts/user_service
           helm package --version "${VERSION}" --app-version "${VERSION}" charts/vote_service
         displayName: Package Helm charts
@@ -105,7 +97,6 @@ jobs:
           helm push "event_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
           helm push "frontend_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
           helm push "project_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
-          helm push "schedule_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
           helm push "user_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
           helm push "vote_service-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
         displayName: Push Helm charts

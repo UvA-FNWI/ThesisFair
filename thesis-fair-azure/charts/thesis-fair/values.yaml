@@ -1,14 +1,15 @@
 hostname: thesis-fair.local
 ingressClass: nginx
-image: fnwicr.azurecr.io/thesisfair/api_gateway
+image: fnwicr.azurecr.io/thesisfair/
 tag: latest
 
 clientId: clientId
 siteId: siteId
-uri: budget-backend.local
-allowedOrigin: budget-frontend.local
+uri: thesisfair.local
+allowedOrigin: thesisfair.local
 adminClientId: adminClientId
 
+# Not sure what this is supposed to be
 azure:
   keyvaultName: keyvaultName
   resourceGroup: resourceGroupName
