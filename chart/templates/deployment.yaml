@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+{{ $Values := .Values }}
+
+# Create a deployment for each microservice
+kind: Deployment
+metadata:
+  name: thesisfair-deployment
+  labels:
+    app: thesisfair
+spec:
+  selector:
+    matchLabels:
+      app: thesisfair
+  template:
+    metadata:
+      labels:
+        app: thesisfair
+    spec:
+      containers: {{ range $name, $service := .Values.msa.services }}
+        - name: {{ $name | kebabcase }}
+          env:
+            - name: mongodbConStr
+              value: "mongodb://mongodb/{{ $name }}_service"
+          image: {{ $Values.dev.enabled | ternary $Values.dev.cr $Values.msa.cr }}/{{ $name | lower }}{{ if not (contains "_" $name) }}_service{{ end }}
+          imagePullPolicy: {{ $Values.msa.pullPolicy }}
+          command: [
+            "npm",
+            "run",
+            "start",
+          ]
+          ports:
+            - containerPort: 27017
+          # In dev mode, mount libraries and source folders
+          {{ if $Values.dev.enabled }}
+          volumeMounts:
+            - mountPath: /app/src
+              name: {{ $name | kebabcase }}
+          {{ end }}
+      {{end}}
+
+    {{ if .Values.dev.enabled }}
+      volumes: {{ range $name, $service := .Values.msa.services }}
+        - name: {{ $name | kebabcase }}
+          persistentVolumeClaim:
+            claimName: {{ $name | kebabcase }}
+      {{ end }}
+    {{ end }}

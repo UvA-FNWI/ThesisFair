@@ -1,0 +1,12 @@
+apiVersion: v1
+
+# Set up a service to expose thesisfair to the outside world
+kind: Service
+metadata:
+  name: thesisfair
+spec:
+  ports:
+    - port: {{ .Values.msa.services.frontend.env.PORT }}
+      targetPort: {{ .Values.port }}
+  selector:
+    app: thesisfair

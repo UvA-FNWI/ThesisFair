@@ -1,0 +1,90 @@
+{{ $Values := .Values }}
+
+# Set up local mounting of code for dev mode
+{{ if .Values.dev.enabled }}
+
+# Define a storage class for this dev mode mounting
+apiVersion: "storage.k8s.io/v1"
+kind: StorageClass
+metadata:
+  name: thesisfair-dev-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+## Set up a mount to the libraries folder
+#---
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: libraries
+#spec:
+#  storageClassName: thesisfair-dev-storage
+#  accessModes:
+#    - ReadWriteOnce
+#  volumeMode: Filesystem
+#  local:
+#    path: {{ .Values.dev.repository }}/msa/libraries
+#  capacity:
+#    storage: 20Mi
+#  nodeAffinity:
+#    required:
+#      nodeSelectorTerms:
+#        - matchExpressions:
+#            - key: "kubernetes.io/hostname"
+#              operator: In
+#              values:
+#                - minikube
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: libraries
+#spec:
+#  storageClassName: thesisfair-dev-storage
+#  accessModes:
+#    - ReadWriteMany
+#  volumeName: libraries
+#  resources:
+#    requests:
+#      storage: 20Mi
+# For each microservice, create a persistent volume mapping to its code,
+# also create a persistent volume claim
+{{ range $name, $service := .Values.msa.services }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $name | kebabcase }}
+spec:
+  storageClassName: thesisfair-dev-storage
+  accessModes:
+    - ReadWriteOnce
+  #persistentVolumeReclaimPolicy: Retain # Or "Delete"?
+  volumeMode: Filesystem
+  local:
+    path: {{ $Values.dev.repository }}/msa/{{ $name }}{{ if not (contains "_" $name) }}_service{{ end }} 
+  capacity:
+    storage: 20Mi
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: "kubernetes.io/hostname"
+              operator: In
+              values:
+                - minikube
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name | kebabcase }}
+spec:
+  storageClassName: thesisfair-dev-storage
+  accessModes:
+    - ReadWriteOnce
+  volumeName: {{ $name | kebabcase }}
+  resources:
+    requests:
+      storage: 20Mi
+{{ end }}
+{{ end }}

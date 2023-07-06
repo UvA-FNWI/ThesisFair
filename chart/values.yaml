@@ -1,0 +1,37 @@
+# Port on which to expose this service
+port: 3000
+
+# Container repository for microservices
+msa:
+  cr: "fnwicr.azurecr.io/helm"
+  pullPolicy: Always
+
+  services:
+    API_gateway:
+      # env:
+        # JWT_SECRET: ${JWT_SECRET}
+        # OPENID_ISSUER_URL: ${OPENID_ISSUER_URL}
+        # OPENID_CLIENT_ID: ${OPENID_CLIENT_ID}
+        # OPENID_CLIENT_SECRET: ${OPENID_CLIENT_SECRET}
+        # OPENID_REDIRECT_URL: ${OPENID_REDIRECT_URL}
+        # OPENID_RESOURCE: ${OPENID_RESOURCE}
+    frontend:
+      env:
+        PORT: 3000
+        REACT_APP_API_ENDPOINT: "https://localhost:3000/api/"
+    entity:
+    event:
+    project:
+    user:
+    vote:
+
+# When dev mode is enabled, the container repository for
+# microservices is changed to dev.cr (presumably a local CR)
+# Additionally, the microservice directories from the specified thesisfair code
+# repository (presumably also local) will be mounted to the running containers
+# so changes made to the code are reflected in the deployment
+dev:
+  enabled: true
+
+  cr: "localhost:5000"
+  repository: "/home/docker/thesisfair"
