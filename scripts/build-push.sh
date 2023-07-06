@@ -15,13 +15,16 @@ if [[ $registryUrl == localhost ]]; then
     echo "Internal container registry already running"
 fi
 
+# Build docker containers - use tar to dereference symlinks, so frontend_service
+# will work
 echo "Building docker containers"
 for dir in $@/msa/*; do
   service=$(basename $dir)
 
   if [[ -e $dir/Dockerfile ]]; then
     echo "docker build -t \"$registry/${service,,}\" $dir"
-    docker build -t "$registry/${service,,}" $dir
+    cd $dir
+    tar -ch . | docker build -t "$registry/${service,,}" -
   fi &
 done
 wait
