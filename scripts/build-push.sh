@@ -11,8 +11,11 @@ source <(minikube docker-env)
 # expects a local container registry
 if [[ $registryUrl == localhost ]]; then
   docker run -d -p $registryPort:5000 --name registry registry:latest &&
-    echo "Started internal container registry" ||
-    echo "Internal container registry already running"
+    echo "Got internal container registry" ||
+    echo "Internal container registry already on system"
+
+  docker start registry &&
+    echo "Made sure internal container registry is running"
 fi
 
 # Build docker containers - use tar to dereference symlinks, so frontend_service
