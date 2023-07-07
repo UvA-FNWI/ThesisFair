@@ -4,6 +4,8 @@ import ProjectList from '../components/projectList/projectList'
 import api from '../api'
 import './register.scss'
 
+import { degrees } from '../definitions'
+
 class Register extends React.Component {
   constructor(props) {
     super(props)
@@ -116,7 +118,17 @@ class Register extends React.Component {
       project: {
         name: 'Topic 1',
         email: 'abc@example.com',
-        tags: ['AI', 'SE', 'CS', 'Custom Tag', 'Magic'],
+        tags: [
+          degrees.ai,
+          degrees.cs,
+          degrees.logic,
+          {
+            tag: 'Custom Tag',
+          },
+          {
+            tag: 'Magic',
+          },
+        ],
         description: '### This is a description',
         buttons: this.button_sets(null).student.selected,
       },
@@ -126,7 +138,17 @@ class Register extends React.Component {
       project: {
         name: 'Topic 8',
         email: 'abc@example.com',
-        tags: ['AI', 'SE', 'CS', 'Custom Tag', 'Magic'],
+        tags: [
+          degrees.ai,
+          degrees.se,
+          degrees.cs,
+          {
+            tag: 'Custom Tag',
+          },
+          {
+            tag: 'Magic',
+          },
+        ],
         description: 'This is a description',
         buttons: this.button_sets(null).student.selected,
       },
@@ -136,7 +158,15 @@ class Register extends React.Component {
       project: {
         name: 'Computer Science Project',
         email: 'standard@example.com',
-        tags: ['CPS', 'CS', 'Custom Tag', 'Magic'],
+        tags: [
+          degrees.cs,
+          {
+            tag: 'Custom Tag',
+          },
+          {
+            tag: 'Magic',
+          },
+        ],
         description: '# This is a sample project\n\nIt is hardcoded for testing',
         buttons: this.button_sets(null).student.selected,
       },
@@ -146,7 +176,16 @@ class Register extends React.Component {
       project: {
         name: 'Thesis Fair Update',
         email: 'contact@thesisfair.uva.nl',
-        tags: ['SE', 'CS', 'Example Tag 1', 'Another Tag'],
+        tags: [
+          degrees.se,
+          degrees.cs,
+          {
+            tag: 'Example Chosen Tag',
+          },
+          {
+            tag: 'Another Chosen Tag',
+          },
+        ],
         description: '# This is Markdown\n\nThis is the description of the project',
         buttons: this.button_sets(null).student.unselected,
       },
@@ -156,7 +195,17 @@ class Register extends React.Component {
       project: {
         name: 'Topic 5',
         email: 'def@example.com',
-        tags: ['AI', 'SE', 'CS', 'Currently not', 'Selected'],
+        tags: [
+          degrees.ai,
+          degrees.se,
+          degrees.cs,
+          {
+            tag: 'Not',
+          },
+          {
+            tag: 'Selected',
+          },
+        ],
         description: 'This is a description',
         buttons: this.button_sets(null).student.unselected,
       },
@@ -167,7 +216,17 @@ class Register extends React.Component {
       project: {
         name: 'Topic 6',
         email: 'def@example.com',
-        tags: ['AI', 'SE', 'CS', 'Custom Tag', 'Magic'],
+        tags: [
+          degrees.ai,
+          degrees.se,
+          degrees.cs,
+          {
+            tag: 'Custom Tag',
+          },
+          {
+            tag: 'Magic',
+          },
+        ],
         description: 'This is a description',
         buttons: this.button_sets(null).student.hidden,
       },

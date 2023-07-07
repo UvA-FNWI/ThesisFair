@@ -57,9 +57,9 @@ function ProjectListItem(props) {
         {props.project.tags && (
           <div className='list-item__tags'>
             {props.project.tags
-              .filter(tag => ['AI', 'SE', 'CS', 'CPS'].includes(tag))
+              .filter(tag => ['MSc AI', 'MSc CLSJD', 'MSc IS - IS', 'MSc IS - DS', 'MSc SE', 'MSc Logic'].includes(tag))
               .map(tag => (
-                <Tag key={tag} label={tag} />
+                <Tag key={tag.tag} label={tag.tag} tooltip={tag.tooltip} />
               ))}
           </div>
         )}

@@ -145,8 +145,17 @@ const configs = {
       {
         enid: db.entities[0].enid,
         evids: [db.events[0].evid],
-        name: 'New name 2 - project',
-        description: 'New description 2',
+        name: 'Project Thesis Fair',
+        description:
+          "# Project Thesis Fair\n\nThis platform needs a set of updates. That's where you come in.\n\n## Datanose deintegration\n\nAll current integrations with Datanose (except payment) will be removed. You will need to set up everything in terms of data storage, database schema, CRUD for Thesis Fair.\n\n## More magic\n\nThe platform should be solid, should support everything requested and look the part.",
+        degrees: ['MScAI', 'MScSE'],
+        environment: "It's the UvA, you get free chocolate, tea and coffee. What more do you want?",
+        expectations:
+          'Three deadline stages, work should be done before then and communication on project should be done regularly for feedback and updates.',
+        attending: 'yes',
+        email: 'thesisfair@ivi.uva.nl',
+        numberOfStudents: 2,
+        tags: ['UvA Thesis Fair Lab.Platform Creation & Management'],
         datanoseLink: 'https://datanose.nl/projects/newName2',
         external_id: 1,
       },

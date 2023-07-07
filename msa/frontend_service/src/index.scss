@@ -4,8 +4,9 @@ $theme-colors: (
   'primary': #75b88e,
   'primary-hover': #5e9e73,
   'primary-dark': #4b9363,
+  'primary-background': #eef0e7,
   'text-on-primary': #ffffff,
-  'accent': rgb(254, 189, 2),
+  'accent': #ffbd00,
   'accent-hover': rgb(243, 177, 23),
   'accent-dark': rgb(235, 161, 24),
   'gray': #ced4da,
@@ -15,6 +16,10 @@ $theme-colors: (
 );
 
 @import '~bootstrap/scss/bootstrap';
+
+body {
+  background-color: map-get($theme-colors, 'primary-background');
+}
 
 .hoverable:hover {
   box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;

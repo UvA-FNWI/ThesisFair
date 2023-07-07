@@ -7,7 +7,7 @@ import ProjectListItem from '../projectListItem/projectListItem'
 import './projectList.scss'
 // import api from "../../api";
 
-function RegistrationList(props) {
+function ProjectList(props) {
   // const params = useParams();
   // const type = api.getApiTokenData().type;
 
@@ -23,4 +23,4 @@ function RegistrationList(props) {
   )
 }
 
-export default RegistrationList
+export default ProjectList
