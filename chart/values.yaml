@@ -3,7 +3,10 @@ port: 3000
 
 # Container repository for microservices
 msa:
-  cr: "fnwicr.azurecr.io/helm"
+  # Container registry where production-ready containers are kept, defaults to
+  # fnwicr.azurecr.io, though we have no access to this CR, so the containers
+  # aren't actually on there  yet
+  cr: "fnwicr.azurecr.io/thesisfair"
   pullPolicy: Always
 
   services:
@@ -38,7 +41,6 @@ msa:
 # repository (presumably also local) will be mounted to the running containers
 # so changes made to the code are reflected in the deployment
 dev:
-  enabled: true
-
+  enabled: false
   cr: "localhost:5000"
   repository: "/home/docker/thesisfair"

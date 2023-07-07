@@ -26,13 +26,13 @@ for dir in $@/msa/*; do
 
   if [[ -e $dir/Dockerfile ]]; then
     echo "docker build -t \"$registry/${service,,}\" $dir"
-    cd $dir
+    pushd $dir
     docker buildx build -t "$registry/${service,,}" \
-      --progress plain \
       --build-arg NODE_ENV=development \
       --build-context libraries=../libraries \
       .
-  fi &
+    popd
+  fi # &
 done
 wait
 
@@ -43,6 +43,6 @@ for dir in $@/msa/*; do
   if [[ -e $dir/Dockerfile ]]; then
     echo "docker push \"$registry/${service,,}\""
     docker push "$registry/${service,,}"
-  fi &
+  fi
 done
 wait
