@@ -46,8 +46,10 @@ make pushDevelop # Will run a local container repository for you and push the co
 helm install thesisfair chart --values dev-values.yaml # Run the helm chart in dev mode
 kubectl port-forward svc/database 27017:27017 # Give your local machine access to the database in minikube
 node test/test/db.js run # Populate the database with test values
-xdg-open $(minikube ip):3000 # Go to the platform
+xdg-open http://$(minikube ip) # Go to the platform
 ```
+
+or alternatively, simply run `make dev` to start the dev environment.
 
 # Microservices architecture
 
