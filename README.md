@@ -41,7 +41,8 @@ dev:
 Run:
 ```sh
 minikube start --mount --mount-string="${location of repository on your machine}:/home/docker/thesisfair"
-./scripts/build-push.sh # Will run a local container repository for you and push the containers there
+minikube addons enable ingress
+make pushDevelop # Will run a local container repository for you and push the containers there
 helm install thesisfair chart --values dev-values.yaml # Run the helm chart in dev mode
 kubectl port-forward svc/database 27017:27017 # Give your local machine access to the database in minikube
 node test/test/db.js run # Populate the database with test values

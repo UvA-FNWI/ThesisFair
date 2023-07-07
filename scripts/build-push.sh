@@ -1,37 +1,40 @@
 #!/bin/bash
 
 if [[ $1 != production ]]; then
-  codeRepository=$@
-  registryPort=5000
-  registry=localhost:$registryPort
+  code_repository=$@
+  registry_port=5001
+  registry=localhost:$registry_port
+
+  node_env=development
 
   # All subsequent actions will be performed in the minikube VM
-  source <(minikube docker-env)
+  eval $(minikube docker-env)
 
   # Guarantee that a container registry is running in minikube if the script
   # expects a local container registry
-  docker run -d -p $registryPort:5000 --name registry registry:latest &&
+  docker run -d -p $registry_port:5000 --name registry registry:latest &&
     echo "Got internal container registry" ||
     echo "Internal container registry already on system"
 
   docker start registry &&
     echo "Made sure internal container registry is running"
 else
-  codeRepository=$2
+  code_repository=$2
+  node_env=production
   registry="fnwicr.azurecr.io/thesisfair"
 fi
 
 # Build docker containers - use tar to dereference symlinks, so frontend_service
 # will work
 echo "Building docker containers"
-for dir in $codeRepository/msa/*; do
+for dir in $code_repository/msa/*; do
   service=$(basename $dir)
 
   if [[ -e $dir/Dockerfile ]]; then
-    echo "docker build -t \"$registry/${service,,}\" $dir"
+    echo "docker build -t \"$registry/$(echo $service | tr '[:upper:]' '[:lower:]')\" $dir"
     pushd $dir
-    docker buildx build -t "$registry/${service,,}" \
-      --build-arg NODE_ENV=development \
+    docker buildx build -t "$registry/$(echo $service | tr '[:upper:]' '[:lower:]')" \
+      --build-arg NODE_ENV=$node_env \
       --build-context libraries=../libraries \
       .
     popd
@@ -40,12 +43,12 @@ done
 wait
 
 echo "Pushing docker containers to registry: $registry"
-for dir in $codeRepository/msa/*; do
+for dir in $code_repository/msa/*; do
   service=$(basename $dir)
 
   if [[ -e $dir/Dockerfile ]]; then
-    echo "docker push \"$registry/${service,,}\""
-    docker push "$registry/${service,,}"
+    echo "docker push \"$registry/$(echo $service | tr '[:upper:]' '[:lower:]')\""
+    docker push "$registry/$(echo $service | tr '[:upper:]' '[:lower:]')"
   fi
 done
 wait
