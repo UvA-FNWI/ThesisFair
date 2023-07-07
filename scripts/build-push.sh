@@ -27,7 +27,11 @@ for dir in $@/msa/*; do
   if [[ -e $dir/Dockerfile ]]; then
     echo "docker build -t \"$registry/${service,,}\" $dir"
     cd $dir
-    tar -ch . | docker build -t "$registry/${service,,}" -
+    docker buildx build -t "$registry/${service,,}" \
+      --progress plain \
+      --build-arg NODE_ENV=development \
+      --build-context libraries=../libraries \
+      .
   fi &
 done
 wait
