@@ -3,6 +3,51 @@
 Is the companion site for the thesis fairs hosted by the University of Amsterdam.
 A thesis fair is an event where students and companies meet each other to find interesting thesis projects and students respectively.
 
+# For developers
+
+To run the platform locally in development mode (e.g. with automatic updating of microservices in response to edited code), it is presumed
+that you have access to a local kubernetes cluster set up using minikube.
+Minikube requires some certain settings for this (see code below).
+
+You will be running the helm chart in development mode, which at a minimum requires setting `dev.enabled` to `true` in your `values.yaml`. You will also want to have a container repository running locally to push the containers to, which will be pulled by the helm chart to run the platform.
+
+## From repo roto
+
+In `dev-values.yaml`:
+```yaml
+msa:
+  services:
+    API_gateway:
+      env:
+        JWT_SECRET: # Fill in
+        OPENID_ISSUER_URL: # Fill in
+        OPENID_CLIENT_ID: # Fill in
+        OPENID_CLIENT_SECRET: # Fill in
+        OPENID_REDIRECT_URL: # Fill in
+        OPENID_RESOURCE: # Fill in
+    user_service:
+      env:
+        jwtKey: # Fill in
+        OVERRIDEMAIL: # Fill in
+        MAILHOST: # Fill in
+        MAILPORT: # Fill in
+        MAILUSER: # Fill in
+        MAILPASS: # Fill in
+
+dev:
+  enabled: true
+```
+
+Run:
+```sh
+minikube start --mount --mount-string="${location of repository on your machine}:/home/docker/thesisfair"
+./scripts/build-push.sh # Will run a local container repository for you and push the containers there
+helm install thesisfair chart --values dev-values.yaml # Run the helm chart in dev mode
+kubectl port-forward svc/database 27017:27017 # Give your local machine access to the database in minikube
+node test/test/db.js run # Populate the database with test values
+xdg-open $(minikube ip):3000 # Go to the platform
+```
+
 # Microservices architecture
 
 ![Microservices architecture!](architecture.svg 'The microservices architecture')
@@ -11,48 +56,20 @@ A thesis fair is an event where students and companies meet each other to find i
 
 ![Database architecture!](database.svg 'The database architecture')
 
-# Running the platform
+# For operators
 
-## Initializing the server
-
-The server is initialized via the `/deploy/install.yml` ansible playbook.
-This is run by adding the server to the `thesisfair` group and executing the ansible playbook.
-
-### Server requirements
+## Server requirements
 
 For staging a 1 vCPU and 2 GB ram server can be used (Standard B1ms in Azure cloud) without the monitoring stack.
 For production 2 vCPU and 4 GB ram (Standard B2s in Azure cloud) seem to be enough with the monitoring stack.
 
-## Configure environment variables
-
-Copy and paste the template below to `/deploy/compose/.env` for staging environment and `/deploy/composeProd/.env` for production environment.
-
-```
-JWT_SECRET=
-
-OPENID_ISSUER_URL=
-OPENID_CLIENT_ID=
-OPENID_CLIENT_SECRET=
-OPENID_REDIRECT_URL=
-OPENID_RESOURCE=
-
-FS_ROOT=
-URL=
-
-OVERRIDEMAIL=
-MAILHOST=
-MAILPORT=
-MAILUSER=
-MAILPASS=
-```
-
-### Environment variables
+## Environment variables
 
 - `JWT_SECRET` - Is the signing key for the JSON web tokens. The API gateway and user service need this token. It can be generated using the command `openssl rand -base64 512`.
 - `FS_ROOT` - The root path of the project on the filesystem. Used to mount the data directories into the containers. (For example `/opt/thesisfair/`)
 - `URL` - The url of the website(For example `thesisfair.qrcsoftware.nl`).
 
-#### OpenID variables
+### OpenID variables
 
 These should be supplied to the API gateway.
 
@@ -62,7 +79,7 @@ These should be supplied to the API gateway.
 - `OPENID_REDIRECT_URL` - The URL to which should be redirected afterwards. Should have the form `https://<YRK>/sso/loggedin`
 - `OPENID_RESOURCE` - Should have the form `https://<URL>`.
 
-#### Email variables
+### Email variables
 
 These are used by the user service to send emails regarding representative accounts.
 
@@ -74,17 +91,7 @@ These are used by the user service to send emails regarding representative accou
 
 ## Build and push container images
 
-Run `make update` in the root of the project.
-
-## Push deploy scripts
-
-Add the staging server to your ssh config as `thesisfairDev` and production server as `thesisfairProd`.
-
-Run `make sync` and `make syncProd` to sync the deploy files to the staging and production server respectively.
-
-## Starting the ThesisFair Platform
-
-SSH to the server and run `docker compose up -d` to start up the architecture.
+Run `make pushProduction` in the root of the project. Make sure you are logged into the fnwi CR.
 
 # Configuring monitoring
 

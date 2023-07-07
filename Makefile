@@ -4,8 +4,11 @@ ci:
 install:
 	./scripts/runCmd.sh ./msa "npm install"
 
-update:
-	./scripts/updateContainerRepo.sh ./msa
+pushProduction:
+	./scripts/build-push.sh production .
+
+pushDevelop:
+	./scripts/build-push.sh .
 
 generateJWTSecret:
 	openssl rand -base64 512
