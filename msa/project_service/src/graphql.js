@@ -81,8 +81,8 @@ schemaComposer.Query.addNestedFields({
     args: {},
     description: 'Get a list of every tag assigned to any project',
     resolve: async (obj, args) => {
-      const docs = await Project.find({}, {tags: 1}).exec()
-      const tags = [... new Set(docs.map(({tags}) => tags).flat())]
+      const docs = await Project.find({}, { tags: 1 }).exec()
+      const tags = [...new Set(docs.map(({ tags }) => tags).flat())]
 
       return tags
     },
@@ -122,7 +122,7 @@ schemaComposer.Query.addNestedFields({
       if (args.evid) {
         return Project.find({ enid: args.enid, evid: args.evid })
       }
-      
+
       return Project.find({ enid: args.enid })
     },
   },
@@ -150,6 +150,8 @@ schemaComposer.Mutation.addNestedFields({
       attendance: 'Attendance',
       environment: 'String',
       expectations: 'String',
+      email: 'String',
+      numberOfStudents: 'Int',
       datanoseLink: 'String',
       external_id: 'Int',
     },
@@ -169,10 +171,7 @@ schemaComposer.Mutation.addNestedFields({
         delete args.evid
       }
 
-      const res = await Promise.all([
-        ...args.evids.map(evid => evidExists(evid)),
-        enidExists(args.enid)
-      ])
+      const res = await Promise.all([...args.evids.map(evid => evidExists(evid)), enidExists(args.enid)])
 
       if (res.some(i => !i)) {
         throw new Error('A given evid or the enid do not exist')
@@ -193,6 +192,8 @@ schemaComposer.Mutation.addNestedFields({
       description: 'String',
       expectations: 'String',
       environment: 'String',
+      email: 'String',
+      numberOfStudents: 'Int',
       tags: '[String]',
       degrees: '[Degree]',
       datanoseLink: 'String',
@@ -207,10 +208,7 @@ schemaComposer.Mutation.addNestedFields({
         args.evids = [...args.evids, args.evid]
       }
 
-      const res = await Promise.all([
-        ...args.evids.map(evid => evidExists(evid)),
-        enidExists(args.enid)
-      ])
+      const res = await Promise.all([...args.evids.map(evid => evidExists(evid)), enidExists(args.enid)])
 
       if (res.some(i => !i)) {
         throw new Error('A given evid or the enid do not exist')

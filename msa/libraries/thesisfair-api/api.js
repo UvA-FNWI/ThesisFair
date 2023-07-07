@@ -655,14 +655,16 @@ export default url => {
               enid: { value: enid, type: 'ID!' },
             },
           }),
-        getActive: (projection) => genGraphQLBuilder({
+        getActive: projection =>
+          genGraphQLBuilder({
             name: 'getActiveEvents',
             functionPath: 'active',
             body: bodies.Event(projection),
             args: {},
             cache: caching ? { instance: cache, type: 'event', key: 'evid', multiple: true } : false,
           }),
-        getAll: (projection) => genGraphQLBuilder({
+        getAll: projection =>
+          genGraphQLBuilder({
             name: 'getAllEvents',
             functionPath: 'events',
             body: bodies.Event(projection),
@@ -817,7 +819,8 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
-        create: (project, projection) => genGraphQLBuilder({
+        create: (project, projection) =>
+          genGraphQLBuilder({
             type: 'mutation',
             name: 'createProject',
             functionPath: 'project.create',
@@ -833,8 +836,8 @@ export default url => {
               attendance: { value: project.attendance, type: 'Attendance' },
               environment: { value: project.environment, type: 'String' },
               expectations: { value: project.expectations, type: 'String' },
-              // email: { value: project.email, type: 'String' },
-              // numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
+              email: { value: project.email, type: 'String' },
+              numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
               external_id: { value: project.external_id, type: 'Int' },
             },
@@ -925,7 +928,7 @@ export default url => {
             args: {
               enid: { value: enid, type: 'ID!' },
               evid: { value: evid, type: 'ID' },
-            }
+            },
           }),
         getOfProject: (pid, evid) =>
           genGraphQLBuilder({
@@ -934,7 +937,7 @@ export default url => {
             args: {
               pid: { value: pid, type: 'ID!' },
               evid: { value: evid, type: 'ID' },
-            }
+            },
           }),
         import: (votes, evid, projection) =>
           genGraphQLBuilder({

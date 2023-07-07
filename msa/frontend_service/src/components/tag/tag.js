@@ -11,7 +11,7 @@ import './tag.scss'
 const getTag = (label, selectable, selected, disabled, onClick, id) => (
   <div
     className={cl(`tag tag--${label.replaceAll(' ', '')}`, {
-      'tag--hoverable': selectable,
+      'tag--selectable': selectable,
       'tag--selected': selectable && selected,
       'tag--disabled': disabled,
     })}

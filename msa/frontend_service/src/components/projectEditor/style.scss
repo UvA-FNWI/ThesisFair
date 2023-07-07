@@ -18,8 +18,16 @@
   margin-top: 1rem;
 }
 
-.list-item {
-  padding: 0;
+.degree-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 38px;
+  max-width: 50vw;
+}
+
+.form-tag {
+  padding: 0 !important;
   background-color: transparent;
 
   &__checkbox {
@@ -55,8 +63,13 @@
 }
 
 .tag-category {
-  max-height: 20vh;
+  max-height: 25vh;
   overflow-y: scroll;
+
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 0.5rem !important;
+  background-color: white;
 
   &__item {
     width: 100%;

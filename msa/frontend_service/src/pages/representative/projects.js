@@ -2,7 +2,7 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Accordion, Button, Badge, Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Container, Accordion, Button, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
 import api, { downloadCV, tags } from '../../api'
@@ -13,6 +13,8 @@ import './projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 import ProjectList from '../../components/projectListRep/projectList'
 
+import { degreeTagById, degreeById } from '../../definitions'
+
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
 function approvalBadge(project) {
@@ -21,12 +23,16 @@ function approvalBadge(project) {
   }
 
   switch (project.approval) {
-    case 'approved':
-      return <Badge variant='success'>Approved</Badge>
     case 'rejected':
       return <Badge variant='danger'>Rejected</Badge>
     case 'awaiting':
       return <Badge variant='warning'>Awaiting approval</Badge>
+    case 'partially-approved':
+      return <Badge variant='warning'>Awaiting approval</Badge>
+    case 'payment':
+      return <Badge variant='warning'>Awaiting payment</Badge>
+    case 'approved':
+      return <Badge variant='success'>Approved</Badge>
     default:
       return
   }
@@ -45,26 +51,6 @@ const projectButtons = (project, edit) => {
           }}
         >
           Duplicate
-        </Button>
-      </OverlayTrigger>
-      {console.log(project)}
-      <OverlayTrigger
-        overlay={
-          <Tooltip>
-            Unlink this project by creating two separate projects for the two different upcoming Thesis Fair events
-          </Tooltip>
-        }
-      >
-        <Button
-          size='sm'
-          variant='outline-primary'
-          className='ms-2 cv-button'
-          onClick={e => {
-            e.stopPropagation()
-            // TODO: Unlink project
-          }}
-        >
-          Unlink
         </Button>
       </OverlayTrigger>
       <ProjectEditorTrigger params={{ ...project, edit: edit }} />
@@ -134,7 +120,7 @@ class ProjectListing extends React.Component {
 
   renderStudentModal = () => {
     const { pid, uid } = this.state.popup
-    const student = this.state.votes[pid].find(user => user.uid == uid)
+    const student = this.state.votes[pid].find(user => user.uid === uid)
 
     return <StudentPopup student={student} onHide={() => this.setState({ popup: false })} />
   }
@@ -154,8 +140,9 @@ class ProjectListing extends React.Component {
       <>
         <ProjectList>
           {projects.map(project => {
-            const tags = project.tags
-            project.degrees.map(degree => tags.push(degree))
+            const tags = project.tags.map(tag => (typeof tag === 'string' ? { tag, tooltip: undefined } : tag))
+
+            project.degrees.forEach(id => tags.push(degreeById[id]))
 
             return (
               <ProjectList.Item
@@ -166,6 +153,8 @@ class ProjectListing extends React.Component {
                 environment={project.environment}
                 tags={tags}
                 name={project.name}
+                email={project.email}
+                numberOfStudents={project.numberOfStudents}
                 headerBadge={approvalBadge(project)}
                 headerButtons={projectButtons(project, this.props.params.edit)}
               />
@@ -173,7 +162,7 @@ class ProjectListing extends React.Component {
           })}
         </ProjectList>
         <Accordion>
-          {projects.map(project => (
+          {[].map(project => (
             <Accordion.Item key={project.pid} eventKey={project.pid}>
               <Accordion.Header>
                 <div className='d-flex justify-content-between align-items-center w-100 me-3'>
@@ -206,7 +195,7 @@ class ProjectListing extends React.Component {
 
                 <h4 className='mt-4'>Students</h4>
                 <div>
-                  {this.state.votes[project.pid] ? (
+                  {/* {this.state.votes[project.pid] ? (
                     this.state.votes[project.pid].length > 0 ? (
                       this.state.votes[project.pid].map(student => {
                         const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0
@@ -256,8 +245,11 @@ class ProjectListing extends React.Component {
                       <h6>
                         <em>No students have voted for this project.</em>
                       </h6>
-                    )
-                  ) : null}
+                      )
+                    ) : null} */}
+                  <h6>
+                    <em>No students have voted for this project.</em>
+                  </h6>
                 </div>
               </Accordion.Body>
             </Accordion.Item>
@@ -270,11 +262,7 @@ class ProjectListing extends React.Component {
   render() {
     return (
       <>
-        <Container className='mt-2'>
-          <div className='mb-4'>
-            <h1>Projects</h1>
-          </div>
-
+        <Container>
           {this.state.projects.length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
 
           {Object.entries(this.state.eventProjects).map(([evid, pids]) => {
@@ -364,10 +352,15 @@ class Projects extends React.Component {
       case null:
         return (
           <div>
-            <ProjectListing params={{ ...this.props.params, edit: this.edit }} />
-            <Container className='mt-2 project-list'>
+            <Container className='mt-4'>
+              <div className='mb-4'>
+                <h1>Projects</h1>
+              </div>
+            </Container>
+            <Container className='mb-2'>
               <ProjectEditorTrigger params={{ pid: null, edit: this.edit }} />
             </Container>
+            <ProjectListing params={{ ...this.props.params, edit: this.edit }} />
           </div>
         )
       default:

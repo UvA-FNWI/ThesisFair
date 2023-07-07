@@ -11,12 +11,12 @@ enum ApprovalStatus {
 }
 
 enum Degree {
-  AI
-  CPS
-  DS
-  IS
-  MoL
-  SE
+  MScAI
+  MScCLSJD
+  MScISIS
+  MScISDS
+  MScLogic
+  MScSE
 }
 
 input ProjectImport {
@@ -39,6 +39,8 @@ type Project {
   description: String
   environment: String
   expectations: String
+  email: String
+  numberOfStudents: Int
   approval: ApprovalStatus
   attendance: Attendance
   datanoseLink: String

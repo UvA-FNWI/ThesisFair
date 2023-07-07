@@ -9,6 +9,8 @@ import gripIcon from 'bootstrap-icons/icons/grip-vertical.svg'
 
 import Tag from '../tag/tag'
 
+import { degrees, degreeIds, degreeTagById } from '../../definitions'
+
 import cl from 'clsx'
 
 import './projectListItem.scss'
@@ -37,26 +39,6 @@ function ProjectListItemRep(props) {
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded)
-  }
-
-  const addProject = () => {
-    // TODO: Add project
-    console.warn('Add project not implemented')
-  }
-
-  const removeProject = () => {
-    // TODO: Remove project
-    console.warn('Remove project not implemented')
-  }
-
-  const hideProject = () => {
-    // TODO: Hide project
-    console.warn('Hide project not implemented')
-  }
-
-  const unhideProject = () => {
-    // TODO: Unhide project
-    console.warn('Unhide project not implemented')
   }
 
   return (
@@ -94,7 +76,11 @@ function ProjectListItemRep(props) {
             className='list-item__icon list-item__icon--close'
             src={closeIcon}
             alt='close icon'
+<<<<<<< HEAD
             onClick={removeProject}
+=======
+            onClick={props.deselectProject}
+>>>>>>> b9f5737e3e9bfb2bb14087129272530599c5c57f
           />
         )}
       </div>
@@ -108,24 +94,75 @@ function ProjectListItemRep(props) {
           <div className='list-item__expand-content'>
             <div className='list-item__email-tags'>
               <a className='list-item__email' href={`mailto:${props.email}`}>
+<<<<<<< HEAD
+=======
+                {console.log(props.email)}
+>>>>>>> b9f5737e3e9bfb2bb14087129272530599c5c57f
                 {props.email}
               </a>
               <div className='list-item__tags'>
                 {props.tags
+<<<<<<< HEAD
                   ?.filter(tag => !['AI', 'SE', 'CS', 'CPS'].includes(tag))
                   .map(tag => (
                     <Tag key={tag} tag={tag} />
+=======
+                  // ?.filter(tag => !degreeIds.includes(tag))
+                  .map(({ tag, tooltip }) => (
+                    <Tag key={tag} label={tag} tooltip={tooltip} />
+>>>>>>> b9f5737e3e9bfb2bb14087129272530599c5c57f
                   ))}
               </div>
             </div>
 
+<<<<<<< HEAD
             <MDEditor.Markdown
               source={props.description}
+=======
+            <div className='list-item__divider list-item__divider--less-spacing'>
+              <p className='list-item__section-header'>Description</p>
+            </div>
+
+            <MDEditor.Markdown
+              source={props.description}
+              className='list-item__markdown'
+>>>>>>> b9f5737e3e9bfb2bb14087129272530599c5c57f
               previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],
               }}
             />
 
+<<<<<<< HEAD
+=======
+            <div className='list-item__divider'>
+              <p className='list-item__section-header'>Work Environment</p>
+            </div>
+
+            <MDEditor.Markdown
+              source={props.environment}
+              className='list-item__markdown'
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
+              }}
+            />
+
+            {props.expectations && (
+              <>
+                <div className='list-item__divider'>
+                  <p className='list-item__section-header'>Expectations</p>
+                </div>
+
+                <MDEditor.Markdown
+                  source={props.expectations}
+                  className='list-item__markdown'
+                  previewOptions={{
+                    rehypePlugins: [[rehypeSanitize]],
+                  }}
+                />
+              </>
+            )}
+
+>>>>>>> b9f5737e3e9bfb2bb14087129272530599c5c57f
             <div className='list-item__buttons'>
               {props.buttons?.map(({ label, colour, onClick }) => (
                 <button key={label} className={`list-item__button list-item__button--${colour}`} onClick={onClick}>
