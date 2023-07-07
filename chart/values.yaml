@@ -42,5 +42,5 @@ msa:
 # so changes made to the code are reflected in the deployment
 dev:
   enabled: false
-  cr: "localhost:5000"
+  cr: "localhost:5001"
   repository: "/home/docker/thesisfair"
