@@ -8,3 +8,9 @@ deploy/backup
 deploy/hosts
 deploy/monitoring/alertmanager.yml
 **/data/
+values.yaml
+values-dev.yaml
+dev-values.yaml
+values.yml
+values-dev.yml
+dev-values.yml
