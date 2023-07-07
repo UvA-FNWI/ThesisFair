@@ -1,47 +1,107 @@
-apiVersion: apps/v1
 {{ $Values := .Values }}
+apiVersion: apps/v1
 
-# Create a deployment for each microservice
+# Create a deployment for the database
 kind: Deployment
 metadata:
-  name: thesisfair-deployment
+  name: database
   labels:
-    app: thesisfair
+    app: database
 spec:
   selector:
     matchLabels:
-      app: thesisfair
+      app: database
   template:
     metadata:
       labels:
-        app: thesisfair
+        app: database
     spec:
-      containers: {{ range $name, $service := .Values.msa.services }}
+      containers:
+        - name: mongodb
+          image: mongo
+          ports:
+            - containerPort: 27017
+
+---
+apiVersion: apps/v1
+
+# Create a deployment for the messaging queue
+kind: Deployment
+metadata:
+  name: messaging-queue
+  labels:
+    app: messaging-queue
+spec:
+  selector:
+    matchLabels:
+      app: messaging-queue
+  template:
+    metadata:
+      labels:
+        app: messaging-queue
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3-management
+          ports:
+            - containerPort: 15672
+            - containerPort: 5672
+
+{{ range $name, $service := .Values.msa.services }}
+---
+apiVersion: apps/v1
+
+# Create a deployment for each service: {{ $name | kebabcase }} now
+kind: Deployment
+metadata:
+  name: {{ $name | kebabcase }}
+  labels:
+    app: {{ $name | kebabcase }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $name | kebabcase }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name | kebabcase }}
+    spec:
+      containers:
         - name: {{ $name | kebabcase }}
           env:
             - name: mongodbConStr
-              value: "mongodb://mongodb/{{ $name }}_service"
-          image: {{ $Values.dev.enabled | ternary $Values.dev.cr $Values.msa.cr }}/{{ $name | lower }}{{ if not (contains "_" $name) }}_service{{ end }}
+              value: "mongodb://database/{{ $name }}"
+            - name: amqpConStr
+              value: "amqp://messaging-queue"
+            {{ if $service }}
+            {{ range $key, $value := $service.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{ end }}
+            {{ end }}
+          image: {{ $Values.dev.enabled | ternary $Values.dev.cr $Values.msa.cr }}/{{ $name | lower }}
           imagePullPolicy: {{ $Values.msa.pullPolicy }}
           command: [
-            "npm",
-            "run",
-            "start",
+            npm,
+            run,
+            {{ $Values.dev.enabled | ternary "start" "production"}},
           ]
-          ports:
-            - containerPort: 27017
           # In dev mode, mount libraries and source folders
           {{ if $Values.dev.enabled }}
           volumeMounts:
+            - mountPath: /libraries
+              name: libraries
             - mountPath: /app/src
               name: {{ $name | kebabcase }}
           {{ end }}
-      {{end}}
 
-    {{ if .Values.dev.enabled }}
-      volumes: {{ range $name, $service := .Values.msa.services }}
+      {{ if $Values.dev.enabled }}
+      volumes:
+        - name: libraries
+          persistentVolumeClaim:
+            claimName: libraries
         - name: {{ $name | kebabcase }}
           persistentVolumeClaim:
             claimName: {{ $name | kebabcase }}
       {{ end }}
-    {{ end }}
+{{ end }}
