@@ -16,12 +16,13 @@
 
   & p {
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 400;
     color: #ffffff;
     margin: 0;
   }
 
   &__icon {
+    display: none;
     margin-left: 0.5rem;
     filter: invert(100%);
     transform: rotate(0deg) scale(1);
@@ -30,33 +31,33 @@
     &--rotated {
       transform: rotate(45deg) scale(0.8);
     }
+
+    &--visible {
+      display: block;
+    }
   }
 
-  &--CS {
+  &--MScAI {
     background-color: rgb(183, 26, 115);
   }
 
-  &--AI {
-    background-color: rgb(183, 26, 26);
-  }
-
-  &--CPS {
+  &--MScCLSJD {
     background-color: rgb(183, 97, 26);
   }
 
-  &--DS {
+  &--MScIS-IS {
     background-color: rgb(123, 183, 26);
   }
 
-  &--IS {
+  &--MScIS-DS {
     background-color: rgb(26, 183, 99);
   }
 
-  &--MoL {
+  &--MScLogic {
     background-color: rgb(26, 167, 183);
   }
 
-  &--SE {
+  &--MScSE {
     background-color: rgb(102, 26, 183);
   }
 
@@ -79,16 +80,16 @@
     }
   }
 
-  &:not(.tag--selected) {
+  &--selectable:not(.tag--selected) {
     // Make the tag look almost grey but retain a bit of its colour
     filter: brightness(1.2) saturate(0.125);
 
-    &.tag--hoverable:hover {
+    &.tag--selectable:hover {
       filter: brightness(1.1) saturate(0.125);
     }
   }
 
-  &--hoverable:hover {
+  &--selectable:hover {
     // box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
     cursor: pointer;
 

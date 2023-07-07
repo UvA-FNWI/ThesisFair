@@ -13,20 +13,20 @@ import EventsPage from './pages/EventsPage'
 import EventPage from './pages/EventPage'
 import Error from './pages/Error'
 
-import Event from './pages/admin/Event';
-import EventEntities from './pages/admin/EventEntities';
-import EventProjects from './pages/admin/EventProjects';
-import Events from './pages/admin/Events';
-import Students from './pages/admin/Students';
-import AdminAccount from './pages/admin/AdminAccount';
-import LoginAs from './pages/admin/LoginAs';
+import Event from './pages/admin/Event'
+import EventEntities from './pages/admin/EventEntities'
+import EventProjects from './pages/admin/EventProjects'
+import Events from './pages/admin/Events'
+import Students from './pages/admin/Students'
+import AdminAccount from './pages/admin/AdminAccount'
+import LoginAs from './pages/admin/LoginAs'
 
-import StudentAccount from './pages/student/StudentAccount';
-import Organisations from './pages/student/Organisations';
-import Votes from './pages/student/Votes';
+import StudentAccount from './pages/student/StudentAccount'
+import Organisations from './pages/student/Organisations'
+import Votes from './pages/student/Votes'
 
-import RepAccount from './pages/representative/RepAccount';
-import Projects from './pages/representative/projects';
+import RepAccount from './pages/representative/RepAccount'
+import Projects from './pages/representative/projects'
 
 import OrganisationDashboard from './pages/adminRepresentative/OrganisationDashboard'
 
@@ -83,8 +83,8 @@ class App extends React.Component {
     return (
       <>
         <Route path='' element={<Navigate to='account' replace={true} />} />
-        <Route path="account" element={<Page page={<RepAccount />} />} />
-        <Route path="projects" element={<Page page={<Projects />} />} />
+        <Route path='account' element={<Page page={<RepAccount />} />} />
+        <Route path='projects' element={<Page page={<Projects />} />} />
       </>
     )
   }
@@ -138,7 +138,9 @@ class App extends React.Component {
         <Routes>
           <Route path='/error' element={<Error />} />
           {this.getRoutes()}
-          <Route path='*' element={<NotFound />} />
+          {/* Instead of showing 404, navigate to / */}
+          {/* <Route path='*' element={<NotFound />} /> */}
+          <Route path='*' element={<Navigate to='/' replace={true} />} />
         </Routes>
       </BrowserRouter>
     )

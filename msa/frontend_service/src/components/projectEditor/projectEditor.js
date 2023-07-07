@@ -2,12 +2,14 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Tab, Button, Form, Row, Col, Nav, ToggleButton, ButtonGroup } from 'react-bootstrap'
+import { OverlayTrigger, Tooltip, Container, Tab, Button, Form, Row, Col, Nav, ButtonGroup } from 'react-bootstrap'
 // import { Typeahead } from 'react-bootstrap-typeahead'
-import api, { degrees, tags as allTags } from '../../api'
+import api, { tags as allTags } from '../../api'
 
 import './style.scss'
 import Tag from '../tag/tag'
+
+import { degrees } from '../../definitions'
 
 import cl from 'clsx'
 
@@ -22,7 +24,7 @@ class ProjectEditor extends React.Component {
       description: '',
       environment: '',
       expectations: '',
-      attendance: null,
+      attendance: 'no',
       degrees: [],
       tags: [],
       email: '',
@@ -76,9 +78,12 @@ class ProjectEditor extends React.Component {
       return
     }
 
-    await this.updateProject()
-
-    this.props.onClose()
+    try {
+      await this.updateProject()
+      this.props.onClose()
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async updateProject() {
@@ -88,7 +93,7 @@ class ProjectEditor extends React.Component {
       description: this.state.description,
       degrees: this.state.degrees,
       tags: this.state.tags,
-      attendance: this.state.attendance,
+      attendance: this.state.attendance || 'no',
       environment: this.state.environment,
       email: this.state.email,
     }
@@ -98,9 +103,10 @@ class ProjectEditor extends React.Component {
 
     // Add the appropriate events to the project based on the selected degrees
     const events = await api.event.getActive().exec()
-    project.evids = events.filter(
-      e => project.degrees.some(degree => e.degrees.includes(degree))
-    ).map(e => e.evid)
+    console.log(events)
+    project.evids = events
+      .filter(e => project.degrees.some(degree => e.degrees && e.degrees.includes(degree)))
+      .map(e => e.evid)
 
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
@@ -192,7 +198,7 @@ class ProjectEditor extends React.Component {
   validate = () => Object.values(this.validation).every(f => f() === true)
 
   validateEmail = email =>
-    /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test(
+    /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i.test(
       email
     )
 
@@ -201,7 +207,7 @@ class ProjectEditor extends React.Component {
     description: () => this.state.description.length > 0,
     environment: () => this.state.environment.length > 0,
     degrees: () => this.state.degrees.length > 0,
-    attendance: () => this.attendanceOptions.map(({ value }) => value).includes(this.state.attendance),
+    // attendance: () => this.attendanceOptions.map(({ value }) => value).includes(this.state.attendance),
     tags: () => this.state.tags.length >= 1 && this.state.tags.length <= 3,
     expectations: () => true,
     email: () => this.validateEmail(this.state.email),
@@ -246,60 +252,36 @@ class ProjectEditor extends React.Component {
                 <Form.Label>Applicable masters</Form.Label>
                 <br />
                 <ButtonGroup
-                  className={cl('mt-2', {
+                  className={cl('degree-tags', {
                     'is-invalid': this.state.hasBeenInteractedWith.degrees && !this.validation.degrees(),
                   })}
                 >
-                  {Object.entries(degrees).map(([degree, fullname]) => (
-                    <Form.Check className='list-item' inline title={fullname} key={degree}>
+                  {Object.values(degrees).map(({ id, tag, tooltip }) => (
+                    <Form.Check className='form-tag' inline title={tag} key={tag}>
                       <Form.Check.Input
-                        name={degree}
-                        key={degree}
-                        className='list-item__checkbox'
-                        checked={this.state.degrees.includes(degree)}
+                        name={tag}
+                        key={tag}
+                        className='form-tag__checkbox'
+                        checked={this.state.degrees.includes(id)}
                         onChange={() => {}}
                       />
                       <Form.Check.Label>
-                        <Tag
-                          label={degree}
-                          id={degree}
-                          selectable={true}
-                          selected={this.state.degrees.includes(degree)}
-                          onClick={this.handleMasterCheck}
-                        />
+                        <OverlayTrigger overlay={<Tooltip>{tooltip}</Tooltip>}>
+                          <span>
+                            <Tag
+                              label={tag}
+                              id={id}
+                              selectable={true}
+                              selected={this.state.degrees.includes(id)}
+                              onClick={this.handleMasterCheck}
+                            />
+                          </span>
+                        </OverlayTrigger>
                       </Form.Check.Label>
                     </Form.Check>
                   ))}
                 </ButtonGroup>
                 <Form.Control.Feedback type='invalid'>Please specify at least one degree</Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-
-            <Col xs='auto'>
-              <Form.Group controlId='attendance'>
-                <Form.Label>Attending</Form.Label>
-                <br />
-                <ButtonGroup
-                  className={cl({
-                    'is-invalid': this.state.hasBeenInteractedWith.attendance && !this.validation.attendance(),
-                  })}
-                >
-                  {this.attendanceOptions.map(({ value, name }) => (
-                    <ToggleButton
-                      key={value}
-                      id={`attendance-${value}`}
-                      type='radio'
-                      name='attendance'
-                      value={value}
-                      className='button-attending'
-                      checked={this.state.attendance === value}
-                      onChange={this.handleAttendanceChange}
-                    >
-                      {name}
-                    </ToggleButton>
-                  ))}
-                </ButtonGroup>
-                <Form.Control.Feedback type='invalid'>Specify</Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>
@@ -444,7 +426,7 @@ class ProjectEditor extends React.Component {
             <Form.Label
               className={cl({ 'is-invalid': this.state.hasBeenInteractedWith.tags && !this.validation.tags() })}
             >
-              Tags
+              Research Tags (Select 1 to 3)
             </Form.Label>
             <Row>
               <Tab.Container id='left-tabs-example' defaultActiveKey={Object.keys(allTags)[0]}>
@@ -459,16 +441,16 @@ class ProjectEditor extends React.Component {
                   </Nav>
                 </Col>
                 <Col>
-                  <Form.Label>Tags (Select 1 to 3)</Form.Label>
+                  <Form.Label>Tags</Form.Label>
                   <Tab.Content>
                     {Object.entries(allTags).map(([category, tags]) => (
                       <Tab.Pane eventKey={category} key={category} className='selectable-tags'>
                         {tags.map(tag => (
-                          <Form.Check className='list-item selectable-tag' inline key={`${category}.${tag}`}>
+                          <Form.Check className='form-tag selectable-tag' inline key={`${category}.${tag}`}>
                             <Form.Check.Input
                               name={`${category}.${tag}`}
                               key={`${category}.${tag}`}
-                              className='list-item__checkbox'
+                              className='form-tag__checkbox'
                               checked={this.state.tags.includes(`${category}.${tag}`)}
                               onChange={() => {}}
                             />
@@ -501,7 +483,6 @@ class ProjectEditor extends React.Component {
                       key={tag}
                       selectable={true}
                       selected={true}
-                      className='selected-tag'
                       onClick={() => this.removeTag(tag)}
                     />
                   ))}
@@ -512,6 +493,34 @@ class ProjectEditor extends React.Component {
             <br />
             <Form.Control.Feedback type='invalid'>Please select 1-3 tags</Form.Control.Feedback>
           </Form.Group>
+
+          {/* <Col xs='auto'>
+            <Form.Group controlId='attendance'>
+              <Form.Label>Attending</Form.Label>
+              <br />
+              <ButtonGroup
+                className={cl({
+                  'is-invalid': this.state.hasBeenInteractedWith.attendance && !this.validation.attendance(),
+                })}
+              >
+                {this.attendanceOptions.map(({ value, name }) => (
+                  <ToggleButton
+                    key={value}
+                    id={`attendance-${value}`}
+                    type='radio'
+                    name='attendance'
+                    value={value}
+                    className='button-attending'
+                    checked={this.state.attendance === value}
+                    onChange={this.handleAttendanceChange}
+                  >
+                    {name}
+                  </ToggleButton>
+                ))}
+              </ButtonGroup>
+              <Form.Control.Feedback type='invalid'>Specify</Form.Control.Feedback>
+            </Form.Group>
+          </Col> */}
 
           <Button
             variant='primary'
