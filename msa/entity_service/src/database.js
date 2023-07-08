@@ -14,7 +14,7 @@ const entitySchema = new mongoose.Schema({
       content: { type: String, required: true },
     }),
   ],
-  external_id: { type: Number, index: true, unique: true, required: true },
+  external_id: { type: Number, unique: true, sparse: true },
   representatives: { type: Number },
   location: { type: String },
 })

@@ -1,5 +1,3 @@
-import { MongoDBProvisioner } from '../../../msa/libraries/mongodbprovisioner/index.js'
-import { normalize } from '../../../msa/libraries/mongodbprovisioner/index.js'
 import { readFileSync } from 'fs'
 import { parse } from 'csv-parse/sync'
 import { globSync } from 'glob'
@@ -9,9 +7,14 @@ const mongoAddress = process.argv[2] || 'localhost:27017'
 
 // A map from datanose IDs to IDs in the thesisfair system
 const datanoseOrganizations = parse(readFileSync('data/organizations.csv'), {columns: true})
-const datanoseProjects = Object.fromEntries(
-  globSync('data/projects_*-*.csv').map(f => [f, parse(readFileSync(f), {columns: true})])
-)
+const datanoseProjects = globSync('data/projects_*-*.csv').map(
+  f => parse(readFileSync(f), {columns: true})
+).flat()
+const eventData = parse(readFileSync('data/events.csv'), {columns: true})
+for (const event of eventData) {
+  event.degrees = event.degrees.slice(1, -1).split(',').map(d => d.trim())
+  event.external_id = event['﻿external_id']
+}
 
 function parseContacts(contacts) {
   const splitContacts = []
@@ -93,42 +96,22 @@ function entities(orgs) {
   })
 }
 
-const configs = {
-  entities: {
-    uri: process.env.mongodbConStrEntity || `mongodb://${mongoAddress}/entity_service`,
-    library: import(`${msaDir}/entity_service/src/database.js`),
-    object: 'Entity',
-    get: db => genEntities()
-  },
-  events: {
-    uri: process.env.mongodbConStrEvent || 'mongodb://${mongoAddress}/event_service',
-    library: import(`${msaDir}/event_service/src/database.js`),
-    object: 'Event',
-  },
-  projects: {
-    uri: process.env.mongodbConStrProject || `mongodb://${mongoAddress}/project_service`,
-    library: import(`${msaDir}/project_service/src/database.js`),
-    object: 'Project',
-  },
-  users: {
-    uri: process.env.mongodbConStrUser || `mongodb://${mongoAddress}/user_service`,
-    library: import(`${msaDir}/user_service/src/database.js`),
-    object: 'User',
-    objects: ['User', 'Student', 'Representative'],
-    hide: ['password'],
-  },
-  votes: {
-    uri: process.env.mongodbConStrVote || `mongodb://${mongoAddress}/vote_service`,
-    library: import(`${msaDir}/vote_service/src/database.js`),
-    object: 'Vote',
-  },
+function projects(projects, entityIdMap, eventIdMap) {
+  return projects.map(project => {
+    return {
+      enid: entityIdMap[project['﻿Organisation']],
+      evids: project['Fairs'] ? [eventIdMap[project['Fairs']]] : [],
+      name: project['Project Title'],
+      description: project['Project Description'],
+      environment: project['Work environment'],
+      expectations: project['Expectations'],
+      degrees: project['Fairs'].includes('AI') ? ['AI'] : ['CPS', 'DS', 'IS', 'MoL', 'SE'],
+      attendance: project['Participate in'] ? 'yes' : 'no',
+      numberOfStudents: isNaN(project['Number of Students']) ? undefined : project['Number of Students'],
+      email: project['Project Contact'],
+    }
+  })
 }
-
-// const provisioner = new MongoDBProvisioner(configs)
-// 
-// export let db
-// export let models
-// export const init = provisioner.init
 
 async function writeToDB(service, data, discriminator=null, drop=true) {
   discriminator = discriminator ?
@@ -157,10 +140,29 @@ async function main() {
       entity => [entity['external_id'], entity['_id'].toString()]
     )
   )
+  const entityNameMap = Object.fromEntries(
+    dbEntities.map(
+      entity => [entity['name'], entity['_id'].toString()]
+    )
+  )
 
-  // Write users to DB
+  // Write users to DB using this mapping
   const userData = users(datanoseOrganizations, entityIdMap)
-  const dbUsers = await writeToDB('user', userData, 'representative')
+  await writeToDB('user', userData, 'representative')
+
+  // Write events to DB
+  const dbEvents = await writeToDB('event', eventData)
+
+  // keep track of event ID mapping
+  const eventIdMap = Object.fromEntries(
+    dbEvents.map(
+      entity => [entity['external_id'], entity['_id'].toString()]
+    )
+  )
+
+  // Write projects to DB
+  const projectData = projects(datanoseProjects, entityNameMap, eventIdMap)
+  await writeToDB('project', projectData)
 }
 
 main()
