@@ -43,8 +43,7 @@ const navigationBarItems = {
   ],
 }
 
-function CustomNavbar(props) {
-  const params = useParams()
+function CustomNavbar() {
   const type = api.getApiTokenData().type === 'r' && api.getApiTokenData().repAdmin ? 'ra' : api.getApiTokenData().type
 
   // Get current page
@@ -54,14 +53,14 @@ function CustomNavbar(props) {
     <Navbar className='ps-2 pe-2 p-md-0' bg='primary' expand='sm'>
       <Navbar.Brand className='d-md-none'>
         <Link to={'/'}>
-          <img src='/images/uvalogo.svg' width='64' height='64' alt='UvA Logo' />
+          <img src='/images/uva-logo-small.png' width='64' height='64' alt='UvA Logo' />
         </Link>
       </Navbar.Brand>
       <Navbar.Toggle aria-controls='topNavbar' />
       <Navbar.Collapse id='topNavbar' className='justify-content-end'>
         <Nav className='sidebar navbar position-fixed flex-row flex-md-column justify-content-start'>
           <Link className='logo d-none d-md-block' to={'/'}>
-            <img src='/images/uvalogo.svg' width='64' height='64' alt='UvA Logo' />
+            <img src='/images/uva-logo-small.png' width='64' height='64' alt='UvA Logo' />
           </Link>
 
           {navigationBarItems[type].map(({ name, icon, link }, index) => (
@@ -75,6 +74,7 @@ function CustomNavbar(props) {
 
           <Nav.Item className='logout'>
             <div
+              className='nav-link'
               onClick={
                 api.apiTokenOverriden()
                   ? () => {

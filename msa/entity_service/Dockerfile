@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM node:latest
 LABEL org.opencontainers.image.source https://github.com/UvA-FNWI/ThesisFair
 
@@ -6,6 +8,7 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /app
 COPY ./package*.json ./
+COPY ./node_modules ./node_modules
 RUN npm i
 
 COPY ./src ./src
