@@ -15,27 +15,25 @@ You will be running the helm chart in development mode, which at a minimum requi
 
 In `dev-values.yaml`:
 ```yaml
-msa:
-  services:
-    API_gateway:
-      env:
-        JWT_SECRET: # Fill in
-        OPENID_ISSUER_URL: # Fill in
-        OPENID_CLIENT_ID: # Fill in
-        OPENID_CLIENT_SECRET: # Fill in
-        OPENID_REDIRECT_URL: # Fill in
-        OPENID_RESOURCE: # Fill in
-    user_service:
-      env:
-        jwtKey: # Fill in
-        OVERRIDEMAIL: # Fill in
-        MAILHOST: # Fill in
-        MAILPORT: # Fill in
-        MAILUSER: # Fill in
-        MAILPASS: # Fill in
+dev_mode: true
 
-dev:
-  enabled: true
+msa:
+  API_gateway:
+    env:
+      JWT_SECRET: # Fill in
+      OPENID_ISSUER_URL: # Fill in
+      OPENID_CLIENT_ID: # Fill in
+      OPENID_CLIENT_SECRET: # Fill in
+      OPENID_REDIRECT_URL: # Fill in
+      OPENID_RESOURCE: # Fill in
+  user_service:
+    env:
+      jwtKey: # Fill in
+      OVERRIDEMAIL: # Fill in
+      MAILHOST: # Fill in
+      MAILPORT: # Fill in
+      MAILUSER: # Fill in
+      MAILPASS: # Fill in
 ```
 
 Run:
