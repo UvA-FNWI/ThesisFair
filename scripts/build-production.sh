@@ -12,6 +12,7 @@ for dir in $code_repository/msa/*; do
     echo "docker build -t \"$registry/$(echo $service | tr '[:upper:]' '[:lower:]')\" $dir"
     pushd $dir
     docker buildx build -t "$registry/$(echo $service | tr '[:upper:]' '[:lower:]')" \
+      --load \
       --build-arg NODE_ENV=$node_env \
       --build-context libraries=../libraries \
       .
