@@ -17,8 +17,7 @@ dev:
 	-kubectl delete validatingwebhookconfigurations ingress-nginx-admission
 	make pushDevelop
 	helm install thesisfair chart --values dev-values.yaml --wait
-	kubectl port-forward svc/database 27017:27017 &
-	node test/test/db.js run
+	kubectl port-forward svc/database 27017:27017 & node test/test/db.js run
 	xdg-open http://$$(minikube ip) || open http://$$(minikube ip)
 
 generateJWTSecret:
