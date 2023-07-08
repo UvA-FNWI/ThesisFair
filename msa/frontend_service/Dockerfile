@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM node:latest
 LABEL org.opencontainers.image.source https://github.com/UvA-FNWI/ThesisFair
 
@@ -13,8 +15,8 @@ WORKDIR /app
 COPY ./package*.json ./
 RUN npm i
 
-COPY ./src ./src
-COPY ./public/ ./public
+COPY ./src/ ./src/
+COPY ./public/ ./public/
 
 RUN  find ./src -type f -exec sed -i -E 's/(\.\.\/)*libraries/@amicopo/g' {} +
 

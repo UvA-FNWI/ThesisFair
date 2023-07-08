@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM node:latest
 LABEL org.opencontainers.image.source https://github.com/UvA-FNWI/ThesisFair
 
