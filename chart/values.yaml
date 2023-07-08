@@ -1,39 +1,38 @@
-# Port on which to expose this service
-port: 3000
+dev_mode: false
 
-# Container repository for microservices
+# Simple definition of essentials for the microservice architecture (msa)
 msa:
-  # Container registry where production-ready containers are kept, defaults to
-  # fnwicr.azurecr.io, though we have no access to this CR, so the containers
-  # aren't actually on there  yet
+  API_gateway:
+    env:
+      # JWT_SECRET:
+      # OPENID_ISSUER_URL:
+      # OPENID_CLIENT_ID:
+      # OPENID_CLIENT_SECRET:
+      # OPENID_REDIRECT_URL:
+      # OPENID_RESOURCE:
+  user_service:
+    env:
+      # jwtKey:
+      # OVERRIDEMAIL:
+      # MAILHOST:
+      # MAILPORT:
+      # MAILUSER:
+      # MAILPASS:
+  entity_service:
+  event_service:
+  project_service:
+  vote_service:
+  frontend_service:
+    env:
+      PORT: 3000
+      REACT_APP_API_ENDPOINT: "https://localhost:3000/api/"
+
+# Container registry where production-ready containers are kept, defaults to
+# fnwicr.azurecr.io, though we have no access to this CR, so the containers
+# aren't actually on there  yet
+prod:
   cr: "fnwicr.azurecr.io/thesisfair"
   pullPolicy: Always
-
-  services:
-    API_gateway:
-      env:
-        # JWT_SECRET:
-        # OPENID_ISSUER_URL:
-        # OPENID_CLIENT_ID:
-        # OPENID_CLIENT_SECRET:
-        # OPENID_REDIRECT_URL:
-        # OPENID_RESOURCE:
-    user_service:
-      env:
-        # jwtKey:
-        # OVERRIDEMAIL:
-        # MAILHOST:
-        # MAILPORT:
-        # MAILUSER:
-        # MAILPASS:
-    entity_service:
-    event_service:
-    project_service:
-    vote_service:
-    frontend_service:
-      env:
-        PORT: 3000
-        REACT_APP_API_ENDPOINT: "https://localhost:3000/api/"
 
 # When dev mode is enabled, the container repository for
 # microservices is changed to dev.cr (presumably a local CR)
@@ -41,6 +40,6 @@ msa:
 # repository (presumably also local) will be mounted to the running containers
 # so changes made to the code are reflected in the deployment
 dev:
-  enabled: false
   cr: "localhost:5001"
+  pullPolicy: Always
   repository: "/home/docker/thesisfair"
