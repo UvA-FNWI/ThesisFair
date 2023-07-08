@@ -1,7 +1,8 @@
 {{ $Values := .Values }}
+{{ if .Values.dev_mode }}
 apiVersion: apps/v1
 
-# Create a deployment for the database
+# Create a deployment for the database in dev mode
 kind: Deployment
 metadata:
   name: database
@@ -21,6 +22,37 @@ spec:
           image: mongo
           ports:
             - containerPort: 27017
+{{ else }}
+apiVersion: apps/v1
+
+# Create a StatefulSet for the db to run on Azure
+kind: StatefulSet
+metadata:
+  name: database
+  labels:
+    app: database
+spec:
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: database-storage
+              mountPath: /data/db
+      volumes:
+        - name: database-storage
+          persistentVolumeClaim:
+            claimName: database-storage
+{{ end }}
 
 ---
 apiVersion: apps/v1

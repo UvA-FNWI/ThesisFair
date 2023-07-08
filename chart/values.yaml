@@ -27,6 +27,15 @@ msa:
       PORT: 3000
       REACT_APP_API_ENDPOINT: "https://localhost:3000/api/"
 
+azure:
+  resourceGroup: resourceGroupName
+  storageAccount: storageAccount
+  # keyvaultName: keyvaultName
+  # subscriptionId: subscriptionId
+  # tenantId: tenantId
+  # clientId: clientId
+  # identityName: identityName
+
 # Container registry where production-ready containers are kept, defaults to
 # fnwicr.azurecr.io, though we have no access to this CR, so the containers
 # aren't actually on there  yet
