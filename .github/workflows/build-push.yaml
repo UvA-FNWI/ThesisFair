@@ -9,6 +9,7 @@ jobs:
       - name: Compile step for api library
         run: |
           cd msa/libraries/thesisfair-api
+          npm i
           npm run build
       - name: Build containers
         run: make buildProduction
