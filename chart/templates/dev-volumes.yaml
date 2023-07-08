@@ -1,5 +1,5 @@
 {{ $Values := .Values }}
-{{ if .Values.dev.enabled }}
+{{ if .Values.dev_mode }}
 apiVersion: "storage.k8s.io/v1"
 
 # Define a storage class for this dev mode mounting
@@ -49,7 +49,7 @@ spec:
     requests:
       storage: 20Mi
 
-{{ range $name, $service := .Values.msa.services }}
+{{ range $name, $service := .Values.msa }}
 ---
 apiVersion: v1
 

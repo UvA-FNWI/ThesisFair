@@ -47,7 +47,7 @@ spec:
             - containerPort: 15672
             - containerPort: 5672
 
-{{ range $name, $service := .Values.msa.services }}
+{{ range $name, $service := .Values.msa }}
 ---
 apiVersion: apps/v1
 
@@ -79,15 +79,15 @@ spec:
               value: "{{ $value }}"
             {{ end }}
             {{ end }}
-          image: {{ $Values.dev.enabled | ternary $Values.dev.cr $Values.msa.cr }}/{{ $name | lower }}
-          imagePullPolicy: {{ $Values.msa.pullPolicy }}
+          image: {{ $Values.dev_mode | ternary $Values.dev.cr $Values.prod.cr }}/{{ $name | lower }}
+          imagePullPolicy: {{ $Values.dev_mode | ternary $Values.dev.pullPolicy $Values.prod.pullPolicy }}
           command: [
             npm,
             run,
-            {{ $Values.dev.enabled | ternary "start" "production"}},
+            {{ $Values.dev_mode | ternary "start" "production"}},
           ]
           # In dev mode, mount libraries and source folders
-          {{ if $Values.dev.enabled }}
+          {{ if $Values.dev_mode }}
           volumeMounts:
             - mountPath: /libraries
               name: libraries
@@ -95,7 +95,7 @@ spec:
               name: {{ $name | kebabcase }}
           {{ end }}
 
-      {{ if $Values.dev.enabled }}
+      {{ if $Values.dev_mode }}
       volumes:
         - name: libraries
           persistentVolumeClaim:

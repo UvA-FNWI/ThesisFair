@@ -11,13 +11,15 @@ pushDevelop:
 	./scripts/build-push.sh .
 
 dev:
-	minikube start --mount --mount-string="$$(pwd):/home/docker/thesisfair"
+	-helm uninstall thesisfair --wait || helm uninstall thesisfair
+	minikube status | grep "host: Running" || minikube start --mount --mount-string="$$(pwd):/home/docker/thesisfair"
 	minikube addons enable ingress
+	-kubectl delete validatingwebhookconfigurations ingress-nginx-admission
 	make pushDevelop
 	helm install thesisfair chart --values dev-values.yaml --wait
 	kubectl port-forward svc/database 27017:27017 &
 	node test/test/db.js run
-	xdg-open http://$$(minikube ip)
+	xdg-open http://$$(minikube ip) || open http://$$(minikube ip)
 
 generateJWTSecret:
 	openssl rand -base64 512

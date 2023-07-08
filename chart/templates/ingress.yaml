@@ -30,4 +30,4 @@ spec:
               service:
                 name: thesisfair-frontend
                 port:
-                  number: {{ .Values.port }}
+                  number: 3000

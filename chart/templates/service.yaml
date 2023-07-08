@@ -6,8 +6,8 @@ metadata:
   name: thesisfair-frontend
 spec:
   ports:
-    - port: {{ .Values.msa.services.frontend_service.env.PORT }}
-      targetPort: {{ .Values.port }}
+    - port: {{ .Values.msa.frontend_service.env.PORT }}
+      targetPort: 3000
   selector:
     app: frontend-service
 
