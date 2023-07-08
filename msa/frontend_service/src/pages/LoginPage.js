@@ -2,6 +2,8 @@ import React from 'react'
 import { Container, Row, Col, Form, Button, Popover, OverlayTrigger } from 'react-bootstrap'
 import api from '../api'
 
+import './login.scss'
+
 class LoginPage extends React.Component {
   constructor(props) {
     super(props)
@@ -46,13 +48,29 @@ class LoginPage extends React.Component {
 
   render() {
     return (
-      <Container fluid>
+      <Container fluid className='login-page' style={{ backgroundColor: 'var(--primary)' }}>
         <Row>
-          <div className='col-md-7 col-lg-8 d-none d-md-block' style={{ paddingLeft: 0, overflow: 'hidden' }}>
-            <img align='right' style={{ height: '100vh' }} src='/images/loginHeaderCompressed.jpg' alt='' />
+          <div className='col-md-6 col-lg-7 login-page__banner'>
+            <img
+              align='right'
+              style={{ maxWidth: '100%', maxHeight: '80vh' }}
+              src='/images/thesisfair-banner.png'
+              alt=''
+            />
           </div>
-          <Col xs={12} md={5} lg={4}>
-            <img width='100%' src='/images/en-informatics-institute.jpg' alt='' />
+          <Col
+            xs={12}
+            md={6}
+            lg={5}
+            style={{
+              height: '100vh',
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              padding: '0 4rem',
+            }}
+          >
+            <img width='100%' src='/images/uva-thesisfair-logo.png' alt='' />
             <a href='/sso/login' className='d-flex justify-content-center pt-2 text-decoration-none'>
               <Button>UvA student and employee login</Button>
             </a>
@@ -68,7 +86,7 @@ class LoginPage extends React.Component {
                   isInvalid={!!this.state.error}
                 />
               </Form.Group>
-              <Form.Group className='mb-3'>
+              <Form.Group>
                 <Form.Label>Password</Form.Label>
                 <Form.Control
                   type='password'
@@ -79,18 +97,15 @@ class LoginPage extends React.Component {
                 />
                 <Form.Control.Feedback type='invalid'>{this.state.error}</Form.Control.Feedback>
               </Form.Group>
+              <div className='login-page__forgot-password'>
+                <OverlayTrigger trigger='click' placement='bottom' overlay={this.forgotPasswordPopover()}>
+                  <span>Forgot password?</span>
+                </OverlayTrigger>
+              </div>
 
               <Button variant='primary' type='submit' disabled={this.state.loading}>
                 {this.state.loading ? 'Submitting...' : 'Submit'}
               </Button>
-
-              <div className='pt-3'>
-                <OverlayTrigger trigger='click' placement='bottom' overlay={this.forgotPasswordPopover()}>
-                  <span className='text-muted' style={{ cursor: 'pointer' }}>
-                    Forgot password?
-                  </span>
-                </OverlayTrigger>
-              </div>
             </Form>
           </Col>
         </Row>

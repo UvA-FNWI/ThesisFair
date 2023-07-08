@@ -1,0 +1,84 @@
+.login-page {
+  &__banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    padding-left: 0;
+
+    img {
+      max-width: 100%;
+      max-height: 80vh;
+    }
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  & button.btn-primary {
+    background-color: var(--primary-light) !important;
+    border-color: var(--primary-light) !important;
+    color: black;
+    border-radius: 19px;
+
+    &:hover {
+      background-color: var(--primary-light-hover) !important;
+      border-color: var(--primary-light-hover) !important;
+    }
+
+    &:focus,
+    &:active,
+    &:focus-visible,
+    &:focus-within {
+      background-color: var(--primary-medium-light) !important;
+      border-color: var(--primary-medium-light) !important;
+      outline: none;
+    }
+
+    &[type='submit'] {
+      background-color: var(--accent) !important;
+      border-color: var(--accent) !important;
+
+      padding-left: 4rem;
+      padding-right: 4rem;
+
+      &:hover {
+        background-color: var(--accent-hover) !important;
+        border-color: var(--accent-hover) !important;
+      }
+
+      &:focus,
+      &:active,
+      &:focus-visible,
+      &:focus-within {
+        background-color: var(--accent-dark) !important;
+        border-color: var(--accent-dark) !important;
+        outline: none;
+      }
+    }
+  }
+
+  &__forgot-password {
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+
+    font-size: small;
+    font-weight: normal;
+    color: black;
+    cursor: pointer;
+
+    &:hover {
+      color: #3f3f3f;
+    }
+
+    &:focus,
+    &:active,
+    &:focus-visible,
+    &:focus-within {
+      color: #4f4f4f;
+      outline: none;
+    }
+  }
+}

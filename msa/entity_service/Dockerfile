@@ -8,6 +8,7 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /app
 COPY ./package*.json ./
+COPY ./node_modules ./node_modules
 RUN npm i
 
 COPY ./src ./src

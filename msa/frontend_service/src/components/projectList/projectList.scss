@@ -18,7 +18,7 @@
 
   &--red-border {
     // Add a thick red border on the left side
-    border-left: 0.25rem solid map.get($theme-colors, 'primary');
+    border-left: 0.25rem solid var(--primary);
     max-height: 100%;
   }
 }

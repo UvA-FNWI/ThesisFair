@@ -4,21 +4,44 @@ $theme-colors: (
   'primary': #75b88e,
   'primary-hover': #5e9e73,
   'primary-dark': #4b9363,
-  'primary-background': #eef0e7,
+  'primary-light': #eef0e7,
+  'primary-light-hover': #e3e5e0,
+  'primary-medium-light': #d6d8d2,
   'text-on-primary': #ffffff,
   'accent': #ffbd00,
-  'accent-hover': rgb(243, 177, 23),
-  'accent-dark': rgb(235, 161, 24),
+  'accent-hover': #f3b117,
+  'accent-dark': #eba118,
   'gray': #ced4da,
   'white': #ffffff,
   'light': #f8f9fa,
   'dark': #212529,
 );
 
+:root {
+  --primary: #75b88e;
+  --primary-hover: #5e9e73;
+  --primary-dark: #4b9363;
+  --primary-light: #eef0e7;
+  --primary-light-hover: #e3e5e0;
+  --primary-medium-light: #d6d8d2;
+  --text-on-primary: #ffffff;
+  --accent: #ffbd00;
+  --accent-hover: #f3b117;
+  --accent-dark: #eba118;
+  --gray: #ced4da;
+  --white: #ffffff;
+  --light: #f8f9fa;
+  --dark: #212529;
+}
+
 @import '~bootstrap/scss/bootstrap';
 
 body {
-  background-color: map-get($theme-colors, 'primary-background');
+  background-color: var(--primary-light);
+}
+
+.wmde-markdown a.anchor {
+  display: none;
 }
 
 .hoverable:hover {
@@ -27,25 +50,27 @@ body {
 }
 
 .btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
   color: white;
 }
 
 .btn-outline-primary:hover,
 .btn-primary:hover {
   color: white;
-  background-color: map-get($theme-colors, 'primary-hover');
-  border-color: map-get($theme-colors, 'primary-hover');
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
 .btn-outline-primary:active,
 .btn-primary:active {
   color: white;
-  background-color: map-get($theme-colors, 'primary-dark');
-  border-color: map-get($theme-colors, 'primary-hover');
+  background-color: var(--primary-dark);
+  border-color: var(--primary-hover);
 }
 
 .table > :not(:first-child) {
-  border-top: 2px solid map-get($theme-colors, 'primary');
+  border-top: 2px solid var(--primary);
 }
 
 td {
@@ -53,7 +78,7 @@ td {
 }
 
 .accordion-button:not(.collapsed) {
-  color: map-get($theme-colors, 'primary-dark');
+  color: var(--primary-dark);
 }
 
 .accordion-button:not(.collapsed)::after {
