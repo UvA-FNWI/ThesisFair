@@ -1,0 +1,16 @@
+name: Build and push containers
+on: [push]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Compile step for api library
+        run: |
+          cd msa/libraries/thesisfair-api
+          npm run build
+      - name: Build containers
+        run: make buildProduction
+      - name: Push Docker
+        run: make pushProduction
