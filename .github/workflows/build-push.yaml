@@ -1,5 +1,8 @@
 name: Build and push containers
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-push:
@@ -14,5 +17,5 @@ jobs:
           npm run build
       - name: Build containers
         run: make buildProduction
-      - name: Push Docker
+      - name: Push containers
         run: make pushProduction
