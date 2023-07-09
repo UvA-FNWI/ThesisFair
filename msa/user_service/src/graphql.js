@@ -581,61 +581,6 @@ schemaComposer.Mutation.addNestedFields({
       return Representative.findByIdAndUpdate(uid, { $set: args }, { new: true })
     },
   },
-  'user.representative.import': {
-    type: 'String',
-    args: {
-      file: 'String!',
-    },
-    description:
-      'Import representatives using a CSV file. The file parameter should be a CSV file with the headers "ID,email" and its content should be the external entity ID and email addresses of the new account. If an account already exists it will not be recreated.',
-    resolve: async (obj, args, req) => {
-      if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED to import representatives')
-      }
-
-      return new Promise((resolve, reject) => {
-        csvParser(
-          args.file.trim(),
-          { columns: true, skip_empty_lines: true, delimiter: ',' },
-          async (err, records, info) => {
-            if (err) {
-              reject(err)
-              return
-            }
-
-            if (records.length === 0) {
-              resolve('Given file does not have records')
-              return
-            }
-
-            for (let { ID: entity_id, email } of records) {
-              if (!entity_id || !email) {
-                continue
-              }
-
-              const user = await Representative.findOne({ email })
-              if (user) {
-                continue
-              } // User already exists
-
-              const enid = await getEnid(entity_id)
-              if (!enid) {
-                resolve(`Entity id ${entity_id} not found!`)
-                return
-              }
-              await createRepresentative({
-                enid: enid,
-                email: email,
-                repAdmin: true,
-              })
-            }
-
-            resolve(null)
-          }
-        )
-      })
-    },
-  },
   'user.admin.update': {
     type: 'User',
     args: {
