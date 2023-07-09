@@ -40,8 +40,12 @@ body {
   background-color: var(--primary-light);
 }
 
-.wmde-markdown a.anchor {
-  display: none;
+.wmde-markdown {
+  --color-canvas-default: transparent !important;
+
+  & a.anchor {
+    display: none;
+  }
 }
 
 .hoverable:hover {

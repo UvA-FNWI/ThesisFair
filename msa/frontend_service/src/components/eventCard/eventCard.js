@@ -4,11 +4,15 @@ import rehypeSanitize from 'rehype-sanitize'
 import { Card, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 
+import cl from 'clsx'
+
 import api from '../../api'
 import graphqlFields from '../../api/graphqlFields'
 import Tag from '../tag/tag'
 
 import './eventCard.scss'
+
+import { degreeById } from '../../definitions'
 
 class EventCard extends React.Component {
   constructor(props) {
@@ -17,6 +21,11 @@ class EventCard extends React.Component {
     this.state = {
       ...Object.fromEntries(graphqlFields['Event'].map(f => [f, null])),
       image: null,
+    }
+
+    this.state = {
+      ...this.state,
+      degrees: ['MScAI', 'MScISDS', 'MScLogic'],
     }
   }
 
@@ -31,11 +40,11 @@ class EventCard extends React.Component {
 
   render() {
     return (
-      <Card style={{ width: '24rem', height: '34rem' }}>
-        <Card.Img variant='top' src={this.state.image} />
+      <Card data-color-mode='light' className={cl('card', { 'card--no-image': !this.state.image })}>
+        <Card.Img className='card__image' variant='top' src={this.state.image} />
         <Card.Body className='d-flex flex-column'>
           <Card.Title>{this.state.name}</Card.Title>
-          <Card.Subtitle className='mb-3'>
+          <Card.Subtitle className='card__subtitle'>
             <small className='text-muted'>
               <time dateTime={this.state.start}>{new Date(this.state.start).toLocaleDateString('NL-nl')}</time>
               ,&ensp;
@@ -47,12 +56,21 @@ class EventCard extends React.Component {
                 {new Date(this.state.end).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
               </time>
             </small>
-            <div className='list-item__tags mt-3'>
-              {this.state.degrees && this.state.degrees.map(d => <Tag label={d} selectable={false} />)}
-            </div>
           </Card.Subtitle>
-          <Card.Text>
+          <Card.Text className='card__body'>
+            <div className='card__tags'>
+              {this.state.degrees &&
+                this.state.degrees.map(tagId => {
+                  const tag = degreeById[tagId]
+
+                  return <Tag key={tag.id} label={tag.tag} tooltip={tag.tooltip} selectable={false} />
+                })}
+            </div>
+            <div className='card__divider card__divider--less-spacing'>
+              <p className='card__section-header'>Description</p>
+            </div>
             <MDEditor.Markdown
+              className='card__markdown'
               source={this.state.description}
               previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],

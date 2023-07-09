@@ -9,8 +9,6 @@ import gripIcon from 'bootstrap-icons/icons/grip-vertical.svg'
 
 import Tag from '../tag/tag'
 
-import { degrees, degreeIds, degreeTagById } from '../../definitions'
-
 import cl from 'clsx'
 
 import './projectListItem.scss'
@@ -58,17 +56,6 @@ function ProjectListItemRep(props) {
         </div>
 
         <div className='list-item__badge'>{props.headerBadge}</div>
-
-        {/* {props.tags && (
-          <div className='list-item__tags'>
-            {props.tags
-              .filter(tag => ['AI', 'SE', 'CS', 'CPS'].includes(tag))
-              .map(tag => (
-                <Tag key={tag} label={tag} />
-              ))}
-          </div>
-        )} */}
-
         <div className='list-item__buttons'>{props.headerButtons}</div>
 
         {props.selected && (
@@ -89,15 +76,15 @@ function ProjectListItemRep(props) {
         <div className={cl('list-item__expander-content', { 'list-item__expander-content--expanded': isExpanded })}>
           <div className='list-item__expand-content'>
             <div className='list-item__email-tags'>
-              <a className='list-item__email' href={`mailto:${props.email}`}>
-                {props.email}
-              </a>
+              {props.email && (
+                <a className='list-item__email' href={`mailto:${props.email}`}>
+                  {props.email}
+                </a>
+              )}
               <div className='list-item__tags'>
-                {props.tags
-                  // ?.filter(tag => !degreeIds.includes(tag))
-                  .map(({ tag, tooltip }) => (
-                    <Tag key={tag} label={tag} tooltip={tooltip} />
-                  ))}
+                {props.tags.map(({ tag, tooltip }) => (
+                  <Tag key={tag} label={tag} tooltip={tooltip} />
+                ))}
               </div>
             </div>
 

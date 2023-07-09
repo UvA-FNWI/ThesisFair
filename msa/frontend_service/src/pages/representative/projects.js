@@ -5,7 +5,7 @@ import rehypeSanitize from 'rehype-sanitize'
 import { Container, Accordion, Button, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
-import api, { downloadCV, tags } from '../../api'
+import api, { downloadCV } from '../../api'
 import StudentPopup from '../../components/studentPopup/studentPopup'
 import ProjectEditor from '../../components/projectEditor/projectEditor'
 
@@ -13,7 +13,7 @@ import './projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 import ProjectList from '../../components/projectListRep/projectList'
 
-import { degreeTagById, degreeById } from '../../definitions'
+import { degreeById } from '../../definitions'
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
