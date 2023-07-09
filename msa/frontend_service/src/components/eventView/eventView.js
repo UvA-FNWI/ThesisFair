@@ -1,10 +1,9 @@
 import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
-import { Container, Row, Col } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
 
 import api from '../../api'
-import { degrees } from '../../api'
 import graphqlFields from '../../api/graphqlFields'
 import Tag from '../tag/tag'
 
@@ -53,7 +52,7 @@ class EventView extends React.Component {
           </time>
         </p>
 
-        {this.state.degrees && (
+        {this.state.degrees !== null && this.state.degrees.length > 0 && (
           <>
             <div className='event-view__divider'>
               <p className='event-view__section-header'>Degrees</p>

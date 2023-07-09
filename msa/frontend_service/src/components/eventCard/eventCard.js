@@ -59,7 +59,8 @@ class EventCard extends React.Component {
           </Card.Subtitle>
           <Card.Text className='card__body'>
             <div className='card__tags'>
-              {this.state.degrees &&
+              {this.state.degrees !== null &&
+                this.state.degrees.length > 0 &&
                 this.state.degrees.map(tagId => {
                   const tag = degreeById[tagId]
 

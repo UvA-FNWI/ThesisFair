@@ -140,9 +140,15 @@ class ProjectListing extends React.Component {
       <>
         <ProjectList>
           {projects.map(project => {
-            const tags = project.tags.map(tag => (typeof tag === 'string' ? { tag, tooltip: undefined } : tag))
+            const tags = project.tags.map(tag => ({ tag, tooltip: undefined }))
 
-            project.degrees.forEach(id => tags.push(degreeById[id]))
+            project.degrees.forEach(id => {
+              const tag = degreeById[id]
+              tags.push({
+                tag: tag.tag,
+                tooltip: tag.tooltip,
+              })
+            })
 
             return (
               <ProjectList.Item
