@@ -3,7 +3,7 @@
 FROM node:latest
 LABEL org.opencontainers.image.source https://github.com/UvA-FNWI/ThesisFair
 
-ARG NODE_ENV=production
+ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /libraries

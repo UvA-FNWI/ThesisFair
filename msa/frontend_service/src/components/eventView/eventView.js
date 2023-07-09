@@ -31,7 +31,7 @@ class EventView extends React.Component {
 
   render() {
     return (
-      <Container className='mt-2' data-color-mode='light'>
+      <Container className='events-page' data-color-mode='light'>
         <Row>
           <Col sm={8}>
             <h1>{this.state.name}</h1>

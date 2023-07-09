@@ -1,0 +1,11 @@
+.events-page {
+  &__header {
+    margin-top: 1.5rem;
+    margin-left: 1.5rem;
+  }
+
+  &__row {
+    margin-left: calc(0.5 * var(--bs-gutter-x)) !important;
+    margin-right: calc(0.5 * var(--bs-gutter-x)) !important;
+  }
+}
