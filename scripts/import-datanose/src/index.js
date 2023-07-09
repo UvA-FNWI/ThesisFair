@@ -6,8 +6,12 @@ const msaDir = '../../../msa'
 const mongoAddress = process.argv[2] || 'localhost:27017'
 
 // A map from datanose IDs to IDs in the thesisfair system
-const datanoseOrganizations = parse(readFileSync('data/organizations.csv'), {columns: true})
-const datanoseProjects = globSync('data/projects_*-*.csv').map(
+// const datanoseOrganizations = globSync('data/organizations-dev.csv').map(
+const datanoseOrganizations = globSync('data/organizations*.csv').map(
+  f => parse(readFileSync(f), {columns: true})
+).flat()
+// const datanoseProjects = globSync('data/projects-dev.csv').map(
+const datanoseProjects = globSync('data/projects*.csv').map(
   f => parse(readFileSync(f), {columns: true})
 ).flat()
 const eventData = parse(readFileSync('data/events.csv'), {columns: true})
@@ -117,7 +121,6 @@ async function writeToDB(service, data, discriminator=null, drop=true) {
   discriminator = discriminator ?
     discriminator[0].toUpperCase() + discriminator.slice(1) :
     service[0].toUpperCase() + service.slice(1)
-  console.log(discriminator)
   const DB = await import(`${msaDir}/${service}_service/src/database.js`)
   await DB.connect(`mongodb://${mongoAddress}/${service}_service`)
   const DBModel = DB[discriminator]
@@ -129,6 +132,7 @@ async function writeToDB(service, data, discriminator=null, drop=true) {
 
   return res
 }
+
 async function main() {
   // Write entities to DB
   const entityData = entities(datanoseOrganizations)
@@ -166,4 +170,3 @@ async function main() {
 }
 
 main()
-// provisioner.init().then(main).then(provisioner.disconnect)
