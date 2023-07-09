@@ -6,6 +6,7 @@ enum Attendance {
 
 enum ApprovalStatus {
   awaiting
+  preliminary
   approved
   rejected
 }
