@@ -82,17 +82,12 @@ class LoginPage extends React.Component {
                 />
                 <Form.Control.Feedback type='invalid'>{this.state.error}</Form.Control.Feedback>
               </Form.Group>
-              <div className='login-page__forgot-password'>
-                <OverlayTrigger trigger='click' placement='bottom' overlay={this.forgotPasswordPopover()}>
-                  <span>Forgot password?</span>
-                </OverlayTrigger>
-              </div>
 
               <Button variant='primary' type='submit' disabled={this.state.loading}>
                 {this.state.loading ? 'Submitting...' : 'Submit'}
               </Button>
 
-              <div className='pt-3'>
+              <div className='login-page__forgot-password'>
                 <Link to={'/forgotPassword'}>
                   <span className='text-muted' style={{ cursor: 'pointer' }}>
                     Forgot password?
