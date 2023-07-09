@@ -211,7 +211,7 @@ export default url => {
 
     if (tracing) {
       trace.push({
-        fn: 'user.requestPasswordReset',
+        fn: 'user.resetPassword',
         startTime: res.config.startTime,
         duration: res.config.duration,
       })

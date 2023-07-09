@@ -24,33 +24,48 @@ class ForgotPasswordPage extends React.Component {
       mailError: null,
       resetError: null,
       mailSent: false,
+      passwordReset: false,
       loading: false,
     }
   }
 
   submit = async e => {
     e.preventDefault()
-
     this.setState({ loading: true })
 
-    if (!this.state.mailSent) {
+    // Redirect to login page if password has been reset
+    if (this.state.passwordReset) {
+      window.location.replace('/')
+    } else if (!this.state.mailSent) {
+      // No mail sent, so send mail
       try {
+        // await new Promise(r => setTimeout(r, 1000))
         await api.user.requestPasswordReset(this.state.email)
         this.setState({ mailSent: true, mailError: null })
       } catch (error) {
         this.setState({
           mailError: errorMessage(error) ||
-            "There was a problem sending the email, please contact a system administrator",
+            'There was a problem sending the email, please contact a system administrator',
         })
       }
     } else {
+      // Send password reset request
+      if (this.state.password.length < 8) {
+        this.setState({
+          resetError: 'Password should be 8 characters or longer',
+          loading: false,
+        })
+        return
+      }
+
       try {
+        // await new Promise(r => setTimeout(r, 1000))
         await api.user.resetPassword(this.state.email, this.state.resetCode, this.state.password)
-        this.setState({ resetError: null })
+        this.setState({ passwordReset: true, resetError: null })
       } catch (error) {
         this.setState({
           resetError: errorMessage(error) ||
-            "There was a problem resetting your password, please contact a system administrator",
+            'There was a problem resetting your password, please contact a system administrator',
         })
       }
     }
@@ -67,13 +82,10 @@ class ForgotPasswordPage extends React.Component {
           </div>
           <Col xs={12} md={5} lg={4}>
             <img width='100%' src='/images/en-informatics-institute.jpg' alt='' />
-            <a href='/sso/login' className='d-flex justify-content-center pt-2 text-decoration-none'>
-              <Button>UvA student and employee login</Button>
-            </a>
-            <div className='w-100 text-center pt-2 pb-2'>OR</div>
+
             <Form onSubmit={this.submit}>
               <Form.Group>
-                <Form.Label>Email address</Form.Label>
+                <Form.Label className='mt-3'>Email address</Form.Label>
                 <Form.Control
                   type='text'
                   value={this.state.email}
@@ -97,7 +109,7 @@ class ForgotPasswordPage extends React.Component {
 
                   <Form.Label className='mt-3'>New password</Form.Label>
                   <Form.Control
-                    type='text'
+                    type='password'
                     value={this.state.password}
                     onChange={e => this.setState({ password: e.target.value })}
                     required
@@ -116,10 +128,12 @@ class ForgotPasswordPage extends React.Component {
               >
                 {this.state.mailSent ?
                   (this.state.loading ? 'Resetting password...' :
-                    (!!this.state.resetError ? 'Try again' : 'Reset password')
+                    (this.state.resetError ? 'Try again' :
+                      (this.state.passwordReset ? 'Success! Click to login' : 'Reset password')
+                    )
                   ) :
                   (this.state.loading ? 'Sending...' :
-                    (!!this.state.mailError ? 'Try again' : 'Send password reset email')
+                    (this.state.mailError ? 'Try again' : 'Send password reset email')
                   )
                 }
               </Button>

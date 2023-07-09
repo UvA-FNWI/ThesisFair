@@ -1,5 +1,6 @@
 import React from 'react'
-import { Container, Row, Col, Form, Button, Popover, OverlayTrigger } from 'react-bootstrap'
+import { Container, Row, Col, Form, Button } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 import api from '../api'
 
 class LoginPage extends React.Component {
@@ -26,22 +27,6 @@ class LoginPage extends React.Component {
         error: error.message || error[0].message,
       })
     }
-  }
-
-  forgotPasswordPopover = () => {
-    return (
-      <Popover>
-        <Popover.Header>Forgot password</Popover.Header>
-        <Popover.Body>
-          <p>
-            Ask your colleague who is an admin representative to delete and recreate your account. Your new password
-            will be in the welcome email.
-          </p>
-
-          <p>If you are the only admin representative ask your contact at the UvA to recreate your account.</p>
-        </Popover.Body>
-      </Popover>
-    )
   }
 
   render() {
@@ -85,11 +70,11 @@ class LoginPage extends React.Component {
               </Button>
 
               <div className='pt-3'>
-                <OverlayTrigger trigger='click' placement='bottom' overlay={this.forgotPasswordPopover()}>
+                <Link to={'/forgotPassword'}>
                   <span className='text-muted' style={{ cursor: 'pointer' }}>
                     Forgot password?
                   </span>
-                </OverlayTrigger>
+                </Link>
               </div>
             </Form>
           </Col>
