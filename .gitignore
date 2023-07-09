@@ -7,7 +7,7 @@ node_modules/
 deploy/backup
 deploy/hosts
 deploy/monitoring/alertmanager.yml
-**/data/
+# **/data/
 values.yaml
 values-dev.yaml
 dev-values.yaml

@@ -5,6 +5,8 @@ import morgan from 'morgan'
 import auth from './auth.js'
 import login from './routes/login.js'
 import sso from './routes/sso.js'
+import requestPasswordReset from './routes/requestPasswordReset.js'
+import resetPassword from './routes/resetPassword.js'
 import graphql from './graphql.js'
 
 /**
@@ -36,6 +38,8 @@ const createApp = async () => {
 
   newApp.use('/login', login)
   newApp.use('/sso', sso)
+  newApp.use('/requestPasswordReset', requestPasswordReset)
+  newApp.use('/resetPassword', resetPassword)
   newApp.use(auth)
   newApp.use('/graphql', await graphql())
 

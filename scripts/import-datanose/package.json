@@ -1,0 +1,16 @@
+{
+  "name": "import-datanose",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ./src/index.js"
+  },
+  "author": "Ischa Abraham",
+  "license": "ISC",
+  "dependencies": {
+    "csv": "^6.3.1",
+    "glob": "^10.3.2"
+  }
+}

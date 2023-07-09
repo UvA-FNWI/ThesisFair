@@ -4,9 +4,9 @@ import { BrowserRouter, Routes, Route, useParams, Outlet, Navigate } from 'react
 import api from './api'
 
 import LoginPage from './pages/LoginPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import Testing from './pages/Testing'
 import Register from './pages/Register'
-import NotFound from './pages/NotFound'
 
 import Page from './pages/Page'
 import EventsPage from './pages/EventsPage'
@@ -47,7 +47,8 @@ class App extends React.Component {
   guestRoutes() {
     return (
       <>
-        <Route path='*' element={<LoginPage />} />
+        <Route path='forgotPassword' element={<ForgotPasswordPage />} />
+        <Route path='' element={<LoginPage />} />
       </>
     )
   }

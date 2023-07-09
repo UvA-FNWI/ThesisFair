@@ -7,14 +7,14 @@ let conn
 const entitySchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
-  type: { type: String, enum: ['company', 'research'] },
+  type: { type: String },
   contact: [
     new mongoose.Schema({
       type: { type: String, enum: ['website', 'email', 'phonenumber'] },
       content: { type: String, required: true },
     }),
   ],
-  external_id: { type: Number, index: true, unique: true, required: true },
+  external_id: { type: Number, unique: true, sparse: true },
   representatives: { type: Number },
   location: { type: String },
 })
