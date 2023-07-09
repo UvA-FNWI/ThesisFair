@@ -7,26 +7,35 @@
 $navbarWidth: 84px;
 
 .navbar {
-  background-color: map.get($theme-colors, 'primary');
-  position: absolute;
+  background-color: var(--primary);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: fit-content;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+
+  padding: 0;
 
   .logo {
     display: block;
-    padding-top: 1rem;
     padding-left: 10px;
     padding-right: 10px;
-    padding-bottom: 1rem;
+    padding-bottom: 0.5rem;
   }
 
   .nav-item {
     padding: 0.5rem 0;
 
     &:hover {
-      background-color: map.get($theme-colors, 'primary-hover');
+      background-color: var(--primary-hover);
     }
 
     &:active {
-      background-color: map.get($theme-colors, 'primary-dark');
+      background-color: var(--primary-dark);
       cursor: pointer;
     }
 
@@ -42,7 +51,7 @@ $navbarWidth: 84px;
 
       span {
         color: white;
-        font-size: 0.875rem;
+        font-size: 0.75rem;
         text-align: center;
       }
 
@@ -59,11 +68,7 @@ $navbarWidth: 84px;
   }
 
   .logout {
-    margin-top: auto !important; // When in sidebar
-
     cursor: pointer;
-    margin-top: 10px;
-    margin-bottom: 10px;
   }
 }
 
@@ -75,6 +80,9 @@ $navbarWidth: 84px;
     left: 0;
     height: 100vh;
 
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+
     z-index: 100;
     width: $navbarWidth;
   }
@@ -83,5 +91,10 @@ $navbarWidth: 84px;
     padding-left: $navbarWidth;
     width: 100%;
     padding-bottom: 75px;
+  }
+
+  .logout {
+    margin-top: auto !important; // When in sidebar
+    padding-bottom: 0;
   }
 }

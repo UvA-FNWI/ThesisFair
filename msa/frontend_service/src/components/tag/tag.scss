@@ -8,7 +8,7 @@
   align-items: center;
   overflow: hidden;
 
-  background-color: map-get($theme-colors, 'primary');
+  background-color: var(--primary);
   padding: 0.125rem 0.5rem;
   border-radius: 0.5rem;
 

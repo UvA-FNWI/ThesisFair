@@ -6,7 +6,7 @@ registry=localhost:$registry_port
 node_env=development
 
 # All subsequent actions will be performed in the minikube VM
-eval $(minikube docker-env)
+eval $(minikube -p minikube docker-env)
 
 # Guarantee that a container registry is running in minikube if the script
 # expects a local container registry

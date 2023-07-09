@@ -15,9 +15,7 @@ class EventView extends React.Component {
     super(props)
 
     this.state = {
-      ...Object.fromEntries(
-        graphqlFields["Event"].map(f => [f, null])
-      ),
+      ...Object.fromEntries(graphqlFields['Event'].map(f => [f, null])),
       image: null,
     }
   }
@@ -32,57 +30,51 @@ class EventView extends React.Component {
   }
 
   render() {
-    return <Container className='mt-2' data-color-mode='light'>
+    return (
+      <Container className='mt-2' data-color-mode='light'>
+        <Row>
+          <Col sm={8}>
+            <h1>{this.state.name}</h1>
 
-      <Row>
-        <Col sm={8}>
-          <h1>{this.state.name}</h1>
+            <div className='list-item__tags mb-4'>
+              {this.state.degrees ? this.state.degrees.map(tag => <Tag label={tag} selectable={false} />) : null}
+            </div>
 
-          <div className='list-item__tags mb-4'>
-            {this.state.degrees ?
-             this.state.degrees.map(tag => <Tag label={tag} selectable={false}/>) :
-             null}
-          </div>
+            <MDEditor.Markdown
+              source={this.state.description}
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
+              }}
+            />
+          </Col>
 
-          <MDEditor.Markdown
-            source={this.state.description}
-            previewOptions={{
-              rehypePlugins: [[rehypeSanitize]],
-            }}
-          />
-        </Col>
+          <Col>
+            <h4>When</h4>
+            <p>
+              <time dateTime={this.state.start}>{new Date(this.state.start).toLocaleDateString('NL-nl')}</time>
+              ,&ensp;
+              <time dateTime={this.state.start}>
+                {new Date(this.state.start).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
+              </time>
+              &ensp;&mdash;&ensp;
+              <time dateTime={this.state.end}>
+                {new Date(this.state.end).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
+              </time>
+            </p>
 
-        <Col>
-          <h4>When</h4>
-          <p>
-            <time dateTime={this.state.start}>
-              {(new Date(this.state.start)).toLocaleDateString('NL-nl')}
-            </time>
-            ,&ensp;
-            <time dateTime={this.state.start}>
-              {(new Date(this.state.start)).toLocaleTimeString('NL-nl', {hour: '2-digit', minute: '2-digit'})}
-            </time>
-            &ensp;&mdash;&ensp;
-            <time dateTime={this.state.end}>
-              {(new Date(this.state.end)).toLocaleTimeString('NL-nl', {hour: '2-digit', minute: '2-digit'})}
-            </time>
-          </p>
+            <h4>Degrees</h4>
+            <ul>{this.state.degrees ? this.state.degrees.map(tag => <li>{degrees[tag]}</li>) : null}</ul>
 
-          <h4>Degrees</h4>
-            <ul>
-              {this.state.degrees ?
-               this.state.degrees.map(tag => <li>{degrees[tag]}</li>) :
-               null}
-            </ul>
-
-          <h4>Picture</h4>
-          {this.state.image ?
-            <img width='100%' src={this.state.image} alt='Map of the event' /> :
-            <p>Picture unavailable</p>
-          }
-        </Col>
-      </Row>
-    </Container>
+            <h4>Picture</h4>
+            {this.state.image ? (
+              <img width='100%' src={this.state.image} alt='Map of the event' />
+            ) : (
+              <p>Picture unavailable</p>
+            )}
+          </Col>
+        </Row>
+      </Container>
+    )
   }
 }
 
