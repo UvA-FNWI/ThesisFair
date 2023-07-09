@@ -86,6 +86,7 @@ const configs = {
         location: 'New location 1',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
         entities: [db.entities[0].enid, db.entities[1].enid, db.entities[2].enid, db.entities[3].enid],
+        degrees: ['MScAI', 'MScISDS', 'MScLogic'],
       },
       {
         external_id: 2,
@@ -96,6 +97,7 @@ const configs = {
         location: 'New location 2',
         studentSubmitDeadline: '2022-04-30T22:00:00.000Z',
         entities: [db.entities[0].enid, db.entities[1].enid],
+        degrees: ['MScSE', 'MScISIS', 'MScCLSJD'],
       },
       {
         external_id: 3,
