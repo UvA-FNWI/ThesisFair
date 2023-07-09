@@ -164,6 +164,62 @@ export default url => {
   let apiTokenData = unpackToken(apiToken) || null
   let apiTokenDataOverride = browser ? JSON.parse(localStorage.getItem('apiTokenOverride')) : null
 
+  const requestPasswordReset = async (email) => {
+    const res = await axios.post(
+      url + 'requestPasswordReset',
+      { email },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      }
+    )
+
+    if (res.data.errors) {
+      console.error(res.data.errors)
+      throw res.data.errors
+    }
+
+    if (tracing) {
+      trace.push({
+        fn: 'user.requestPasswordReset',
+        startTime: res.config.startTime,
+        duration: res.config.duration,
+      })
+    }
+
+    return res.data
+  }
+
+  const resetPassword = async (email, resetCode, password) => {
+    const res = await axios.post(
+      url + 'resetPassword',
+      { email, resetCode, password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      }
+    )
+
+    if (res.data.errors) {
+      console.error(res.data.errors)
+      throw res.data.errors
+    }
+
+    if (tracing) {
+      trace.push({
+        fn: 'user.requestPasswordReset',
+        startTime: res.config.startTime,
+        duration: res.config.duration,
+      })
+    }
+
+    return res.data
+  }
+
   const login = async (email, password) => {
     const res = await axios.post(
       url + 'login',
@@ -296,6 +352,8 @@ export default url => {
       user: {
         login: login,
         logout: logout,
+        requestPasswordReset: requestPasswordReset,
+        resetPassword: resetPassword,
 
         get: (uid, projection) =>
           genGraphQLBuilder({

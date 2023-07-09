@@ -206,6 +206,34 @@ Please ask your colleagues to check their spam folder in case they do not receiv
   return Representative.create(rep)
 }
 
+const requestPasswordReset = async email => {
+  const user = await User.findOne({ email })
+  if (!user) {
+    throw new Error('No user with that email found.')
+  }
+
+  const resetCode = await randomPassword()
+  const resetCodeHash = await hash(resetCode)
+
+  await mail.sendMail({
+    from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
+    to: process.env.OVERRIDEMAIL || email,
+    subject: 'ThesisFair password reset request',
+    text: `
+  Dear Madam/Sir,
+
+  Your password reset code is: ${resetCode}
+
+  If you did not request a password reset you can safely ignore this email.
+
+  Kind regards,
+  Thesis Fair Team
+  `,
+  })
+
+  return User.findByIdAndUpdate(user.uid, { $set: { resetCode: resetCodeHash } })
+}
+
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
 
 schemaComposer.types.get('User').setResolveType(value => {
@@ -353,6 +381,49 @@ schemaComposer.Query.addNestedFields({
       }
 
       return readFile(file).then(content => content.toString())
+    },
+  },
+  requestPasswordReset: {
+    type: 'Boolean',
+    args: {
+      email: 'String!',
+    },
+    description: 'Request a password reset -- sends an email and stores the reset code',
+    resolve: async (obj, args, req) => {
+      if (requestPasswordReset(args.email)) {
+        return true
+      }
+
+      return false
+    },
+  },
+  resetPassword: {
+    type: 'Boolean',
+    args: {
+      email: 'String!',
+      resetCode: 'String!',
+      password: 'String!',
+    },
+    description: 'Reset a password',
+    resolve: async (obj, args, req) => {
+      const user = await User.findOne({ email: args.email })
+      if (!user) {
+        throw new Error('No user with that email found.')
+      }
+
+      if (!user.resetCode) {
+        throw new Error('No password reset code found, please contact a system administrator')
+      }
+
+      const password = await hash(args.password)
+
+      if (await bcrypt.compare(args.resetCode, user.resetCode)) {
+        const res = await User.findByIdAndUpdate(user.uid, { password, resetCode: null })
+        console.log(res)
+        return !!res
+      }
+
+      throw new Error('Incorrect password reset code')
     },
   },
   login: {

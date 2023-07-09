@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Row, Col, Form, Button, OverlayTrigger } from 'react-bootstrap'
+import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import api from '../api'
 
 function errorMessage(error) {
@@ -35,9 +35,8 @@ class ForgotPasswordPage extends React.Component {
 
     if (!this.state.mailSent) {
       try {
-        await new Promise(r => setTimeout(r, 1000))
-        // await api.user.requestPasswordReset(this.state.email)
-        this.setState({ mailSent: true })
+        await api.user.requestPasswordReset(this.state.email)
+        this.setState({ mailSent: true, mailError: null })
       } catch (error) {
         this.setState({
           mailError: errorMessage(error) ||
@@ -46,8 +45,8 @@ class ForgotPasswordPage extends React.Component {
       }
     } else {
       try {
-        await new Promise(r => setTimeout(r, 1000))
-        // await api.user.resetPassword(this.state.email, this.state.resetCode)
+        await api.user.resetPassword(this.state.email, this.state.resetCode, this.state.password)
+        this.setState({ resetError: null })
       } catch (error) {
         this.setState({
           resetError: errorMessage(error) ||

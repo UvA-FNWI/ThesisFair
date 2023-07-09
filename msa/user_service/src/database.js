@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   phone: { type: String },
   admin: { type: Boolean },
   password: { type: String },
+  resetCode: { type: String },
 })
 userSchema.virtual('uid').get(function () {
   return this._id
