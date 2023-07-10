@@ -86,9 +86,7 @@ schemaComposer.Query.addNestedFields({
         return await Project.find({ enid: args.enid, evid: args.evid })
       }
 
-      const res = await Project.find({ enid: args.enid })
-      console.log(res)
-      return res
+      return await Project.find({ enid: args.enid })
     },
   },
   projectsOfEvent: {

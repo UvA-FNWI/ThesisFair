@@ -3,21 +3,27 @@ import { parse } from 'csv-parse/sync'
 import { globSync } from 'glob'
 
 const msaDir = '../../../msa'
-const mongoAddress = process.argv[2] || 'localhost:27017'
+const mongoAddress = 'localhost:27017'
+const devMode = process.argv[2] === 'dev'
 
 // A map from datanose IDs to IDs in the thesisfair system
-// const datanoseOrganizations = globSync('data/organizations-dev.csv').map(
-const datanoseOrganizations = globSync('data/organizations*.csv').map(
+// const organizationFiles = devMode ? globSync('data/organizations-dev.csv') : globSync('data/organizations*.csv')
+const organizationFiles = globSync('data/organizations*.csv')
+// const organizationFiles = globSync('data/organizations-dev.csv')
+const datanoseOrganizations = organizationFiles.map(
   f => parse(readFileSync(f), {columns: true})
 ).flat()
-// const datanoseProjects = globSync('data/projects-dev.csv').map(
-const datanoseProjects = globSync('data/projects*.csv').map(
+
+// const projectFiles = devMode ? globSync('data/projects-dev.csv') : globSync('data/projects*.csv')
+const projectFiles = globSync('data/projects*.csv')
+const datanoseProjects = projectFiles.map(
   f => parse(readFileSync(f), {columns: true})
 ).flat()
+
 const eventData = parse(readFileSync('data/events.csv'), {columns: true})
 for (const event of eventData) {
   event.degrees = event.degrees.slice(1, -1).split(',').map(d => d.trim())
-  event.external_id = event['﻿external_id']
+  event.external_id = event['﻿external_id'] || event ['external_id']
 }
 
 function parseContacts(contacts) {
@@ -53,9 +59,13 @@ function contactsToUsers(contactsString) {
 
   for (const contact of contacts) {
     const user = contact.match(
-      /(?<firstname>(?:[a-z]+\. )*[^()]+?) +(?<lastname>[^()]*) \((?<email>.*), (?<entity>.*)\)/
+      /(?<firstname>(?:[a-z]+\. )*[^()]+?) +(?<lastname>[^()]*) \((?<email>.*), (?<entityName>.*)\)/
     ).groups
     delete user.entity
+
+    if (devMode) {
+      user['password'] = '$2b$10$k6sWNYGtbJMtl4yvsMbpZuKN0n5/V4.0B8P3MGnAY5mcvw1P5/Voy'
+    }
 
     users.push(Object.assign({}, user))
   }
@@ -66,16 +76,20 @@ function contactsToUsers(contactsString) {
 // Takes tabular datanose data of orgs and a mapping from external entity IDs
 // to internal entity IDs
 function users(orgs, entityIdMap) {
-  const users = []
+  const users = new Map() // Map from user e-mail to user data
 
   for (const org of orgs) {
     for (const user of contactsToUsers(org.Contacts)) {
-      user.enid = entityIdMap[org['ID']]
-      users.push(user)
+      if (users.has(user.email)) {
+        users.get(user.email).enids.push(entityIdMap[org['ID']])
+      } else {
+        user.enids = [entityIdMap[org['ID']]]
+        users.set(user.email, user)
+      }
     }
   }
 
-  return users
+  return Array.from(users.values())
 }
 
 function entities(orgs) {
@@ -83,7 +97,7 @@ function entities(orgs) {
     const reps = contactsToUsers(org['Contacts'])
 
     return {
-      name: org['﻿Name'],
+      name: org['﻿Name'] || org ['Name'],
       description: org['About'],
       type: org['Type'][0],
       contact: [
@@ -103,13 +117,13 @@ function entities(orgs) {
 function projects(projects, entityIdMap, eventIdMap) {
   return projects.map(project => {
     return {
-      enid: entityIdMap[project['﻿Organisation']],
+      enid: entityIdMap[project['﻿Organisation'] || project['Organisation']],
       evids: project['Fairs'] ? [eventIdMap[project['Fairs']]] : [],
       name: project['Project Title'],
       description: project['Project Description'],
       environment: project['Work environment'],
       expectations: project['Expectations'],
-      degrees: project['Fairs'].includes('AI') ? ['AI'] : ['CPS', 'DS', 'IS', 'MoL', 'SE'],
+      degrees: project['Fairs'].includes('AI') ? ['MScAI'] : ['MScCLSJD', 'MScISIS', 'MScISDS', 'MScLogic', 'MScSE'],
       attendance: project['Participate in'] ? 'yes' : 'no',
       numberOfStudents: isNaN(project['Number of Students']) ? undefined : project['Number of Students'],
       email: project['Project Contact'],

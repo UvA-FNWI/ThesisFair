@@ -1,7 +1,7 @@
 ﻿external_id,enabled,name,description,degrees,start
-October AI Thesis Fair,false,AI thesis fair 2020-2021,Fair from a while ago,"[AI]","2020-10-01T11:00:00.000Z"
-November Thesis Fair,false,Thesis fair 2020-2021,Fair from a while ago,"[CPS, DS, IS, MoL, SE]","2020-11-01T11:00:00.000Z"
-2021 AI Thesis,false,AI thesis fair 2021-2022,Fair from a while ago,"[AI]","2021-10-01T11:00:00.000Z"
-2021 November Thesis Fair,false,Thesis fair 2021-2022,Fair from a while ago,"[CPS, DS, IS, MoL, SE]","2021-11-01T11:00:00.000Z"
-2022 AI Thesis,false,AI thesis fair 2022-2023,Fair from last year,"[AI]","2022-10-01T11:00:00.000Z"
-2022 Thesis,false,Thesis fair 2022-2023,Fair from last year,"[CPS, DS, IS, MoL, SE]","2022-11-01T11:00:00.000Z"
+October AI Thesis Fair,false,AI thesis fair 2020-2021,Fair from a while ago,"[MScAI]","2020-10-01T11:00:00.000Z"
+November Thesis Fair,false,Thesis fair 2020-2021,Fair from a while ago,"[MScCLSJD, MScISDS, MScISIS, MScLogic, MScSE]","2020-11-01T11:00:00.000Z"
+2021 AI Thesis,false,AI thesis fair 2021-2022,Fair from a while ago,"[MScAI]","2021-10-01T11:00:00.000Z"
+2021 November Thesis Fair,false,Thesis fair 2021-2022,Fair from a while ago,"[MScCLSJD, MScISDS, MScISIS, MScLogic, MScSE]","2021-11-01T11:00:00.000Z"
+2022 AI Thesis,false,AI thesis fair 2022-2023,Fair from last year,"[MScAI]","2022-10-01T11:00:00.000Z"
+2022 Thesis,false,Thesis fair 2022-2023,Fair from last year,"[MScCLSJD, MScISDS, MScISIS, MScLogic, MScSE]","2022-11-01T11:00:00.000Z"
