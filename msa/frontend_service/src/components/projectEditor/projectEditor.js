@@ -104,7 +104,6 @@ class ProjectEditor extends React.Component {
 
     // Add the appropriate events to the project based on the selected degrees
     const events = await api.event.getActive().exec()
-    console.log(events)
     project.evids = events
       .filter(e => project.degrees.some(degree => e.degrees && e.degrees.includes(degree)))
       .map(e => e.evid)

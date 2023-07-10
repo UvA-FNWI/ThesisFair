@@ -102,20 +102,22 @@ class ProjectListing extends React.Component {
 
     const eventProjects = new Map()
     for (const project of Object.values(projects)) {
-      if (!eventProjects.get(project.evids)) {
-        eventProjects.set(project.evids, [project.pid])
+      if (!eventProjects.get(JSON.stringify(project.evids))) {
+        eventProjects.set(JSON.stringify(project.evids), [project.pid])
       } else {
-        eventProjects.get(project.evids).push(project.pid)
+        eventProjects.get(JSON.stringify(project.evids)).push(project.pid)
       }
     }
 
+    console.log(eventProjects)
     const events = {}
     // TODO: remove this loop with api calls
-    for (const evid of [...new Set(Array.from(eventProjects.keys()).flat())]) {
+    for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
       console.log(evid)
       events[evid] = await api.event.get(evid).exec()
-      console.log("AOS")
     }
+
+    console.log(events)
 
     this.setState({ projects, votes, events, eventProjects })
   }
@@ -262,7 +264,6 @@ class ProjectListing extends React.Component {
   }
 
   render() {
-    console.log(this.state.projects)
     return (
       <>
         <Container>
@@ -270,7 +271,8 @@ class ProjectListing extends React.Component {
 
           {this.state.eventProjects.entries && Array.from(this.state.eventProjects.entries()).map(([evids, pids]) => {
             const projects = pids.map(pid => this.state.projects[pid])
-            const events = evids.map(evid => this.state.events[evid])
+            console.log(evids)
+            const events = JSON.parse(evids).map(evid => this.state.events[evid])
 
             return (
               <>

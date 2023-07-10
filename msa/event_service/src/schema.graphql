@@ -1,12 +1,12 @@
 scalar Date
 
 enum Degree {
-  AI
-  CPS
-  DS
-  IS
-  MoL
-  SE
+  MScAI
+  MScCLSJD
+  MScISDS
+  MScISIS
+  MScLogic
+  MScSE
 }
 
 input EventImport {
@@ -29,7 +29,7 @@ type Event {
   degrees: [Degree]
   location: String
   studentSubmitDeadline: Date
-  entities: [ID!]
+  entities: [ID]
   external_id: String
 }
 

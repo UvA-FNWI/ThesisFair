@@ -10,7 +10,7 @@ export function entityWriteAccess(user, entity) {
       return true
 
     case 'r':
-      if (user.enid === entity.enid.toString()) return true
+      if (user.enids.includes(entity.enid.toString())) return true
 
       throw new Error('UNAUTHORIZED representative has no access to entity')
 

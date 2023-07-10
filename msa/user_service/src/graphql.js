@@ -220,8 +220,6 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get a user by its id.',
     resolve: async (obj, args, req) => {
-      console.log(args)
-      console.log("BRUSDHF")
       const user = await User.findById(args.uid)
       if (!user) {
         return null
