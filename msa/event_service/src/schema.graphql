@@ -1,12 +1,12 @@
 scalar Date
 
 enum Degree {
-  AI
-  CPS
-  DS
-  IS
-  MoL
-  SE
+  MScAI
+  MScCLSJD
+  MScISIS
+  MScISDS
+  MScLogic
+  MScSE
 }
 
 input EventImport {
