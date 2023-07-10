@@ -1,4 +1,5 @@
 {{ $Values := .Values }}
+{{ $Release := .Release }}
 {{ if .Values.dev_mode }}
 apiVersion: apps/v1
 
@@ -6,6 +7,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: database
+  namespace: {{ .Release.Namespace }}
   labels:
     app: database
 spec:
@@ -29,6 +31,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: database
+  namespace: {{ .Release.Namespace }}
   labels:
     app: database
 spec:
@@ -61,6 +64,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: messaging-queue
+  namespace: {{ .Release.Namespace }}
   labels:
     app: messaging-queue
 spec:
@@ -87,6 +91,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $name | kebabcase }}
+  namespace: {{ $Release.Namespace }}
   labels:
     app: {{ $name | kebabcase }}
 spec:
@@ -122,10 +127,10 @@ spec:
             {{ end }}
             {{ end }}
             # If dev mode is enabled, take secrets directly from values
-            {{ if and $Values.dev_mode $Values.dev.secrets }}
-            {{ range $key, $value := $Values.dev.secrets }}
-            - name: {{ $key }}
-              value: "{{ $value }}"
+            {{ if and $service $Values.dev_mode }}
+            {{ range $service.secrets }}
+            - name: {{ . }}
+              value: "{{ index $Values.dev.secrets . }}"
             {{ end }}
             {{ end }}
             # Get environment variables set explicitly per microservice
