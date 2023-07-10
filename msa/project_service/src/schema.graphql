@@ -44,7 +44,7 @@ type Project {
   approval: ApprovalStatus
   attendance: Attendance
   datanoseLink: String
-  external_id: Int
+  external_id: String
 }
 
 type ProjectImportResult {

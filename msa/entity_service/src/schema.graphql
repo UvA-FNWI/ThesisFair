@@ -21,7 +21,7 @@ type Entity {
   description: String
   type: String!
   contact: [EntityContactInfo!]
-  external_id: Int
+  external_id: String
   representatives: Int
   location: String
 }

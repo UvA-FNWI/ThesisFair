@@ -27,7 +27,7 @@ type Representative implements UserBase {
   email: String!
   phone: String
 
-  enid: ID!
+  enids: [ID]
   repAdmin: Boolean!
 }
 

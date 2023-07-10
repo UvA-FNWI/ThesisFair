@@ -39,7 +39,7 @@ export const connect = async uri => {
   )
 
   const repSchema = new mongoose.Schema({
-      enid: { type: mongoose.Schema.ObjectId, required: true },
+      enids: [mongoose.Schema.ObjectId],
       external_id: { type: String, unique: true, sparse: true },
     })
   // New: every rep is a repadmin
