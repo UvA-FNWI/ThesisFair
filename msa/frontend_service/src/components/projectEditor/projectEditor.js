@@ -108,6 +108,8 @@ class ProjectEditor extends React.Component {
       .filter(e => project.degrees.some(degree => e.degrees && e.degrees.includes(degree)))
       .map(e => e.evid)
 
+    console.log(project)
+
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
       await api.project.update({ ...project, pid: this.props.params.pid }).exec()

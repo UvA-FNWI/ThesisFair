@@ -5,7 +5,7 @@ import rehypeSanitize from 'rehype-sanitize'
 import { Container, Accordion, Button, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
-import api, { downloadCV, tags } from '../../api'
+import api, { downloadCV } from '../../api'
 import StudentPopup from '../../components/studentPopup/studentPopup'
 import ProjectEditor from '../../components/projectEditor/projectEditor'
 
@@ -13,7 +13,7 @@ import './projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 import ProjectList from '../../components/projectListRep/projectList'
 
-import { degreeTagById, degreeById } from '../../definitions'
+import { degreeById } from '../../definitions'
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
@@ -140,9 +140,15 @@ class ProjectListing extends React.Component {
       <>
         <ProjectList>
           {projects.map(project => {
-            const tags = project.tags.map(tag => (typeof tag === 'string' ? { tag, tooltip: undefined } : tag))
+            const tags = project.tags.map(tag => ({ tag, tooltip: undefined }))
 
-            project.degrees.forEach(id => tags.push(degreeById[id]))
+            project.degrees.forEach(id => {
+              const tag = degreeById[id]
+              tags.push({
+                tag: tag.tag,
+                tooltip: tag.tooltip,
+              })
+            })
 
             return (
               <ProjectList.Item

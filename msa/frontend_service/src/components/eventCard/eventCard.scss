@@ -1,28 +1,108 @@
-.list-item {
-  &__tags {
-    display: flex;
-    flex-grow: 1;
-    flex-wrap: wrap;
-    justify-content: right;
-    margin-right: 0.25rem;
+.card {
+  width: 24rem;
+  height: 34rem;
+
+  border-radius: 1rem !important;
+  overflow: hidden;
+
+  &__subtitle {
+    margin-bottom: 1rem !important;
   }
 
-  &__tag {
-    height: fit-content;
-    width: fit-content;
-    align-items: center;
+  &__image {
+    width: 100%;
+    height: 10rem;
+    object-fit: cover;
+  }
 
-    background-color: rgb(28, 68, 180);
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.5rem;
-
-    margin: 0 0.125rem;
-
-    & p {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #ffffff;
-      margin: 0;
+  &--no-image {
+    & .card__image {
+      display: none;
     }
+
+    & .card__body {
+      height: 25rem;
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    height: 15rem;
+    margin-bottom: 0 !important;
+    overflow: hidden;
+
+    --mask: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 1) 0,
+        rgba(0, 0, 0, 1) 75%,
+        rgba(0, 0, 0, 0) 100%,
+        rgba(0, 0, 0, 0) 0
+      )
+      100% 50% / 100% 100% repeat-x;
+
+    -webkit-mask: var(--mask);
+    mask: var(--mask);
+  }
+
+  &__tags {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: left;
+    margin-right: 0.5rem;
+    row-gap: 0.25rem;
+  }
+
+  &__markdown {
+    margin: 0 1rem;
+    position: relative;
+
+    &::before {
+      display: flex;
+      position: absolute;
+      width: 0.125rem;
+      margin: 0;
+      content: '';
+      left: -0.5rem;
+      top: -0.125rem;
+      bottom: -0.125rem;
+      background-color: #e0e0e0;
+      border-radius: 0.125rem;
+    }
+  }
+
+  &__divider {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    margin: 3rem 2rem 1rem;
+    align-items: start;
+
+    &--less-spacing {
+      margin: 1rem;
+    }
+
+    &::after {
+      display: flex;
+      position: absolute;
+      min-width: 10rem;
+      width: 20%;
+      max-width: 20rem;
+      margin: 0;
+      height: 0.1875rem;
+      content: '';
+      left: -1rem;
+      bottom: -0.1875rem;
+      background-color: #acacac;
+      border-radius: 0.09375rem;
+    }
+  }
+
+  &__section-header {
+    font-size: larger;
+    font-weight: 500;
+    color: #000000;
+    margin: 0;
   }
 }

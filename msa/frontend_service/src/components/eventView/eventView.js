@@ -1,14 +1,15 @@
 import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
-import { Container, Row, Col } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
 
 import api from '../../api'
-import { degrees } from '../../api'
 import graphqlFields from '../../api/graphqlFields'
 import Tag from '../tag/tag'
 
 import './eventView.scss'
+
+import { degreeById } from '../../definitions'
 
 class EventView extends React.Component {
   constructor(props) {
@@ -31,48 +32,53 @@ class EventView extends React.Component {
 
   render() {
     return (
-      <Container className='mt-2' data-color-mode='light'>
-        <Row>
-          <Col sm={8}>
-            <h1>{this.state.name}</h1>
+      <Container className='event-view' data-color-mode='light'>
+        {this.state.image && <img className='event-view__image' src={this.state.image} alt='' />}
+        <h1>{this.state.name}</h1>
 
-            <div className='list-item__tags mb-4'>
-              {this.state.degrees ? this.state.degrees.map(tag => <Tag label={tag} selectable={false} />) : null}
+        <div className='event-view__divider event-view__divider--less-spacing'>
+          <p className='event-view__section-header'>Date</p>
+        </div>
+
+        <p className='event-view__date'>
+          <time dateTime={this.state.start}>{new Date(this.state.start).toLocaleDateString('NL-nl')}</time>
+          ,&ensp;
+          <time dateTime={this.state.start}>
+            {new Date(this.state.start).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
+          </time>
+          &mdash;
+          <time dateTime={this.state.end}>
+            {new Date(this.state.end).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
+          </time>
+        </p>
+
+        {this.state.degrees !== null && this.state.degrees.length > 0 && (
+          <>
+            <div className='event-view__divider'>
+              <p className='event-view__section-header'>Degrees</p>
             </div>
 
-            <MDEditor.Markdown
-              source={this.state.description}
-              previewOptions={{
-                rehypePlugins: [[rehypeSanitize]],
-              }}
-            />
-          </Col>
+            <div className='event-view__tags'>
+              {this.state.degrees.map(tagId => {
+                const tag = degreeById[tagId]
 
-          <Col>
-            <h4>When</h4>
-            <p>
-              <time dateTime={this.state.start}>{new Date(this.state.start).toLocaleDateString('NL-nl')}</time>
-              ,&ensp;
-              <time dateTime={this.state.start}>
-                {new Date(this.state.start).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
-              </time>
-              &ensp;&mdash;&ensp;
-              <time dateTime={this.state.end}>
-                {new Date(this.state.end).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
-              </time>
-            </p>
+                return <Tag key={tag.id} label={tag.tooltip} selectable={false} />
+              })}
+            </div>
+          </>
+        )}
 
-            <h4>Degrees</h4>
-            <ul>{this.state.degrees ? this.state.degrees.map(tag => <li>{degrees[tag]}</li>) : null}</ul>
+        <div className='event-view__divider'>
+          <p className='event-view__section-header'>Description</p>
+        </div>
 
-            <h4>Picture</h4>
-            {this.state.image ? (
-              <img width='100%' src={this.state.image} alt='Map of the event' />
-            ) : (
-              <p>Picture unavailable</p>
-            )}
-          </Col>
-        </Row>
+        <MDEditor.Markdown
+          className='event-view__markdown'
+          source={this.state.description}
+          previewOptions={{
+            rehypePlugins: [[rehypeSanitize]],
+          }}
+        />
       </Container>
     )
   }
