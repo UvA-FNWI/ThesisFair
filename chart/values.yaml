@@ -24,10 +24,11 @@ azure:
 msa:
   API_gateway:
     secrets:
-      - OPENID_CLIENT_SECRET
       - JWT_SECRET
+      - OPENID_CLIENT_SECRET
   user_service:
     secrets:
+      - JWT_SECRET
       - MAILPASS
   entity_service:
   event_service:
