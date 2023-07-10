@@ -2,7 +2,7 @@ import React from 'react'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import accountIcon from 'bootstrap-icons/icons/person-circle.svg'
 import likesIcon from 'bootstrap-icons/icons/heart.svg'
 import organisationsIcon from 'bootstrap-icons/icons/building.svg'

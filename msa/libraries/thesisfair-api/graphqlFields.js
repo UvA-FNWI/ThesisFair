@@ -72,16 +72,17 @@ export default {
 	],
 	"ApprovalStatus": [
 		"awaiting",
+		"preliminary",
 		"approved",
 		"rejected"
 	],
 	"Degree": [
-		"AI",
-		"CPS",
-		"DS",
-		"IS",
-		"MoL",
-		"SE"
+		"MScAI",
+		"MScCLSJD",
+		"MScISIS",
+		"MScISDS",
+		"MScLogic",
+		"MScSE"
 	],
 	"Project": [
 		"pid",

@@ -18,24 +18,9 @@ function ProjectListItem(props) {
     setIsExpanded(!isExpanded)
   }
 
-  const addProject = () => {
-    // TODO: Add project
-    console.warn('Add project not implemented')
-  }
-
   const removeProject = () => {
     // TODO: Remove project
     console.warn('Remove project not implemented')
-  }
-
-  const hideProject = () => {
-    // TODO: Hide project
-    console.warn('Hide project not implemented')
-  }
-
-  const unhideProject = () => {
-    // TODO: Unhide project
-    console.warn('Unhide project not implemented')
   }
 
   return (

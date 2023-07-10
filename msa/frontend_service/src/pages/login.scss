@@ -60,25 +60,49 @@
     }
   }
 
+  &--error-spacing {
+    height: 6.5rem;
+  }
+
+  &--error-spacing-large {
+    height: 11rem;
+  }
+
   &__forgot-password {
     margin-top: 0.25rem;
-    margin-bottom: 1rem;
 
-    font-size: small;
-    font-weight: normal;
-    color: black;
-    cursor: pointer;
+    & a {
+      font-size: small;
+      font-weight: normal;
+      color: black !important;
+      cursor: pointer;
 
-    &:hover {
-      color: #3f3f3f;
+      &:hover {
+        color: #3f3f3f !important;
+      }
+
+      &:focus,
+      &:active,
+      &:focus-visible,
+      &:focus-within {
+        color: #4f4f4f !important;
+        outline: none !important;
+      }
     }
+  }
 
-    &:focus,
-    &:active,
-    &:focus-visible,
-    &:focus-within {
-      color: #4f4f4f;
-      outline: none;
+  &--top-border {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -0.875rem;
+      left: 1rem;
+      right: 1rem;
+      height: 0.125rem;
+      background-color: var(--primary-dark);
+      border-radius: 0.625rem;
     }
   }
 }

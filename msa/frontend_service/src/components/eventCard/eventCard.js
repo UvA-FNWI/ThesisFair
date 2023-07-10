@@ -67,11 +67,8 @@ class EventCard extends React.Component {
                   return <Tag key={tag.id} label={tag.tag} tooltip={tag.tooltip} selectable={false} />
                 })}
             </div>
-            <div className='card__divider card__divider--less-spacing'>
-              <p className='card__section-header'>Description</p>
-            </div>
+
             <MDEditor.Markdown
-              className='card__markdown'
               source={this.state.description}
               previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],

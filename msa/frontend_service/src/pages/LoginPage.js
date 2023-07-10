@@ -61,22 +61,29 @@ class LoginPage extends React.Component {
             </a>
             <div className='w-100 text-center pt-2 pb-2'>OR</div>
             <Form onSubmit={this.submit}>
-              <Form.Group className='mb-3'>
+              <Form.Group className='login-page--error-spacing-large'>
                 <Form.Label>Email address</Form.Label>
                 <Form.Control
                   type='text'
                   value={this.state.email}
-                  onChange={e => this.setState({ email: e.target.value })}
+                  onChange={e => {
+                    if (this.state.error) this.setState({ error: null })
+
+                    this.setState({ email: e.target.value })
+                  }}
                   required
                   isInvalid={!!this.state.error}
                 />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Password</Form.Label>
+
+                <Form.Label className='mt-1'>Password</Form.Label>
                 <Form.Control
                   type='password'
                   value={this.state.password}
-                  onChange={e => this.setState({ password: e.target.value })}
+                  onChange={e => {
+                    if (this.state.error) this.setState({ error: null })
+
+                    this.setState({ password: e.target.value })
+                  }}
                   required
                   isInvalid={!!this.state.error}
                 />
@@ -89,9 +96,7 @@ class LoginPage extends React.Component {
 
               <div className='login-page__forgot-password'>
                 <Link to={'/forgotPassword'}>
-                  <span className='text-muted' style={{ cursor: 'pointer' }}>
-                    Forgot password?
-                  </span>
+                  <span>Forgot password?</span>
                 </Link>
               </div>
             </Form>
