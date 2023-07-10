@@ -1,6 +1,7 @@
 import React from 'react'
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import api from '../../api'
+import * as session from '../../session'
 
 class OrganizationInfo extends React.Component {
   constructor(props) {
@@ -14,7 +15,7 @@ class OrganizationInfo extends React.Component {
   }
 
   async componentDidMount() {
-    const entity = await api.entity.get(api.getApiTokenData().enid).exec()
+    const entity = await api.entity.get(session.getEnid()).exec()
     this.setState({ name: entity.name, description: entity.description, contact: entity.contact })
   }
 
