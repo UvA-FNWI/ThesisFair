@@ -13,7 +13,7 @@ const eventSchema = new mongoose.Schema({
   location: { type: String },
   studentSubmitDeadline: { type: Date },
   entities: [{ type: mongoose.Schema.ObjectId }],
-  external_id: { type: String, sparse: true, unique: true },
+  external_id: { type: String },
   degrees: [{ type: String }],
 })
 eventSchema.virtual('evid').get(function () {
