@@ -17,10 +17,10 @@ pushDevelop:
 	./scripts/push-development.sh .
 
 dev:
-	-helm uninstall thesisfair --wait || helm uninstall thesisfair
 	minikube status | grep "host: Running" || minikube start --mount --mount-string="$$(pwd):/home/docker/thesisfair"
 	minikube addons enable ingress
 	-kubectl delete validatingwebhookconfigurations ingress-nginx-admission
+	-helm uninstall thesisfair --wait || helm uninstall thesisfair
 	make buildDevelop
 	make pushDevelop
 	helm install thesisfair chart --values dev-values.yaml --wait

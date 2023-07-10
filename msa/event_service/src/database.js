@@ -15,7 +15,11 @@ const eventSchema = new mongoose.Schema({
   entities: [{ type: mongoose.Schema.ObjectId }],
   external_id: { type: String },
   degrees: [{ type: String }],
+}, {
+  toObject: { virtuals: true },
+  toJSON: { virtuals: true },
 })
+
 eventSchema.virtual('evid').get(function () {
   return this._id
 }) // Create _id alias

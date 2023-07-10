@@ -162,6 +162,7 @@ schemaComposer.Query.addNestedFields({
     resolve: async (obj, args, req) => {
       canGetEvents(req, args)
 
+      console.log(await Event.find())
       return await Event.find()
     },
   },

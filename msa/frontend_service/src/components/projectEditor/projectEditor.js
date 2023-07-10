@@ -25,6 +25,7 @@ import { degrees } from '../../definitions'
 
 import cl from 'clsx'
 
+// Expects params.pid and params.enid as props 
 class ProjectEditor extends React.Component {
   // TODO: have a controlled input rather than uncontrolled (i.e. update state
   // as form is edited) for name
@@ -119,7 +120,7 @@ class ProjectEditor extends React.Component {
 
   async updateProject() {
     const project = {
-      enid: api.getApiTokenData().enid,
+      enid: this.props.params.enid,
       name: this.state.name,
       description: this.state.description,
       degrees: this.state.degrees,

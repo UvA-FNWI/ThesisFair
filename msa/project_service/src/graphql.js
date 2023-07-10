@@ -38,43 +38,6 @@ const enidExists = async enid => {
   return true
 }
 
-const getEvid = async external_id => {
-  const res = await rgraphql(
-    'api-event',
-    'query getEvid($external_id: ID) { eventByExtID(external_id: $external_id) { evid } }',
-    { external_id }
-  )
-
-  if (res.errors || !res.data) {
-    console.error(res)
-    throw new Error('An unkown error occured while checking if the evid is valid')
-  }
-
-  if (!res.data.eventByExtID) {
-    return false
-  }
-
-  return res.data.eventByExtID.evid
-}
-
-const getEnid = async external_id => {
-  const res = await rgraphql(
-    'api-entity',
-    'query getEnid($external_id: ID) { entityByExtID(external_id: $external_id) { enid } }',
-    { external_id }
-  )
-  if (res.errors || !res.data) {
-    console.error(res)
-    throw new Error('An unkown error occured while checking if the enid is valid')
-  }
-
-  if (!res.data.entityByExtID) {
-    return false
-  }
-
-  return res.data.entityByExtID.enid
-}
-
 schemaComposer.Query.addNestedFields({
   tags: {
     type: '[String]',
@@ -118,12 +81,12 @@ schemaComposer.Query.addNestedFields({
       enid: 'ID!',
     },
     description: 'Get the projects of a given entity and event.',
-    resolve: (obj, args) => {
+    resolve: async (obj, args) => {
       if (args.evid) {
-        return Project.find({ enid: args.enid, evid: args.evid })
+        return await Project.find({ enid: args.enid, evid: args.evid })
       }
 
-      return Project.find({ enid: args.enid })
+      return await Project.find({ enid: args.enid })
     },
   },
   projectsOfEvent: {

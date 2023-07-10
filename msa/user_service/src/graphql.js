@@ -60,7 +60,7 @@ const genApiToken = user => {
   } else if (user instanceof Student) {
     additionalData = { type: 's' }
   } else if (user instanceof Representative) {
-    additionalData = { type: 'r', enid: user.enid }
+    additionalData = { type: 'r', enids: user.enids || [] }
     if (user.repAdmin) {
       additionalData.repAdmin = true
     }
@@ -107,25 +107,6 @@ const getStudies = async studentnumber => {
   return result.data.map(study => study.Name)
 }
 
-const getEnid = async external_id => {
-  const res = await rgraphql(
-    'api-entity',
-    'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }',
-    { external_id }
-  )
-
-  if (res.errors || !res.data) {
-    console.error(res)
-    throw new Error('An unkown error occured while getting the entity enid')
-  }
-
-  if (!res.data.entityByExtID) {
-    return false
-  }
-
-  return res.data.entityByExtID.enid
-}
-
 const checkStudentVotedForEntity = async (uid, enid) => {
   const res = await rgraphql(
     'api-vote',
@@ -139,21 +120,6 @@ const checkStudentVotedForEntity = async (uid, enid) => {
   }
 
   return res.data.voteStudentForEntity
-}
-
-const checkStudentScheduledWithEntity = async (uid, enid) => {
-  const res = await rgraphql(
-    'api-schedule',
-    'query checkStudentScheduledWithEntity($uid: ID!, $enid: ID!) { scheduleStudentForEntity(uid: $uid, enid: $enid) }',
-    { uid, enid }
-  )
-
-  if (res.errors || !res.data) {
-    console.error(res)
-    throw new Error('An unkown error occured while checking if the student is scheduled for the entity')
-  }
-
-  return res.data.scheduleStudentForEntity
 }
 
 /**
@@ -303,7 +269,7 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get all users of an entity.',
     resolve: async (obj, args, req) => {
-      const users = await Representative.find({ enid: args.enid })
+      const users = await Representative.find({ enids: args.enid })
       canGetUsers(req, args, users)
       return users
     },
@@ -522,6 +488,7 @@ schemaComposer.Mutation.addNestedFields({
     type: 'Representative',
     args: {
       enid: 'ID!',
+      enids: '[ID]',
       firstname: 'String',
       lastname: 'String',
       email: 'String!',
@@ -530,9 +497,23 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Create a representative account.',
     resolve: async (obj, args, req) => {
-      if (
-        !(req.user.type === 'a' || (req.user.type === 'r' && req.user.repAdmin === true && req.user.enid === args.enid))
-      ) {
+      if (args.enid) {
+        if (args.enids) {
+          args.enids.push(args.enid)
+        } else {
+          args.enids = [args.enid]
+        }
+      }
+
+      delete args.enid
+
+      if (!(
+        req.user.type === 'a' ||
+        (req.user.type === 'r' &&
+          req.user.repAdmin === true &&
+          args.enids.every(enid => req.user.enids.includes(enid))
+        )
+      )) {
         throw new Error('UNAUTHORIZED create user accounts for this entity')
       }
 
@@ -544,6 +525,7 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       uid: 'ID!',
       enid: 'ID',
+      enids: '[ID]',
       firstname: 'String',
       lastname: 'String',
       email: 'String',
@@ -556,18 +538,31 @@ schemaComposer.Mutation.addNestedFields({
       const uid = args.uid
       delete args.uid
 
+      if (args.enid) {
+        if (args.enids) {
+          args.enids.push(args.enid)
+        } else {
+          args.enids = [args.enid]
+        }
+      }
+
+      delete args.enid
+
+      // TODO: repadmin should only be able to change if the change pertains to one of their organizations
       if (
         !(
           req.user.type === 'a' ||
           req.user.uid === uid ||
-          (req.user.repAdmin === true && req.user.enid == (await Representative.findById(uid, { enid: 1 })).enid)
+          (req.user.repAdmin === true &&
+            (await Representative.findById(uid, { enids: 1 }).enids).some(enid => req.user.enids.includes(enid.toString()))
+          )
         )
       ) {
         throw new Error('UNAUTHORIZED update representative')
       }
 
-      if (args.enid && req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED update enid of representative')
+      if (args.enids && req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED update enids of representative')
       }
 
       if (args.password) {
@@ -659,11 +654,6 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('It is not possible to unshare a company that you have voted for.')
       }
 
-      const scheduledWithEntity = await checkStudentScheduledWithEntity(args.uid, args.enid)
-      if (scheduledWithEntity && !args.share) {
-        throw new Error('It is not possible to unshare a company that you are scheduled with.')
-      }
-
       let operation
       if (args.share) {
         operation = { $addToSet: { share: args.enid, manuallyShared: args.enid } }
@@ -682,12 +672,12 @@ schemaComposer.Mutation.addNestedFields({
     description: 'Delete a user',
     resolve: async (obj, args, req) => {
       const checkEnid = async () => {
-        const user = await Representative.findById(args.uid, { enid: 1 })
+        const user = await Representative.findById(args.uid, { enids: 1 })
         if (!user) {
           return false
         }
-
-        return req.user.enid == user.enid
+        
+        return user.enids.every(enid => req.user.enids.includes(enid.toString()))
       }
       if (
         !(
@@ -713,7 +703,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED delete entities')
       }
 
-      await Representative.deleteMany({ enid: args.enid })
+      await Representative.deleteMany({ enids: args.enid })
       await Student.updateMany({ $pull: { share: args.enid } })
       return true
     },

@@ -5,7 +5,7 @@ export const canGetStudentVotes = (req, args) => {
 }
 
 export const canGetEntityVotes = (req, args) => {
-  if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enid === args.enid))) {
+  if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enids.includes(args.enid)))) {
     throw new Error('UNAUTHORIZED get this entities votes')
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Container, CloseButton, Form, Button, Row, Col } from 'react-bootstrap'
 import api from '../../api'
+import * as session from '../../session'
 import CreateUserPopup from '../../components/createUserPopup/createUserPopup'
 import RepresentativeList from '../../components/representativeList/representativeList'
 
@@ -22,7 +23,7 @@ class OrganisationDashboard extends React.Component {
   }
 
   async componentDidMount() {
-    const entity = await api.entity.get(api.getApiTokenData().enid).exec()
+    const entity = await api.entity.get(session.getEnid()).exec()
     this.setState({ name: entity.name, description: entity.description, contact: entity.contact })
   }
 
@@ -32,7 +33,7 @@ class OrganisationDashboard extends React.Component {
     this.setState({ savingInfo: true })
     await api.entity
       .update({
-        enid: api.getApiTokenData().enid,
+        enid: session.getEnid(),
         name: this.state.name,
         description: this.state.description,
       })
@@ -49,7 +50,7 @@ class OrganisationDashboard extends React.Component {
     this.setState({ savingContact: true })
     await api.entity
       .update({
-        enid: api.getApiTokenData().enid,
+        enid: session.getEnid(),
         contact: this.state.contact,
       })
       .exec()
@@ -156,7 +157,7 @@ class OrganisationDashboard extends React.Component {
 
           <div>
             <h2>Company Accounts</h2>
-            <RepresentativeList enid={api.getApiTokenData().enid} />
+            <RepresentativeList enid={session.getEnid()} />
           </div>
         </Container>
 

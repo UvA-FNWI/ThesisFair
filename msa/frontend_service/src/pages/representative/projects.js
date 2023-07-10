@@ -6,6 +6,7 @@ import { Container, Accordion, Button, Badge, OverlayTrigger, Tooltip } from 're
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
 import api, { downloadCV } from '../../api'
+import * as session from '../../session'
 import StudentPopup from '../../components/studentPopup/studentPopup'
 import ProjectEditor from '../../components/projectEditor/projectEditor'
 
@@ -79,41 +80,44 @@ class ProjectListing extends React.Component {
       projects: {}, // Map from PID to project
       votes: {}, // Map from PID to users that voted for it
       events: {}, // Map from EVID to event info
-      eventProjects: {}, // Map from EVID to list of PIDs
+      eventProjects: {}, // Map (actual map object) from list of EVIDs to list of PIDs
       popup: false,
     }
   }
 
   async componentDidMount() {
     // Optimisation: Store student only once in state
-    var projects = await api.project.getOfEntity(null, api.getApiTokenData().enid).exec()
+    let projects = await api.project.getOfEntity(null, session.getEnid()).exec()
     projects = Object.fromEntries(projects.map(project => [project.pid, project]))
 
     // Get the votes of this entity as a list of [pid, uid] pairs
-    var votes = await api.votes.getOfEntity(api.getApiTokenData().enid, null).exec()
+    let votes = await api.votes.getOfEntity(session.getEnid(), null).exec()
     // Reduce the uids into lists, indexed by these pids ({pid: [uid, uid, ...], ...})
     votes = votes.reduce((c, vote) => ({ ...c, [vote.pid]: [...(c[vote.pid] || []), vote.uid] }), {})
     // Call 'getMultiple(uids)' for user info on these lists
+    // TODO: remove this loop with api calls
     for (const [pid, uids] of Object.entries(votes)) {
       votes[pid] = await api.user.getMultiple(uids).exec()
     }
 
-    var events = await api.event.getOfEntity(api.getApiTokenData().enid).exec()
-    events = Object.fromEntries(events.map(event => [event.evid, event]))
-
-    var eventProjects = Object.keys(events).map(evid => [
-      evid,
-      Object.keys(projects).filter(pid => projects[pid].evids.includes(evid)),
-    ])
-    eventProjects = Object.fromEntries(eventProjects)
-
-    projects['manuallyShared'] = {
-      pid: 'manuallyShared',
-      name: 'Students that shared their data but did not vote for a project',
-      description:
-        'Thesis students explicitly shared their data with your company but have not voted for any of your projects.',
+    const eventProjects = new Map()
+    for (const project of Object.values(projects)) {
+      if (!eventProjects.get(JSON.stringify(project.evids))) {
+        eventProjects.set(JSON.stringify(project.evids), [project.pid])
+      } else {
+        eventProjects.get(JSON.stringify(project.evids)).push(project.pid)
+      }
     }
-    votes['manuallyShared'] = await api.user.student.getWhoManuallyShared(api.getApiTokenData().enid).exec()
+
+    console.log(eventProjects)
+    const events = {}
+    // TODO: remove this loop with api calls
+    for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
+      console.log(evid)
+      events[evid] = await api.event.get(evid).exec()
+    }
+
+    console.log(events)
 
     this.setState({ projects, votes, events, eventProjects })
   }
@@ -269,20 +273,23 @@ class ProjectListing extends React.Component {
     return (
       <>
         <Container>
-          {this.state.projects.length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
+          {Object.keys(this.state.projects).length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
 
-          {Object.entries(this.state.eventProjects).map(([evid, pids]) => {
+          {this.state.eventProjects.entries && Array.from(this.state.eventProjects.entries()).map(([evids, pids]) => {
             const projects = pids.map(pid => this.state.projects[pid])
-            const event = this.state.events[evid]
+            console.log(evids)
+            const events = JSON.parse(evids).map(evid => this.state.events[evid])
 
             return (
               <>
                 <br />
                 <span className='d-flex justify-content-between'>
-                  <h3 style={{ alignSelf: 'flex-end' }}>{event.name}</h3>
-                  <time style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
-                    {new Date(event.start).toLocaleDateString()}
-                  </time>
+                  <h3 style={{ alignSelf: 'flex-end' }}>{events.map(event => event.name).join(' & ')}</h3>
+                  {events.map(event =>
+                    <time style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
+                      {new Date(event.start).toLocaleDateString()}
+                    </time>
+                  )}
                 </span>
                 <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
                 {this.renderProjectListing(projects)}
@@ -343,7 +350,7 @@ class Projects extends React.Component {
 
   edit(pid) {
     this.setState({
-      editor: <ProjectEditor onClose={this.close} params={{ pid: pid, ...this.props.params }} />,
+      editor: <ProjectEditor onClose={this.close} params={{ pid: pid, enid: session.getEnid(), ...this.props.params }} />,
     })
   }
 

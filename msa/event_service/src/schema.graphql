@@ -29,8 +29,8 @@ type Event {
   degrees: [Degree]
   location: String
   studentSubmitDeadline: Date
-  entities: [ID!]
-  external_id: Int!
+  entities: [ID]
+  external_id: String
 }
 
 type EventImportResult {
