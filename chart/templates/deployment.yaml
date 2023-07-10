@@ -97,14 +97,38 @@ spec:
     metadata:
       labels:
         app: {{ $name | kebabcase }}
+        {{ if not $Values.dev_mode }}
+        aadpodidbinding: thesisfair-azure-kv
+        {{ end }}
     spec:
       containers:
         - name: {{ $name | kebabcase }}
+          # In production mode, use secrets from Azure
+          {{ if and $service $service.secrets (not $Values.dev_mode) }}
+          envFrom:
+            - secretRef:
+                name: {{ $name | kebabcase}}
+          {{ end }}
           env:
             - name: mongodbConStr
               value: "mongodb://database/{{ $name }}"
             - name: amqpConStr
               value: "amqp://messaging-queue"
+            # Get global common env variables from the root-level 'env' field
+            {{ if $Values.env }}
+            {{ range $key, $value := $Values.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{ end }}
+            {{ end }}
+            # If dev mode is enabled, take secrets directly from values
+            {{ if and $Values.dev_mode $Values.dev.secrets }}
+            {{ range $key, $value := $Values.dev.secrets }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{ end }}
+            {{ end }}
+            # Get environment variables set explicitly per microservice
             {{ if $service }}
             {{ range $key, $value := $service.env }}
             - name: {{ $key }}
@@ -119,21 +143,31 @@ spec:
             {{ $Values.dev_mode | ternary "start" "production"}},
           ]
           # In dev mode, mount libraries and source folders
-          {{ if $Values.dev_mode }}
           volumeMounts:
+          {{ if $Values.dev_mode }}
             - mountPath: /libraries
               name: libraries
             - mountPath: /app/src
-              name: {{ $name | kebabcase }}
+              name: code
+          {{ else }}
+            - mountPath: /etc/secrets
+              name: secrets
           {{ end }}
 
-      {{ if $Values.dev_mode }}
       volumes:
+      {{ if $Values.dev_mode }}
         - name: libraries
           persistentVolumeClaim:
             claimName: libraries
-        - name: {{ $name | kebabcase }}
+        - name: code
           persistentVolumeClaim:
             claimName: {{ $name | kebabcase }}
+      {{ else }}
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: thesisfair-secrets
       {{ end }}
 {{ end }}

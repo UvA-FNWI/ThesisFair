@@ -1,23 +1,34 @@
 dev_mode: false
 
+# Environment variables that EVERY pod will know about, NOT secrets!
+env:
+  OPENID_ISSUER_URL: "https://connect.test.surfconext.nl/"
+  OPENID_CLIENT_ID: "thesisfair.local"
+  OPENID_REDIRECT_URL: "https://thesisfair.qrcsoftware.nl/sso/loggedin"
+  OPENID_RESOURCE: "https://thesisfair.qrcsoftware.nl"
+  OVERRIDEMAIL: "contact@ischa.dev"
+  MAILHOST: "webmail.uva.nl"
+  MAILPORT: "587"
+  MAILUSER: "SRV-THESIS"
+
+# Azure settings
+azure:
+  keyvaultName: keyvaultName
+  resourceGroup: resourceGroupName
+  subscriptionId: subscriptionId
+  tenantId: tenantId
+  clientId: clientId
+  identityName: identityName
+
 # Simple definition of essentials for the microservice architecture (msa)
 msa:
   API_gateway:
-    env:
-      # JWT_SECRET:
-      # OPENID_ISSUER_URL:
-      # OPENID_CLIENT_ID:
-      # OPENID_CLIENT_SECRET:
-      # OPENID_REDIRECT_URL:
-      # OPENID_RESOURCE:
+    secrets:
+      - OPENID_CLIENT_SECRET
+      - JWT_SECRET
   user_service:
-    env:
-      # jwtKey:
-      # OVERRIDEMAIL:
-      # MAILHOST:
-      # MAILPORT:
-      # MAILUSER:
-      # MAILPASS:
+    secrets:
+      - MAILPASS
   entity_service:
   event_service:
   project_service:
@@ -26,15 +37,6 @@ msa:
     env:
       PORT: 3000
       REACT_APP_API_ENDPOINT: "https://localhost:3000/api/"
-
-azure:
-  resourceGroup: resourceGroupName
-  storageAccount: storageAccount
-  # keyvaultName: keyvaultName
-  # subscriptionId: subscriptionId
-  # tenantId: tenantId
-  # clientId: clientId
-  # identityName: identityName
 
 # Container registry where production-ready containers are kept, defaults to
 # fnwicr.azurecr.io, though we have no access to this CR, so the containers
@@ -52,3 +54,8 @@ dev:
   cr: "localhost:5001"
   pullPolicy: Always
   repository: "/home/docker/thesisfair"
+
+  secrets:
+    MAILPASS:
+    OPENID_CLIENT_SECRET:
+    JWT_SECRET:

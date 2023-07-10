@@ -72,7 +72,7 @@ const genApiToken = user => {
         uid: user.uid,
         ...additionalData,
       },
-      process.env.jwtKey,
+      process.env.JWT_SECRET,
       {
         algorithm: 'HS512',
         expiresIn: '24h',
