@@ -145,7 +145,7 @@ class ForgotPasswordPage extends React.Component {
                       password: '',
                     })
                   }}
-                  onBlur={e => this.setState({ mailError: validateEmail(e.target.value) ? 'Invalid email' : null })}
+                  onBlur={e => this.setState({ mailError: !validateEmail(e.target.value) ? 'Invalid email' : null })}
                   required
                   isInvalid={!!this.state.mailError}
                 />
