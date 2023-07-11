@@ -487,7 +487,7 @@ schemaComposer.Mutation.addNestedFields({
   'user.representative.create': {
     type: 'Representative',
     args: {
-      enid: 'ID!',
+      enid: 'ID',
       enids: '[ID]',
       firstname: 'String',
       lastname: 'String',
@@ -503,6 +503,10 @@ schemaComposer.Mutation.addNestedFields({
         } else {
           args.enids = [args.enid]
         }
+      }
+
+      if (!args.enids) {
+        throw new Error('Must specify an entity id to create a new user')
       }
 
       delete args.enid
