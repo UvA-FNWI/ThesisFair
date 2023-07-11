@@ -27,7 +27,7 @@ export const getEnid = () => {
 
   if (!enid) {
     const enids = api.getApiTokenData().enids
-    enid = enids ? (enids.length > 0 && enids[0]) : 'NO ENTITIES FOR USER'
+    enid = (enids && enids.length > 0) ? enids[0] : 'NO ENTITIES FOR USER'
     setSessionData('enid', enid)
   }
 
