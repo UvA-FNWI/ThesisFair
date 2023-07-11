@@ -1,8 +1,8 @@
 import React from 'react'
 
 import EventCard from '../../components/eventCard/eventCard'
-import { useParams } from 'react-router-dom'
-import { Row, Col } from 'react-bootstrap'
+import { useParams, Link } from 'react-router-dom'
+import { Row, Col, Button } from 'react-bootstrap'
 import api from '../../api'
 
 import '../../styles/events.scss'
@@ -31,6 +31,10 @@ class EventsPage extends React.Component {
       <>
         <h1 className='events-page__header'>Active events</h1>
         <hr />
+        {api.getApiTokenData().type === 'a' &&
+        <Link to='event/create/'>
+          <Button variant='outline-primary'>Create new event</Button>
+        </Link>}
         {this.state.activeEvents.length > 0 ? (
           <Row className='g-4 events-page__row'>
             {this.state.activeEvents.map(event => (
