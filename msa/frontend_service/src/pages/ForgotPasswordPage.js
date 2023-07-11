@@ -22,8 +22,11 @@ class ForgotPasswordPage extends React.Component {
   constructor(props) {
     super(props)
 
+    const email = localStorage.getItem('reset-email') || props.email || ''
+
     this.state = {
-      email: props.email || '',
+      email: email,
+      passwordUnknown: props.unknownPassword || false,
       resetCode: '',
       password: '',
 
@@ -37,6 +40,10 @@ class ForgotPasswordPage extends React.Component {
 
   submit = async e => {
     e.preventDefault()
+
+    // Remove email from local storage
+    localStorage.removeItem('reset-email')
+
     this.setState({ loading: true })
 
     // Redirect to login page if password has been reset
@@ -113,13 +120,23 @@ class ForgotPasswordPage extends React.Component {
 
             <h1 className='mt-4'>Reset password</h1>
 
+            {this.state.unknownPassword && (
+              <p className='mt-2'>
+                Your account was transferred from our old platform to this new platform and thus we request you to reset
+                your password.
+              </p>
+            )}
+
             <Form onSubmit={this.submit}>
               <Form.Group className='login-page--error-spacing'>
                 <Form.Label>Email address</Form.Label>
                 <Form.Control
                   type='text'
                   value={this.state.email}
-                  onChange={e =>
+                  onChange={e => {
+                    // Remove email from local storage
+                    localStorage.removeItem('reset-email')
+
                     this.setState({
                       email: e.target.value,
                       mailSent: false,
@@ -127,7 +144,7 @@ class ForgotPasswordPage extends React.Component {
                       resetCode: '',
                       password: '',
                     })
-                  }
+                  }}
                   onBlur={e => this.setState({ mailError: validateEmail(e.target.value) ? 'Invalid email' : null })}
                   required
                   isInvalid={!!this.state.mailError}

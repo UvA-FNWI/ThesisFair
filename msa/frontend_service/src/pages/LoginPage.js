@@ -24,10 +24,22 @@ class LoginPage extends React.Component {
     try {
       await api.user.login(this.state.email, this.state.password)
     } catch (error) {
-      this.setState({
-        loading: false,
-        error: error.message || error[0].message,
-      })
+      console.log(error)
+      if (
+        error.message === 'data and hash arguments required' ||
+        error[0].message === 'data and hash arguments required'
+      ) {
+        // Store email in local storage
+        localStorage.setItem('reset-email', this.state.email)
+
+        // Redirect to reset password page
+        window.location.replace('/resetPassword')
+      } else {
+        this.setState({
+          loading: false,
+          error: error.message || error[0].message,
+        })
+      }
     }
   }
 

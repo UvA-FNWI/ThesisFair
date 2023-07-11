@@ -10,20 +10,19 @@ const devMode = process.argv[2] === 'dev'
 // const organizationFiles = devMode ? globSync('data/organizations-dev.csv') : globSync('data/organizations*.csv')
 const organizationFiles = globSync('data/organizations*.csv')
 // const organizationFiles = globSync('data/organizations-dev.csv')
-const datanoseOrganizations = organizationFiles.map(
-  f => parse(readFileSync(f), {columns: true})
-).flat()
+const datanoseOrganizations = organizationFiles.map(f => parse(readFileSync(f), { columns: true })).flat()
 
 // const projectFiles = devMode ? globSync('data/projects-dev.csv') : globSync('data/projects*.csv')
 const projectFiles = globSync('data/projects*.csv')
-const datanoseProjects = projectFiles.map(
-  f => parse(readFileSync(f), {columns: true})
-).flat()
+const datanoseProjects = projectFiles.map(f => parse(readFileSync(f), { columns: true })).flat()
 
-const eventData = parse(readFileSync('data/events.csv'), {columns: true})
+const eventData = parse(readFileSync('data/events.csv'), { columns: true })
 for (const event of eventData) {
-  event.degrees = event.degrees.slice(1, -1).split(',').map(d => d.trim())
-  event.external_id = event['﻿external_id'] || event ['external_id']
+  event.degrees = event.degrees
+    .slice(1, -1)
+    .split(',')
+    .map(d => d.trim())
+  event.external_id = event['﻿external_id'] || event['external_id']
 }
 
 function parseContacts(contacts) {
@@ -97,16 +96,12 @@ function entities(orgs) {
     const reps = contactsToUsers(org['Contacts'])
 
     return {
-      name: org['﻿Name'] || org ['Name'],
+      name: org['﻿Name'] || org['Name'],
       description: org['About'],
       type: org['Type'][0],
       contact: [
-        { type: 'email',
-          content: reps.length > 0 ? reps[0].email : 'No email specified',
-        },
-        { type: 'website',
-          content: org['Website'] || 'No website specified',
-        }
+        { type: 'email', content: reps.length > 0 ? reps[0].email : 'No email specified' },
+        { type: 'website', content: org['Website'] || 'No website specified' },
       ],
       external_id: org['ID'],
       representatives: reps.length,
@@ -131,10 +126,10 @@ function projects(projects, entityIdMap, eventIdMap) {
   })
 }
 
-async function writeToDB(service, data, discriminator=null, drop=true) {
-  discriminator = discriminator ?
-    discriminator[0].toUpperCase() + discriminator.slice(1) :
-    service[0].toUpperCase() + service.slice(1)
+async function writeToDB(service, data, discriminator = null, drop = true) {
+  discriminator = discriminator
+    ? discriminator[0].toUpperCase() + discriminator.slice(1)
+    : service[0].toUpperCase() + service.slice(1)
   const DB = await import(`${msaDir}/${service}_service/src/database.js`)
   await DB.connect(`mongodb://${mongoAddress}/${service}_service`)
   const DBModel = DB[discriminator]
@@ -153,16 +148,8 @@ async function main() {
   const dbEntities = await writeToDB('entity', entityData)
 
   // Keep track of entity ID mapping
-  const entityIdMap = Object.fromEntries(
-    dbEntities.map(
-      entity => [entity['external_id'], entity['_id'].toString()]
-    )
-  )
-  const entityNameMap = Object.fromEntries(
-    dbEntities.map(
-      entity => [entity['name'], entity['_id'].toString()]
-    )
-  )
+  const entityIdMap = Object.fromEntries(dbEntities.map(entity => [entity['external_id'], entity['_id'].toString()]))
+  const entityNameMap = Object.fromEntries(dbEntities.map(entity => [entity['name'], entity['_id'].toString()]))
 
   // Write users to DB using this mapping
   const userData = users(datanoseOrganizations, entityIdMap)
@@ -172,11 +159,7 @@ async function main() {
   const dbEvents = await writeToDB('event', eventData)
 
   // keep track of event ID mapping
-  const eventIdMap = Object.fromEntries(
-    dbEvents.map(
-      entity => [entity['external_id'], entity['_id'].toString()]
-    )
-  )
+  const eventIdMap = Object.fromEntries(dbEvents.map(entity => [entity['external_id'], entity['_id'].toString()]))
 
   // Write projects to DB
   const projectData = projects(datanoseProjects, entityNameMap, eventIdMap)

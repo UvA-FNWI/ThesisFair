@@ -48,6 +48,7 @@ class App extends React.Component {
     return (
       <>
         <Route path='forgotPassword' element={<ForgotPasswordPage />} />
+        <Route path='resetPassword' element={<ForgotPasswordPage unknownPassword={true} />} />
         <Route path='' element={<LoginPage />} />
       </>
     )
