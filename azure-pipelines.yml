@@ -20,3 +20,13 @@ jobs:
       - script: |
           ./scripts/push-production.sh .
         displayName: 'Push containers'
+      - script: |
+          set -euxo pipefail
+          VERSION="2.0.0"
+          helm package --version "${VERSION}" --app-version "${VERSION}" chart
+          helm push "thesisfair-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
+          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair&secret=${UPDATER_SECRET}&version=${VERSION}"
+        displayName: Build Helm chart and push to registry
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        env:
+          UPDATER_SECRET: $(DEPLOY_SECRET)
