@@ -35,5 +35,5 @@ export const degreeIds = Object.values(degrees).map(({ id }) => id)
 export const degreeTags = Object.values(degrees).map(({ tag }) => tag)
 export const degreeTagById = Object.fromEntries(Object.values(degrees).map(({ id, tag }) => [id, tag]))
 export const degreeById = Object.fromEntries(
-  Object.values(degrees).map(({ id, tag }) => [id, { id, tag, tooltip: tag }])
+  Object.values(degrees).map(({ id, tag, tooltip }) => [id, { id, tag, tooltip }])
 )

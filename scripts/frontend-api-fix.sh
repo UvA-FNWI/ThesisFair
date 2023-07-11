@@ -13,6 +13,7 @@ DOCKER_ID=${DOCKER_ID:0:12}
 
 echo "Copying api in frontend-service with Docker ID $DOCKER_ID"
 
+docker exec $DOCKER_ID rm -rf src/api
 docker exec $DOCKER_ID cp -r /libraries/thesisfair-api/ src/api/
 
 # Set the old values back

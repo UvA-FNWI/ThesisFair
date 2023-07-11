@@ -1,5 +1,6 @@
 import React from 'react'
-import { Container, Row, Col, Form, Button, Link } from 'react-bootstrap'
+import { Container, Row, Col, Form, Button } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 import api from '../api'
 
 function errorMessage(error) {
@@ -43,7 +44,7 @@ class ForgotPasswordPage extends React.Component {
       window.location.replace('/')
     } else if (!this.state.mailSent) {
       // Validate email
-      if (validateEmail(this.state.email)) {
+      if (!validateEmail(this.state.email)) {
         this.setState({ mailError: 'Invalid email', loading: false })
         return
       }

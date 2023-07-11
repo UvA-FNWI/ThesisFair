@@ -15,7 +15,7 @@ import {
   ButtonGroup,
   ToggleButton,
 } from 'react-bootstrap'
-// import { Typeahead } from 'react-bootstrap-typeahead'
+
 import api, { tags as allTags } from '../../api'
 
 import './style.scss'
@@ -153,6 +153,10 @@ class ProjectEditor extends React.Component {
     this.props.onClose()
   }
 
+  evidIsAIEvent(evid) {
+    return this.state.activeEvents.find(event => event.evid === evid).degrees.includes('MScAI')
+  }
+
   handleMasterCheck(degree) {
     this.setState({
       hasBeenInteractedWith: {
@@ -168,6 +172,19 @@ class ProjectEditor extends React.Component {
     } else {
       this.setState({
         degrees: this.state.degrees.filter(item => item !== degree),
+      })
+    }
+
+    // Reset attendance if the degree is changed
+    if (degree === 'MScAI') {
+      this.setState({
+        evids: this.state.evids.filter(evid => !this.evidIsAIEvent(evid)),
+        attendanceInteractions: this.state.attendanceInteractions.filter(evid => !this.evidIsAIEvent(evid)),
+      })
+    } else {
+      this.setState({
+        evids: this.state.evids.filter(evid => this.evidIsAIEvent(evid)),
+        attendanceInteractions: this.state.attendanceInteractions.filter(evid => this.evidIsAIEvent(evid)),
       })
     }
   }
@@ -201,11 +218,6 @@ class ProjectEditor extends React.Component {
     })
   }
 
-  attendanceOptions = [
-    { value: 'yes', name: 'Yes' },
-    { value: 'no', name: 'No' },
-  ]
-
   handleAttendanceChange(e) {
     this.setState({
       hasBeenInteractedWith: {
@@ -225,14 +237,6 @@ class ProjectEditor extends React.Component {
     const interactionCount = this.state.attendanceInteractions.length
     const applicableEvents = this.state.activeEvents.filter(event => this.isValidEvent(event)).length
 
-    console.log(
-      interactionCount,
-      applicableEvents,
-      this.state.activeEvents.filter(event => this.isValidEvent(event)),
-      this.state.activeEvents.filter(this.isValidEvent),
-      this.state.activeEvents
-    )
-
     return interactionCount === applicableEvents
   }
 
@@ -248,7 +252,6 @@ class ProjectEditor extends React.Component {
     description: () => this.state.description.length > 0,
     environment: () => this.state.environment.length > 0,
     degrees: () => this.state.degrees.length > 0,
-    // attendance: () => this.state.attendanceInteractions.length > 0,
     tags: () => this.state.tags.length >= 1 && this.state.tags.length <= 3,
     expectations: () => true,
     email: () => this.validateEmail(this.state.email),
@@ -527,34 +530,6 @@ class ProjectEditor extends React.Component {
           <br />
           <Form.Control.Feedback type='invalid'>Please select 1-3 tags</Form.Control.Feedback>
         </Form.Group>
-
-        {/* <Col xs='auto'>
-            <Form.Group controlId='attendance'>
-              <Form.Label>Attending</Form.Label>
-              <br />
-              <ButtonGroup
-                className={cl({
-                  'is-invalid': this.state.hasBeenInteractedWith.attendance && !this.validation.attendance(),
-                })}
-              >
-                {this.attendanceOptions.map(({ value, name }) => (
-                  <ToggleButton
-                    key={value}
-                    id={`attendance-${value}`}
-                    type='radio'
-                    name='attendance'
-                    value={value}
-                    className='button-attending'
-                    checked={this.state.attendance === value}
-                    onChange={this.handleAttendanceChange}
-                  >
-                    {name}
-                  </ToggleButton>
-                ))}
-              </ButtonGroup>
-              <Form.Control.Feedback type='invalid'>Specify</Form.Control.Feedback>
-            </Form.Group>
-          </Col> */}
 
         <Button
           variant='primary'
