@@ -84,7 +84,7 @@ class EventCard extends React.Component {
             <Link to={`event/${this.state.evid}/`}>
               <Button variant='primary'>View</Button>
             </Link>{' '}
-            <Link to={`event/${this.state.evid}/edit`}>
+            <Link to={`event/${this.state.evid}/edit/`}>
               <Button variant='primary'>Edit</Button>
             </Link>
           </div>}
