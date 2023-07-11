@@ -1,11 +1,11 @@
 import React from 'react'
 
-import EventCard from '../components/eventCard/eventCard'
+import EventCard from '../../components/eventCard/eventCard'
 import { useParams } from 'react-router-dom'
 import { Row, Col } from 'react-bootstrap'
-import api from '../api'
+import api from '../../api'
 
-import './events.scss'
+import '../../styles/events.scss'
 
 class EventsPage extends React.Component {
   constructor(props) {
@@ -22,7 +22,7 @@ class EventsPage extends React.Component {
 
     this.setState({
       activeEvents: events.filter(event => event.enabled),
-      inactiveEvents: events.filter(event => !event.enabled),
+      inactiveEvents: api.getApiTokenData().type === 'a' ? events.filter(event => !event.enabled) : [],
     })
   }
 
@@ -31,7 +31,7 @@ class EventsPage extends React.Component {
       <>
         <h1 className='events-page__header'>Active events</h1>
         <hr />
-        {this.state.activeEvents ? (
+        {this.state.activeEvents.length > 0 ? (
           <Row className='g-4 events-page__row'>
             {this.state.activeEvents.map(event => (
               <Col md='auto'>
@@ -42,7 +42,7 @@ class EventsPage extends React.Component {
         ) : (
           <p>No events currently active</p>
         )}
-        {this.state.inactiveEvents && api.getApiTokenData().type !== 's' && (
+        {this.state.inactiveEvents.length > 0 && api.getApiTokenData().type !== 's' && (
           <>
             <h1 className='events-page__header'>Past events</h1>
             <hr />

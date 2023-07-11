@@ -18,7 +18,7 @@ import api from '../../api'
 const navigationBarItems = {
   a: [
     { name: 'Account', icon: accountIcon, link: '/account' },
-    { name: 'Events', icon: eventIcon, link: '/' },
+    { name: 'Events', icon: eventIcon, link: '/event' },
     { name: 'Students', icon: userIcon, link: '/students' },
     { name: 'LoginAs', icon: overrideUserIcon, link: '/loginAs' },
     { name: 'Testing', icon: overrideUserIcon, link: '/testing' },

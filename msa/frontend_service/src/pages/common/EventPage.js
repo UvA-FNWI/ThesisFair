@@ -1,6 +1,6 @@
 import React from 'react'
 
-import EventView from '../components/eventView/eventView'
+import EventView from '../../components/eventView/eventView'
 import { useParams } from 'react-router-dom'
 
 class EventPage extends React.Component {

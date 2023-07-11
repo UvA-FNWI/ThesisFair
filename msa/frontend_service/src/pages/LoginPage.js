@@ -3,7 +3,7 @@ import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import api from '../api'
 
-import './login.scss'
+import '../styles/login.scss'
 
 class LoginPage extends React.Component {
   constructor(props) {

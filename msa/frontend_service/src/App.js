@@ -6,17 +6,14 @@ import api from './api'
 import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import Testing from './pages/Testing'
-import Register from './pages/Register'
+import Register from './pages/student/Register'
 
 import Page from './pages/Page'
-import EventsPage from './pages/EventsPage'
-import EventPage from './pages/EventPage'
 import Error from './pages/Error'
 
-import Event from './pages/admin/Event'
-import EventEntities from './pages/admin/EventEntities'
-import EventProjects from './pages/admin/EventProjects'
-import Events from './pages/admin/Events'
+import EventsPage from './pages/common/EventsPage'
+import EventPage from './pages/common/EventPage'
+
 import Students from './pages/admin/Students'
 import AdminAccount from './pages/admin/AdminAccount'
 import LoginAs from './pages/admin/LoginAs'
@@ -27,8 +24,8 @@ import Votes from './pages/student/Votes'
 
 import RepAccount from './pages/representative/RepAccount'
 import Projects from './pages/representative/projects'
+import OrganisationDashboard from './pages/representative/OrganisationDashboard'
 
-import OrganisationDashboard from './pages/adminRepresentative/OrganisationDashboard'
 
 class App extends React.Component {
   constructor(props) {
@@ -58,14 +55,13 @@ class App extends React.Component {
     return (
       <>
         <Route path='account' element={<Page page={<AdminAccount />} />} />
-        <Route path='event/:evid/' element={<Page page={<Event />} />} />
-        <Route path='event/:evid/entities' element={<Page page={<EventEntities />} />} />
-        <Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />
+        <Route path='event/:evid/' element={<Page page={<EventPage />} />} />
+        {/*<Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />*/}
         <Route path='students' element={<Page page={<Students />} />} />
         <Route path='loginAs' element={<Page page={<LoginAs />} />} />
         <Route path='testing' element={<Page page={<Testing />} />} />
         <Route path='register' element={<Page page={<Register />} />} />
-        <Route path='' element={<Page page={<Events />} />} />
+        <Route path='' element={<Page page={<EventsPage />} />} />
       </>
     )
   }

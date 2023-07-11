@@ -1,7 +1,7 @@
 import React from 'react'
 import ProjectList from '../components/projectList/projectList'
 
-import './testing.scss'
+import '../styles/testing.scss'
 
 class Testing extends React.Component {
   data = [

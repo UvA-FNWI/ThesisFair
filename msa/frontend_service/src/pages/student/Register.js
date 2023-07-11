@@ -1,10 +1,10 @@
 import React from 'react'
-import ProjectList from '../components/projectList/projectList'
+import ProjectList from '../../components/projectList/projectList'
 
-import api from '../api'
-import './register.scss'
+import api from '../../api'
+import '../../styles/register.scss'
 
-import { degrees } from '../definitions'
+import { degrees } from '../../definitions'
 
 class Register extends React.Component {
   constructor(props) {
