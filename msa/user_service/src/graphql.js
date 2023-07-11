@@ -495,7 +495,7 @@ schemaComposer.Mutation.addNestedFields({
       phone: 'String',
       repAdmin: 'Boolean',
     },
-    description: 'Create a representative account.',
+    description: 'Create a representative account OR add specified enids to an existing account.',
     resolve: async (obj, args, req) => {
       if (args.enid) {
         if (args.enids) {
@@ -519,6 +519,13 @@ schemaComposer.Mutation.addNestedFields({
         )
       )) {
         throw new Error('UNAUTHORIZED create user accounts for this entity')
+      }
+
+      const user = await Representative.findOne({email: args.email})
+
+      console.log(user)
+      if (user) {
+        return Representative.findByIdAndUpdate(user.uid, { $addToSet: { enids: { $each: args.enids } } })
       }
 
       return createRepresentative(args)
