@@ -356,11 +356,7 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Request a password reset -- sends an email and stores the reset code',
     resolve: async (obj, args, req) => {
-      if (requestPasswordReset(args.email)) {
-        return true
-      }
-
-      return false
+      return !!(await requestPasswordReset(args.email))
     },
   },
   resetPassword: {
@@ -384,9 +380,7 @@ schemaComposer.Query.addNestedFields({
       const password = await hash(args.password)
 
       if (await bcrypt.compare(args.resetCode, user.resetCode)) {
-        const res = await User.findByIdAndUpdate(user.uid, { password, resetCode: null })
-        console.log(res)
-        return !!res
+        return await User.findByIdAndUpdate(user.uid, { password, resetCode: null })
       }
 
       throw new Error('Incorrect password reset code')
@@ -523,7 +517,6 @@ schemaComposer.Mutation.addNestedFields({
 
       const user = await Representative.findOne({email: args.email})
 
-      console.log(user)
       if (user) {
         return Representative.findByIdAndUpdate(user.uid, { $addToSet: { enids: { $each: args.enids } } })
       }
