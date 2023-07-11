@@ -1,0 +1,22 @@
+trigger:
+  - dev
+
+variables:
+  - group: k8s
+
+pool: k8s
+
+jobs:
+  - job: build
+    steps:
+      - script: |
+          npm i
+          npm run build
+        displayName: 'Build library'
+        workingDirectory: ./msa/libraries/thesisfair-api
+      - script: |
+          ./scripts/build-production.sh .
+        displayName: 'Build containers'
+      - script: |
+          ./scripts/push-production.sh .
+        displayName: 'Push containers'
