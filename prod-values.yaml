@@ -3,7 +3,6 @@ env:
   OPENID_CLIENT_ID: "thesisfair.local"
   OPENID_REDIRECT_URL: "https://thesisfair.qrcsoftware.nl/sso/loggedin"
   OPENID_RESOURCE: "https://thesisfair.qrcsoftware.nl"
-  OVERRIDEMAIL: "contact@ischa.dev"
   MAILHOST: "webmail.uva.nl"
   MAILPORT: "587"
   MAILUSER: "SRV-THESIS"
