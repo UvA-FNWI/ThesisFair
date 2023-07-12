@@ -5,8 +5,6 @@ import api from './api'
 
 import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
-import Testing from './pages/Testing'
-import Register from './pages/student/Register'
 
 import Page from './pages/Page'
 import Error from './pages/Error'
@@ -65,8 +63,6 @@ class App extends React.Component {
         {/*<Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />*/}
         <Route path='students' element={<Page page={<Students />} />} />
         <Route path='loginAs' element={<Page page={<LoginAs />} />} />
-        <Route path='testing' element={<Page page={<Testing />} />} />
-        <Route path='register' element={<Page page={<Register />} />} />
         <Route path='' element={<Page page={<Events />} />} />
       </>
     )

@@ -5,6 +5,8 @@ import graphqlFields from '../../api/graphqlFields.js'
 import CreateUserPopup from '../../components/createUserPopup/createUserPopup'
 import RepresentativeList from '../../components/representativeList/representativeList'
 
+import AddIcon from 'bootstrap-icons/icons/plus.svg'
+
 class EntityEditor extends React.Component {
   constructor(props) {
     super(props)
@@ -44,6 +46,14 @@ class EntityEditor extends React.Component {
     setTimeout(() => {
       this.setState({ showInfoSaved: false })
     }, 2000)
+  }
+
+  addContactEntry = async ({ type, value }) => {
+    const newContact = [...this.state.contact]
+    newContact.push({ type, content: value })
+    this.setState({ contact: newContact })
+
+    this.updateContactInfo({ preventDefault: () => {} })
   }
 
   updateContactInfo = async e => {
@@ -122,6 +132,7 @@ class EntityEditor extends React.Component {
                       <p
                         className='contact-item__header'
                         style={{
+                          backgroundColor: 'white',
                           width: '100%',
                           padding: '0.375rem',
                           border: '1px solid rgb(206, 212, 218)',
@@ -154,6 +165,19 @@ class EntityEditor extends React.Component {
                 ))}
 
               <div className='d-flex gap-2 align-items-center'>
+                <Button
+                  onClick={() => this.setState({ addContactEntryPopup: true })}
+                  style={{
+                    display: 'flex',
+                    width: '38px',
+                    height: '38px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <img src={AddIcon} alt='' style={{ width: '24px', height: '24px', filter: 'invert()' }} />
+                </Button>
+
                 <Button type='submit' disabled={this.savingContact}>
                   {this.savingContact ? 'Saving...' : 'Update contact information'}
                 </Button>
@@ -170,6 +194,9 @@ class EntityEditor extends React.Component {
           }
         </Container>
 
+        {this.state.addContactEntryPopup ? (
+          <CreateUserPopup close={() => this.setState({ addContactEntryPopup: false })} create={this.addContactEntry} />
+        ) : null}
         {this.state.newUserPopup ? (
           <CreateUserPopup close={() => this.setState({ newUserPopup: false })} create={this.createUser} />
         ) : null}
