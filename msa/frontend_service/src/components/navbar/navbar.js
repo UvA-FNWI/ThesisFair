@@ -22,8 +22,6 @@ const navigationBarItems = {
     { name: 'Organisations', icon: organisationsIcon, link: '/organisation' },
     { name: 'Students', icon: userIcon, link: '/students' },
     { name: 'LoginAs', icon: overrideUserIcon, link: '/loginAs' },
-    { name: 'Testing', icon: overrideUserIcon, link: '/testing' },
-    { name: 'Register', icon: overrideUserIcon, link: '/register' },
   ],
   s: [
     { name: 'Account', icon: accountIcon, link: '/account' },
