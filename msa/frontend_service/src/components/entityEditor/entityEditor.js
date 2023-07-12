@@ -1,18 +1,16 @@
 import React from 'react'
 import { Container, CloseButton, Form, Button, Row, Col } from 'react-bootstrap'
 import api from '../../api'
-import * as session from '../../session'
+import graphqlFields from '../../api/graphqlFields.js'
 import CreateUserPopup from '../../components/createUserPopup/createUserPopup'
 import RepresentativeList from '../../components/representativeList/representativeList'
 
-class OrganisationDashboard extends React.Component {
+class EntityEditor extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      name: '',
-      description: '',
-      contact: [],
+      ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
 
       savingInfo: false,
       showInfoSaved: false,
@@ -23,17 +21,21 @@ class OrganisationDashboard extends React.Component {
   }
 
   async componentDidMount() {
-    const entity = await api.entity.get(session.getEnid()).exec()
-    this.setState({ name: entity.name, description: entity.description, contact: entity.contact })
+    const entity = this.props.enid ? await api.entity.get(this.props.enid).exec() : {}
+
+    this.setState({
+      ...entity,
+      ...this.props.entity,
+    })
   }
 
-  updatePersonalInfo = async e => {
+  updateEntityInfo = async e => {
     e.preventDefault()
 
     this.setState({ savingInfo: true })
     await api.entity
       .update({
-        enid: session.getEnid(),
+        enid: this.state.enid,
         name: this.state.name,
         description: this.state.description,
       })
@@ -50,7 +52,7 @@ class OrganisationDashboard extends React.Component {
     this.setState({ savingContact: true })
     await api.entity
       .update({
-        enid: session.getEnid(),
+        enid: this.state.enid,
         contact: this.state.contact,
       })
       .exec()
@@ -70,13 +72,13 @@ class OrganisationDashboard extends React.Component {
           </h6>
           <div className='mb-4'>
             <div>
-              <Form onSubmit={this.updatePersonalInfo}>
+              <Form onSubmit={this.updateEntityInfo}>
                 <div className='mb-2'>
                   <Form.Group>
                     <Form.Label>Name</Form.Label>
                     <Form.Control
                       placeholder='Enter organisation name'
-                      value={this.state.name}
+                      value={this.state.name || ''}
                       onChange={e => this.setState({ name: e.target.value })}
                       required
                     />
@@ -87,7 +89,7 @@ class OrganisationDashboard extends React.Component {
                       as='textarea'
                       rows={8}
                       placeholder='Enter description'
-                      value={this.state.description}
+                      value={this.state.description || ''}
                       onChange={e => this.setState({ description: e.target.value })}
                       required
                     />
@@ -107,7 +109,7 @@ class OrganisationDashboard extends React.Component {
           <div className='mb-4'>
             <h2>Organisation Contact Information</h2>
             <Form onSubmit={this.updateContactInfo}>
-              {this.state.contact.map((contact, i) => (
+              {this.state.contact && this.state.contact.map((contact, i) => (
                 <Row key={i}>
                   <Col xs={2}>
                     <Form.Select
@@ -157,7 +159,7 @@ class OrganisationDashboard extends React.Component {
 
           <div>
             <h2>Company Accounts</h2>
-            <RepresentativeList enid={session.getEnid()} />
+            {this.state.enid && <RepresentativeList enid={this.state.enid} />}
           </div>
         </Container>
 
@@ -169,4 +171,4 @@ class OrganisationDashboard extends React.Component {
   }
 }
 
-export default OrganisationDashboard
+export default EntityEditor
