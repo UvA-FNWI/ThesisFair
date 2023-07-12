@@ -19,7 +19,7 @@ type Entity {
   enid: ID!
   name: String!
   description: String
-  type: String!
+  type: String
   contact: [EntityContactInfo!]
   external_id: String
   representatives: Int
