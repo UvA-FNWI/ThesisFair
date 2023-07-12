@@ -22,11 +22,13 @@ class ForgotPasswordPage extends React.Component {
   constructor(props) {
     super(props)
 
+    console.log(props, localStorage.getItem('reset-email'))
+
     const email = localStorage.getItem('reset-email') || props.email || ''
 
     this.state = {
       email: email,
-      passwordUnknown: props.unknownPassword || false,
+      unknownPassword: props.unknownPassword || false,
       resetCode: '',
       password: '',
 
@@ -153,27 +155,33 @@ class ForgotPasswordPage extends React.Component {
               </Form.Group>
 
               {this.state.mailSent && (
-                <Form.Group class='login-page--top-border login-page--error-spacing-large'>
-                  <Form.Label>Password reset code</Form.Label>
-                  <Form.Control
-                    type='text'
-                    value={this.state.resetCode}
-                    onChange={e => this.setState({ resetCode: e.target.value })}
-                    required
-                    isInvalid={!!this.state.resetError}
-                  />
+                <>
+                  <p className='sent-copy-new-password'>
+                    We have sent you an email with a reset code. It may take a couple of minutes to come in, and might
+                    end up in your spam inbox. Please <b>copy</b> the reset code below and enter a new password.
+                  </p>
+                  <Form.Group class='login-page--top-border login-page--error-spacing-large'>
+                    <Form.Label>Password reset code</Form.Label>
+                    <Form.Control
+                      type='text'
+                      value={this.state.resetCode}
+                      onChange={e => this.setState({ resetCode: e.target.value })}
+                      required
+                      isInvalid={!!this.state.resetError}
+                    />
 
-                  <Form.Label className='mt-1'>New password</Form.Label>
-                  <Form.Control
-                    type='password'
-                    value={this.state.password}
-                    onChange={e => this.setState({ password: e.target.value })}
-                    required
-                    isInvalid={!!this.state.resetError}
-                  />
+                    <Form.Label className='mt-1'>New password</Form.Label>
+                    <Form.Control
+                      type='password'
+                      value={this.state.password}
+                      onChange={e => this.setState({ password: e.target.value })}
+                      required
+                      isInvalid={!!this.state.resetError}
+                    />
 
-                  <Form.Control.Feedback type='invalid'>{this.state.resetError}</Form.Control.Feedback>
-                </Form.Group>
+                    <Form.Control.Feedback type='invalid'>{this.state.resetError}</Form.Control.Feedback>
+                  </Form.Group>
+                </>
               )}
 
               <Button variant='primary' type='submit' disabled={this.state.loading} className='mt-3'>

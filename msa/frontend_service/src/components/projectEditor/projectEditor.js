@@ -25,7 +25,7 @@ import { degrees } from '../../definitions'
 
 import cl from 'clsx'
 
-// Expects params.pid and params.enid as props 
+// Expects params.pid and params.enid as props
 class ProjectEditor extends React.Component {
   // TODO: have a controlled input rather than uncontrolled (i.e. update state
   // as form is edited) for name
@@ -72,6 +72,10 @@ class ProjectEditor extends React.Component {
     if (this.props.params.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
       this.setState(project)
+    }
+
+    if (this.props.params.project) {
+      this.setState(this.props.params.project)
     }
 
     const activeEvents = await api.event.getActive().exec()
@@ -242,10 +246,13 @@ class ProjectEditor extends React.Component {
 
   validate = () => Object.values(this.validation).every(f => f() === true)
 
-  validateEmail = email =>
-    /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i.test(
-      email
-    )
+  validateEmail = email => {
+    const isEmailRegularExpression =
+      /(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})/i
+
+    // Use .match to find a valid email in the string
+    return isEmailRegularExpression.exec(email) !== null
+  }
 
   validation = {
     name: () => this.state.name.length > 0,
@@ -385,7 +392,7 @@ class ProjectEditor extends React.Component {
         </Row>
 
         <Form.Group className='mb-3 description' controlId='description'>
-          <Form.Label>Project description (Markdown)</Form.Label>
+          <Form.Label>Project description</Form.Label>
           <MDEditor
             value={this.state.description}
             onChange={value => {
@@ -662,7 +669,11 @@ class ProjectEditor extends React.Component {
 
   getAttendanceInputs = () => (
     <Container className='mt-2 attendance' data-color-mode='light'>
-      <h1 className='mb-4 mt-3'>Determine Attendance</h1>
+      <h1 className='mb-4 mt-3'>This project is for:</h1>
+
+      <p className='mb-3'>
+        This project will always be on the marketplace. Please select which (if any) Thesis Fairs is this for?
+      </p>
 
       <Form>
         <div className='attendance__events'>

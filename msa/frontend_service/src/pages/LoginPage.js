@@ -27,7 +27,7 @@ class LoginPage extends React.Component {
       console.log(error)
       if (
         error.message === 'data and hash arguments required' ||
-        error[0].message === 'data and hash arguments required'
+        error[0]?.message === 'data and hash arguments required'
       ) {
         // Store email in local storage
         localStorage.setItem('reset-email', this.state.email)
@@ -37,7 +37,7 @@ class LoginPage extends React.Component {
       } else {
         this.setState({
           loading: false,
-          error: error.message || error[0].message,
+          error: error.message || error[0]?.message,
         })
       }
     }

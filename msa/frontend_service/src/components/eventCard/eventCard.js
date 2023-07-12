@@ -40,11 +40,11 @@ class EventCard extends React.Component {
 
   render() {
     return (
-      <Card data-color-mode='light' className={cl('card', { 'card--no-image': !this.state.image })}>
-        <Card.Img className='card__image' variant='top' src={this.state.image} />
+      <Card data-color-mode='light' className={cl('event-card', { 'event-card--no-image': !this.state.image })}>
+        <Card.Img className='event-card__image' variant='top' src={this.state.image} />
         <Card.Body className='d-flex flex-column'>
           <Card.Title>{this.state.name}</Card.Title>
-          <Card.Subtitle className='card__subtitle'>
+          <Card.Subtitle className='event-card__subtitle'>
             <small className='text-muted'>
               <time dateTime={this.state.start}>{new Date(this.state.start).toLocaleDateString('NL-nl')}</time>
               ,&ensp;
@@ -57,8 +57,8 @@ class EventCard extends React.Component {
               </time>
             </small>
           </Card.Subtitle>
-          <Card.Text className='card__body'>
-            <div className='card__tags'>
+          <Card.Text className='event-card__body'>
+            <div className='event-card__tags'>
               {this.state.degrees !== null &&
                 this.state.degrees.length > 0 &&
                 this.state.degrees.map(tagId => {
