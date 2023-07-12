@@ -22,20 +22,22 @@ class EventCard extends React.Component {
       ...Object.fromEntries(graphqlFields['Event'].map(f => [f, null])),
       image: null,
     }
-
-    this.state = {
-      ...this.state,
-      degrees: ['MScAI', 'MScISDS', 'MScLogic'],
-    }
   }
 
   async componentDidMount() {
-    const event = await api.event.get(this.props.evid).exec()
+    let event = this.props.evid ? await api.event.get(this.props.evid).exec() : {}
+    event = {
+      ...event,
+      ...this.props.event,
+    }
     const image = await api.event
-      .getImage(this.props.evid, api.getApiTokenData().type === 's' ? 'student' : 'rep')
-      .exec()
+     .getImage(event.evid, api.getApiTokenData().type === 's' ? 'student' : 'rep')
+     .exec()
 
-    this.setState({ ...event, image })
+    this.setState({
+      ...event,
+      image
+    })
   }
 
   render() {

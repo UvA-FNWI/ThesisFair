@@ -53,7 +53,7 @@ class EventsPage extends React.Component {
             <Row className='g-4 events-page__row'>
               {this.state.inactiveEvents.map(event => (
                 <Col md='auto'>
-                  <EventCard evid={event.evid} />
+                  <EventCard event={event} />
                 </Col>
               ))}
             </Row>
