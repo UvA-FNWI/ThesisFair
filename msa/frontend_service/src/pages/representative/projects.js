@@ -16,7 +16,7 @@ import { degreeById } from '../../definitions'
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
-const projectButtons = (project, duplicateProject, isInActiveEvent, edit) => {
+const projectButtons = (project, duplicateProject, isInActiveEvent, edit, isInOldEvent) => {
   return (
     <>
       <OverlayTrigger overlay={<Tooltip>Duplicate this project for the current ThesisFair event</Tooltip>}>
@@ -32,7 +32,7 @@ const projectButtons = (project, duplicateProject, isInActiveEvent, edit) => {
           Duplicate
         </Button>
       </OverlayTrigger>
-      <ProjectEditorTrigger params={{ ...project, edit: edit }} />
+      <ProjectEditorTrigger params={{ ...project, edit: edit, isInOldEvent: isInOldEvent }} />
       {/* TODO: Implement CV downloading (stage 3) */}
       {/* <OverlayTrigger overlay={<Tooltip>Download CV's from all students</Tooltip>}>
         <Button
@@ -73,7 +73,7 @@ class ProjectListing extends React.Component {
       return
     }
 
-    if (!this.state.events[project.evid].enabled) {
+    if (!this.state?.events?.[project.evid]?.enabled) {
       return
     }
 
@@ -121,11 +121,8 @@ class ProjectListing extends React.Component {
     const events = {}
     // TODO: remove this loop with api calls
     for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
-      console.log(evid)
       events[evid] = await api.event.get(evid).exec()
     }
-
-    console.log(events)
 
     this.setState({ projects, votes, events, eventProjects })
   }
@@ -162,7 +159,17 @@ class ProjectListing extends React.Component {
               })
             })
 
-            const isInActiveEvent = this.state.events[project.evid].enabled
+            const isInActiveEvent = this.state?.events?.[project.evid]?.enabled
+            const isInOldEvent =
+              this.state?.events?.[project.evid] === undefined || this.state?.events?.[project.evid]?.enabled === false
+
+            console.log(
+              isInActiveEvent,
+              isInOldEvent,
+              this.state?.events,
+              this.state?.events?.[project.evid],
+              project.evid
+            )
 
             return (
               <ProjectList.Item
@@ -176,7 +183,13 @@ class ProjectListing extends React.Component {
                 email={project.email}
                 numberOfStudents={project.numberOfStudents}
                 headerBadge={this.approvalBadge(project)}
-                headerButtons={projectButtons(project, this.duplicateProject, isInActiveEvent, this.props.params.edit)}
+                headerButtons={projectButtons(
+                  project,
+                  this.props.params.duplicateProject,
+                  isInActiveEvent,
+                  this.props.params.edit,
+                  isInOldEvent
+                )}
               />
             )
           })}
@@ -244,27 +257,28 @@ class ProjectListing extends React.Component {
         <Container>
           {Object.keys(this.state.projects).length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
 
-          {this.state.eventProjects.entries && Array.from(this.state.eventProjects.entries()).map(([evids, pids]) => {
-            const projects = pids.map(pid => this.state.projects[pid])
-            console.log(evids)
-            const events = JSON.parse(evids).map(evid => this.state.events[evid])
+          {this.state.eventProjects.entries &&
+            Array.from(this.state.eventProjects.entries()).map(([evids, pids]) => {
+              const projects = pids.map(pid => this.state.projects[pid])
+              console.log(evids)
+              const events = JSON.parse(evids).map(evid => this.state.events[evid])
 
-            return (
-              <>
-                <br />
-                <span className='d-flex justify-content-between'>
-                  <h3 style={{ alignSelf: 'flex-end' }}>{events.map(event => event.name).join(' & ')}</h3>
-                  {events.map(event =>
-                    <time style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
-                      {new Date(event.start).toLocaleDateString()}
-                    </time>
-                  )}
-                </span>
-                <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
-                {this.renderProjectListing(projects)}
-              </>
-            )
-          })}
+              return (
+                <>
+                  <br />
+                  <span className='d-flex justify-content-between'>
+                    <h3 style={{ alignSelf: 'flex-end' }}>{events.map(event => event.name).join(' & ')}</h3>
+                    {events.map(event => (
+                      <time style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
+                        {new Date(event.start).toLocaleDateString()}
+                      </time>
+                    ))}
+                  </span>
+                  <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
+                  {this.renderProjectListing(projects)}
+                </>
+              )
+            })}
         </Container>
 
         {this.state.popup ? this.renderStudentModal() : null}
@@ -291,17 +305,28 @@ class ProjectEditorTrigger extends React.Component {
 
   onClick(e) {
     e.stopPropagation()
+
+    if (this.props.params.isInOldEvent) return
+
     this.props.params.edit(this.props.params.pid)
   }
 
   render() {
-    if (this.props.params.pid !== 'manuallyShared') {
-      return (
-        <Button className='ms-2' size='sm' variant='outline-primary' onClick={this.onClick}>
-          {this.buttonText()}
-        </Button>
-      )
-    }
+    if (this.props.params.pid === 'manuallyShared') return
+
+    return this.props.params.isInOldEvent ? (
+      <OverlayTrigger overlay={<Tooltip>This project is in an old event and can thus not be edited anymore.</Tooltip>}>
+        <span className='d-inline-block'>
+          <Button disabled={true} className='ms-2' size='sm' variant='outline-primary' onClick={this.onClick}>
+            {this.buttonText()}
+          </Button>
+        </span>
+      </OverlayTrigger>
+    ) : (
+      <Button className='ms-2' size='sm' variant='outline-primary' onClick={this.onClick}>
+        {this.buttonText()}
+      </Button>
+    )
   }
 }
 
@@ -314,6 +339,7 @@ class Projects extends React.Component {
     }
 
     this.edit = this.edit.bind(this)
+    this.duplicateProject = this.duplicateProject.bind(this)
     this.close = this.close.bind(this)
   }
 
@@ -326,13 +352,20 @@ class Projects extends React.Component {
     }
 
     this.setState({
-      editor: <ProjectEditor onClose={this.close} params={{ ...newProject, ...this.props.params }} />,
+      editor: (
+        <ProjectEditor
+          onClose={this.close}
+          params={{ project: newProject, enid: session.getEnid(), ...this.props.params }}
+        />
+      ),
     })
   }
 
   edit(pid) {
     this.setState({
-      editor: <ProjectEditor onClose={this.close} params={{ pid: pid, enid: session.getEnid(), ...this.props.params }} />,
+      editor: (
+        <ProjectEditor onClose={this.close} params={{ pid: pid, enid: session.getEnid(), ...this.props.params }} />
+      ),
     })
   }
 
@@ -355,7 +388,9 @@ class Projects extends React.Component {
             <Container className='mb-2'>
               <ProjectEditorTrigger params={{ pid: null, edit: this.edit }} />
             </Container>
-            <ProjectListing params={{ ...this.props.params, edit: this.edit }} />
+            <ProjectListing
+              params={{ ...this.props.params, duplicateProject: this.duplicateProject, edit: this.edit }}
+            />
           </div>
         )
       default:
