@@ -30,11 +30,7 @@ class OrganizationInfo extends React.Component {
                 <div className='mb-2'>
                   <Form.Group>
                     <Form.Label>Name</Form.Label>
-                    <Form.Control
-                      placeholder='Enter organisation name'
-                      value={this.state.name}
-                      disabled
-                    />
+                    <Form.Control placeholder='Enter organisation name' value={this.state.name} disabled />
                   </Form.Group>
                   <Form.Group className='mt-2'>
                     <Form.Label>Description</Form.Label>
@@ -56,8 +52,10 @@ class OrganizationInfo extends React.Component {
             <Form>
               {this.state.contact.map((contact, _) => (
                 <Form.Group as={Row}>
-                  <Form.Label column sm="2">{contact.type}</Form.Label>
-                  <Col sm="10">
+                  <Form.Label column sm='2'>
+                    {contact.type}
+                  </Form.Label>
+                  <Col sm='10'>
                     <Form.Control className='mb-2' value={contact.content} disabled />
                   </Col>
                 </Form.Group>
@@ -69,7 +67,6 @@ class OrganizationInfo extends React.Component {
     )
   }
 }
-
 
 class RepAccount extends React.Component {
   constructor(props) {
@@ -201,7 +198,7 @@ class RepAccount extends React.Component {
                   <Form.Group>
                     <Form.Label>Phone number</Form.Label>
                     <Form.Control
-                      placeholder='Enter you phonenumber'
+                      placeholder='Enter you phone number'
                       value={this.state.phone}
                       onChange={e => this.setState({ phone: e.target.value })}
                     />
@@ -253,10 +250,12 @@ class RepAccount extends React.Component {
 
 class Page extends React.Component {
   render() {
-    return <>
-      <RepAccount/>
-      {api.getApiTokenData().repAdmin || <OrganizationInfo/>}
-    </>
+    return (
+      <>
+        <RepAccount />
+        {api.getApiTokenData().repAdmin || <OrganizationInfo />}
+      </>
+    )
   }
 }
 

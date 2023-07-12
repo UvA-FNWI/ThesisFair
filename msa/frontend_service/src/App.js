@@ -28,7 +28,6 @@ import RepAccount from './pages/representative/RepAccount'
 import Projects from './pages/representative/projects'
 import OrganisationDashboard from './pages/representative/OrganisationDashboard'
 
-
 class App extends React.Component {
   constructor(props) {
     super(props)

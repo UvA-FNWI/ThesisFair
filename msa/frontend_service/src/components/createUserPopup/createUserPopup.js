@@ -48,7 +48,7 @@ class CreateUserPopup extends React.Component {
                 <Form.Group>
                   <Form.Label>First Name</Form.Label>
                   <Form.Control
-                    placeholder='Enter first name'
+                    placeholder='Enter their first name'
                     value={this.state.firstname}
                     onChange={e => this.setState({ firstname: e.target.value })}
                   />
@@ -58,7 +58,7 @@ class CreateUserPopup extends React.Component {
                 <Form.Group>
                   <Form.Label>Family Name</Form.Label>
                   <Form.Control
-                    placeholder='Enter family name'
+                    placeholder='Enter their family name'
                     value={this.state.lastname}
                     onChange={e => this.setState({ lastname: e.target.value })}
                   />
@@ -72,7 +72,7 @@ class CreateUserPopup extends React.Component {
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type='email'
-                    placeholder='Enter your email'
+                    placeholder='Enter their email'
                     value={this.state.email}
                     onChange={e => this.setState({ email: e.target.value })}
                   />
@@ -82,7 +82,7 @@ class CreateUserPopup extends React.Component {
                 <Form.Group>
                   <Form.Label>Phone number</Form.Label>
                   <Form.Control
-                    placeholder='Enter you phone number'
+                    placeholder='Enter their phone number'
                     value={this.state.phone}
                     onChange={e => this.setState({ phone: e.target.value })}
                   />

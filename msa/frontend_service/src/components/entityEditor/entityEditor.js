@@ -62,6 +62,12 @@ class EntityEditor extends React.Component {
     }, 2000)
   }
 
+  contactTypes = {
+    website: 'Website',
+    email: 'Email',
+    phonenumber: 'Phone Number',
+  }
+
   render() {
     return (
       <>
@@ -109,44 +115,43 @@ class EntityEditor extends React.Component {
           <div className='mb-4'>
             <h2>Organisation Contact Information</h2>
             <Form onSubmit={this.updateContactInfo}>
-              {this.state.contact && this.state.contact.map((contact, i) => (
-                <Row key={i}>
-                  <Col xs={2}>
-                    <Form.Select
-                      className='mb-2'
-                      value={contact.type}
-                      onChange={e => {
-                        const newContact = [...this.state.contact]
-                        newContact[i].type = e.target.value
-                        this.setState({ contact: newContact })
-                      }}
-                    >
-                      <option>website</option>
-                      <option>email</option>
-                      <option>phonenumber</option>
-                    </Form.Select>
-                  </Col>
-                  <Col style={{ position: 'relative' }}>
-                    <Form.Control
-                      className='mb-2'
-                      value={contact.content}
-                      onChange={e => {
-                        const newContact = [...this.state.contact]
-                        newContact[i].content = e.target.value
-                        this.setState({ contact: newContact })
-                      }}
-                    />
-                    <CloseButton
-                      style={{ position: 'absolute', top: '7px', right: '18px' }}
-                      onClick={() => {
-                        const newContact = [...this.state.contact]
-                        newContact.splice(i, 1)
-                        this.setState({ contact: newContact })
-                      }}
-                    />
-                  </Col>
-                </Row>
-              ))}
+              {this.state.contact &&
+                this.state.contact.map((contact, i) => (
+                  <Row key={i}>
+                    <Col xs={2}>
+                      <p
+                        className='contact-item__header'
+                        style={{
+                          width: '100%',
+                          padding: '0.375rem',
+                          border: '1px solid rgb(206, 212, 218)',
+                          borderRadius: '0.25rem',
+                        }}
+                      >
+                        {this.contactTypes[contact.type]}
+                      </p>
+                    </Col>
+                    <Col style={{ position: 'relative' }}>
+                      <Form.Control
+                        className='mb-2'
+                        value={contact.content}
+                        onChange={e => {
+                          const newContact = [...this.state.contact]
+                          newContact[i].content = e.target.value
+                          this.setState({ contact: newContact })
+                        }}
+                      />
+                      <CloseButton
+                        style={{ position: 'absolute', top: '7px', right: '18px' }}
+                        onClick={() => {
+                          const newContact = [...this.state.contact]
+                          newContact.splice(i, 1)
+                          this.setState({ contact: newContact })
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                ))}
 
               <div className='d-flex gap-2 align-items-center'>
                 <Button type='submit' disabled={this.savingContact}>

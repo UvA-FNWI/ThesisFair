@@ -15,9 +15,9 @@ class OrganisationDashboard extends React.Component {
   }
 
   render() {
-    if (this.state.enid) return <EntityEditor enid={this.state.enid}/>
+    if (this.state.enid) return <EntityEditor enid={this.state.enid} />
 
-    if (api.getApiTokenData().type === 'r') return <EntityEditor enid={session.getEnid()}/>
+    if (api.getApiTokenData().type === 'r') return <EntityEditor enid={session.getEnid()} />
 
     return <EntityEditor />
   }
