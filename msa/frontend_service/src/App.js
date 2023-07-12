@@ -16,7 +16,6 @@ import Event from './pages/common/Event'
 
 import Students from './pages/admin/Students'
 import EditEvent from './pages/admin/EditEvent'
-import CreateOrganisation from './pages/admin/CreateOrganisation'
 import AdminAccount from './pages/admin/AdminAccount'
 import LoginAs from './pages/admin/LoginAs'
 
@@ -58,7 +57,7 @@ class App extends React.Component {
       <>
         <Route path='account' element={<Page page={<AdminAccount />} />} />
         <Route path='organisation' element={<Page page={<Organisations />} />} />
-        <Route path='organisation/create/' element={<Page page={<CreateOrganisation />} />} />
+        <Route path='organisation/create/' element={<Page page={<OrganisationDashboard />} />} />
         <Route path='organisation/:enid/' element={<Page page={<OrganisationDashboard />} />} />
         <Route path='organisation/:enid/edit' element={<Page page={<OrganisationDashboard />} />} />
         <Route path='event/create/' element={<Page page={<EditEvent />} />} />

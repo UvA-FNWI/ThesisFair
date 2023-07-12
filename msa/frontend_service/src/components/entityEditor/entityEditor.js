@@ -157,10 +157,12 @@ class EntityEditor extends React.Component {
             </Form>
           </div>
 
+          {this.state.enid &&
           <div>
             <h2>Company Accounts</h2>
             {this.state.enid && <RepresentativeList enid={this.state.enid} />}
           </div>
+          }
         </Container>
 
         {this.state.newUserPopup ? (
