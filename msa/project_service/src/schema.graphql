@@ -13,6 +13,7 @@ enum ApprovalStatus {
 
 enum Degree {
   MScAI
+  MScCS
   MScCLSJD
   MScISIS
   MScISDS

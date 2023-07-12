@@ -2,6 +2,7 @@ scalar Date
 
 enum Degree {
   MScAI
+  MScCS
   MScCLSJD
   MScISIS
   MScISDS
