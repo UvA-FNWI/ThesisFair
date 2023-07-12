@@ -88,6 +88,16 @@ function users(orgs, entityIdMap) {
     }
   }
 
+  if (devMode) {
+    users.set('admin', {
+      firstname: 'admin',
+      lastname: 'admin',
+      email: 'admin',
+      admin: true,
+      password: '$2b$10$k6sWNYGtbJMtl4yvsMbpZuKN0n5/V4.0B8P3MGnAY5mcvw1P5/Voy'
+    })
+  }
+
   return Array.from(users.values())
 }
 
