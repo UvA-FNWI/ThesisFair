@@ -81,11 +81,14 @@ class RepresentativeList extends React.Component {
           <div>
             {this.state.users.map((user, userIndex) => (
               <Card key={userIndex} className='mb-2'>
-                <Card.Body className='d-flex justify-content-between align-items-center'>
+                <Card.Body
+                  className='d-flex justify-content-between align-items-center'
+                  style={{ padding: '0.5rem 1rem' }}
+                >
                   <p className='m-0'>
                     {user.firstname} {user.lastname} ({user.email})
                   </p>
-                  <div>
+                  <div style={{ display: 'flex' }}>
                     <img
                       src={deleteIcon}
                       alt='Delete user'
