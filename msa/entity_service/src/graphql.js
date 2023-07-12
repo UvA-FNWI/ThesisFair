@@ -111,7 +111,10 @@ schemaComposer.Mutation.addNestedFields({
       const enid = args.enid
       delete args.enid
 
-      if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.repAdmin === true && req.user.enid === enid))) {
+      if (!(
+        req.user.type === 'a' ||
+        (req.user.type === 'r' && req.user.repAdmin && req.user.enids.includes(enid))
+      )) {
         throw new Error('UNAUTHORIZED update this entity')
       }
 
