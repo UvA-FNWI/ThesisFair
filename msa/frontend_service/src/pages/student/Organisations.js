@@ -1,48 +1,56 @@
 import React from 'react'
-import { Container } from 'react-bootstrap'
-import { useParams } from 'react-router-dom'
-import api from '../../api'
-import EntitiesProjects from '../../components/entitiesProjects/entitiesProjects'
 
-class Organisations extends React.Component {
+import EntityCard from '../../components/entityCard/entityCard'
+import { useParams, Link } from 'react-router-dom'
+import { Row, Col, Button } from 'react-bootstrap'
+import api from '../../api'
+
+import '../../styles/events.scss'
+
+class Entities extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
       entities: [],
-      projects: {},
     }
   }
 
   async componentDidMount() {
-    const event = await api.event.get(this.props.params.evid, { entities: true }).exec()
-    const entities = await api.entity.getMultiple(event.entities).exec()
+    const entities = await api.entity.getAll().exec()
+
     this.setState({ entities })
-
-    const projects = {}
-    for (const { enid } of entities) {
-      projects[enid] = await api.project.getOfEntity(this.props.params.evid, enid).exec()
-    }
-
-    this.setState({ projects })
   }
 
   render() {
     return (
-      <Container className='mt-2'>
-        <div className='mb-4'>
-          <h1>Organisations</h1>
-        </div>
-        <EntitiesProjects entities={this.state.entities} projects={this.state.projects} shareControls />
-      </Container>
+      <>
+        <h1 className='events-page__header'>Active events</h1>
+        <hr />
+        {api.getApiTokenData().type === 'a' &&
+        <Link to='organisation/create/'>
+          <Button variant='outline-primary'>Create new organisation</Button>
+        </Link>}
+        {this.state.entities.length > 0 ? (
+          <Row className='g-4 events-page__row'>
+            {this.state.entities.map(entity => (
+              <Col md='auto'>
+                <EntityCard entity={entity} />
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <p>No events currently active</p>
+        )}
+      </>
     )
   }
 }
 
-function OrganisationsWithParams(props) {
+function EntitiesWithParams(props) {
   const params = useParams()
 
-  return <Organisations {...props} params={params} />
+  return <Entities {...props} params={params} />
 }
 
-export default OrganisationsWithParams
+export default EntitiesWithParams
