@@ -55,7 +55,7 @@ class EntityCard extends React.Component {
             />
           </Card.Text>
           {api.getApiTokenData().type === 'a' && <div className='mt-auto'>
-            <Link to={`organisation/${this.state.enid}/edit/`}>
+            <Link to={`/organisation/${this.state.enid}/edit/`}>
               <Button variant='primary'>Edit</Button>
             </Link>{' '}
           </div>}
