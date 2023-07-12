@@ -25,10 +25,9 @@ class Entities extends React.Component {
   render() {
     return (
       <>
-        <h1 className='events-page__header'>Active events</h1>
-        <hr />
+        <h1 className='events-page__header'>Organisations</h1>
         {api.getApiTokenData().type === 'a' &&
-        <Link to='organisation/create/'>
+        <Link to='/organisation/create/'>
           <Button variant='outline-primary'>Create new organisation</Button>
         </Link>}
         {this.state.entities.length > 0 ? (
@@ -40,7 +39,7 @@ class Entities extends React.Component {
             ))}
           </Row>
         ) : (
-          <p>No events currently active</p>
+          <p>Loading...</p>
         )}
       </>
     )
