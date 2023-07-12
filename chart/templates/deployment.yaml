@@ -131,10 +131,12 @@ spec:
             {{ end }}
             {{ end }}
             # If dev mode is enabled, take secrets directly from values
-            {{ if and $service $Values.dev_mode }}
+            {{ if $Values.dev_mode }}
+            {{ if $service }}
             {{ range $service.secrets }}
             - name: {{ . }}
               value: "{{ index $Values.dev.secrets . }}"
+            {{ end }}
             {{ end }}
             {{ end }}
             # Get environment variables set explicitly per microservice
