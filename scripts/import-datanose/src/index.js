@@ -128,7 +128,7 @@ function projects(projects, entityIdMap, eventIdMap) {
       description: project['Project Description'],
       environment: project['Work environment'],
       expectations: project['Expectations'],
-      degrees: project['Fairs'].includes('AI') ? ['MScAI'] : ['MScCLSJD', 'MScISIS', 'MScISDS', 'MScLogic', 'MScSE'],
+      degrees: project['Fairs'].includes('AI') ? ['MScAI'] : ['MScCLSJD', 'MScCS', 'MScISIS', 'MScISDS', 'MScLogic', 'MScSE'],
       attendance: project['Participate in'] ? 'yes' : 'no',
       numberOfStudents: isNaN(project['Number of Students']) ? undefined : project['Number of Students'],
       email: project['Project Contact'],

@@ -2,21 +2,9 @@ import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 
-import {
-  OverlayTrigger,
-  Tooltip,
-  Container,
-  Tab,
-  Button,
-  Form,
-  Row,
-  Col,
-  Nav,
-  ButtonGroup,
-  ToggleButton,
-} from 'react-bootstrap'
+import { OverlayTrigger, Tooltip, Container, Button, Form, Row, Col, ButtonGroup } from 'react-bootstrap'
 
-import api, { tags as allTags } from '../../api'
+import api from '../../api'
 
 import './style.scss'
 import Tag from '../tag/tag'
@@ -25,7 +13,7 @@ import { degrees } from '../../definitions'
 
 import cl from 'clsx'
 
-// Expects evid in props 
+// Expects evid in props
 class EventEditor extends React.Component {
   constructor(props) {
     super(props)
@@ -370,9 +358,9 @@ class EventEditor extends React.Component {
             <Form.Group className='mb-3' controlId='active'>
               <Form.Label>Active</Form.Label>
               <Form.Check
-                type="switch"
-                id="event-enable-switch"
-                label={this.state.enabled ? "This event will be enabled" : "This event will be disabled"}
+                type='switch'
+                id='event-enable-switch'
+                label={this.state.enabled ? 'This event will be enabled' : 'This event will be disabled'}
                 onClick={_e => this.setState({ enabled: !this.state.enabled })}
                 value={this.state.enabled}
               />

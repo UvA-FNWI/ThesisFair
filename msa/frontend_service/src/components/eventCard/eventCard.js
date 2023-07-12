@@ -25,7 +25,6 @@ class EventCard extends React.Component {
 
     this.state = {
       ...this.state,
-      degrees: ['MScAI', 'MScISDS', 'MScLogic'],
     }
   }
 
@@ -75,19 +74,21 @@ class EventCard extends React.Component {
               }}
             />
           </Card.Text>
-          {api.getApiTokenData().type !== 'a' &&
+          {api.getApiTokenData().type !== 'a' && (
             <Link className='mt-auto' to={`event/${this.state.evid}/`}>
               <Button variant='primary'>More info</Button>
             </Link>
-          }
-          {api.getApiTokenData().type === 'a' && <div className='mt-auto'>
-            <Link to={`event/${this.state.evid}/`}>
-              <Button variant='primary'>View</Button>
-            </Link>{' '}
-            <Link to={`event/${this.state.evid}/edit/`}>
-              <Button variant='primary'>Edit</Button>
-            </Link>
-          </div>}
+          )}
+          {api.getApiTokenData().type === 'a' && (
+            <div className='mt-auto'>
+              <Link to={`event/${this.state.evid}/`}>
+                <Button variant='primary'>View</Button>
+              </Link>{' '}
+              <Link to={`event/${this.state.evid}/edit/`}>
+                <Button variant='primary'>Edit</Button>
+              </Link>
+            </div>
+          )}
         </Card.Body>
       </Card>
     )
