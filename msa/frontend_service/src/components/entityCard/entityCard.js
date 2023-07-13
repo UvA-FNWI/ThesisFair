@@ -32,16 +32,16 @@ class EntityCard extends React.Component {
     const contactEmail = this.state.contact && this.state.contact.find(c => c.type === 'email')
 
     return (
-      <Card data-color-mode='light' className={cl('event-card', { 'event-card--no-image': !this.state.image })}>
-        <Card.Img className='event-card__image' variant='top' src={this.state.image} />
+      <Card data-color-mode='light' className={cl('entity-card', { 'entity-card--no-image': !this.state.image })}>
+        <Card.Img className='entity-card__image' variant='top' src={this.state.image} />
         <Card.Body className='d-flex flex-column'>
           <Card.Title>{this.state.name}</Card.Title>
-          <Card.Subtitle className='event-card__subtitle'>
+          <Card.Subtitle className='entity-card__subtitle'>
             <small className='text-muted'>{contactEmail && contactEmail.content}</small>
           </Card.Subtitle>
-          <Card.Text className='event-card__body'>
+          <Card.Text className='entity-card__body'>
             {api.getApiTokenData().type === 'a' && (
-              <div className='event-card__tags'>
+              <div className='entity-card__tags'>
                 <Tag
                   key='type'
                   label={`Type: ${this.state.type || 'unknown'}`}
