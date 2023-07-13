@@ -37,7 +37,7 @@ class Entities extends React.Component {
             <Button variant='outline-primary'>Create new organisation</Button>
           </Link>
         )}
-        {this.state.entities.length > 0 ? (
+        {this.state.entities?.length > 0 ? (
           <Row className='g-4 events-page__row'>
             {this.state.entities.map(entity => (
               <Col md='auto'>

@@ -21,6 +21,7 @@ class EntityEditor extends React.Component {
       showContactSaved: false,
 
       isCreate: !props.enid,
+      type: 'A',
       enid: props.enid,
     }
   }
@@ -117,9 +118,25 @@ class EntityEditor extends React.Component {
     newContact.push({ type, content: value })
     this.setState({ contact: newContact })
 
-    console.log(this.state.contact, { type, content: value })
+    console.log(this.state.contact, { type, content: value }, newContact)
 
-    this.updateContactInfo({ preventDefault: () => {} })
+    this.setState({ savingContact: true })
+
+    try {
+      await api.entity
+        .update({
+          enid: this.state.enid,
+          contact: newContact,
+        })
+        .exec()
+    } catch (error) {
+      console.log(error)
+    }
+
+    this.setState({ savingContact: false, showContactSaved: true })
+    setTimeout(() => {
+      this.setState({ showContactSaved: false })
+    }, 2000)
   }
 
   updateContactInfo = async e => {
@@ -204,7 +221,7 @@ class EntityEditor extends React.Component {
                             <Form.Label>Representative First Name</Form.Label>
                             <Form.Control
                               placeholder='Enter representative name'
-                              value={this.state.representativeName || ''}
+                              value={this.state.representativeFirstName || ''}
                               onChange={e => this.setState({ representativeFirstName: e.target.value })}
                               required
                             />
@@ -215,7 +232,7 @@ class EntityEditor extends React.Component {
                             <Form.Label>Representative Last Name</Form.Label>
                             <Form.Control
                               placeholder='Enter representative name'
-                              value={this.state.representativeName || ''}
+                              value={this.state.representativeLastName || ''}
                               onChange={e => this.setState({ representativeLastName: e.target.value })}
                               required
                             />
