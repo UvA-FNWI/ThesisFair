@@ -85,14 +85,25 @@ class EntityEditor extends React.Component {
         return console.log(error)
       }
 
-      this.createUser({
-        firstname: this.state.representativeFirstName,
-        lastname: this.state.representativeLastName,
-        email: this.state.representativeEmail,
-        phone: '',
-      })
-
       this.setState({ enid: entity.enid, isCreate: false })
+
+      try {
+        await api.user.representative
+          .create({
+            enid: entity.enid,
+            firstname: this.state.representativeFirstName,
+            lastname: this.state.representativeLastName,
+            email: this.state.representativeEmail,
+            phone: '',
+          })
+          .exec()
+      } catch (error) {
+        if (error.errors) {
+          return error.errors[0].message
+        }
+
+        throw error
+      }
     } else {
       try {
         await api.entity
