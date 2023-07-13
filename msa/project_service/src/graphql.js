@@ -116,7 +116,7 @@ schemaComposer.Mutation.addNestedFields({
       email: 'String',
       numberOfStudents: 'Int',
       datanoseLink: 'String',
-      external_id: 'Int',
+      external_id: 'String',
     },
     description: JSON.stringify({
       caching: { type: 'project', key: 'pid', create: true },

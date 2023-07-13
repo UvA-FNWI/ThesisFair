@@ -27,24 +27,6 @@ const checkEntitiesExist = async entities => {
   }
 }
 
-const getEnid = async external_id => {
-  const res = await rgraphql(
-    'api-entity',
-    'query getEnid($external_id: ID!) { entityByExtID(external_id: $external_id) { enid } }',
-    { external_id }
-  )
-  if (res.errors || !res.data) {
-    console.error(res)
-    throw new Error('An unkown error occured while checking if the enid is valid')
-  }
-
-  if (!res.data.entityByExtID) {
-    return false
-  }
-
-  return res.data.entityByExtID.enid
-}
-
 const deleteEvent = async evid => {
   const calls = await Promise.all([
     rgraphql('api-project', 'mutation deleteLinkedProjects($evid: ID!) { project { deleteOfEvent(evid: $evid) } }', {
@@ -162,7 +144,6 @@ schemaComposer.Query.addNestedFields({
     resolve: async (obj, args, req) => {
       canGetEvents(req, args)
 
-      console.log(await Event.find())
       return await Event.find()
     },
   },
@@ -181,7 +162,7 @@ schemaComposer.Mutation.addNestedFields({
       location: 'String',
       studentSubmitDeadline: 'Date',
       entities: '[ID!]',
-      external_id: 'Int!',
+      external_id: 'String',
     },
     description: 'Create new event.',
     resolve: async (obj, args, req) => {
@@ -209,7 +190,7 @@ schemaComposer.Mutation.addNestedFields({
       location: 'String',
       studentSubmitDeadline: 'Date',
       entities: '[ID!]',
-      external_id: 'Int',
+      external_id: 'String',
     },
     description: 'Update an event.',
     resolve: async (obj, args, req) => {
