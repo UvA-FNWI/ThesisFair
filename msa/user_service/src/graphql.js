@@ -169,7 +169,7 @@ Please ask your colleagues to check their spam folder in case they do not receiv
   `,
   })
 
-  return Representative.create(rep)
+  return await Representative.create(rep)
 }
 
 const requestPasswordReset = async email => {
@@ -197,7 +197,7 @@ const requestPasswordReset = async email => {
   `,
   })
 
-  return User.findByIdAndUpdate(user.uid, { $set: { resetCode: resetCodeHash } })
+  return await User.findByIdAndUpdate(user.uid, { $set: { resetCode: resetCodeHash } })
 }
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
@@ -287,16 +287,16 @@ schemaComposer.Query.addNestedFields({
 
       switch (args.filter) {
         case 'student':
-          return Student.find()
+          return await Student.find()
 
         case 'representative':
-          return Representative.find()
+          return await Representative.find()
 
         case 'admin':
-          return User.find({ admin: true })
+          return await User.find({ admin: true })
 
         default:
-          return User.find()
+          return await User.find()
       }
     },
   },
@@ -311,7 +311,7 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED to get the users who voted from another entity.')
       }
 
-      return Student.find({
+      return await Student.find({
         manuallyShared: { $elemMatch: { $eq: args.enid } },
       })
     },
@@ -518,10 +518,10 @@ schemaComposer.Mutation.addNestedFields({
       const user = await Representative.findOne({email: args.email})
 
       if (user) {
-        return Representative.findByIdAndUpdate(user.uid, { $addToSet: { enids: { $each: args.enids } } })
+        return await Representative.findByIdAndUpdate(user.uid, { $addToSet: { enids: { $each: args.enids } } })
       }
 
-      return createRepresentative(args)
+      return await createRepresentative(args)
     },
   },
   'user.representative.update': {
@@ -577,7 +577,7 @@ schemaComposer.Mutation.addNestedFields({
         args.password = await hash(args.password)
       }
 
-      return Representative.findByIdAndUpdate(uid, { $set: args }, { new: true })
+      return await Representative.findByIdAndUpdate(uid, { $set: args }, { new: true })
     },
   },
   'user.admin.update': {
@@ -595,7 +595,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED update admin')
       }
 
-      return User.findByIdAndUpdate(uid, { $set: args }, { new: true })
+      return await User.findByIdAndUpdate(uid, { $set: args }, { new: true })
     },
   },
   'user.student.update': {
@@ -617,7 +617,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED update student')
       }
 
-      return Student.findByIdAndUpdate(uid, { $set: args }, { new: true })
+      return await Student.findByIdAndUpdate(uid, { $set: args }, { new: true })
     },
   },
   'user.student.uploadCV': {
@@ -665,7 +665,7 @@ schemaComposer.Mutation.addNestedFields({
         operation = { $pull: { share: args.enid, manuallyShared: args.enid } }
       }
 
-      return Student.findByIdAndUpdate(args.uid, operation, { new: true })
+      return await Student.findByIdAndUpdate(args.uid, operation, { new: true })
     },
   },
   'user.delete': {
@@ -693,7 +693,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED delete user')
       }
 
-      return User.findByIdAndDelete(args.uid)
+      return await User.findByIdAndDelete(args.uid)
     },
   },
   'user.deleteOfEntity': {
