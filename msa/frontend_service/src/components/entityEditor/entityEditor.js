@@ -2,10 +2,10 @@ import React from 'react'
 import { Container, CloseButton, Form, Button, Row, Col } from 'react-bootstrap'
 import api from '../../api'
 import graphqlFields from '../../api/graphqlFields.js'
-import CreateUserPopup from '../../components/createUserPopup/createUserPopup'
 import RepresentativeList from '../../components/representativeList/representativeList'
 
 import AddIcon from 'bootstrap-icons/icons/plus.svg'
+import AddContactPopup from '../../components/addContactPopup/addContactPopup'
 
 class EntityEditor extends React.Component {
   constructor(props) {
@@ -19,29 +19,93 @@ class EntityEditor extends React.Component {
 
       savingContact: false,
       showContactSaved: false,
+
+      isCreate: !props.enid,
+      enid: props.enid,
     }
   }
 
   async componentDidMount() {
-    const entity = this.props.enid ? await api.entity.get(this.props.enid).exec() : {}
+    const entity = this.state.enid ? await api.entity.get(this.state.enid).exec() : {}
 
     this.setState({
       ...entity,
       ...this.props.entity,
     })
+
+    console.log(this.state, {
+      ...entity,
+      ...this.props.entity,
+    })
+  }
+
+  createUser = async user => {
+    let newUser
+    try {
+      newUser = await api.user.representative
+        .create({
+          enid: this.state.enid,
+          ...user,
+        })
+        .exec()
+    } catch (error) {
+      if (error.errors) {
+        return error.errors[0].message
+      }
+
+      throw error
+    }
+
+    const newUsers = [...this.state.users]
+    newUsers.push(newUser)
+    this.setState({ users: newUsers })
+    return null
   }
 
   updateEntityInfo = async e => {
     e.preventDefault()
 
     this.setState({ savingInfo: true })
-    await api.entity
-      .update({
-        enid: this.state.enid,
-        name: this.state.name,
-        description: this.state.description,
+
+    if (this.state.isCreate) {
+      let entity
+
+      try {
+        console.log(this.state)
+        entity = await api.entity
+          .create({
+            name: this.state.name,
+            description: this.state.description || '',
+            type: this.state.type,
+            representatives: 1,
+          })
+          .exec()
+      } catch (error) {
+        return console.log(error)
+      }
+
+      this.createUser({
+        firstname: this.state.representativeFirstName,
+        lastname: this.state.representativeLastName,
+        email: this.state.representativeEmail,
+        phone: '',
       })
-      .exec()
+
+      this.setState({ enid: entity.enid, isCreate: false })
+    } else {
+      try {
+        await api.entity
+          .update({
+            enid: this.state.enid,
+            name: this.state.name,
+            description: this.state.description,
+          })
+          .exec()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
     this.setState({ savingInfo: false, showInfoSaved: true })
     setTimeout(() => {
       this.setState({ showInfoSaved: false })
@@ -53,6 +117,8 @@ class EntityEditor extends React.Component {
     newContact.push({ type, content: value })
     this.setState({ contact: newContact })
 
+    console.log(this.state.contact, { type, content: value })
+
     this.updateContactInfo({ preventDefault: () => {} })
   }
 
@@ -60,12 +126,19 @@ class EntityEditor extends React.Component {
     e.preventDefault()
 
     this.setState({ savingContact: true })
-    await api.entity
-      .update({
-        enid: this.state.enid,
-        contact: this.state.contact,
-      })
-      .exec()
+
+    try {
+      console.log(this.state.contact, this.state.enid)
+      await api.entity
+        .update({
+          enid: this.state.enid,
+          contact: this.state.contact,
+        })
+        .exec()
+    } catch (error) {
+      console.log(error)
+    }
+
     this.setState({ savingContact: false, showContactSaved: true })
     setTimeout(() => {
       this.setState({ showContactSaved: false })
@@ -81,8 +154,8 @@ class EntityEditor extends React.Component {
   render() {
     return (
       <>
-        <Container className='mt-2'>
-          <h2>Organisation Information</h2>
+        <Container className='mt-4'>
+          {this.state.isCreate ? <h2>Create a new organisation</h2> : <h2>Organisation Information</h2>}
           <h6>
             <em>This is what the students will see.</em>
           </h6>
@@ -107,14 +180,65 @@ class EntityEditor extends React.Component {
                       placeholder='Enter description'
                       value={this.state.description || ''}
                       onChange={e => this.setState({ description: e.target.value })}
-                      required
                     />
                   </Form.Group>
+                  {this.state.isCreate && (
+                    <>
+                      <Form.Group>
+                        <Form.Label>Type</Form.Label>
+                        <Form.Control
+                          as='select'
+                          value={this.state.type || ''}
+                          onChange={e => this.setState({ type: e.target.value })}
+                          required
+                        >
+                          <option value='A'>A</option>
+                          <option value='B'>B</option>
+                          <option value='C'>C</option>
+                        </Form.Control>
+                      </Form.Group>
+
+                      <Row>
+                        <Col>
+                          <Form.Group>
+                            <Form.Label>Representative First Name</Form.Label>
+                            <Form.Control
+                              placeholder='Enter representative name'
+                              value={this.state.representativeName || ''}
+                              onChange={e => this.setState({ representativeFirstName: e.target.value })}
+                              required
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group>
+                            <Form.Label>Representative Last Name</Form.Label>
+                            <Form.Control
+                              placeholder='Enter representative name'
+                              value={this.state.representativeName || ''}
+                              onChange={e => this.setState({ representativeLastName: e.target.value })}
+                              required
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+
+                      <Form.Group>
+                        <Form.Label>Representative Email</Form.Label>
+                        <Form.Control
+                          placeholder='Enter representative email'
+                          value={this.state.representativeEmail || ''}
+                          onChange={e => this.setState({ representativeEmail: e.target.value })}
+                          required
+                        />
+                      </Form.Group>
+                    </>
+                  )}
                 </div>
 
                 <div className='d-flex gap-2 align-items-center'>
                   <Button type='submit' disabled={this.savingInfo}>
-                    {this.savingInfo ? 'Saving...' : 'Update information'}
+                    {this.savingInfo ? 'Saving...' : this.state.isCreate ? 'Create organisation' : 'Update information'}
                   </Button>
                   {this.state.showInfoSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
                 </div>
@@ -122,83 +246,86 @@ class EntityEditor extends React.Component {
             </div>
           </div>
 
-          <div className='mb-4'>
-            <h2>Organisation Contact Information</h2>
-            <Form onSubmit={this.updateContactInfo}>
-              {this.state.contact &&
-                this.state.contact.map((contact, i) => (
-                  <Row key={i}>
-                    <Col xs={2}>
-                      <p
-                        className='contact-item__header'
-                        style={{
-                          backgroundColor: 'white',
-                          width: '100%',
-                          padding: '0.375rem',
-                          border: '1px solid rgb(206, 212, 218)',
-                          borderRadius: '0.25rem',
-                        }}
-                      >
-                        {this.contactTypes[contact.type]}
-                      </p>
-                    </Col>
-                    <Col style={{ position: 'relative' }}>
-                      <Form.Control
-                        className='mb-2'
-                        value={contact.content}
-                        onChange={e => {
-                          const newContact = [...this.state.contact]
-                          newContact[i].content = e.target.value
-                          this.setState({ contact: newContact })
-                        }}
-                      />
-                      <CloseButton
-                        style={{ position: 'absolute', top: '7px', right: '18px' }}
-                        onClick={() => {
-                          const newContact = [...this.state.contact]
-                          newContact.splice(i, 1)
-                          this.setState({ contact: newContact })
-                        }}
-                      />
-                    </Col>
-                  </Row>
-                ))}
+          {!this.state.isCreate && (
+            <>
+              <div className='mb-4'>
+                <h2>Organisation Contact Information</h2>
+                <Form onSubmit={this.updateContactInfo}>
+                  {this.state.contact &&
+                    this.state.contact.map((contact, i) => (
+                      <Row key={i}>
+                        <Col xs={2}>
+                          <p
+                            className='contact-item__header'
+                            style={{
+                              backgroundColor: 'white',
+                              width: '100%',
+                              padding: '0.375rem',
+                              border: '1px solid rgb(206, 212, 218)',
+                              borderRadius: '0.25rem',
+                            }}
+                          >
+                            {this.contactTypes[contact.type]}
+                          </p>
+                        </Col>
+                        <Col style={{ position: 'relative' }}>
+                          <Form.Control
+                            className='mb-2'
+                            value={contact.content}
+                            onChange={e => {
+                              const newContact = [...this.state.contact]
+                              newContact[i].content = e.target.value
+                              this.setState({ contact: newContact })
+                            }}
+                          />
+                          <CloseButton
+                            style={{ position: 'absolute', top: '7px', right: '18px' }}
+                            onClick={() => {
+                              const newContact = [...this.state.contact]
+                              newContact.splice(i, 1)
+                              this.setState({ contact: newContact })
+                            }}
+                          />
+                        </Col>
+                      </Row>
+                    ))}
 
-              <div className='d-flex gap-2 align-items-center'>
-                <Button
-                  onClick={() => this.setState({ addContactEntryPopup: true })}
-                  style={{
-                    display: 'flex',
-                    width: '38px',
-                    height: '38px',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <img src={AddIcon} alt='' style={{ width: '24px', height: '24px', filter: 'invert()' }} />
-                </Button>
+                  <div className='d-flex gap-2 align-items-center'>
+                    <Button
+                      onClick={() => this.setState({ addContactEntryPopup: true })}
+                      style={{
+                        display: 'flex',
+                        width: '38px',
+                        height: '38px',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <img src={AddIcon} alt='' style={{ width: '24px', height: '24px', filter: 'invert()' }} />
+                    </Button>
 
-                <Button type='submit' disabled={this.savingContact}>
-                  {this.savingContact ? 'Saving...' : 'Update contact information'}
-                </Button>
-                {this.state.showContactSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
+                    <Button type='submit' disabled={this.savingContact}>
+                      {this.savingContact ? 'Saving...' : 'Update contact information'}
+                    </Button>
+                    {this.state.showContactSaved ? <h6 style={{ color: 'green', margin: 0 }}>Saved</h6> : null}
+                  </div>
+                </Form>
               </div>
-            </Form>
-          </div>
 
-          {this.state.enid &&
-          <div>
-            <h2>Company Accounts</h2>
-            {this.state.enid && <RepresentativeList enid={this.state.enid} />}
-          </div>
-          }
+              <div>
+                <h2>Company Accounts</h2>
+                <RepresentativeList enid={this.state.enid} />
+              </div>
+            </>
+          )}
         </Container>
 
         {this.state.addContactEntryPopup ? (
-          <CreateUserPopup close={() => this.setState({ addContactEntryPopup: false })} create={this.addContactEntry} />
-        ) : null}
-        {this.state.newUserPopup ? (
-          <CreateUserPopup close={() => this.setState({ newUserPopup: false })} create={this.createUser} />
+          <AddContactPopup
+            enid={this.state.enid}
+            close={() => this.setState({ addContactEntryPopup: false })}
+            create={this.addContactEntry}
+          />
         ) : null}
       </>
     )

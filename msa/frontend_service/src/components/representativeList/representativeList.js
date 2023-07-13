@@ -15,8 +15,12 @@ class RepresentativeList extends React.Component {
   }
 
   async componentDidMount() {
-    const users = await api.user.getOfEntity(this.props.enid).exec()
-    this.setState({ users: users })
+    try {
+      const users = await api.user.getOfEntity(this.props.enid).exec()
+      this.setState({ users: users })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   toggleAdmin = async userIndex => {
@@ -36,6 +40,7 @@ class RepresentativeList extends React.Component {
 
   createUser = async user => {
     let newUser
+
     try {
       newUser = await api.user.representative
         .create({

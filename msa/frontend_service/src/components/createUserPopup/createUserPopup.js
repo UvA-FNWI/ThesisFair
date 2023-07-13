@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Form, Modal, Row, Col } from 'react-bootstrap'
 
-class AddContactPopup extends React.Component {
+class CreateUserPopup extends React.Component {
   constructor(props) {
     super(props)
 
@@ -14,8 +14,10 @@ class AddContactPopup extends React.Component {
     }
 
     this.state = {
-      type: 'website',
-      value: '',
+      firstname: '',
+      lastname: '',
+      email: '',
+      phone: '',
       error: null,
     }
   }
@@ -25,8 +27,6 @@ class AddContactPopup extends React.Component {
   }
 
   save = async () => {
-    if (!this.state.value) return this.setState({ error: 'Please enter a value' })
-
     const error = await this.props.create(this.state)
     if (error) {
       this.setState({ error })
@@ -39,34 +39,52 @@ class AddContactPopup extends React.Component {
   render() {
     return (
       <Modal show={true} onHide={this.close} size='lg'>
-        <Modal.Header closeButton>Add a new contact entry</Modal.Header>
+        <Modal.Header closeButton>Create a new user</Modal.Header>
 
         <Modal.Body>
-          <Form>
+          <Form onSubmit={this.updatePersonalInfo}>
             <Row className='mb-2'>
               <Col>
-                {/* Option between website, email and phonenumber */}
                 <Form.Group>
-                  <Form.Label>Type</Form.Label>
+                  <Form.Label>First Name</Form.Label>
                   <Form.Control
-                    as='select'
-                    value={this.state.type}
-                    onChange={e => this.setState({ type: e.target.value })}
-                    placeholder='Select the type'
-                  >
-                    <option value='website'>Website</option>
-                    <option value='email'>Email</option>
-                    <option value='phonenumber'>Phone Number</option>
-                  </Form.Control>
+                    placeholder='Enter their first name'
+                    value={this.state.firstname}
+                    onChange={e => this.setState({ firstname: e.target.value })}
+                  />
                 </Form.Group>
               </Col>
               <Col>
                 <Form.Group>
-                  <Form.Label>Value</Form.Label>
+                  <Form.Label>Family Name</Form.Label>
                   <Form.Control
-                    placeholder='Enter the value of the contact entry'
-                    value={this.state.value}
-                    onChange={e => this.setState({ value: e.target.value, error: null })}
+                    placeholder='Enter their family name'
+                    value={this.state.lastname}
+                    onChange={e => this.setState({ lastname: e.target.value })}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className='mb-2'>
+              <Col>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type='email'
+                    placeholder='Enter their email'
+                    value={this.state.email}
+                    onChange={e => this.setState({ email: e.target.value })}
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group>
+                  <Form.Label>Phone number</Form.Label>
+                  <Form.Control
+                    placeholder='Enter their phone number'
+                    value={this.state.phone}
+                    onChange={e => this.setState({ phone: e.target.value })}
                   />
                 </Form.Group>
               </Col>
@@ -87,4 +105,4 @@ class AddContactPopup extends React.Component {
   }
 }
 
-export default AddContactPopup
+export default CreateUserPopup

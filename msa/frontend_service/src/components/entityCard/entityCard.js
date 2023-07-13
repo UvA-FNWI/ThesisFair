@@ -32,20 +32,30 @@ class EntityCard extends React.Component {
     const contactEmail = this.state.contact && this.state.contact.find(c => c.type === 'email')
 
     return (
-      <Card data-color-mode='light' className={cl('card', { 'card--no-image': !this.state.image })}>
-        <Card.Img className='card__image' variant='top' src={this.state.image} />
+      <Card data-color-mode='light' className={cl('event-card', { 'event-card--no-image': !this.state.image })}>
+        <Card.Img className='event-card__image' variant='top' src={this.state.image} />
         <Card.Body className='d-flex flex-column'>
           <Card.Title>{this.state.name}</Card.Title>
-          <Card.Subtitle className='card__subtitle'>
-            <small className='text-muted'>
-              {contactEmail && contactEmail.content}
-            </small>
+          <Card.Subtitle className='event-card__subtitle'>
+            <small className='text-muted'>{contactEmail && contactEmail.content}</small>
           </Card.Subtitle>
-          <Card.Text className='card__body'>
-            {api.getApiTokenData().type === 'a' && <div className='card__tags'>
-              <Tag key='type' label={`Type: ${this.state.type || 'unknown'}`} tooltip={`type: ${this.state.type}`} selectable={false} />
-              <Tag key='payment' label={'Payment: incomplete'} tooltip={'This organization has yet to pay'} selectable={false} />
-            </div>}
+          <Card.Text className='event-card__body'>
+            {api.getApiTokenData().type === 'a' && (
+              <div className='event-card__tags'>
+                <Tag
+                  key='type'
+                  label={`Type: ${this.state.type || 'unknown'}`}
+                  tooltip={`type: ${this.state.type}`}
+                  selectable={false}
+                />
+                <Tag
+                  key='payment'
+                  label={'Payment: incomplete'}
+                  tooltip={'This organization has yet to pay'}
+                  selectable={false}
+                />
+              </div>
+            )}
 
             <MDEditor.Markdown
               source={this.state.description}
@@ -54,11 +64,13 @@ class EntityCard extends React.Component {
               }}
             />
           </Card.Text>
-          {api.getApiTokenData().type === 'a' && <div className='mt-auto'>
-            <Link to={`/organisation/${this.state.enid}/edit/`}>
-              <Button variant='primary'>Edit</Button>
-            </Link>{' '}
-          </div>}
+          {api.getApiTokenData().type === 'a' && (
+            <div className='mt-auto'>
+              <Link to={`/organisation/${this.state.enid}/edit/`}>
+                <Button variant='primary'>Edit</Button>
+              </Link>{' '}
+            </div>
+          )}
         </Card.Body>
       </Card>
     )
