@@ -35,7 +35,7 @@ const deleteEntity = async enid => {
     }
   }
 
-  return Entity.findByIdAndDelete(enid)
+  return await Entity.findByIdAndDelete(enid)
 }
 
 schemaComposer.Query.addNestedFields({
@@ -58,9 +58,9 @@ schemaComposer.Query.addNestedFields({
   entitiesAll: {
     type: '[Entity!]',
     description: 'Get all entities.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       canGetAllEntities(req)
-      return Entity.find()
+      return await Entity.find()
     },
   },
   entities: {
@@ -86,12 +86,12 @@ schemaComposer.Mutation.addNestedFields({
       location: 'String',
     },
     description: 'Create a new entity.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED create entities')
       }
 
-      return Entity.create(args)
+      return await Entity.create(args)
     },
   },
   'entity.update': {
@@ -107,7 +107,7 @@ schemaComposer.Mutation.addNestedFields({
       location: 'String',
     },
     description: 'Update an entity.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       const enid = args.enid
       delete args.enid
 
@@ -122,7 +122,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED update type of entity')
       }
 
-      return Entity.findByIdAndUpdate(enid, { $set: args }, { new: true })
+      return await Entity.findByIdAndUpdate(enid, { $set: args }, { new: true })
     },
   },
   'entity.delete': {
@@ -136,7 +136,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED delete entities')
       }
 
-      return deleteEntity(args.enid)
+      return await deleteEntity(args.enid)
     },
   },
   'entity.import': {
