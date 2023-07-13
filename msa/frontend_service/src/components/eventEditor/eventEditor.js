@@ -4,7 +4,7 @@ import rehypeSanitize from 'rehype-sanitize'
 
 import { OverlayTrigger, Tooltip, Container, Button, Form, Row, Col, ButtonGroup } from 'react-bootstrap'
 
-import api from '../../api'
+import api, { getFileContent } from '../../api'
 
 import './style.scss'
 import Tag from '../tag/tag'
@@ -30,6 +30,9 @@ class EventEditor extends React.Component {
       // studentSubmitDeadline: new Date(),
       // entities: [],
 
+      studentImage: this.props.params.evid ? false : null,
+      repImage: this.props.params.evid ? false : null,
+
       hasBeenInteractedWith: {
         name: false,
         description: false,
@@ -45,6 +48,8 @@ class EventEditor extends React.Component {
     this.cancel = this.cancel.bind(this)
     this.deleteEvent = this.deleteEvent.bind(this)
     this.handleMasterCheck = this.handleMasterCheck.bind(this)
+    this.updateEvent = this.updateEvent.bind(this)
+    this.componentDidMount = this.componentDidMount.bind(this)
   }
 
   async componentDidMount() {
@@ -53,6 +58,20 @@ class EventEditor extends React.Component {
       event.start = new Date(event.start)
       event.end = new Date(event.end)
       this.setState(event)
+
+      api.event
+        .getImage(event.evid, 'student')
+        .exec()
+        .then(studentImage => {
+          this.setState({studentImage})
+        })
+
+      api.event
+        .getImage(event.evid, 'rep')
+        .exec()
+        .then(repImage => {
+          this.setState({repImage})
+        })
     }
   }
 
@@ -84,11 +103,22 @@ class EventEditor extends React.Component {
       enabled: this.state.enabled,
     }
 
+    let evid
     // TODO: handle errors and show to user
     if (this.props.params.evid) {
       await api.event.update({ ...event, evid: this.props.params.evid }).exec()
+      evid = this.props.params.evid
     } else {
-      await api.event.create(event).exec()
+      evid = (await api.event.create(event).exec()).evid
+    }
+
+    // Upload images
+    if (this.state.studentImage && evid) {
+      await api.event.updateImage(evid, 'student', this.state.studentImage).exec()
+    }
+
+    if (this.state.repImage && evid) {
+      await api.event.updateImage(evid, 'rep', this.state.repImage).exec()
     }
   }
 
@@ -131,10 +161,17 @@ class EventEditor extends React.Component {
     expectations: () => true,
     start: () => true,
     end: () => true,
+    location: () => true,
   }
 
-  getDataInputs = () => (
-    <Container className='mt-2 create-event' data-color-mode='light'>
+  getSubmitButton = disabled => (
+    <Button disabled={disabled} className='button-disabled' variant='primary' type='submit' onClick={this.submit}>
+      {this.props.params.evid ? 'Update' : 'Create'} Event
+    </Button>
+  )
+
+  render() {
+    return <Container className='mt-2 create-event' data-color-mode='light'>
       <h1 className='mb-4'>{this.props.params.evid ? 'Edit' : 'Create'} Event</h1>
       <Form>
         <Row className='mb-3'>
@@ -368,6 +405,44 @@ class EventEditor extends React.Component {
           </Col>
         </Row>
 
+        <Row className='mb-3'>
+          <Col>
+            <Form.Label>Student image</Form.Label>
+            {this.state.studentImage ? (
+              <img width='512px' className='mt-2' src={this.state.studentImage} alt='Student event map' />
+            ) : this.state.studentImage === false ? (
+              <h6>
+                <em>Loading image...</em>
+              </h6>
+            ) : (
+              <h6>
+                <em>No student image is set.</em>
+              </h6>
+            )}
+            <Button onClick={
+              async () => this.setState({studentImage: await getFileContent()})
+            }>Upload student image</Button>
+          </Col>
+
+          <Col>
+            <Form.Label>Representative image</Form.Label>
+            {this.state.repImage ? (
+              <img width='512px' className='mt-2' src={this.state.repImage} alt='Representative event map' />
+            ) : this.state.repImage === false ? (
+              <h6>
+                <em>Loading image...</em>
+              </h6>
+            ) : (
+              <h6>
+                <em>No representative image is set.</em>
+              </h6>
+            )}
+            <Button onClick={
+              async () => this.setState({repImage: await getFileContent()})
+            }>Upload representative image</Button>
+          </Col>
+        </Row>
+
         <Button
           variant='primary'
           type='submit'
@@ -403,15 +478,7 @@ class EventEditor extends React.Component {
         )}
       </Form>
     </Container>
-  )
-
-  getSubmitButton = disabled => (
-    <Button disabled={disabled} className='button-disabled' variant='primary' type='submit' onClick={this.submit}>
-      {this.props.params.evid ? 'Update' : 'Create'} Event
-    </Button>
-  )
-
-  render = () => this.getDataInputs()
+  }
 }
 
 export default EventEditor
