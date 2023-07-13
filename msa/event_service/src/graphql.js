@@ -46,7 +46,7 @@ const deleteEvent = async evid => {
     }
   }
 
-  return Event.findByIdAndDelete(evid)
+  return await Event.findByIdAndDelete(evid)
 }
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
@@ -174,7 +174,7 @@ schemaComposer.Mutation.addNestedFields({
         await checkEntitiesExist(args.entities)
       }
 
-      return Event.create(args)
+      return await Event.create(args)
     },
   },
   'event.update': {
@@ -204,7 +204,7 @@ schemaComposer.Mutation.addNestedFields({
 
       const evid = args.evid
       delete args.evid
-      return Event.findByIdAndUpdate(evid, { $set: args }, { new: true })
+      return await Event.findByIdAndUpdate(evid, { $set: args }, { new: true })
     },
   },
   'event.updateImage': {
@@ -238,12 +238,12 @@ schemaComposer.Mutation.addNestedFields({
       evid: 'ID!',
     },
     description: 'Delete an event.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED create delete an event')
       }
 
-      return deleteEvent(args.evid)
+      return await deleteEvent(args.evid)
     },
   },
   'event.removeEntity': {
@@ -282,7 +282,7 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('Could not find an entity with that enid')
       }
 
-      return Event.findByIdAndUpdate(args.evid, { $push: { entities: args.enid } }, { new: true })
+      return await Event.findByIdAndUpdate(args.evid, { $push: { entities: args.enid } }, { new: true })
     },
   },
   'event.entity.del': {
@@ -292,12 +292,12 @@ schemaComposer.Mutation.addNestedFields({
       enid: 'ID!',
     },
     description: 'Remove an entity from an event.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete an entity from an event')
       }
 
-      return Event.findByIdAndUpdate(args.evid, { $pull: { entities: args.enid } }, { new: true })
+      return await Event.findByIdAndUpdate(args.evid, { $pull: { entities: args.enid } }, { new: true })
     },
   },
 })
