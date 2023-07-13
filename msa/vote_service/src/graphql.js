@@ -87,9 +87,9 @@ schemaComposer.Query.addNestedFields({
       evid: 'ID!',
     },
     description: 'Get the votes of a student from an event.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       canGetStudentVotes(req, args)
-      return Vote.findOne({ evid: args.evid, uid: args.uid }).then(result =>
+      return await Vote.findOne({ evid: args.evid, uid: args.uid }).then(result =>
         result ? result.votes.map(v => v.pid) : null
       )
     },
@@ -126,7 +126,7 @@ schemaComposer.Query.addNestedFields({
         return null;
       }
 
-      return votes.map(
+      return await votes.map(
         ({uid, votes}) => votes.map(({pid}) => ({uid, pid}))
       ).flat();
     }
@@ -151,7 +151,7 @@ schemaComposer.Query.addNestedFields({
         query['votes'] = { $elemMatch: { pid: args.pid, enid: req.user.enid } }
       }
 
-      return Vote.find(query).then(result => result.map(v => v.uid))
+      return await Vote.find(query).then(result => result.map(v => v.uid))
     },
   },
   votesOfEvent: {
@@ -160,12 +160,12 @@ schemaComposer.Query.addNestedFields({
       evid: 'ID!',
     },
     description: 'Get all the votes of an event.',
-    resolve: (obj, args, req) => {
+    resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw Error('UNAUTHORIZED to get all votes of the event')
       }
 
-      return Vote.find({ evid: args.evid })
+      return await Vote.find({ evid: args.evid })
     },
   },
   voteStudentForEntity: {
