@@ -138,8 +138,6 @@ class App extends React.Component {
         <Routes>
           <Route path='/error' element={<Error />} />
           {this.getRoutes()}
-          {/* Instead of showing 404, navigate to / */}
-          {/* <Route path='*' element={<NotFound />} /> */}
           <Route path='*' element={<Navigate to='/' replace={true} />} />
         </Routes>
       </BrowserRouter>

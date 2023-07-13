@@ -12,6 +12,8 @@ import userIcon from 'bootstrap-icons/icons/people.svg'
 import overrideUserIcon from 'bootstrap-icons/icons/person.svg'
 import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg'
 
+import SetOrganisationPopup from '../setOrganisationPopup/setOrganisationPopup'
+
 import './navbar.scss'
 import api from '../../api'
 
@@ -70,6 +72,8 @@ function CustomNavbar() {
               </Link>
             </Nav.Item>
           ))}
+
+          {api.getApiTokenData().type === 'r' && <SetOrganisationPopup />}
 
           <Nav.Item className='logout'>
             <div
