@@ -111,8 +111,8 @@ spec:
             {{ if $Values.dev_mode }}
             {{ if $service }}
             {{ range $service.secrets }}
-            - name: {{ . }}
-              value: "{{ index $Values.dev.secrets . }}"
+            - name: {{ .key }}
+              value: "{{ index $Values.dev.secrets .key }}"
             {{ end }}
             {{ end }}
             {{ end }}
