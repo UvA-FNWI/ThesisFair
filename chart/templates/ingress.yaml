@@ -18,7 +18,7 @@ spec:
                 name: thesisfair-api
                 port:
                   number: 80
-          - path: /sso/(.*)
+          - path: /(sso/.*)
             pathType: Prefix
             backend:
               service:
