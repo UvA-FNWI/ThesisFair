@@ -8,8 +8,8 @@ export let channel = null
 let replyQueue = null
 let sendInitialized = false
 
-const TRY_COUNT = 20
-const TRY_TIMEOUT = 500
+const TRY_COUNT = 180
+const TRY_TIMEOUT = 1000
 const MSG_TIMEOUT = 30000 // ms
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
