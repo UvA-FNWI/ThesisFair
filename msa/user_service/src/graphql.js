@@ -380,7 +380,8 @@ schemaComposer.Query.addNestedFields({
       const password = await hash(args.password)
 
       if (await bcrypt.compare(args.resetCode, user.resetCode)) {
-        return await User.findByIdAndUpdate(user.uid, { password, resetCode: null })
+        await User.findByIdAndUpdate(user.uid, { password, resetCode: null })
+        return true
       }
 
       throw new Error('Incorrect password reset code')
