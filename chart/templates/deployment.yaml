@@ -1,4 +1,5 @@
 {{ $Values := .Values }}
+{{ $Chart := .Chart }}
 {{ $Release := .Release }}
 apiVersion: apps/v1
 
@@ -100,6 +101,8 @@ spec:
               value: "mongodb://database/{{ $name }}"
             - name: amqpConStr
               value: "amqp://messaging-queue"
+            - name: BUILD_VERSION
+              value: "{{ $Chart.AppVersion }}"
             # Get global common env variables from the root-level 'env' field
             {{ if $Values.env }}
             {{ range $key, $value := $Values.env }}

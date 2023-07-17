@@ -380,7 +380,8 @@ schemaComposer.Query.addNestedFields({
       const password = await hash(args.password)
 
       if (await bcrypt.compare(args.resetCode, user.resetCode)) {
-        return await User.findByIdAndUpdate(user.uid, { password, resetCode: null })
+        await User.findByIdAndUpdate(user.uid, { password, resetCode: null })
+        return true
       }
 
       throw new Error('Incorrect password reset code')
@@ -399,8 +400,12 @@ schemaComposer.Query.addNestedFields({
         throw new Error('No user with that email found.')
       }
 
-      if (process.env.NODE_ENV !== 'development' && user.admin === true) {
-        throw new Error('SSO only account. Please login via Single Sign-on')
+      // if (process.env.NODE_ENV !== 'development' && user.admin === true) {
+      //   throw new Error('SSO only account. Please login via Single Sign-on')
+      // }
+
+      if (!user.password) {
+        throw new Error('No password is set. Please use the "forgot password" function.')
       }
 
       if (!(await bcrypt.compare(args.password, user.password))) {

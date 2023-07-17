@@ -66,6 +66,14 @@ function contactsToUsers(contactsString) {
       user['password'] = '$2b$10$k6sWNYGtbJMtl4yvsMbpZuKN0n5/V4.0B8P3MGnAY5mcvw1P5/Voy'
     }
 
+    switch (`${user.firstname} ${user.lastname}`) {
+      case 'Yasmin Santis':
+      case 'Grace Watson':
+      case 'Ischa Abraham':
+      case 'Jake Jongejans':
+        user.admin = true
+    }
+
     users.push(Object.assign({}, user))
   }
 

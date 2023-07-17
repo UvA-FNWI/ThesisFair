@@ -70,7 +70,7 @@ For production 2 vCPU and 4 GB ram (Standard B2s in Azure cloud) seem to be enou
 
 - `JWT_SECRET` - Is the signing key for the JSON web tokens. The API gateway and user service need this token. It can be generated using the command `openssl rand -base64 512`.
 - `FS_ROOT` - The root path of the project on the filesystem. Used to mount the data directories into the containers. (For example `/opt/thesisfair/`)
-- `URL` - The url of the website(For example `thesisfair.qrcsoftware.nl`).
+- `URL` - The url of the website(For example `thesisfair.ivi.uva.nl`).
 
 ### OpenID variables
 
@@ -150,7 +150,7 @@ All communication is handled over GraphQL and JSON. The GraphQL endpoint is loca
 
 ## Sending requests:
 
-- URL: https://thesisfair.qrcsoftware.nl/api/graphql
+- URL: https://thesisfair.ivi.uva.nl/api/graphql
 - Method: POST
 - Headers:
 - - `Content-Type: application/json`

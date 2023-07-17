@@ -1,11 +1,11 @@
 env:
-  OPENID_ISSUER_URL: "https://connect.test.surfconext.nl/"
-  OPENID_CLIENT_ID: "thesisfair.local"
-  OPENID_REDIRECT_URL: "https://thesisfair.qrcsoftware.nl/sso/loggedin"
-  OPENID_RESOURCE: "https://thesisfair.qrcsoftware.nl"
-  MAILHOST: "webmail.uva.nl"
-  MAILPORT: "587"
-  MAILUSER: "SRV-THESIS"
+  OPENID_ISSUER_URL: 'https://connect.test.surfconext.nl/'
+  OPENID_CLIENT_ID: 'thesisfair.local'
+  OPENID_REDIRECT_URL: 'https://thesisfair.ivi.uva.nl/sso/loggedin'
+  OPENID_RESOURCE: 'https://thesisfair.ivi.uva.nl'
+  MAILHOST: 'webmail.uva.nl'
+  MAILPORT: '587'
+  MAILUSER: 'SRV-THESIS'
 
 azure:
   keyvaultName: keyvaultName
