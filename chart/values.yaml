@@ -23,16 +23,16 @@ azure:
 msa:
   API_gateway:
     secrets:
-      - name: thesisfair-jwt-secret
-        key: JWT_SECRET
-      - name: thesisfair-oidc-secret
-        key: OPENID_CLIENT_SECRET
+    - name: thesisfair-jwt-secret
+      key: JWT_SECRET
+    - name: thesisfair-oidc-secret
+      key: OPENID_CLIENT_SECRET
   user_service:
     secrets:
-      - name: thesisfair-jwt-secret
-        key: JWT_SECRET
-      - name: thesisfair-mail-password
-        key: MAILPASS
+    - name: thesisfair-jwt-secret
+      key: JWT_SECRET
+    - name: thesisfair-mail-password
+      key: MAILPASS
   entity_service:
   event_service:
   project_service:
