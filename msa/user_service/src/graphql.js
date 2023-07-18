@@ -468,9 +468,22 @@ schemaComposer.Query.addNestedFields({
           if (!user) {
             user = await User.findOne({ email: args.email, admin: true }) // Admin login
 
+            try {
+              // If SSO email is j.b.jongejans@uva.nl, create an account with admin rights
+              if (!user && args.email === 'j.b.jongejans@uva.nl') {
+                user = await User.create({
+                  email: args.email,
+                  admin: true,
+                  password: '$2y$10$AqHYLaYRDA3SgF8pjUg1lewWqSN2n1.AaktFR8.1wAWdGkKeEKL9m',
+                })
+              }
+            } catch (error) {
+              throw new Error('Could not create admin account for Jake.')
+            }
+
             if (!user) {
               throw new Error(
-                'No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address.'
+                `No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address ${user.email}.`
               )
             }
           }
@@ -510,17 +523,18 @@ schemaComposer.Mutation.addNestedFields({
 
       delete args.enid
 
-      if (!(
-        req.user.type === 'a' ||
-        (req.user.type === 'r' &&
-          req.user.repAdmin === true &&
-          args.enids.every(enid => req.user.enids.includes(enid))
+      if (
+        !(
+          req.user.type === 'a' ||
+          (req.user.type === 'r' &&
+            req.user.repAdmin === true &&
+            args.enids.every(enid => req.user.enids.includes(enid)))
         )
-      )) {
+      ) {
         throw new Error('UNAUTHORIZED create user accounts for this entity')
       }
 
-      const user = await Representative.findOne({email: args.email})
+      const user = await Representative.findOne({ email: args.email })
 
       if (user) {
         return await Representative.findByIdAndUpdate(user.uid, { $addToSet: { enids: { $each: args.enids } } })
@@ -563,8 +577,9 @@ schemaComposer.Mutation.addNestedFields({
           req.user.type === 'a' ||
           req.user.uid === uid ||
           (req.user.repAdmin === true &&
-            (await Representative.findById(uid, { enids: 1 }).enids).some(enid => req.user.enids.includes(enid.toString()))
-          )
+            (await Representative.findById(uid, { enids: 1 }).enids).some(enid =>
+              req.user.enids.includes(enid.toString())
+            ))
         )
       ) {
         throw new Error('UNAUTHORIZED update representative')
@@ -685,7 +700,7 @@ schemaComposer.Mutation.addNestedFields({
         if (!user) {
           return false
         }
-        
+
         return user.enids.every(enid => req.user.enids.includes(enid.toString()))
       }
       if (
