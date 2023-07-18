@@ -4,35 +4,35 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: thesisfair
-  namespace: {{ .Release.Namespace }}
+  namespace: {? {.Release.Namespace: ''} : ''}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   tls:
-    - hosts:
-        - "thesisfair.ivi.uva.nl"
-      secretName: ingress-tls-csi-thesisfair
+  - hosts:
+    - "thesisfair.ivi.uva.nl"
+    secretName: ingress-tls-csi-thesisfair
   rules:
-    - http:
-        paths:
-          - path: /api/(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: thesisfair-api
-                port:
-                  number: 80
-          - path: /(sso/.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: thesisfair-api
-                port:
-                  number: 80
-          - path: /(.*)
-            pathType: Prefix
-            backend:
-              service:
-                name: thesisfair-frontend
-                port:
-                  number: 3000
+  - http:
+      paths:
+      - path: /api/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: thesisfair-api
+            port:
+              number: 80
+      - path: /(sso/.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: thesisfair-api
+            port:
+              number: 80
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: thesisfair-frontend
+            port:
+              number: 3000
