@@ -483,7 +483,7 @@ schemaComposer.Query.addNestedFields({
 
             if (!user) {
               throw new Error(
-                'No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address.'
+                `No representative account found with your unique ID or email address. Please ask an admin representative to create an account for you with your employee email address ${user.email}.`
               )
             }
           }
