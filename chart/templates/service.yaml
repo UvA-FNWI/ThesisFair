@@ -4,10 +4,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: thesisfair-frontend
-  namespace: {? {.Release.namespace: ''} : ''}
+  namespace: {{ .Release.namespace }}
 spec:
   ports:
-  - port: {? {.Values.msa.frontend_service.env.PORT: ''} : ''}
+  - port: {{ .Values.msa.frontend_service.env.PORT }}
     targetPort: 3000
   selector:
     app: frontend-service
@@ -20,7 +20,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: thesisfair-api
-  namespace: {? {.Release.namespace: ''} : ''}
+  namespace: {{ .Release.namespace }}
 spec:
   ports:
   - port: 80
@@ -35,7 +35,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: database
-  namespace: {? {.Release.namespace: ''} : ''}
+  namespace: {{ .Release.namespace }}
 spec:
   ports:
   - port: 27017
@@ -51,7 +51,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: messaging-queue
-  namespace: {? {.Release.namespace: ''} : ''}
+  namespace: {{ .Release.namespace }}
 spec:
   ports:
   - port: 5672
