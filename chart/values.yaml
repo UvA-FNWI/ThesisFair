@@ -2,13 +2,13 @@ dev_mode: false
 
 # Environment variables that EVERY pod will know about, NOT secrets!
 env:
-  OPENID_ISSUER_URL: 'https://connect.test.surfconext.nl/'
-  OPENID_CLIENT_ID: 'thesisfair.local'
-  OPENID_REDIRECT_URL: 'https://thesisfair.ivi.uva.nl/sso/loggedin'
-  OPENID_RESOURCE: 'https://thesisfair.ivi.uva.nl'
-  MAILHOST: 'webmail.uva.nl'
-  MAILPORT: '587'
-  MAILUSER: 'SRV-THESIS'
+  OPENID_ISSUER_URL: "https://connect.test.surfconext.nl/"
+  OPENID_CLIENT_ID: "thesisfair.local"
+  OPENID_REDIRECT_URL: "https://thesisfair.ivi.uva.nl/sso/loggedin"
+  OPENID_RESOURCE: "https://thesisfair.ivi.uva.nl"
+  MAILHOST: "webmail.uva.nl"
+  MAILPORT: "587"
+  MAILUSER: "SRV-THESIS"
 
 # Azure settings
 azure:
@@ -40,13 +40,13 @@ msa:
   frontend_service:
     env:
       PORT: 3000
-      REACT_APP_API_ENDPOINT: 'https://localhost:3000/api/'
+      REACT_APP_API_ENDPOINT: "https://localhost:3000/api/"
 
 # Container registry where production-ready containers are kept, defaults to
 # fnwicr.azurecr.io, though we have no access to this CR, so the containers
 # aren't actually on there  yet
 prod:
-  cr: 'fnwicr.azurecr.io/thesisfair'
+  cr: "fnwicr.azurecr.io/thesisfair"
   pullPolicy: Always
 
 # When dev mode is enabled, the container repository for
@@ -55,9 +55,9 @@ prod:
 # repository (presumably also local) will be mounted to the running containers
 # so changes made to the code are reflected in the deployment
 dev:
-  cr: 'localhost:5001'
+  cr: "localhost:5001"
   pullPolicy: Always
-  repository: '/home/docker/thesisfair'
+  repository: "/home/docker/thesisfair"
 
   secrets:
     MAILPASS:
