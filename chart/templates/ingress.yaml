@@ -13,7 +13,8 @@ spec:
         - "thesisfair.ivi.uva.nl"
       secretName: ingress-tls-csi-thesisfair
   rules:
-    - http:
+    - host: thesisfair.ivi.uva.nl
+      http:
         paths:
           - path: /api/(.*)
             pathType: Prefix
