@@ -13,26 +13,27 @@ spec:
         - "thesisfair.ivi.uva.nl"
       secretName: ingress-tls-csi-thesisfair
   rules:
-  - http:
-      paths:
-      - path: /api/(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: thesisfair-api
-            port:
-              number: 80
-      - path: /(sso/.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: thesisfair-api
-            port:
-              number: 80
-      - path: /(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: thesisfair-frontend
-            port:
-              number: 3000
+    - host: thesisfair.ivi.uva.nl
+      http:
+        paths:
+          - path: /api/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: thesisfair-api
+                port:
+                  number: 80
+          - path: /(sso/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: thesisfair-api
+                port:
+                  number: 80
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: thesisfair-frontend
+                port:
+                  number: 3000
