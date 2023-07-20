@@ -16,7 +16,10 @@ class EntityCard extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state = Object.fromEntries(graphqlFields['Entity'].map(f => [f, null]))
+    this.state = {
+      ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
+      isAdmin: props.isAdmin,
+    }
   }
 
   async componentDidMount() {
@@ -40,7 +43,7 @@ class EntityCard extends React.Component {
             <small className='text-muted'>{contactEmail && contactEmail.content}</small>
           </Card.Subtitle>
           <Card.Text className='entity-card__body'>
-            {api.getApiTokenData().type === 'a' && (
+            {this.state.isAdmin && (
               <div className='entity-card__tags'>
                 <Tag
                   key='type'
@@ -64,7 +67,7 @@ class EntityCard extends React.Component {
               }}
             />
           </Card.Text>
-          {api.getApiTokenData().type === 'a' && (
+          {this.state.isAdmin && (
             <div className='mt-auto'>
               <Link to={`/organisation/${this.state.enid}/edit/`}>
                 <Button variant='primary'>Edit</Button>

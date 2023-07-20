@@ -1,10 +1,10 @@
-import React from 'react'
 import fuzzysort from 'fuzzysort'
+import React from 'react'
 
-import EntityCard from '../../components/entityCard/entityCard'
-import { useParams, Link } from 'react-router-dom'
-import { Row, Col, Button, Form } from 'react-bootstrap'
+import { Button, Col, Form, Row } from 'react-bootstrap'
+import { Link, useParams } from 'react-router-dom'
 import api from '../../api'
+import EntityCard from '../../components/entityCard/entityCard'
 
 import '../../styles/events.scss'
 
@@ -18,6 +18,8 @@ class Entities extends React.Component {
       entityNames: [],
       filteredEntities: [],
       searchFilter: '',
+      error: false,
+      isAdmin: api.getApiTokenData().type === 'a',
     }
   }
 
@@ -28,11 +30,31 @@ class Entities extends React.Component {
       return
     }
 
+    // Ignore searches with less than 3 characters
+    if (this.state.searchFilter?.length < 3 && searchFilter.length < 3) return
+
+    if (searchFilter?.length < 3) {
+      this.setState({ filteredEntities: this.state.entities, searchFilter: '' })
+      return
+    }
+
+    // If the search filter is extended, only search through the previous results
+    if (searchFilter.startsWith(this.state.searchFilter)) {
+      this.setState({
+        filteredEntities: fuzzysort
+          .go(searchFilter, this.state.filteredEntities, { key: 'name', limit: 25, threshold: -5000 })
+          .map(e => this.state.entitiesByEnid[e.obj.enid]),
+        searchFilter,
+      })
+
+      return
+    }
+
     this.setState({
       filteredEntities: fuzzysort
-        .go(searchFilter, this.state.entityNames, { key: 'name', limit: 25, threshold: -10000 })
-        .map(e => e.obj.enid)
-        .map(enid => this.state.entitiesByEnid[enid]),
+        .go(searchFilter, this.state.entityNames, { key: 'name', limit: 25, threshold: -5000 })
+        .map(e => this.state.entitiesByEnid[e.obj.enid]),
+      searchFilter,
     })
   }
 
@@ -43,6 +65,12 @@ class Entities extends React.Component {
       entities = await api.entity.getAll().exec()
     } catch (error) {
       console.log(error)
+      this.setState({ error: true })
+    }
+
+    if (!entities || entities.length === 0) {
+      this.setState({ error: true })
+      return
     }
 
     entities = entities.map(entity => ({
@@ -58,13 +86,23 @@ class Entities extends React.Component {
     this.setState({ entities, entitiesByEnid, entityNames, filteredEntities: entities })
   }
 
-  render() {
-    console.log(this.state.searchFilter, this.state.entities, this.state.filteredEntities)
+  getNoResultText() {
+    switch (true) {
+      // First case assumes there is at least one entity
+      case !this.state.error && this.state.entities?.length === 0:
+        return 'Loading...'
+      case !this.state.error && this.state.filteredEntities?.length === 0:
+        return 'No organisations found with the given search term.'
+      default:
+        return 'Something went wrong while loading the organisations.'
+    }
+  }
 
+  render() {
     return (
       <>
         <h1 className='events-page__header'>Organisations</h1>
-        {api.getApiTokenData().type === 'a' && (
+        {this.state.isAdmin && (
           <>
             <Link to='/organisation/create/'>
               <Button variant='outline-primary'>Create new organisation</Button>
@@ -74,8 +112,8 @@ class Entities extends React.Component {
               <Form.Group className='mb-3' controlId='searchBar'>
                 <Form.Control
                   type='text'
-                  placeholder='Search'
-                  onChange={e => this.setState({ searchFilter: e.target.value })}
+                  placeholder='Search (type at least 3 characters)'
+                  onInput={e => this.search(e.target.value)}
                 />
               </Form.Group>
             </Form>
@@ -84,15 +122,13 @@ class Entities extends React.Component {
         {this.state.filteredEntities?.length > 0 ? (
           <Row className='g-4 events-page__row'>
             {this.state.filteredEntities.map(entity => (
-              <Col md='auto'>
-                <EntityCard entity={entity} />
+              <Col md='auto' key={entity.enid}>
+                <EntityCard entity={{ ...entity }} isAdmin={this.state.isAdmin} />
               </Col>
             ))}
           </Row>
-        ) : this.state.searchFilter?.length > 0 ? (
-          <p>No organisations found with the given search term</p>
         ) : (
-          <p>Loading...</p>
+          <p>{this.getNoResultText()}</p>
         )}
       </>
     )
