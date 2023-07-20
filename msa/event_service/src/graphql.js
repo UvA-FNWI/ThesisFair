@@ -1,14 +1,14 @@
-import { graphql } from 'graphql';
-import { schemaComposer } from 'graphql-compose';
-import { readFileSync, mkdirSync, existsSync, constants } from 'fs';
-import { writeFile, readFile, access } from 'fs/promises';
+import { graphql } from 'graphql'
+import { schemaComposer } from 'graphql-compose'
+import { readFileSync, mkdirSync, existsSync, constants } from 'fs'
+import { writeFile, readFile, access } from 'fs/promises'
 import mongoose from 'mongoose'
 
 const ObjectId = mongoose.Types.ObjectId
 
-import { rgraphql } from '../../libraries/amqpmessaging/index.js';
-import { Event } from './database.js';
-import { canGetEvent, canGetEvents, entityReadAccess } from './permissions.js';
+import { rgraphql } from '../../libraries/amqpmessaging/index.js'
+import { Event } from './database.js'
+import { canGetEvent, canGetEvents, entityReadAccess } from './permissions.js'
 
 const imageTypes = ['student', 'rep']
 
@@ -71,13 +71,13 @@ schemaComposer.Query.addNestedFields({
   eventsOfEntity: {
     type: '[Event]',
     args: {
-      enid: 'ID!'
+      enid: 'ID!',
     },
     description: 'Get all events an entity participates in',
     resolve: async (obj, args, req) => {
       entityReadAccess(req, args.enid)
 
-      return await Event.find({entities: args.enid})
+      return await Event.find({ entities: args.enid })
     },
   },
   eventByExtID: {
@@ -125,17 +125,17 @@ schemaComposer.Query.addNestedFields({
       canGetEvents(req, args)
 
       const filter = {
-        enabled: true
+        enabled: true,
       }
 
-      if (req.user.type === 'r') {
-        filter.entities = {
-          $in: req.user.enid,
-        }
-      }
+      // if (req.user.type === 'r') {
+      //   filter.entities = {
+      //     $in: req.user.enid,
+      //   }
+      // }
 
       return await Event.find(filter)
-    }
+    },
   },
   events: {
     type: '[Event!]',

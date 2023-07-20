@@ -149,7 +149,7 @@ class ProjectListing extends React.Component {
       <>
         <ProjectList>
           {projects.map(project => {
-            const tags = project.tags.map(tag => ({ tag, tooltip: undefined }))
+            const tags = project.tags.map(tag => ({ tag: tag.split('.')[1], tooltip: undefined }))
 
             project.degrees.forEach(id => {
               const tag = degreeById[id]
