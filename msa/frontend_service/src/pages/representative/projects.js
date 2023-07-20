@@ -69,7 +69,7 @@ class ProjectListing extends React.Component {
       return
     }
 
-    if (!project.evid) {
+    if (!project.evids || project.evids.length === 0) {
       return
     }
 
@@ -159,13 +159,13 @@ class ProjectListing extends React.Component {
               })
             })
 
-            const isInActiveEvent = this.state?.events?.[project.evid]?.enabled || false
-            const isInOldEvent =
-              this.state?.events?.[project.evid] === undefined || this.state?.events?.[project.evid]?.enabled === false
+            const projectEvents = project.evids.map(evid => this.state.events[evid] || { enabled: false })
+            const isInActiveEvent = projectEvents.some(event => event.enabled)
+            const isInEvent = projectEvents.length > 0
 
             console.log(
-              isInActiveEvent,
-              isInOldEvent,
+              isInEvent && isInActiveEvent,
+              isInEvent && !isInActiveEvent,
               this.state?.events,
               this.state?.events?.[project.evid],
               project.evid
@@ -186,9 +186,9 @@ class ProjectListing extends React.Component {
                 headerButtons={projectButtons(
                   project,
                   this.props.params.duplicateProject,
-                  isInActiveEvent,
+                  isInEvent && isInActiveEvent,
                   this.props.params.edit,
-                  isInOldEvent
+                  isInEvent && !isInActiveEvent
                 )}
               />
             )
@@ -275,7 +275,7 @@ class ProjectListing extends React.Component {
                     ))}
                   </span>
                   <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
-                  {this.renderProjectListing(projects)}
+                  {this.renderProjectListing(projects, events)}
                 </>
               )
             })}
