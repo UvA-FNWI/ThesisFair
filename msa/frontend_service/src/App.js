@@ -42,8 +42,8 @@ class App extends React.Component {
   guestRoutes() {
     return (
       <>
-        <Route path='forgotPassword' element={<ForgotPasswordPage />} />
-        <Route path='resetPassword' element={<ForgotPasswordPage unknownPassword={true} />} />
+        <Route path='/forgotPassword' element={<ForgotPasswordPage />} />
+        <Route path='/resetPassword' element={<ForgotPasswordPage unknownPassword={true} />} />
         <Route path='' element={<LoginPage />} />
       </>
     )
@@ -52,16 +52,16 @@ class App extends React.Component {
   adminRoutes() {
     return (
       <>
-        <Route path='account' element={<Page page={<AdminAccount />} />} />
-        <Route path='organisations' element={<Page page={<Organisations />} />} />
-        <Route path='organisation/create/' element={<Page page={<OrganisationDashboard />} />} />
-        <Route path='organisation/:enid/' element={<Page page={<OrganisationDashboard />} />} />
-        <Route path='organisation/:enid/edit' element={<Page page={<OrganisationDashboard />} />} />
-        <Route path='event/create/' element={<Page page={<EditEvent />} />} />
-        <Route path='event/:evid/edit/' element={<Page page={<EditEvent />} />} />
+        <Route path='/account' element={<Page page={<AdminAccount />} />} />
+        <Route path='/organisations' element={<Page page={<Organisations />} />} />
+        <Route path='/organisation/create/' element={<Page page={<OrganisationDashboard />} />} />
+        <Route path='/organisation/:enid/' element={<Page page={<OrganisationDashboard />} />} />
+        <Route path='/organisation/:enid/edit' element={<Page page={<OrganisationDashboard />} />} />
+        <Route path='/event/create/' element={<Page page={<EditEvent />} />} />
+        <Route path='/event/:evid/edit/' element={<Page page={<EditEvent />} />} />
         {/*<Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />*/}
-        <Route path='students' element={<Page page={<Students />} />} />
-        <Route path='loginAs' element={<Page page={<LoginAs />} />} />
+        <Route path='/students' element={<Page page={<Students />} />} />
+        <Route path='/loginAs' element={<Page page={<LoginAs />} />} />
         <Route path='' element={<Page page={<Events />} />} />
       </>
     )
@@ -70,10 +70,10 @@ class App extends React.Component {
   studentRoutes() {
     return (
       <>
-        <Route path='' element={<Navigate to='account' replace={true} />} />
-        <Route path='account' element={<Page page={<StudentAccount />} />} />
-        <Route path='organisations' element={<Page page={<Organisations />} />} />
-        <Route path='votes' element={<Page page={<Votes />} />} />
+        <Route path='' element={<Navigate to='/account' replace={true} />} />
+        <Route path='/account' element={<Page page={<StudentAccount />} />} />
+        <Route path='/organisations' element={<Page page={<Organisations />} />} />
+        <Route path='/votes' element={<Page page={<Votes />} />} />
       </>
     )
   }
@@ -81,9 +81,9 @@ class App extends React.Component {
   repRoutes() {
     return (
       <>
-        <Route path='' element={<Navigate to='account' replace={true} />} />
-        <Route path='account' element={<Page page={<RepAccount />} />} />
-        <Route path='projects' element={<Page page={<Projects />} />} />
+        <Route path='' element={<Navigate to='/account' replace={true} />} />
+        <Route path='/account' element={<Page page={<RepAccount />} />} />
+        <Route path='/projects' element={<Page page={<Projects />} />} />
       </>
     )
   }
@@ -92,7 +92,7 @@ class App extends React.Component {
     return (
       <>
         <Route path='' element={<Navigate to='/organisations' replace={true} />} />
-        <Route path='/organisations' element={<Page page={<OrganisationDashboard />} />} />
+        <Route path='/organisation' element={<Page page={<OrganisationDashboard />} />} />
         {this.repRoutes()}
       </>
     )

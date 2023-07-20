@@ -21,7 +21,7 @@ const navigationBarItems = {
   a: [
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Events', icon: eventIcon, link: '/events' },
-    { name: 'Organisations', icon: organisationsIcon, link: '/organisation' },
+    { name: 'Organisations', icon: organisationsIcon, link: '/organisations' },
     { name: 'Students', icon: userIcon, link: '/students' },
     { name: 'LoginAs', icon: overrideUserIcon, link: '/loginAs' },
   ],
