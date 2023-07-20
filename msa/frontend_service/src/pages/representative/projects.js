@@ -159,17 +159,9 @@ class ProjectListing extends React.Component {
               })
             })
 
-            const projectEvents = project.evids.map(evid => this.state.events[evid] || { enabled: false })
+            const projectEvents = project.evids?.map(evid => this.state.events[evid] || { enabled: false })
             const isInActiveEvent = projectEvents.some(event => event.enabled)
-            const isInEvent = projectEvents.length > 0
-
-            console.log(
-              isInEvent && isInActiveEvent,
-              isInEvent && !isInActiveEvent,
-              this.state?.events,
-              this.state?.events?.[project.evid],
-              project.evid
-            )
+            const isInEvent = project.evids?.length > 0
 
             return (
               <ProjectList.Item
