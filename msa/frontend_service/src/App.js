@@ -53,7 +53,7 @@ class App extends React.Component {
     return (
       <>
         <Route path='account' element={<Page page={<AdminAccount />} />} />
-        <Route path='organisation' element={<Page page={<Organisations />} />} />
+        <Route path='organisations' element={<Page page={<Organisations />} />} />
         <Route path='organisation/create/' element={<Page page={<OrganisationDashboard />} />} />
         <Route path='organisation/:enid/' element={<Page page={<OrganisationDashboard />} />} />
         <Route path='organisation/:enid/edit' element={<Page page={<OrganisationDashboard />} />} />
@@ -91,8 +91,8 @@ class App extends React.Component {
   adminRepRoutes() {
     return (
       <>
-        <Route path='' element={<Navigate to='organisation' replace={true} />} />
-        <Route path='organisation' element={<Page page={<OrganisationDashboard />} />} />
+        <Route path='' element={<Navigate to='/organisations' replace={true} />} />
+        <Route path='/organisations' element={<Page page={<OrganisationDashboard />} />} />
         {this.repRoutes()}
       </>
     )
@@ -123,9 +123,9 @@ class App extends React.Component {
 
     return (
       <>
-        <Route path='/' element={<Navigate to='account' replace={true} />} />
-        <Route path='events' element={<Page page={<Events />} />} />
-        <Route path='event/:evid/' element={<Page page={<Event />} />} />
+        <Route path='/' element={<Navigate to='/account' replace={true} />} />
+        <Route path='/events' element={<Page page={<Events />} />} />
+        <Route path='/event/:evid/' element={<Page page={<Event />} />} />
         {routes}
       </>
     )
