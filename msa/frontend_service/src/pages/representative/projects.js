@@ -117,7 +117,7 @@ class ProjectListing extends React.Component {
       }
     }
 
-    console.log(eventProjects)
+    console.log(eventProjects, projects)
     const events = {}
     // TODO: remove this loop with api calls
     for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
@@ -159,7 +159,7 @@ class ProjectListing extends React.Component {
               })
             })
 
-            const isInActiveEvent = this.state?.events?.[project.evid]?.enabled
+            const isInActiveEvent = this.state?.events?.[project.evid]?.enabled || false
             const isInOldEvent =
               this.state?.events?.[project.evid] === undefined || this.state?.events?.[project.evid]?.enabled === false
 
