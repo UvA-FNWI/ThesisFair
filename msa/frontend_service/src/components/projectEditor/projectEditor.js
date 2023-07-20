@@ -79,6 +79,8 @@ class ProjectEditor extends React.Component {
     }
 
     const activeEvents = await api.event.getActive().exec()
+    const events = await api.event.getAll().exec()
+    console.log(activeEvents, events)
     this.setState({ activeEvents })
   }
 

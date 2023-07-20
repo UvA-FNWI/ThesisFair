@@ -31,10 +31,11 @@ class EventsPage extends React.Component {
       <>
         <h1 className='events-page__header'>Active events</h1>
         <hr />
-        {api.getApiTokenData().type === 'a' &&
-        <Link to='event/create/'>
-          <Button variant='outline-primary'>Create new event</Button>
-        </Link>}
+        {api.getApiTokenData().type === 'a' && (
+          <Link to='/event/create/'>
+            <Button variant='outline-primary'>Create new event</Button>
+          </Link>
+        )}
         {this.state.activeEvents.length > 0 ? (
           <Row className='g-4 events-page__row'>
             {this.state.activeEvents.map(event => (

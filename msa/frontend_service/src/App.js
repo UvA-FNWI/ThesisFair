@@ -58,7 +58,6 @@ class App extends React.Component {
         <Route path='organisation/:enid/' element={<Page page={<OrganisationDashboard />} />} />
         <Route path='organisation/:enid/edit' element={<Page page={<OrganisationDashboard />} />} />
         <Route path='event/create/' element={<Page page={<EditEvent />} />} />
-        <Route path='event/:evid/' element={<Page page={<Event />} />} />
         <Route path='event/:evid/edit/' element={<Page page={<EditEvent />} />} />
         {/*<Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />*/}
         <Route path='students' element={<Page page={<Students />} />} />
@@ -125,7 +124,7 @@ class App extends React.Component {
     return (
       <>
         <Route path='/' element={<Navigate to='account' replace={true} />} />
-        <Route path='event' element={<Page page={<Events />} />} />
+        <Route path='events' element={<Page page={<Events />} />} />
         <Route path='event/:evid/' element={<Page page={<Event />} />} />
         {routes}
       </>
