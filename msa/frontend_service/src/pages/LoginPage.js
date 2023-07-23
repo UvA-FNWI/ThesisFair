@@ -24,7 +24,6 @@ class LoginPage extends React.Component {
     try {
       await api.user.login(this.state.email, this.state.password)
     } catch (error) {
-      console.log(error)
       if (
         error.message === 'data and hash arguments required' ||
         error[0]?.message === 'data and hash arguments required'

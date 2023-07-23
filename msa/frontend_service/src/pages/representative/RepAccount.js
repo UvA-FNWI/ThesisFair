@@ -92,7 +92,6 @@ class RepAccount extends React.Component {
 
   async componentDidMount() {
     const user = await api.user.get(api.getApiTokenData().uid).exec()
-    console.log(user)
 
     this.setState({
       email: user.email,

@@ -79,8 +79,7 @@ class ProjectEditor extends React.Component {
     }
 
     const activeEvents = await api.event.getActive().exec()
-    const events = await api.event.getAll().exec()
-    console.log(activeEvents, events)
+
     this.setState({ activeEvents })
   }
 
@@ -112,16 +111,10 @@ class ProjectEditor extends React.Component {
 
     if (!this.validate()) {
       e.stopPropagation()
-      console.log(
-        'invalid',
-        this.validation.map(f => f())
-      )
       return
     }
 
     this.setState({ showAttendance: true })
-
-    console.log(this.state)
   }
 
   async updateProject() {
@@ -630,8 +623,6 @@ class ProjectEditor extends React.Component {
             const evids = [...new Set([...this.state.evids, event.evid])]
             const attendanceInteractions = [...new Set([...this.state.attendanceInteractions, event.evid])]
 
-            console.log(evids, attendanceInteractions)
-
             this.setState({ evids, attendanceInteractions })
           }}
         >
@@ -655,8 +646,6 @@ class ProjectEditor extends React.Component {
           onClick={() => {
             const evids = this.state.evids.filter(item => item !== event.evid)
             const attendanceInteractions = [...new Set([...this.state.attendanceInteractions, event.evid])]
-
-            console.log(evids, attendanceInteractions)
 
             this.setState({ evids, attendanceInteractions })
           }}
