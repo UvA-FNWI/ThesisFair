@@ -33,11 +33,6 @@ class EntityEditor extends React.Component {
       ...entity,
       ...this.props.entity,
     })
-
-    console.log(this.state, {
-      ...entity,
-      ...this.props.entity,
-    })
   }
 
   createUser = async user => {
@@ -72,7 +67,6 @@ class EntityEditor extends React.Component {
       let entity
 
       try {
-        console.log(this.state)
         entity = await api.entity
           .create({
             name: this.state.name,
@@ -127,11 +121,7 @@ class EntityEditor extends React.Component {
   addContactEntry = async ({ type, value }) => {
     const newContact = [...this.state.contact]
     newContact.push({ type, content: value })
-    this.setState({ contact: newContact })
-
-    console.log(this.state.contact, { type, content: value }, newContact)
-
-    this.setState({ savingContact: true })
+    this.setState({ contact: newContact, savingContact: true })
 
     try {
       await api.entity
@@ -156,7 +146,6 @@ class EntityEditor extends React.Component {
     this.setState({ savingContact: true })
 
     try {
-      console.log(this.state.contact, this.state.enid)
       await api.entity
         .update({
           enid: this.state.enid,

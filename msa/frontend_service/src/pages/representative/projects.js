@@ -117,7 +117,6 @@ class ProjectListing extends React.Component {
       }
     }
 
-    console.log(eventProjects, projects)
     const events = {}
     // TODO: remove this loop with api calls
     for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
@@ -252,7 +251,7 @@ class ProjectListing extends React.Component {
           {this.state.eventProjects.entries &&
             Array.from(this.state.eventProjects.entries()).map(([evids, pids]) => {
               const projects = pids.map(pid => this.state.projects[pid])
-              console.log(evids)
+
               const events = JSON.parse(evids).map(evid => this.state.events[evid])
 
               return (
