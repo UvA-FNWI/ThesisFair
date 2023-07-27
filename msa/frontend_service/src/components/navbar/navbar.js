@@ -22,6 +22,7 @@ const navigationBarItems = {
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Events', icon: eventIcon, link: '/events' },
     { name: 'Organisations', icon: organisationsIcon, link: '/organisations' },
+    { name: 'Projects', icon: projectsIcon, link: '/projects' },
     { name: 'Students', icon: userIcon, link: '/students' },
     { name: 'LoginAs', icon: overrideUserIcon, link: '/loginAs' },
   ],
