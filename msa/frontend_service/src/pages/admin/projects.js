@@ -54,20 +54,26 @@ class ProjectListing extends React.Component {
   }
 
   async componentDidMount() {
+    const currentEvents = await api.event.getActive().exec()
+    const currentEventEvids = currentEvents.map(event => event.evid)
+
     // Optimisation: Store student only once in state
-    let projects = await api.project.get(null).exec()
+    let projects = []
+
+    for (const evid of currentEventEvids) projects = projects.concat(await api.project.getOfEvent(evid).exec())
+
     projects = Object.fromEntries(projects.map(project => [project.pid, project]))
 
     const projectsByEnid = new Map()
     for (const project of Object.values(projects)) {
-      if (!projectsByEnid.get(JSON.stringify(project.enid))) {
-        projectsByEnid.set(JSON.stringify(project.enid), [project.pid])
+      if (!projectsByEnid.get(project.enid)) {
+        projectsByEnid.set(project.enid, [project.pid])
       } else {
-        projectsByEnid.get(JSON.stringify(project.enid)).push(project.pid)
+        projectsByEnid.get(project.enid).push(project.pid)
       }
     }
 
-    const enids = [...new Set(Array.from(projectsByEnid.keys()).map(JSON.parse).flat())]
+    const enids = Array.from(projectsByEnid.keys())
 
     const entities = await api.entity.getMultiple(enids).exec()
 
@@ -95,7 +101,7 @@ class ProjectListing extends React.Component {
               })
             })
 
-            const entityName = this.state.entityNameById[JSON.stringify(project.enid)]
+            const entityName = this.state.entityNameById[project.enid]
 
             return (
               <ProjectList.Item
