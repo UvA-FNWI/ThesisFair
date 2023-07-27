@@ -5,7 +5,7 @@ import { Container, Badge } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 import api from '../../api'
 
-import './projects.scss'
+import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
