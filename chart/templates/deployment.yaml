@@ -92,7 +92,7 @@ spec:
           {{ if $service.secrets  }}
           envFrom:
             - secretRef:
-                name: {{ $name | kebabcase}}
+                name: {{ $name | kebabcase }}
           {{ end }}
           {{ end }}
           {{ end }}

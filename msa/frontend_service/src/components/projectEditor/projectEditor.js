@@ -79,6 +79,7 @@ class ProjectEditor extends React.Component {
     }
 
     const activeEvents = await api.event.getActive().exec()
+
     this.setState({ activeEvents })
   }
 
@@ -110,16 +111,10 @@ class ProjectEditor extends React.Component {
 
     if (!this.validate()) {
       e.stopPropagation()
-      console.log(
-        'invalid',
-        this.validation.map(f => f())
-      )
       return
     }
 
     this.setState({ showAttendance: true })
-
-    console.log(this.state)
   }
 
   async updateProject() {
@@ -625,10 +620,10 @@ class ProjectEditor extends React.Component {
           })}
           checked={this.state.evids.includes(event.evid) && this.state.attendanceInteractions.includes(event.evid)}
           onClick={() => {
-            this.setState({
-              evids: [...this.state.evids, event.evid],
-              attendanceInteractions: [...this.state.attendanceInteractions, event.evid],
-            })
+            const evids = [...new Set([...this.state.evids, event.evid])]
+            const attendanceInteractions = [...new Set([...this.state.attendanceInteractions, event.evid])]
+
+            this.setState({ evids, attendanceInteractions })
           }}
         >
           Attending
@@ -649,10 +644,10 @@ class ProjectEditor extends React.Component {
             (!this.state.evids.includes(event.evid) && this.state.attendanceInteractions.includes(event.evid))
           }
           onClick={() => {
-            this.setState({
-              evids: this.state.evids.filter(item => item !== event.evid),
-              attendanceInteractions: [...this.state.attendanceInteractions, event.evid],
-            })
+            const evids = this.state.evids.filter(item => item !== event.evid)
+            const attendanceInteractions = [...new Set([...this.state.attendanceInteractions, event.evid])]
+
+            this.setState({ evids, attendanceInteractions })
           }}
         >
           Not attending
@@ -711,7 +706,12 @@ class ProjectEditor extends React.Component {
           </OverlayTrigger>
         )}
 
-        <Button variant='secondary' type='cancel' onClick={() => this.setState({ showAttendance: false })}>
+        <Button
+          variant='secondary'
+          type='cancel'
+          onClick={() => this.setState({ showAttendance: false })}
+          style={{ cursor: 'pointer' }}
+        >
           Return to project details
         </Button>
       </Form>

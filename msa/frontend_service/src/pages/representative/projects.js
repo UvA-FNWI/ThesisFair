@@ -69,7 +69,7 @@ class ProjectListing extends React.Component {
       return
     }
 
-    if (!project.evid) {
+    if (!project.evids || project.evids.length === 0) {
       return
     }
 
@@ -117,7 +117,6 @@ class ProjectListing extends React.Component {
       }
     }
 
-    console.log(eventProjects)
     const events = {}
     // TODO: remove this loop with api calls
     for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
@@ -149,7 +148,7 @@ class ProjectListing extends React.Component {
       <>
         <ProjectList>
           {projects.map(project => {
-            const tags = project.tags.map(tag => ({ tag, tooltip: undefined }))
+            const tags = project.tags.map(tag => ({ tag: tag.split('.')[1], tooltip: undefined }))
 
             project.degrees.forEach(id => {
               const tag = degreeById[id]
@@ -159,17 +158,9 @@ class ProjectListing extends React.Component {
               })
             })
 
-            const isInActiveEvent = this.state?.events?.[project.evid]?.enabled
-            const isInOldEvent =
-              this.state?.events?.[project.evid] === undefined || this.state?.events?.[project.evid]?.enabled === false
-
-            console.log(
-              isInActiveEvent,
-              isInOldEvent,
-              this.state?.events,
-              this.state?.events?.[project.evid],
-              project.evid
-            )
+            const projectEvents = project.evids?.map(evid => this.state.events[evid] || { enabled: false })
+            const isInActiveEvent = projectEvents.some(event => event.enabled)
+            const isInEvent = project.evids?.length > 0
 
             return (
               <ProjectList.Item
@@ -186,9 +177,9 @@ class ProjectListing extends React.Component {
                 headerButtons={projectButtons(
                   project,
                   this.props.params.duplicateProject,
-                  isInActiveEvent,
+                  isInEvent && isInActiveEvent,
                   this.props.params.edit,
-                  isInOldEvent
+                  isInEvent && !isInActiveEvent
                 )}
               />
             )
@@ -260,7 +251,7 @@ class ProjectListing extends React.Component {
           {this.state.eventProjects.entries &&
             Array.from(this.state.eventProjects.entries()).map(([evids, pids]) => {
               const projects = pids.map(pid => this.state.projects[pid])
-              console.log(evids)
+
               const events = JSON.parse(evids).map(evid => this.state.events[evid])
 
               return (
@@ -275,7 +266,7 @@ class ProjectListing extends React.Component {
                     ))}
                   </span>
                   <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
-                  {this.renderProjectListing(projects)}
+                  {this.renderProjectListing(projects, events)}
                 </>
               )
             })}

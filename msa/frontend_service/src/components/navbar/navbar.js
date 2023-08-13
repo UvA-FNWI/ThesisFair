@@ -20,26 +20,27 @@ import api from '../../api'
 const navigationBarItems = {
   a: [
     { name: 'Account', icon: accountIcon, link: '/account' },
-    { name: 'Events', icon: eventIcon, link: '/event' },
-    { name: 'Organisations', icon: organisationsIcon, link: '/organisation' },
+    { name: 'Events', icon: eventIcon, link: '/events' },
+    { name: 'Organisations', icon: organisationsIcon, link: '/organisations' },
+    { name: 'Projects', icon: projectsIcon, link: '/projects' },
     { name: 'Students', icon: userIcon, link: '/students' },
     { name: 'LoginAs', icon: overrideUserIcon, link: '/loginAs' },
   ],
   s: [
     { name: 'Account', icon: accountIcon, link: '/account' },
-    { name: 'Events', icon: eventIcon, link: '/event' },
+    { name: 'Events', icon: eventIcon, link: '/events' },
     { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
     { name: 'Votes', icon: likesIcon, link: '/votes' },
   ],
   r: [
     { name: 'Account', icon: accountIcon, link: '/account' },
-    { name: 'Events', icon: eventIcon, link: '/event' },
+    { name: 'Events', icon: eventIcon, link: '/events' },
     { name: 'Projects', icon: projectsIcon, link: '/projects' },
   ],
   ra: [
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Organisation', icon: organisationsIcon, link: '/organisation' },
-    { name: 'Events', icon: eventIcon, link: '/event' },
+    { name: 'Events', icon: eventIcon, link: '/events' },
     { name: 'Projects', icon: projectsIcon, link: '/projects' },
   ],
 }

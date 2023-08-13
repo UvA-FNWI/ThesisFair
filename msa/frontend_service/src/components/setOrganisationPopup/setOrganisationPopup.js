@@ -38,8 +38,6 @@ class SetOrganisationPopup extends React.Component {
       enid: session.getEnid() || enids[0],
       enids: enidWithName,
     })
-
-    console.log(this.state)
   }
 
   save = async () => {
