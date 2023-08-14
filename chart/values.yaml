@@ -57,6 +57,7 @@ prod:
 # so changes made to the code are reflected in the deployment
 dev:
   cr: "localhost:5001"
+  host: "localhost"
   pullPolicy: Always
   repository: "/home/docker/thesisfair"
 
