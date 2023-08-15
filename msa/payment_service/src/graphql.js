@@ -50,6 +50,10 @@ schemaComposer.Query.addNestedFields({
         return payment.url
       }
 
+      if (!args.amount) {
+        throw new Error("No link found -- specify amount to create one")
+      }
+
       // Otherwise, if there are only failed, canceled or expired links
       // Get a link and ID from Datanose
       const result = await axios({
