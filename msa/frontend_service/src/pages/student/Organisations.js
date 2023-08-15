@@ -59,25 +59,26 @@ class Entities extends React.Component {
   }
 
   async componentDidMount() {
-    let entities
+    let paymentEntities
 
     try {
-      entities = await api.entity.getAll().exec()
+      paymentEntities = await api.entity.getAllPaymentsAndEntities().exec()
     } catch (error) {
       console.log(error)
       this.setState({ error: true })
     }
 
-    if (!entities || entities.length === 0) {
+    if (!paymentEntities || paymentEntities.length === 0) {
       this.setState({ error: true })
       return
     }
 
-    entities = entities.map(entity => ({
-      name: entity.name,
-      enid: entity.enid,
-      type: entity.type,
-      description: entity.description,
+    const entities = paymentEntities.map(e => ({
+      name: e.entity.name,
+      enid: e.entity.enid,
+      type: e.entity.type,
+      description: e.entity.description,
+      paymentStatus: e.status,
     }))
 
     const entityNames = entities.map(entity => ({ enid: entity.enid, name: entity.name }))

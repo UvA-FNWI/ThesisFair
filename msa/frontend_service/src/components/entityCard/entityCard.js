@@ -18,6 +18,7 @@ class EntityCard extends React.Component {
 
     this.state = {
       ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
+      paymentStatus: null,
       isAdmin: props.isAdmin,
     }
   }
@@ -53,7 +54,7 @@ class EntityCard extends React.Component {
                 />
                 <Tag
                   key='payment'
-                  label={'Payment: incomplete'}
+                  label={`Payment: ${this.state.paymentStatus || 'bruh'}`}
                   tooltip={'This organization has yet to pay'}
                   selectable={false}
                 />
