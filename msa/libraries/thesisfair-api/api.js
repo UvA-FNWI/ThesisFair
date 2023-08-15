@@ -603,11 +603,36 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
           }),
+        getPaymentAndEntity: (enid, projection) =>
+          genGraphQLBuilder({
+            name: 'getPaymentAndEntity',
+            functionPath: 'paymentAndEntity',
+            body: bodies.PaymentAndEntity(projection),
+            args: {
+              enid: { value: enid, type: 'ID!' },
+            },
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
+          }),
+        getPaymentLink: (enid) =>
+          genGraphQLBuilder({
+            name: 'getPaymentLink',
+            functionPath: 'paymentLink',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+            },
+          }),
         getAll: (evid, projection) =>
           genGraphQLBuilder({
             name: 'getAllEntity',
             functionPath: 'entitiesAll',
             body: bodies.Entity(projection),
+            cache: caching ? { instance: cache, type: 'entity', key: 'enid', multiple: true } : false,
+          }),
+        getAllPaymentsAndEntities: (evid, projection) =>
+          genGraphQLBuilder({
+            name: 'getAllPaymentsAndEntities',
+            functionPath: 'paymentsAndEntitiesAll',
+            body: bodies.PaymentAndEntity(projection),
             cache: caching ? { instance: cache, type: 'entity', key: 'enid', multiple: true } : false,
           }),
         getMultiple: (enids, projection) =>
