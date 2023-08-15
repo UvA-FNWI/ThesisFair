@@ -47,6 +47,24 @@ schemaComposer.Query.addNestedFields({
     description: 'Get the entity by enid.',
     resolve: (obj, args) => Entity.findById(args.enid),
   },
+  paymentAndEntity: {
+    type: 'PaymentAndEntity',
+    args: {
+      enid: 'ID!',
+    },
+    description: 'Get payment information of an entity and the entity info as well',
+    resolve: async (obj, args, req) => {
+      const entity = await Entity.findById(args.enid)
+      const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url } }', { targets: [entity.enid] })[0] 
+
+      if (res.errors || !res.data) {
+        console.error(res)
+        throw new Error('An unkown error occured while attempting to generate a payment link')
+      }
+
+      return res.data
+    },
+  },
   entityByExtID: {
     type: 'Entity',
     args: {
@@ -62,6 +80,26 @@ schemaComposer.Query.addNestedFields({
       canGetAllEntities(req)
       return await Entity.find()
     },
+  },
+  paymentsAndEntitiesAll: {
+    type: '[PaymentAndEntity]',
+    description: 'Get payments of all entities and entity information as well.',
+    resolve: async (obj, args, req) => {
+      canGetAllEntities(req)
+      const entities = await Entity.find()
+      const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url, target } }', { targets: entities.map(entity => entity.enid) })
+
+      if (res.errors || !res.data) {
+        console.error(res)
+        throw new Error('An unkown error occured while looking up payment status')
+      }
+
+      return entities.map(entity => ({
+        entity,
+        ...res.data.payment.find(payment => payment.target == entity.enid)
+      }))
+    },
+
   },
   entities: {
     type: '[Entity!]',

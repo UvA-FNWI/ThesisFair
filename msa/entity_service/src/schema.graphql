@@ -26,6 +26,12 @@ type Entity {
   location: String
 }
 
+type PaymentAndEntity {
+  entity: Entity,
+  status: String,
+  url: String,
+}
+
 type EntityImportResult {
   entity: Entity
   error: String
