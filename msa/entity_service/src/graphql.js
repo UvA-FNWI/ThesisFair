@@ -62,8 +62,45 @@ schemaComposer.Query.addNestedFields({
         throw new Error('An unkown error occured while attempting to generate a payment link')
       }
 
-      return res.data
+      return {
+        entity,
+        ...res.data.payment,
+      }
     },
+  },
+  paymentLink: {
+    type: 'String',
+    args: {
+      enid: 'ID!',
+    },
+    description: 'Get a payment link for the given entity',
+    resolve: async (obj, args) => {
+      const entity = await Entity.findById(args.enid)
+
+      let amount
+      switch (entity.type) {
+        case "A":
+          amount = 300
+          break;
+        case "B":
+          amount = 200
+          break;
+        case "C":
+          amount = 100
+          break;
+        default:
+          throw new Error('This organisation type does not need to pay to attend an event')
+      }
+
+      const res = await rgraphql('api-payment', 'query($target: String!, $amount: Int) { paymentLink(target: $target, amount: $amount) }', { target: entity.enid, amount })
+
+      if (res.errors || !res.data) {
+        console.error(res)
+        throw new Error('An unkown error occured while looking up payment status')
+      }
+
+      return res.data.paymentLink
+    }
   },
   entityByExtID: {
     type: 'Entity',
