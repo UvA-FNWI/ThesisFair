@@ -81,7 +81,7 @@ schemaComposer.Query.addNestedFields({
       })
 
       // Return the link
-      return result.Url
+      return result.data.Url
     }
   }
 })
