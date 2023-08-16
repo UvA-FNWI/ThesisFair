@@ -42,7 +42,7 @@ schemaComposer.Query.addNestedFields({
       // Check if there is an open or paid payment link in the database
       const payment = await Payments.findOne({
         target: args.target,
-        status: { $in: [ 'open', 'paid '] },
+        status: { $in: ['open', 'paid'] },
       })
 
       // If there is one, return its payment link (don't create a new one)
