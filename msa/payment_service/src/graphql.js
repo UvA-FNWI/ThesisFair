@@ -17,7 +17,7 @@ schemaComposer.Query.addNestedFields({
     resolve: async (_obj, args) => {
       // Find the most recent entry of a payment into the database for each
       // target
-      return await Payments.aggregate([
+      const payments = await Payments.aggregate([
         { $sort: { _id: 1 } },
         { $group: {
           _id: "$target",
@@ -29,6 +29,8 @@ schemaComposer.Query.addNestedFields({
           target: { $in: args.targets }
         }}
       ])
+
+      return payments
     }
   },
   paymentLink: {

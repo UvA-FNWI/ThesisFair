@@ -55,13 +55,7 @@ schemaComposer.Query.addNestedFields({
     description: 'Get payment information of an entity and the entity info as well',
     resolve: async (obj, args, req) => {
       const entity = await Entity.findById(args.enid)
-      const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url } }', { targets: [entity.enid] })[0]
-
-      if (res === undefined) {
-        return {
-          entity
-        }
-      }
+      const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url } }', { targets: [entity.enid] })
 
       if (res.errors || !res.data) {
         console.error(res)
@@ -70,7 +64,7 @@ schemaComposer.Query.addNestedFields({
 
       return {
         entity,
-        ...res.data.payment,
+        ...res.data.payment[0],
       }
     },
   },
