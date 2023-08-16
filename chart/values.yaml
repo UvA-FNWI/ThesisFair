@@ -4,8 +4,9 @@ dev_mode: false
 env:
   OPENID_ISSUER_URL: "https://connect.test.surfconext.nl/"
   OPENID_CLIENT_ID: "thesisfair.local"
-  OPENID_REDIRECT_URL: "https://thesisfair.ivi.uva.nl/sso/loggedin"
+  OPENID_REDIRECT_URL: "https://localhost/sso/loggedin"
   OPENID_RESOURCE: "https://thesisfair.ivi.uva.nl"
+  DATANOSE_API_URL: "https://api-acc.datanose.nl/"
   MAILHOST: "webmail.uva.nl"
   MAILPORT: "587"
   MAILUSER: "SRV-THESIS"
@@ -37,6 +38,10 @@ msa:
   event_service:
   project_service:
   vote_service:
+  payment_service:
+    secrets:
+      - name: thesisfair-payments-token
+        key: PAYMENT_API_TOKEN
   frontend_service:
     env:
       PORT: 3000
@@ -65,3 +70,4 @@ dev:
     MAILPASS:
     OPENID_CLIENT_SECRET:
     JWT_SECRET:
+    PAYMENT_API_TOKEN:
