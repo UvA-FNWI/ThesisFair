@@ -21,6 +21,8 @@ class EntityCard extends React.Component {
       paymentStatus: null,
       isAdmin: props.isAdmin,
     }
+
+    this.paymentStatusDisplay = this.paymentStatusDisplay.bind(this)
   }
 
   async componentDidMount() {
@@ -30,6 +32,18 @@ class EntityCard extends React.Component {
       ...entity,
       ...this.props.entity,
     })
+  }
+
+  paymentStatusDisplay() {
+    switch (this.state.paymentStatus) {
+      case 'failed':
+      case 'open':
+        return 'processing'
+      case 'paid':
+        return 'completed'
+      default:
+        return 'incomplete'
+    }
   }
 
   render() {
@@ -54,7 +68,7 @@ class EntityCard extends React.Component {
                 />
                 <Tag
                   key='payment'
-                  label={`Payment: ${this.state.paymentStatus || 'bruh'}`}
+                  label={`Payment: ${this.paymentStatusDisplay()}`}
                   tooltip={'This organization has yet to pay'}
                   selectable={false}
                 />
