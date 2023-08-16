@@ -13,6 +13,8 @@ class EntityEditor extends React.Component {
 
     this.state = {
       ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
+      paymentStatus: null,
+      paymentLink: null,
 
       savingInfo: false,
       showInfoSaved: false,
@@ -21,16 +23,19 @@ class EntityEditor extends React.Component {
       showContactSaved: false,
 
       isCreate: !props.enid,
-      type: 'A',
+      type: 'unknown',
       enid: props.enid,
     }
   }
 
   async componentDidMount() {
-    const entity = this.state.enid ? await api.entity.get(this.state.enid).exec() : {}
+    const paymentEntity = this.state.enid ? await api.entity.getPaymentAndEntity(this.state.enid).exec() : {entity: {}}
 
+    console.log(paymentEntity)
     this.setState({
-      ...entity,
+      ...paymentEntity.entity,
+      paymentLink: paymentEntity.url,
+      paymentStatus: paymentEntity.status,
       ...this.props.entity,
     })
   }
@@ -166,6 +171,17 @@ class EntityEditor extends React.Component {
     website: 'Website',
     email: 'Email',
     phonenumber: 'Phone Number',
+  }
+
+  async getPaymentLink() {
+    if (this.state.paymentLink) {
+      return this.state.paymentLink
+    }
+
+    const paymentLink = await api.entity.getPaymentLink(this.state.enid).exec()
+    this.setState({paymentLink})
+
+    return paymentLink
   }
 
   render() {
@@ -333,6 +349,16 @@ class EntityEditor extends React.Component {
                 <h2>Company Accounts</h2>
                 <RepresentativeList enid={this.state.enid} />
               </div>
+
+              <div>
+                <h2>Payment</h2>
+                <Button onClick={() => this.getPaymentLink().then(url => window.open(url, '_blank').focus())}>
+                  Pay
+                </Button>
+                
+                <p>{this.state.paymentStatus || 'no payment attempted yet'}</p>
+              </div>
+
             </>
           )}
         </Container>
