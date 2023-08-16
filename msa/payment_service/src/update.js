@@ -3,7 +3,6 @@ import axios from 'axios'
 import { Payments } from './database.js'
 
 async function updatePaymentStatuses() {
-  console.log("updating payment statuses")
   // Get open payments, only their state can change
   const payments = await Payments.find({status: 'open'})
 
@@ -18,8 +17,6 @@ async function updatePaymentStatuses() {
     },
   })))
 
-  console.log(results)
-  console.log(payments)
   // Match them back up to their internal IDs
   const paymentStates = results.map(res => ({
     '_id': payments.find(payment => payment.externalId == res.data.Id)._id,
