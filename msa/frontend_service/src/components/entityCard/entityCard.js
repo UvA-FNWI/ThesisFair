@@ -18,24 +18,26 @@ class EntityCard extends React.Component {
 
     this.state = {
       ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
-      paymentStatus: null,
+      events: [], // List of all events, for info, needs to be fetched otherwise
+      eventsByEvid: {},
       isAdmin: props.isAdmin,
     }
-
-    this.paymentStatusDisplay = this.paymentStatusDisplay.bind(this)
   }
 
   async componentDidMount() {
-    const entity = this.props.enid ? await api.entity.get(this.props.enid).exec() : {}
+    const entity = this.props.entity || await api.entity.get(this.props.enid).exec()
+    const events = this.props.events || await api.event.getAll().exec() || []
 
     this.setState({
       ...entity,
+      events,
+      eventsByEvid: Object.fromEntries(events.map(event => [event.evid, event])),
       ...this.props.entity,
     })
   }
 
-  paymentStatusDisplay() {
-    switch (this.state.paymentStatus) {
+  getStatusLabel(status) {
+    switch (status) {
       case 'failed':
       case 'open':
         return 'processing'
@@ -66,12 +68,17 @@ class EntityCard extends React.Component {
                   tooltip={`type: ${this.state.type}`}
                   selectable={false}
                 />
-                <Tag
-                  key='payment'
-                  label={`Payment: ${this.paymentStatusDisplay()}`}
-                  tooltip={'This organization has yet to pay'}
-                  selectable={false}
-                />
+                <p>bruh</p>
+                <p>{JSON.stringify(this.state.evids)}</p>
+                <p>{JSON.stringify(this.state.payments)}</p>
+                {this.state.evids && this.state.evids.map(evid => (
+                  <Tag
+                    key={`payment-${evid}`}
+                    label={this.state.eventsByEvid[evid].name}
+                    tooltip={'This organization has yet to pay'}
+                    selectable={false}
+                  />
+                ))}
               </div>
             )}
 

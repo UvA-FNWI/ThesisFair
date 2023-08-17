@@ -84,7 +84,6 @@ schemaComposer.Query.addNestedFields({
         throw new Error('An unkown error occurred while attempting to find the organisation\'s projects')
       }
 
-      console.log(res)
       const evids = [...new Set(res.data.projectsOfEntity.map(project => project.evids).flat())]
 
       return await Event.find({ evid: { $in: evids} })

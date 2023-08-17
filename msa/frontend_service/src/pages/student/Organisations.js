@@ -14,6 +14,7 @@ class Entities extends React.Component {
 
     this.state = {
       entities: [],
+      allEvents: [],
       entitiesByEnid: {},
       entityNames: [],
       filteredEntities: [],
@@ -59,32 +60,38 @@ class Entities extends React.Component {
   }
 
   async componentDidMount() {
-    let paymentEntities
-
+    let entities
     try {
-      paymentEntities = await api.entity.getAllPaymentsAndEntities().exec()
+      entities = await api.entity.getAll().exec()
     } catch (error) {
       console.log(error)
       this.setState({ error: true })
     }
 
-    if (!paymentEntities || paymentEntities.length === 0) {
+    if (!entities || entities.length === 0) {
       this.setState({ error: true })
       return
     }
 
-    const entities = paymentEntities.map(e => ({
-      name: e.entity.name,
-      enid: e.entity.enid,
-      type: e.entity.type,
-      description: e.entity.description,
-      paymentStatus: e.status,
-    }))
+    // Fetch info about all events to pass on to entries on entities, so they
+    // don't have to fetch it (state passes down)
+    let events
+    try {
+      events = await api.event.getAll().exec()
+    } catch (error) {
+      console.log(error)
+      this.setState({ error: true })
+    }
+
+    if (!events || events.length === 0) {
+      this.setState({ error: true })
+      return
+    }
 
     const entityNames = entities.map(entity => ({ enid: entity.enid, name: entity.name }))
     const entitiesByEnid = Object.fromEntries(entities.map(entity => [entity.enid, entity]))
 
-    this.setState({ entities, entitiesByEnid, entityNames, filteredEntities: entities })
+    this.setState({ entities, entitiesByEnid, entityNames, filteredEntities: entities, allEvents: events })
   }
 
   getNoResultText() {
@@ -124,7 +131,7 @@ class Entities extends React.Component {
           <Row className='g-4 events-page__row'>
             {this.state.filteredEntities.map(entity => (
               <Col md='auto' key={entity.enid}>
-                <EntityCard entity={{ ...entity }} isAdmin={this.state.isAdmin} />
+                <EntityCard events={this.state.allEvents} entity={entity} isAdmin={this.state.isAdmin} />
               </Col>
             ))}
           </Row>

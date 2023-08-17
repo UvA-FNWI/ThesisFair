@@ -13,9 +13,7 @@ class EntityEditor extends React.Component {
 
     this.state = {
       ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
-      payments: [],
       paymentsByDate: {}, // Mapping from a date to corresponding payments for events on that date
-      evids: [],
       fairs: [],
 
       savingInfo: false,
@@ -31,21 +29,17 @@ class EntityEditor extends React.Component {
   }
 
   async componentDidMount() {
-    const paymentEntity = this.state.enid ? await api.entity.getPaymentAndEntity(this.state.enid).exec() : {entity: {}}
+    const entity = this.state.enid ? await api.entity.get(this.state.enid).exec() : {}
 
     this.setState({
-      ...paymentEntity.entity,
-      payments: paymentEntity.payments,
-      paymentsByDate: Object.fromEntries(paymentEntity.payments.map(
+      ...entity,
+      paymentsByDate: Object.fromEntries(entity.payments.map(
         payment => [new Date(payment.eventDate).setHours(0, 0, 0, 0), payment]
       )),
       ...this.props.entity,
     })
 
-    const evids = this.state.enid ? await api.entity.getFairs(this.state.enid).exec() : []
-    this.setState({evids})
-
-    const fairs = await Promise.all(evids.map(evid => api.event.get(evid).exec()))
+    const fairs = await Promise.all(entity.evids.map(evid => api.event.get(evid).exec()))
     this.setState({fairs})
   }
 

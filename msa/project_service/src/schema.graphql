@@ -34,7 +34,7 @@ input ProjectImport {
 type Project {
   pid: ID!
   enid: ID!
-  evids: [ID!]
+  evids: [ID]
   name: String!
   degrees: [Degree]
   tags: [String]

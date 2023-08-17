@@ -41,8 +41,11 @@ const deleteEntity = async enid => {
 async function getFairsOfEntity(enid) {
   const res = await rgraphql('api-event', 'query($enid: ID!) { eventsOfEntity(enid: $enid) { start, evid, enabled } }', { enid })
 
-  if (res.errors || !res.data) {
+  if (res.errors) {
     console.error(res)
+  }
+  if (res.errors || !res.data) {
+    // console.error(res)
     throw new Error('An unknown error occurred while attempting to find the events the organisation is participating in')
   }
 
@@ -57,7 +60,46 @@ schemaComposer.Query.addNestedFields({
       enid: 'ID!',
     },
     description: 'Get the entity by enid.',
-    resolve: (obj, args) => Entity.findById(args.enid),
+    resolve: async (obj, args, req, source) => {
+      // TODO: check read access for entity
+      const requestedFields = source.fieldNodes[0].selectionSet.selections.map(e => e.name.value)
+
+      const entity = await Entity.findById(args.enid)
+
+      let events = null
+      if (requestedFields.includes('payments') || requestedFields.includes('evids')) {
+        events = await getFairsOfEntity(args.enid)
+      }
+
+      // TODO: only fetch payment if the user is allowed to see payments
+      let payments = null
+      if (requestedFields.includes('payments')) {
+        const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url, target } }', {
+          targets: events.map(event => `${args.enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`)
+        })
+
+        if (res.errors || !res.data) {
+          console.error(res)
+          throw new Error('An unknown error occured while attempting look up payment status')
+        }
+
+        payments = res.data.payment.map(payment => ({
+          status: payment.status,
+          url: payment.url,
+          eventDate: new Date(Number(payment.target.split("@")[1])),
+        }))
+      }
+
+      if (events) {
+        entity.evids = events.map(event => event.evid)
+      }
+
+      if (payments) {
+        entity.payments = payments
+      }
+
+      return entity
+    },
   },
   fairs: {
     type: '[ID]',
@@ -69,42 +111,6 @@ schemaComposer.Query.addNestedFields({
       const fairs = await getFairsOfEntity(args.enid)
 
       return fairs.map(event => event.evid)
-    },
-  },
-  paymentAndEntity: {
-    type: 'PaymentAndEntity',
-    args: {
-      enid: 'ID!',
-    },
-    description: 'Get payment information of an entity and the entity info as well',
-    resolve: async (obj, args, req) => {
-      // TODO: check read access for entity
-      const entity = await Entity.findById(args.enid)
-      const events = await getFairsOfEntity(args.enid)
-
-      const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url, target } }', {
-        targets: events.map(event => `${args.enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`)
-      })
-
-      if (res.errors || !res.data) {
-        console.error(res)
-        throw new Error('An unknown error occured while attempting look up payment status')
-      }
-
-      console.log(res.data.payment.map(payment => ({
-          status: payment.status,
-          url: payment.url,
-          date: new Date(Number(payment.target.split("@")[1])),
-        })))
-
-      return {
-        entity,
-        payments: res.data.payment.map(payment => ({
-          status: payment.status,
-          url: payment.url,
-          eventDate: new Date(Number(payment.target.split("@")[1])),
-        })),
-      }
     },
   },
   paymentLink: {
@@ -173,30 +179,59 @@ schemaComposer.Query.addNestedFields({
   entitiesAll: {
     type: '[Entity!]',
     description: 'Get all entities.',
-    resolve: async (obj, args, req) => {
+    resolve: async (obj, args, req, source) => {
       canGetAllEntities(req)
-      return await Entity.find()
-    },
-  },
-  paymentsAndEntitiesAll: {
-    type: '[PaymentAndEntity]',
-    description: 'Get payments of all entities and entity information as well.',
-    resolve: async (obj, args, req) => {
-      canGetAllEntities(req)
-      const entities = await Entity.find()
-      const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url, target } }', { targets: entities.map(entity => entity.enid) })
+      const requestedFields = source.fieldNodes[0].selectionSet.selections.map(e => e.name.value)
 
-      if (res.errors || !res.data) {
-        console.error(res)
-        throw new Error('An unkown error occured while looking up payment status')
+      const entities = await Entity.find()
+
+      // TODO: use an "all events by enid" endpoint or something rather than many requests
+      let eventsByEnid = null
+      if (requestedFields.includes('payments') || requestedFields.includes('evids')) {
+        eventsByEnid = Object.fromEntries(
+          await Promise.all(entities.map(
+            async ({enid}) => [enid, await getFairsOfEntity(enid)]
+          ))
+        )
       }
 
-      return entities.map(entity => ({
-        entity,
-        ...res.data.payment.find(payment => payment.target == entity.enid)
-      }))
-    },
+      // TODO: only fetch payment if the user is allowed to see payments
+      let paymentsByEnid = null
+      if (requestedFields.includes('payments')) {
+        // Get statuses for each target
+        const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url, target } }', {
+          targets: Object.entries(eventsByEnid).map(
+            ([enid, events]) => events.map(
+              event => `${enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`
+            )
+          ).flat()
+        })
 
+        if (res.errors || !res.data) {
+          console.error(res)
+          throw new Error('An unknown error occured while attempting look up payment status')
+        }
+
+        const payments = res.data.payment.map(payment => ({
+          status: payment.status,
+          url: payment.url,
+          eventDate: new Date(Number(payment.target.split("@")[1])),
+          enid: payment.target.split("@")[0],
+        }))
+
+        paymentsByEnid = Object.fromEntries(payments.reduce(
+          (map, payment) => map.set(payment.enid, [...map.get(payment.enid) || [], payment]),
+          new Map()
+        ).entries())
+      }
+
+      for (const entity of entities) {
+        entity.evids = eventsByEnid[entity.enid].map(event => event.evid)
+        entity.payments = paymentsByEnid[entity.enid]
+      }
+
+      return entities
+    },
   },
   entities: {
     type: '[Entity!]',
