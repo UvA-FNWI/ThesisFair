@@ -96,6 +96,7 @@ class ProjectListing extends React.Component {
   async componentDidMount() {
     // Optimisation: Store student only once in state
     let projects = await api.project.getOfEntity(null, session.getEnid()).exec()
+    console.log(projects)
     projects = Object.fromEntries(projects.map(project => [project.pid, project]))
 
     // Get the votes of this entity as a list of [pid, uid] pairs
@@ -120,7 +121,7 @@ class ProjectListing extends React.Component {
     const events = {}
     // TODO: remove this loop with api calls
     for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
-      events[evid] = await api.event.get(evid).exec()
+      events[evid] = evid ? await api.event.get(evid).exec() : {name: "No event"}
     }
 
     this.setState({ projects, votes, events, eventProjects })
