@@ -96,7 +96,6 @@ class ProjectListing extends React.Component {
   async componentDidMount() {
     // Optimisation: Store student only once in state
     let projects = await api.project.getOfEntity(null, session.getEnid()).exec()
-    console.log(projects)
     projects = Object.fromEntries(projects.map(project => [project.pid, project]))
 
     // Get the votes of this entity as a list of [pid, uid] pairs
@@ -266,7 +265,7 @@ class ProjectListing extends React.Component {
     sortedEventProjectsEntries.sort(([a], [b]) => {
       a = this.earliestEvent(JSON.parse(a)).start
       b = this.earliestEvent(JSON.parse(b)).start
-      console.log(b)
+
       if (!a) return 1
       if (!b) return -1
 
