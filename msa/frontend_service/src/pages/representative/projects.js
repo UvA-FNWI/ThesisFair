@@ -96,7 +96,6 @@ class ProjectListing extends React.Component {
   async componentDidMount() {
     // Optimisation: Store student only once in state
     let projects = await api.project.getOfEntity(null, session.getEnid()).exec()
-    console.log(projects)
     projects = Object.fromEntries(projects.map(project => [project.pid, project]))
 
     // Get the votes of this entity as a list of [pid, uid] pairs
