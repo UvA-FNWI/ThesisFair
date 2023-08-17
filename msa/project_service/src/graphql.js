@@ -28,7 +28,7 @@ const enidExists = async enid => {
   const res = await rgraphql('api-entity', 'query checkENID($enid: ID!) { entity(enid: $enid) { enid } }', { enid })
   if (res.errors || !res.data) {
     console.error(res)
-    throw new Error('An unkown error occured while checking if the enid is valid')
+    throw new Error('An unknown error occured while checking if the enid is valid')
   }
 
   if (!res.data.entity) {

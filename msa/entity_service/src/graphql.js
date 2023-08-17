@@ -38,6 +38,18 @@ const deleteEntity = async enid => {
   return await Entity.findByIdAndDelete(enid)
 }
 
+async function getFairsOfEntity(enid) {
+  const res = await rgraphql('api-event', 'query($enid: ID!) { eventsOfEntity(enid: $enid) { start, evid, enabled } }', { enid })
+
+  if (res.errors || !res.data) {
+    console.error(res)
+    throw new Error('An unknown error occurred while attempting to find the events the organisation is participating in')
+  }
+
+  // TODO: remove any events that are free to attend (marketplace events)
+  return res.data.eventsOfEntity.filter(event => event.enabled)
+}
+
 schemaComposer.Query.addNestedFields({
   entity: {
     type: 'Entity',
@@ -47,6 +59,18 @@ schemaComposer.Query.addNestedFields({
     description: 'Get the entity by enid.',
     resolve: (obj, args) => Entity.findById(args.enid),
   },
+  fairs: {
+    type: '[ID]',
+    args: {
+      enid: 'ID!',
+    },
+    description: 'Get a list of the evids of this entity',
+    resolve: async (obj, args, req) => {
+      const fairs = await getFairsOfEntity(args.enid)
+
+      return fairs.map(event => event.evid)
+    },
+  },
   paymentAndEntity: {
     type: 'PaymentAndEntity',
     args: {
@@ -54,17 +78,32 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get payment information of an entity and the entity info as well',
     resolve: async (obj, args, req) => {
+      // TODO: check read access for entity
       const entity = await Entity.findById(args.enid)
-      const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url } }', { targets: [entity.enid] })
+      const events = await getFairsOfEntity(args.enid)
+
+      const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url, target } }', {
+        targets: events.map(event => `${args.enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`)
+      })
 
       if (res.errors || !res.data) {
         console.error(res)
-        throw new Error('An unkown error occured while attempting to generate a payment link')
+        throw new Error('An unknown error occured while attempting look up payment status')
       }
+
+      console.log(res.data.payment.map(payment => ({
+          status: payment.status,
+          url: payment.url,
+          date: new Date(Number(payment.target.split("@")[1])),
+        })))
 
       return {
         entity,
-        ...res.data.payment[0],
+        payments: res.data.payment.map(payment => ({
+          status: payment.status,
+          url: payment.url,
+          eventDate: new Date(Number(payment.target.split("@")[1])),
+        })),
       }
     },
   },
@@ -72,6 +111,7 @@ schemaComposer.Query.addNestedFields({
     type: 'String',
     args: {
       enid: 'ID!',
+      evid: 'ID!',
     },
     description: 'Get a payment link for the given entity',
     resolve: async (obj, args) => {
@@ -80,26 +120,46 @@ schemaComposer.Query.addNestedFields({
       let amount
       switch (entity.type) {
         case "A":
-          amount = 300
+          amount = 1500
           break;
         case "B":
-          amount = 200
+          amount = 700
           break;
         case "C":
-          amount = 100
+          amount = 200
           break;
-        default:
+        case "Lab42":
+          amount = 150
+          break;
+        case "Partner":
+          amount = 200
+          break;
+        case "Free":
           throw new Error('This organisation type does not need to pay to attend an event')
+        default:
+          throw new Error('Unknown organisation type, please contact an administrator')
       }
 
-      const res = await rgraphql('api-payment', 'query($target: String!, $amount: Int) { paymentLink(target: $target, amount: $amount) }', { target: entity.enid, amount })
+      const eventRes = await rgraphql('api-event', 'query($evid: ID!) { event(evid: $evid) { start } }', { evid: args.evid })
 
-      if (res.errors || !res.data) {
-        console.error(res)
+      if (eventRes.errors || !eventRes.data) {
+        console.error(eventRes)
+        throw new Error('An unkown error occured while looking up the event date')
+      }
+
+      // Unix timestamp of the start of the day of the event, no hours, minutes, etc.
+      // this way, two events that occur on the same date will have the same payment
+      // target, meaning you only pay once
+      const eventDateUnix = new Date(eventRes.data.event.start).setHours(0, 0, 0, 0)
+
+      const paymentRes = await rgraphql('api-payment', 'query($target: String!, $amount: Int) { paymentLink(target: $target, amount: $amount) }', { target: `${args.enid}@${eventDateUnix}`, amount })
+
+      if (paymentRes.errors || !paymentRes.data) {
+        console.error(paymentRes)
         throw new Error('An unkown error occured while looking up payment status')
       }
 
-      return res.data.paymentLink
+      return paymentRes.data.paymentLink
     }
   },
   entityByExtID: {

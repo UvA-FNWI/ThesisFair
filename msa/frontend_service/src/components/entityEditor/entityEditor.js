@@ -13,8 +13,10 @@ class EntityEditor extends React.Component {
 
     this.state = {
       ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
-      paymentStatus: null,
-      paymentLink: null,
+      payments: [],
+      paymentsByDate: {}, // Mapping from a date to corresponding payments for events on that date
+      evids: [],
+      fairs: [],
 
       savingInfo: false,
       showInfoSaved: false,
@@ -31,13 +33,20 @@ class EntityEditor extends React.Component {
   async componentDidMount() {
     const paymentEntity = this.state.enid ? await api.entity.getPaymentAndEntity(this.state.enid).exec() : {entity: {}}
 
-    console.log(paymentEntity)
     this.setState({
       ...paymentEntity.entity,
-      paymentLink: paymentEntity.url,
-      paymentStatus: paymentEntity.status,
+      payments: paymentEntity.payments,
+      paymentsByDate: Object.fromEntries(paymentEntity.payments.map(
+        payment => [new Date(payment.eventDate).setHours(0, 0, 0, 0), payment]
+      )),
       ...this.props.entity,
     })
+
+    const evids = this.state.enid ? await api.entity.getFairs(this.state.enid).exec() : []
+    this.setState({evids})
+
+    const fairs = await Promise.all(evids.map(evid => api.event.get(evid).exec()))
+    this.setState({fairs})
   }
 
   createUser = async user => {
@@ -173,15 +182,28 @@ class EntityEditor extends React.Component {
     phonenumber: 'Phone Number',
   }
 
-  async getPaymentLink() {
+  async getPaymentLink(evid) {
+    console.log("Brïh")
     if (this.state.paymentLink) {
       return this.state.paymentLink
     }
 
-    const paymentLink = await api.entity.getPaymentLink(this.state.enid).exec()
+    const paymentLink = await api.entity.getPaymentLink(this.state.enid, evid).exec()
     this.setState({paymentLink})
 
     return paymentLink
+  }
+
+  getStatusLabel(status) {
+    switch (status) {
+      case "failed":
+      case "open":
+        return "processing"
+      case "paid":
+        return "paid"
+      default:
+        return "incomplete"
+    }
   }
 
   render() {
@@ -352,11 +374,18 @@ class EntityEditor extends React.Component {
 
               <div>
                 <h2>Payment</h2>
-                <Button onClick={() => this.getPaymentLink().then(url => window.open(url, '_blank').focus())}>
-                  Pay
-                </Button>
-                
-                <p>{this.state.paymentStatus || 'no payment attempted yet'}</p>
+                {/* TODO: if two fairs have the same date, put them under a single header with a single pay button */}
+                {this.state.fairs.map(fair => <>
+                  <h3>{fair.name}</h3>
+                  
+                  <p>Status: {this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))]
+                    ? this.getStatusLabel(this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))].status)
+                    : "incomplete"
+                  }</p>
+                  <Button onClick={() => this.getPaymentLink(fair.evid).then(url => window.open(url, '_blank').focus())}>
+                    Pay
+                  </Button>
+                </>)}
               </div>
 
             </>

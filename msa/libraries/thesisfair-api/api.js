@@ -613,12 +613,21 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
           }),
-        getPaymentLink: (enid) =>
+        getFairs: (enid) =>
+          genGraphQLBuilder({
+            name: 'getFairs',
+            functionPath: 'fairs',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+            },
+          }),
+        getPaymentLink: (enid, evid) =>
           genGraphQLBuilder({
             name: 'getPaymentLink',
             functionPath: 'paymentLink',
             args: {
               enid: { value: enid, type: 'ID!' },
+              evid: { value: evid, type: 'ID!' },
             },
           }),
         getAll: (evid, projection) =>

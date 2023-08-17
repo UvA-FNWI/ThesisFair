@@ -1,3 +1,5 @@
+scalar Date
+
 input EntityContactInfoIn {
   type: String!
   content: String!
@@ -26,10 +28,15 @@ type Entity {
   location: String
 }
 
+type BarePaymentInfo {
+  status: String
+  url: String
+  eventDate: Date
+}
+
 type PaymentAndEntity {
-  entity: Entity,
-  status: String,
-  url: String,
+  entity: Entity
+  payments: [BarePaymentInfo]
 }
 
 type EntityImportResult {
