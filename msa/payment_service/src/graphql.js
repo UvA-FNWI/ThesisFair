@@ -7,6 +7,34 @@ import { Payments } from './database.js'
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
 
+/* Get the most recent/completed/open payments for the targets */
+async function getPayments(targets) {
+  return await Payments.aggregate([
+    { $addFields: {
+      sortStatus: {
+        $switch: {
+          branches: [
+            { case: { $eq: ['$status', 'paid'] }, then: 0 },
+            { case: { $eq: ['$status', 'open'] }, then: 1 },
+            { case: { $eq: ['$status', 'failed'] }, then: 2 },
+          ],
+          default: 3,
+        },
+      },
+    }},
+    { $sort: { sortStatus: -1, _id: 1 } },
+    { $group: {
+      _id: '$target',
+      target: { $last: '$target' },
+      status: { $last: '$status' },
+      url: { $last: '$url' },
+    }},
+    { $match: {
+      target: { $in: targets },
+    }},
+  ])
+}
+
 schemaComposer.Query.addNestedFields({
   payment: {
     type: '[Payment]',
@@ -15,22 +43,7 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get payment information for all targets that have any',
     resolve: async (_obj, args) => {
-      // Find the most recent entry of a payment into the database for each
-      // target
-      const payments = await Payments.aggregate([
-        { $sort: { _id: 1 } },
-        { $group: {
-          _id: "$target",
-          target: { $last: "$target" },
-          status: { $last: "$status" },
-          url: { $last: "$url" }
-        }},
-        { $match: {
-          target: { $in: args.targets }
-        }}
-      ])
-
-      return payments
+      return await getPayments(args.targets)
     }
   },
   paymentLink: {
@@ -41,14 +54,13 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get payment link for target, create new one if needed',
     resolve: async (_obj, args) => {
-      // Check if there is an open or paid payment link in the database
-      const payment = await Payments.findOne({
-        target: args.target,
-        status: { $in: ['open', 'paid'] },
-      })
+      // Get the current payment status
+      const payments = await getPayments([args.target])
+      const payment = payments ? payments[0] : undefined
 
-      // If there is one, return its payment link (don't create a new one)
-      if (payment) {
+      // If there is one that's already paid or open, return its payment link
+      // (don't create a new one)
+      if (['open', 'paid', 'failed'].includes(payment?.status)) {
         return payment.url
       }
 
@@ -73,7 +85,7 @@ schemaComposer.Query.addNestedFields({
       })
 
       // Add them to the database
-      Payments.create({
+      await Payments.create({
         externalId: result.data.Id,
         url: result.data.Url,
         target: args.target,
