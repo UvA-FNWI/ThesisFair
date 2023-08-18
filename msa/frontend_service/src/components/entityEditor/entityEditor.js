@@ -177,7 +177,6 @@ class EntityEditor extends React.Component {
   }
 
   async getPaymentLink(evid) {
-    console.log("Brïh")
     if (this.state.paymentLink) {
       return this.state.paymentLink
     }
@@ -376,6 +375,8 @@ class EntityEditor extends React.Component {
                     ? this.getStatusLabel(this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))].status)
                     : "incomplete"
                   }</p>
+                  {/* TODO: set a 'loading' state on click that makes the button unclickable, gives it a spinner */}
+                  {/* TODO: make the button reflect the payment status */}
                   <Button onClick={() => this.getPaymentLink(fair.evid).then(url => window.open(url, '_blank').focus())}>
                     Pay
                   </Button>
