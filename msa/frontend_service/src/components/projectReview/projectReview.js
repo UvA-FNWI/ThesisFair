@@ -4,6 +4,8 @@ import rehypeSanitize from 'rehype-sanitize'
 
 import { Container, Button } from 'react-bootstrap'
 
+import api from '../../api'
+
 import './style.scss'
 import Tag from '../tag/tag'
 
@@ -18,6 +20,7 @@ class ProjectEditor extends React.Component {
       comments: [],
       newComment: '',
       project: {
+        pid: '',
         name: '',
         description: '',
         environment: '',
@@ -40,9 +43,13 @@ class ProjectEditor extends React.Component {
 
   async componentDidMount() {
     // TODO: add environment, attendance and expectations to database
-    if (!this.props.project) this.close()
-
-    this.setState({ project: this.props.project })
+    if (this.props.params?.pid) {
+      const project = await api.project.get(this.props.params.pid).exec()
+      console.log(project)
+      this.setState({project})
+    } else {
+      this.close()
+    }
   }
 
   comment(message) {
@@ -127,9 +134,9 @@ class ProjectEditor extends React.Component {
             <div className='project-review__field'>
               <p className='project-review__text--micro'>Degrees</p>
               <div className='project-review__tags'>
-                {Object.values([...this.state.project.degrees, ...this.state.project.tags]).map(({ tag, tooltip }) => (
+                {[...this.state.project.degrees, ...this.state.project.tags].map(tag => (tag &&
                   <>
-                    <Tag key={tag} label={tag.split('.').reverse()[0]} tooltip={tooltip} />
+                    <Tag key={tag} label={tag.split('.').reverse()[0]} />
                   </>
                 ))}
               </div>
