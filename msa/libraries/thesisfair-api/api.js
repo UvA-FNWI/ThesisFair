@@ -689,6 +689,16 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'entity', key: 'enid', delete: true } : false,
           }),
+        acceptPayment: (enid, evid) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'acceptPayment',
+            functionPath: 'entity.acceptPayment',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+              evid: { value: evid, type: 'ID!' },
+            },
+          }),
         requestInvoice: (enid, evid) =>
           genGraphQLBuilder({
             type: 'mutation',
