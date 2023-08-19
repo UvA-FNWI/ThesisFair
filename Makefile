@@ -17,6 +17,7 @@ pushDevelop:
 	./scripts/push-development.sh .
 
 dev:
+	-cd msa/libraries/thesisfair-api && npm run build
 	minikube status | grep "host: Running" || minikube start --mount --mount-string="$$(pwd):/home/docker/thesisfair"
 	minikube addons enable ingress
 	-kubectl delete validatingwebhookconfigurations ingress-nginx-admission
@@ -24,11 +25,12 @@ dev:
 	make buildDevelop
 	make pushDevelop
 	helm install thesisfair chart --values dev-values.yaml --wait
-	sleep 5
+	sleep 7
 	kubectl port-forward svc/database 27017:27017 &
 	# node test/test/db.js run
 	cd scripts/import-datanose && npm start dev
 	xdg-open http://$$(minikube ip) || open http://$$(minikube ip)
+
 
 generateJWTSecret:
 	openssl rand -base64 512
