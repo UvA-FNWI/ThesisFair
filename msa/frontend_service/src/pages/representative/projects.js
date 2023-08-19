@@ -69,7 +69,7 @@ class ProjectListing extends React.Component {
       return
     }
 
-    if (!project.evid) {
+    if (!project.evids || project.evids.length === 0) {
       return
     }
 
@@ -110,6 +110,12 @@ class ProjectListing extends React.Component {
 
     const eventProjects = new Map()
     for (const project of Object.values(projects)) {
+      // Make sure events with a null evid and no evids are both mapped
+      // to the same thing (A)
+      if (!project.evids || (project.evids && !project.evids[0])) {
+        project.evids = [null]
+      }
+
       if (!eventProjects.get(JSON.stringify(project.evids))) {
         eventProjects.set(JSON.stringify(project.evids), [project.pid])
       } else {
@@ -117,11 +123,12 @@ class ProjectListing extends React.Component {
       }
     }
 
-    console.log(eventProjects)
+    // Find info for every event
     const events = {}
     // TODO: remove this loop with api calls
     for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
-      events[evid] = await api.event.get(evid).exec()
+      // If there is a null event (from (A) above), give it a fitting name
+      events[evid] = evid ? await api.event.get(evid).exec() : {name: "No event"}
     }
 
     this.setState({ projects, votes, events, eventProjects })
@@ -149,7 +156,7 @@ class ProjectListing extends React.Component {
       <>
         <ProjectList>
           {projects.map(project => {
-            const tags = project.tags.map(tag => ({ tag, tooltip: undefined }))
+            const tags = project.tags.map(tag => ({ tag: tag.split('.')[1], tooltip: undefined }))
 
             project.degrees.forEach(id => {
               const tag = degreeById[id]
@@ -159,17 +166,9 @@ class ProjectListing extends React.Component {
               })
             })
 
-            const isInActiveEvent = this.state?.events?.[project.evid]?.enabled
-            const isInOldEvent =
-              this.state?.events?.[project.evid] === undefined || this.state?.events?.[project.evid]?.enabled === false
-
-            console.log(
-              isInActiveEvent,
-              isInOldEvent,
-              this.state?.events,
-              this.state?.events?.[project.evid],
-              project.evid
-            )
+            const projectEvents = project.evids?.map(evid => this.state.events[evid] || { enabled: false })
+            const isInActiveEvent = projectEvents.some(event => event.enabled)
+            const isInEvent = project.evids?.length > 0
 
             return (
               <ProjectList.Item
@@ -186,9 +185,9 @@ class ProjectListing extends React.Component {
                 headerButtons={projectButtons(
                   project,
                   this.props.params.duplicateProject,
-                  isInActiveEvent,
+                  isInEvent && isInActiveEvent,
                   this.props.params.edit,
-                  isInOldEvent
+                  isInEvent && !isInActiveEvent
                 )}
               />
             )
@@ -251,16 +250,36 @@ class ProjectListing extends React.Component {
     )
   }
 
+  // Takes a list of evids, returns their earliest event
+  earliestEvent = (events) => {
+    return events.map(event => this.state.events[event]).reduce(
+      (first, event) => event.start < first.start ? event : first
+    )
+  }
+
   render() {
+    const sortedEventProjectsEntries = this.state.eventProjects.entries
+      ? Array.from(this.state.eventProjects.entries())
+      : []
+
+    sortedEventProjectsEntries.sort(([a], [b]) => {
+      a = this.earliestEvent(JSON.parse(a)).start
+      b = this.earliestEvent(JSON.parse(b)).start
+
+      if (!a) return 1
+      if (!b) return -1
+
+      return (a < b) ? 1 : -1
+    })
+
     return (
       <>
         <Container>
           {Object.keys(this.state.projects).length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
 
-          {this.state.eventProjects.entries &&
-            Array.from(this.state.eventProjects.entries()).map(([evids, pids]) => {
+          {sortedEventProjectsEntries.map(([evids, pids]) => {
               const projects = pids.map(pid => this.state.projects[pid])
-              console.log(evids)
+
               const events = JSON.parse(evids).map(evid => this.state.events[evid])
 
               return (
@@ -270,12 +289,12 @@ class ProjectListing extends React.Component {
                     <h3 style={{ alignSelf: 'flex-end' }}>{events.map(event => event.name).join(' & ')}</h3>
                     {events.map(event => (
                       <time style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
-                        {new Date(event.start).toLocaleDateString()}
+                        {event.start ? new Date(event.start).toLocaleDateString() : ""}
                       </time>
                     ))}
                   </span>
                   <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
-                  {this.renderProjectListing(projects)}
+                  {this.renderProjectListing(projects, events)}
                 </>
               )
             })}

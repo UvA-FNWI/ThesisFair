@@ -8,31 +8,33 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
+  {{ if not .Values.dev_mode }}
   tls:
-  - hosts:
-    - "thesisfair.ivi.uva.nl"
-    secretName: ingress-tls-csi-thesisfair
+    - hosts:
+        - "{{ .Values.prod.host }}"
+      secretName: ingress-tls-csi-thesisfair
+  {{ end }}
   rules:
-  - http:
-      paths:
-      - path: /api/(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: thesisfair-api
-            port:
-              number: 80
-      - path: /(sso/.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: thesisfair-api
-            port:
-              number: 80
-      - path: /(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: thesisfair-frontend
-            port:
-              number: 3000
+    - http:
+        paths:
+          - path: /api/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: thesisfair-api
+                port:
+                  number: 80
+          - path: /(sso/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: thesisfair-api
+                port:
+                  number: 80
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: thesisfair-frontend
+                port:
+                  number: 3000

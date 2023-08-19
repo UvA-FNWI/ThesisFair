@@ -22,8 +22,6 @@ class ForgotPasswordPage extends React.Component {
   constructor(props) {
     super(props)
 
-    console.log(props, localStorage.getItem('reset-email'))
-
     const email = localStorage.getItem('reset-email') || props.email || ''
 
     this.state = {
