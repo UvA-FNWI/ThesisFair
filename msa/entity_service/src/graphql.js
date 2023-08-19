@@ -258,7 +258,7 @@ schemaComposer.Mutation.addNestedFields({
       const amount = getAmountByEntityType(entity.type)
       const target = await paymentTarget(args.enid, args.evid)
 
-      const invoiceRes = await rgraphql('api-payment', 'query($target: String!, $amount: Int!) { invoice(target: $target, amount: $amount) }', { target, amount })
+      const invoiceRes = await rgraphql('api-payment', 'mutation requestInvoice($target: String!, $amount: Int!) { payment { requestInvoice(target: $target, amount: $amount) } }', { target, amount })
 
       if (invoiceRes.errors || !invoiceRes.data) {
         console.error(invoiceRes)
