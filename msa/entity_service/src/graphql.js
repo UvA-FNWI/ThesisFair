@@ -53,6 +53,41 @@ async function getFairsOfEntity(enid) {
   return res.data.eventsOfEntity.filter(event => event.enabled)
 }
 
+function getAmountByEntityType(type) {
+  switch (type) {
+    case "A":
+      return 1500
+    case "B":
+      return 700
+    case "C":
+      return 200
+    case "Lab42":
+      return 150
+    case "Partner":
+      return 200
+    case "Free":
+      throw new Error('This organisation type does not need to pay to attend an event')
+    default:
+      throw new Error('Unknown organisation type, please contact an administrator')
+  }
+}
+
+async function paymentTarget(enid, evid) {
+  const eventRes = await rgraphql('api-event', 'query($evid: ID!) { event(evid: $evid) { start } }', { evid })
+
+  if (eventRes.errors || !eventRes.data) {
+    console.error(eventRes)
+    throw new Error('An unkown error occured while looking up the event date')
+  }
+
+  // Unix timestamp of the start of the day of the event, no hours, minutes, etc.
+  // this way, two events that occur on the same date will have the same payment
+  // target, meaning you only pay once
+  const eventDateUnix = new Date(eventRes.data.event.start).setHours(0, 0, 0, 0)
+
+  return `${enid}@${eventDateUnix}`
+}
+
 schemaComposer.Query.addNestedFields({
   entity: {
     type: 'Entity',
@@ -122,43 +157,10 @@ schemaComposer.Query.addNestedFields({
     description: 'Get a payment link for the given entity',
     resolve: async (obj, args) => {
       const entity = await Entity.findById(args.enid)
+      const amount = getAmountByEntityType(entity.type)
+      const target = await paymentTarget(args.enid, args.evid)
 
-      let amount
-      switch (entity.type) {
-        case "A":
-          amount = 1500
-          break;
-        case "B":
-          amount = 700
-          break;
-        case "C":
-          amount = 200
-          break;
-        case "Lab42":
-          amount = 150
-          break;
-        case "Partner":
-          amount = 200
-          break;
-        case "Free":
-          throw new Error('This organisation type does not need to pay to attend an event')
-        default:
-          throw new Error('Unknown organisation type, please contact an administrator')
-      }
-
-      const eventRes = await rgraphql('api-event', 'query($evid: ID!) { event(evid: $evid) { start } }', { evid: args.evid })
-
-      if (eventRes.errors || !eventRes.data) {
-        console.error(eventRes)
-        throw new Error('An unkown error occured while looking up the event date')
-      }
-
-      // Unix timestamp of the start of the day of the event, no hours, minutes, etc.
-      // this way, two events that occur on the same date will have the same payment
-      // target, meaning you only pay once
-      const eventDateUnix = new Date(eventRes.data.event.start).setHours(0, 0, 0, 0)
-
-      const paymentRes = await rgraphql('api-payment', 'query($target: String!, $amount: Int) { paymentLink(target: $target, amount: $amount) }', { target: `${args.enid}@${eventDateUnix}`, amount })
+      const paymentRes = await rgraphql('api-payment', 'query($target: String!, $amount: Int) { paymentLink(target: $target, amount: $amount) }', { target, amount })
 
       if (paymentRes.errors || !paymentRes.data) {
         console.error(paymentRes)
@@ -244,6 +246,28 @@ schemaComposer.Query.addNestedFields({
 })
 
 schemaComposer.Mutation.addNestedFields({
+  'entity.requestInvoice': {
+    type: 'Boolean',
+    args: {
+      enid: 'ID!',
+      evid: 'ID!',
+    },
+    description: 'Request an invoice for the given entity',
+    resolve: async (obj, args) => {
+      const entity = await Entity.findById(args.enid)
+      const amount = getAmountByEntityType(entity.type)
+      const target = await paymentTarget(args.enid, args.evid)
+
+      const invoiceRes = await rgraphql('api-payment', 'query($target: String!, $amount: Int!) { invoice(target: $target, amount: $amount) }', { target, amount })
+
+      if (invoiceRes.errors || !invoiceRes.data) {
+        console.error(invoiceRes)
+        throw new Error('An unknown error occurred while attempting to create an invoice request')
+      }
+
+      return invoiceRes.data.invoice
+    },
+  },
   'entity.create': {
     type: 'Entity',
     args: {

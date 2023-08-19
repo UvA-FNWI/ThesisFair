@@ -8,8 +8,8 @@ const schema = new mongoose.Schema({
   status: { type: String, required: true, default: () => 'open' },
   target: { type: String, required: true },
   amount: { type: Number, required: true },
-  url: { type: String, required: true },
-  externalId: { type: Number, required: true },
+  url: { type: String },
+  externalId: { type: Number },
 })
 
 schema.virtual('timestamp').get(function () {

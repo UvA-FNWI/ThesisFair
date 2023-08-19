@@ -689,6 +689,16 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'entity', key: 'enid', delete: true } : false,
           }),
+        requestInvoice: (enid, evid) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'requestInvoice',
+            functionPath: 'entity.requestInvoice',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+              evid: { value: evid, type: 'ID!' },
+            },
+          }),
         import: (entities, projection) =>
           genGraphQLBuilder({
             type: 'mutation',

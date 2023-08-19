@@ -6,6 +6,7 @@ type Payment {
 }
 
 enum PaymentStatus {
+  invoice
   open
   paid
   failed

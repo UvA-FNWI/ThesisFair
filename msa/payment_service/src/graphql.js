@@ -58,7 +58,7 @@ schemaComposer.Query.addNestedFields({
     type: 'Boolean', // True if an invoice request is created, false otherwise
     args: {
       target: 'String!',
-      amount: 'Int',
+      amount: 'Int!',
     },
     description: 'Request an invoice for this target, i.e. set the payment status to "invoice requested"',
     resolve: async(_obj, args) => {
