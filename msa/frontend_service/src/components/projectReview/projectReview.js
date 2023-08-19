@@ -15,7 +15,6 @@ class ProjectReview extends React.Component {
     super(props)
 
     this.state = {
-      comments: [],
       newComment: '',
       project: {
         pid: '',
@@ -29,6 +28,7 @@ class ProjectReview extends React.Component {
         email: '',
         status: '',
         numberOfStudents: null,
+        comments: [],
       },
     }
 
@@ -49,7 +49,7 @@ class ProjectReview extends React.Component {
   }
 
   comment(message) {
-    this.setState({ newComment: '', comments: [...this.state.comments, message] })
+    this.setState({ newComment: '', project: { comments: [...this.state.project.comments, message] } })
     this.props.comment(message)
     this.props.onClose()
   }
@@ -173,7 +173,7 @@ class ProjectReview extends React.Component {
         <div className='project-review__comments'>
           <h2 className='project-review__text--header'>Comments</h2>
           <div className='project-review__comments-list'>
-            {this.state.comments.map((comment, index) => (
+            {this.state.project.comments.map((comment, index) => (
               <div key={index} className='project-review__comment'>
                 <MDEditor.Markdown
                   className='project-review__markdown'
