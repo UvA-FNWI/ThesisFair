@@ -246,6 +246,25 @@ schemaComposer.Query.addNestedFields({
 })
 
 schemaComposer.Mutation.addNestedFields({
+  'entity.acceptPayment': {
+    type: 'Boolean',
+    args: {
+      enid: 'ID!',
+      evid: 'ID!',
+    },
+    resolve: async (obj, args) => {
+      const target = await paymentTarget(args.enid, args.evid)
+
+      const res = await rgraphql('api-payment', 'mutation acceptPayment($target: String!) { payment { acceptPayment(target: $target) { amount } } }', { target })
+
+      if (res.errors || !res.data) {
+        console.error(res)
+        throw new Error('An unknown error occurred while attempting to set the payment status to paid')
+      }
+
+      return !!res.data.payment?.acceptPayment
+    },
+  },
   'entity.requestInvoice': {
     type: 'Boolean',
     args: {
@@ -258,14 +277,14 @@ schemaComposer.Mutation.addNestedFields({
       const amount = getAmountByEntityType(entity.type)
       const target = await paymentTarget(args.enid, args.evid)
 
-      const invoiceRes = await rgraphql('api-payment', 'mutation requestInvoice($target: String!, $amount: Int!) { payment { requestInvoice(target: $target, amount: $amount) } }', { target, amount })
+      const res = await rgraphql('api-payment', 'mutation requestInvoice($target: String!, $amount: Int!) { payment { requestInvoice(target: $target, amount: $amount) } }', { target, amount })
 
-      if (invoiceRes.errors || !invoiceRes.data) {
-        console.error(invoiceRes)
+      if (res.errors || !res.data) {
+        console.error(res)
         throw new Error('An unknown error occurred while attempting to create an invoice request')
       }
 
-      return invoiceRes.data.invoice
+      return res.data.payment?.requestInvoice
     },
   },
   'entity.create': {

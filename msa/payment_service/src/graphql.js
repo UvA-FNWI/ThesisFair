@@ -33,6 +33,7 @@ async function getPayments(targets) {
       target: { $last: '$target' },
       status: { $last: '$status' },
       url: { $last: '$url' },
+      paymentId: { $last: '$_id' },
     }},
     { $match: {
       target: { $in: targets },
@@ -104,6 +105,28 @@ schemaComposer.Query.addNestedFields({
 })
 
 schemaComposer.Mutation.addNestedFields({
+  'payment.acceptPayment': {
+    type: 'Payment',
+    args: {
+      target: 'String!',
+    },
+    description: 'Set the payment status for the given target to paid',
+    resolve: async (_obj, args) => {
+      const payment = (await getPayments([args.target]))[0]
+
+      if (payment?.status == 'paid') {
+        throw new Error('Target already paid')
+      }
+
+      const amount = payment?.amount || '-1'
+
+      return await Payments.create({
+        target: args.target,
+        amount,
+        status: 'paid',
+      })
+    },
+  },
   'payment.requestInvoice': {
     type: 'Boolean', // True if an invoice request is created, false otherwise
     args: {
@@ -111,7 +134,7 @@ schemaComposer.Mutation.addNestedFields({
       amount: 'Int!',
     },
     description: 'Request an invoice for this target, i.e. set the payment status to "invoice requested"',
-    resolve: async(_obj, args) => {
+    resolve: async (_obj, args) => {
       // Get the current payment status
       const payments = await getPayments([args.target])
       const payment = payments ? payments[0] : undefined
