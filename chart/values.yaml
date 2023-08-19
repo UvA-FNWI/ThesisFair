@@ -6,7 +6,7 @@ env:
   OPENID_CLIENT_ID: "thesisfair.local"
   OPENID_REDIRECT_URL: "https://thesisfair.ivi.uva.nl/sso/loggedin"
   OPENID_RESOURCE: "https://thesisfair.ivi.uva.nl"
-  DATANOSE_API_URL: "https://api-acc.datanose.nl/"
+  DATANOSE_API_URL: "https://api.datanose.nl/"
   MAILHOST: "webmail.uva.nl"
   MAILPORT: "587"
   MAILUSER: "SRV-THESIS"
