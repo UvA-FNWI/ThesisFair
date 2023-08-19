@@ -115,12 +115,9 @@ class ProjectListing extends React.Component {
                 email={project.email}
                 numberOfStudents={project.numberOfStudents}
                 headerBadge={this.approvalBadge(project)}
-                headerButtons={<>
-                  <Link to={`/project/${project.pid}/review`}>
-                    <Button variant='primary'>Review</Button>
-                  </Link>
-                  <Tag label={entityName} />
-                </>}
+                headerButtons={<Link to={`/project/${project.pid}/review`}>
+                  <Button variant='primary'>Review</Button>
+                </Link>}
               />
             )
           })}
