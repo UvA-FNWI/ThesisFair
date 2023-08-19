@@ -47,6 +47,7 @@ msa:
 # aren't actually on there  yet
 prod:
   cr: "fnwicr.azurecr.io/thesisfair"
+  host: "thesisfair.ivi.uva.nl"
   pullPolicy: Always
 
 # When dev mode is enabled, the container repository for
