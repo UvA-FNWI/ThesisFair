@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import ProjectReview from '../../components/projectReview/projectReview'
 
 function close() {
-  window.location.href = 'projects'
+  window.location.href = '/projects'
 }
 
 function ProjectEditorPage(props) {

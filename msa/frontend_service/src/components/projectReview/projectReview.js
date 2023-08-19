@@ -9,10 +9,8 @@ import api from '../../api'
 import './style.scss'
 import Tag from '../tag/tag'
 
-// Expects params.pid and params.enid as props
-class ProjectEditor extends React.Component {
-  // TODO: have a controlled input rather than uncontrolled (i.e. update state
-  // as form is edited) for name
+// Expects params.pid as props
+class ProjectReview extends React.Component {
   constructor(props) {
     super(props)
 
@@ -42,10 +40,8 @@ class ProjectEditor extends React.Component {
   }
 
   async componentDidMount() {
-    // TODO: add environment, attendance and expectations to database
     if (this.props.params?.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
-      console.log(project)
       this.setState({project})
     } else {
       this.close()
@@ -55,46 +51,48 @@ class ProjectEditor extends React.Component {
   comment(message) {
     this.setState({ newComment: '', comments: [...this.state.comments, message] })
     this.props.comment(message)
-    this.props.close()
+    this.props.onClose()
   }
 
   reject() {
     this.props.reject()
-    this.props.close()
+    this.props.onClose()
   }
 
   requestChanges() {
     this.props.requestChanges()
-    this.props.close()
+    this.props.onClose()
   }
 
   approve() {
     this.props.approve()
-    this.props.close()
+    this.props.onClose()
   }
 
   close() {
-    this.props.close()
+    this.props.onClose()
   }
 
-  reviewButtons = [
-    {
-      label: 'Reject',
-      onClick: this.reject,
-    },
-    {
-      label: 'Request Changes',
-      onClick: this.requestChanges,
-    },
-    {
-      label: 'Approve',
-      onClick: this.approve,
-    },
-    {
-      label: 'Close',
-      onClick: this.close,
-    },
-  ]
+  reviewButtons() {
+    return [
+      {
+        label: 'Reject',
+        onClick: this.reject,
+      },
+      {
+        label: 'Request Changes',
+        onClick: this.requestChanges,
+      },
+      {
+        label: 'Approve',
+        onClick: this.approve,
+      },
+      {
+        label: 'Close',
+        onClick: this.close,
+      },
+    ]
+  }
 
   getDataInputs = () => (
     <Container className='project-review__container' data-color-mode='light'>
@@ -214,7 +212,7 @@ class ProjectEditor extends React.Component {
         <div className='project-review__divider' />
 
         <div className='project-review__buttons'>
-          {this.reviewButtons.map(({ label, onClick }, index) => (
+          {this.reviewButtons().map(({ label, onClick }, index) => (
             <Button
               key={index}
               variant={label === 'Close' ? 'secondary' : 'primary'}
@@ -232,4 +230,4 @@ class ProjectEditor extends React.Component {
   render = () => this.getDataInputs()
 }
 
-export default ProjectEditor
+export default ProjectReview
