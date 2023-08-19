@@ -40,8 +40,11 @@ class EntityCard extends React.Component {
     })
   }
 
+  // TODO: this exact same function is also in entityEditor -- reduce duplication
   getStatusLabel(status) {
     switch (status) {
+      case 'invoice':
+        return 'invoice requested'
       case 'failed':
       case 'open':
         return 'payment processing'
