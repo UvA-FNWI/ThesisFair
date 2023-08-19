@@ -925,15 +925,15 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,
           }),
-        setApproval: (args, projection) =>
+        setApproval: (pid, approval, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'setProjectApproval',
             functionPath: 'project.approval',
             body: bodies.Project(projection),
             args: {
-              pid: { value: args.pid, type: 'ID!' },
-              approval: { value: args.approval, type: 'ApprovalStatus!' },
+              pid: { value: pid, type: 'ID!' },
+              approval: { value: approval, type: 'ApprovalStatus!' },
             },
           }),
         delete: (pid, projection) =>

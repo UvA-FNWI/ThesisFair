@@ -50,22 +50,23 @@ class ProjectReview extends React.Component {
 
   comment(message) {
     this.setState({ newComment: '', project: { comments: [...this.state.project.comments, message] } })
-    this.props.comment(message)
+    // this.props.comment(message)
+    // this.props.onClose()
+  }
+
+  async reject() {
+    await api.project.setApproval(this.state.project.pid, 'rejected').exec()
     this.props.onClose()
   }
 
-  reject() {
-    this.props.reject()
+  async requestChanges() {
+    await api.project.setApproval(this.state.project.pid, 'commented').exec()
     this.props.onClose()
   }
 
-  requestChanges() {
-    this.props.requestChanges()
-    this.props.onClose()
-  }
-
-  approve() {
-    this.props.approve()
+  async approve() {
+    // TODO: if admin, 'preliminary', if rep 'approved'
+    await api.project.setApproval(this.state.project.pid, 'approved').exec()
     this.props.onClose()
   }
 
@@ -103,10 +104,10 @@ class ProjectReview extends React.Component {
             <div className='project-review__field'>
               <p className='project-review__text--micro'>Status of Review</p>
               <Tag
-                className={`project-review__status project-review__status--${(this.state.project.status || 'pending')
+                className={`project-review__status project-review__status--${(this.state.project.approval || 'pending')
                   .replace(' ', '-')
                   .toLowerCase()}`}
-                label={this.state.project.status || 'Not reviewed'}
+                label={this.state.project.approval || 'Not reviewed'}
               />
             </div>
 
@@ -173,7 +174,7 @@ class ProjectReview extends React.Component {
         <div className='project-review__comments'>
           <h2 className='project-review__text--header'>Comments</h2>
           <div className='project-review__comments-list'>
-            {this.state.project.comments.map((comment, index) => (
+            {this.state.project.comments?.map((comment, index) => (
               <div key={index} className='project-review__comment'>
                 <MDEditor.Markdown
                   className='project-review__markdown'

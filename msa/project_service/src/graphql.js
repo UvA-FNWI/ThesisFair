@@ -190,6 +190,7 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Set the approval status for the given project',
     resolve: async (obj, args, req) => {
+      console.log("bingo")
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED approve projects')
       }
