@@ -252,7 +252,11 @@ schemaComposer.Mutation.addNestedFields({
       enid: 'ID!',
       evid: 'ID!',
     },
-    resolve: async (obj, args) => {
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED accept payment')
+      }
+
       const target = await paymentTarget(args.enid, args.evid)
 
       const res = await rgraphql('api-payment', 'mutation acceptPayment($target: String!) { payment { acceptPayment(target: $target) { amount } } }', { target })
