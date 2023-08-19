@@ -25,6 +25,8 @@ class EntityEditor extends React.Component {
       isCreate: !props.enid,
       type: 'unknown',
       enid: props.enid,
+
+      isAdmin: api.getApiTokenData().type === 'a',
     }
   }
 
@@ -391,6 +393,14 @@ class EntityEditor extends React.Component {
                   }>
                     Request invoice
                   </Button>
+                  {this.state.isAdmin &&
+                    <Button onClick={() =>
+                      api.entity.acceptPayment(this.state.enid, fair.evid).exec()
+                        .then(() => window.location.reload())
+                    }>
+                      Accept organisation's payment
+                    </Button>
+                  }
                 </>)}
               </div>
 
