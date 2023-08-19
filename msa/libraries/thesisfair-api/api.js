@@ -593,8 +593,7 @@ export default url => {
         },
       },
       entity: {
-        get: (enid, projection) =>
-          genGraphQLBuilder({
+        get: (enid, projection) => genGraphQLBuilder({
             name: 'getEntity',
             functionPath: 'entity',
             body: bodies.Entity(projection),
@@ -602,6 +601,23 @@ export default url => {
               enid: { value: enid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
+          }),
+        getFairs: (enid) =>
+          genGraphQLBuilder({
+            name: 'getFairs',
+            functionPath: 'fairs',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+            },
+          }),
+        getPaymentLink: (enid, evid) =>
+          genGraphQLBuilder({
+            name: 'getPaymentLink',
+            functionPath: 'paymentLink',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+              evid: { value: evid, type: 'ID!' },
+            },
           }),
         getAll: (evid, projection) =>
           genGraphQLBuilder({
@@ -672,6 +688,26 @@ export default url => {
               enid: { value: enid, type: 'ID!' },
             },
             cache: caching ? { instance: cache, type: 'entity', key: 'enid', delete: true } : false,
+          }),
+        acceptPayment: (enid, evid) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'acceptPayment',
+            functionPath: 'entity.acceptPayment',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+              evid: { value: evid, type: 'ID!' },
+            },
+          }),
+        requestInvoice: (enid, evid) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'requestInvoice',
+            functionPath: 'entity.requestInvoice',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+              evid: { value: evid, type: 'ID!' },
+            },
           }),
         import: (entities, projection) =>
           genGraphQLBuilder({

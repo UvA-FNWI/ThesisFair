@@ -14,6 +14,7 @@ class Entities extends React.Component {
 
     this.state = {
       entities: [],
+      allEvents: [],
       entitiesByEnid: {},
       entityNames: [],
       filteredEntities: [],
@@ -60,7 +61,6 @@ class Entities extends React.Component {
 
   async componentDidMount() {
     let entities
-
     try {
       entities = await api.entity.getAll().exec()
     } catch (error) {
@@ -73,17 +73,25 @@ class Entities extends React.Component {
       return
     }
 
-    entities = entities.map(entity => ({
-      name: entity.name,
-      enid: entity.enid,
-      type: entity.type,
-      description: entity.description,
-    }))
+    // Fetch info about all events to pass on to entries on entities, so they
+    // don't have to fetch it (state passes down)
+    let events
+    try {
+      events = await api.event.getAll().exec()
+    } catch (error) {
+      console.log(error)
+      this.setState({ error: true })
+    }
+
+    if (!events || events.length === 0) {
+      this.setState({ error: true })
+      return
+    }
 
     const entityNames = entities.map(entity => ({ enid: entity.enid, name: entity.name }))
     const entitiesByEnid = Object.fromEntries(entities.map(entity => [entity.enid, entity]))
 
-    this.setState({ entities, entitiesByEnid, entityNames, filteredEntities: entities })
+    this.setState({ entities, entitiesByEnid, entityNames, filteredEntities: entities, allEvents: events })
   }
 
   getNoResultText() {
@@ -123,7 +131,7 @@ class Entities extends React.Component {
           <Row className='g-4 events-page__row'>
             {this.state.filteredEntities.map(entity => (
               <Col md='auto' key={entity.enid}>
-                <EntityCard entity={{ ...entity }} isAdmin={this.state.isAdmin} />
+                <EntityCard events={this.state.allEvents} entity={entity} isAdmin={this.state.isAdmin} />
               </Col>
             ))}
           </Row>

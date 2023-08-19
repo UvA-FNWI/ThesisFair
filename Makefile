@@ -24,8 +24,10 @@ dev:
 	make buildDevelop
 	make pushDevelop
 	helm install thesisfair chart --values dev-values.yaml --wait
+	sleep 5
 	kubectl port-forward svc/database 27017:27017 &
 	# node test/test/db.js run
+	cd scripts/import-datanose && npm start dev
 	xdg-open http://$$(minikube ip) || open http://$$(minikube ip)
 
 generateJWTSecret:

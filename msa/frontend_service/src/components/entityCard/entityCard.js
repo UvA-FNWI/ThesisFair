@@ -18,17 +18,41 @@ class EntityCard extends React.Component {
 
     this.state = {
       ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
+      events: [], // List of all events, for info, needs to be fetched otherwise
+      eventsByEvid: {},
       isAdmin: props.isAdmin,
     }
   }
 
   async componentDidMount() {
-    const entity = this.props.enid ? await api.entity.get(this.props.enid).exec() : {}
+    const entity = this.props.entity || await api.entity.get(this.props.enid).exec()
+    const events = this.props.events || await api.event.getAll().exec() || []
+    entity.payments ||= []
 
     this.setState({
       ...entity,
+      events,
+      eventsByEvid: Object.fromEntries(events.map(event => [event.evid, event])),
+      paymentsByDate: Object.fromEntries(entity.payments.map(
+        payment => [new Date(payment.eventDate).setHours(0, 0, 0, 0), payment]
+      )),
       ...this.props.entity,
     })
+  }
+
+  // TODO: this exact same function is also in entityEditor -- reduce duplication
+  getStatusLabel(status) {
+    switch (status) {
+      case 'invoice':
+        return 'invoice requested'
+      case 'failed':
+      case 'open':
+        return 'payment processing'
+      case 'paid':
+        return 'payment completed'
+      default:
+        return 'payment incomplete'
+    }
   }
 
   render() {
@@ -51,12 +75,17 @@ class EntityCard extends React.Component {
                   tooltip={`type: ${this.state.type}`}
                   selectable={false}
                 />
-                <Tag
-                  key='payment'
-                  label={'Payment: incomplete'}
-                  tooltip={'This organization has yet to pay'}
-                  selectable={false}
-                />
+                {this.state.evids && this.state.evids.map(evid => {
+                  const event = this.state.eventsByEvid[evid]
+                  const payment = this.state.paymentsByDate[String(new Date(event.start).setHours(0, 0, 0, 0))]
+                  return <Tag
+                    key={`payment-${evid}`}
+                    label={`${event.name}: ${this.getStatusLabel(payment?.status)}`}
+                    tooltip={`Payment status: ${payment?.status || 'no attempt made'}`}
+                    selectable={false}
+                    onClick={() => payment?.url && window.open(payment.url, '_blank').focus()}
+                  />
+                })}
               </div>
             )}
 

@@ -1,0 +1,15 @@
+type Payment {
+  status: PaymentStatus!
+  target: String
+  url: String
+  amount: Int
+}
+
+enum PaymentStatus {
+  invoice
+  open
+  paid
+  failed
+  canceled
+  expired
+}

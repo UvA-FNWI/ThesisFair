@@ -13,6 +13,8 @@ class EntityEditor extends React.Component {
 
     this.state = {
       ...Object.fromEntries(graphqlFields['Entity'].map(f => [f, null])),
+      paymentsByDate: {}, // Mapping from a date to corresponding payments for events on that date
+      fairs: [],
 
       savingInfo: false,
       showInfoSaved: false,
@@ -21,8 +23,10 @@ class EntityEditor extends React.Component {
       showContactSaved: false,
 
       isCreate: !props.enid,
-      type: 'A',
+      type: 'unknown',
       enid: props.enid,
+
+      isAdmin: api.getApiTokenData().type === 'a',
     }
   }
 
@@ -31,8 +35,14 @@ class EntityEditor extends React.Component {
 
     this.setState({
       ...entity,
+      paymentsByDate: Object.fromEntries(entity.payments.map(
+        payment => [new Date(payment.eventDate).setHours(0, 0, 0, 0), payment]
+      )),
       ...this.props.entity,
     })
+
+    const fairs = await Promise.all(entity.evids.map(evid => api.event.get(evid).exec()))
+    this.setState({fairs})
   }
 
   createUser = async user => {
@@ -166,6 +176,30 @@ class EntityEditor extends React.Component {
     website: 'Website',
     email: 'Email',
     phonenumber: 'Phone Number',
+  }
+
+  async getPaymentLink(evid) {
+    if (this.state.paymentLink) {
+      return this.state.paymentLink
+    }
+
+    const paymentLink = await api.entity.getPaymentLink(this.state.enid, evid).exec()
+
+    return paymentLink
+  }
+
+  getStatusLabel(status) {
+    switch (status) {
+      case "invoice":
+        return "invoice requested"
+      case "failed":
+      case "open":
+        return "processing"
+      case "paid":
+        return "paid"
+      default:
+        return "incomplete"
+    }
   }
 
   render() {
@@ -333,6 +367,43 @@ class EntityEditor extends React.Component {
                 <h2>Company Accounts</h2>
                 <RepresentativeList enid={this.state.enid} />
               </div>
+
+              <div>
+                <h2>Payment</h2>
+                {/* TODO: if two fairs have the same date, put them under a single header with a single pay button */}
+                {this.state.fairs.map(fair => <>
+                  <h3>{fair.name}</h3>
+                  
+                  <p>Status: {this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))]
+                    ? this.getStatusLabel(this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))].status)
+                    : "incomplete"
+                  }</p>
+                  {/* TODO: set a 'loading' state on click that makes the button unclickable, gives it a spinner */}
+                  {/* TODO: make the button reflect the payment status */}
+                  {/* TODO: make buttons unclickable when invoice has been requested */}
+                  <Button onClick={() =>
+                    api.entity.getPaymentLink(this.state.enid, fair.evid).exec()
+                      .then(url => window.open(url, '_blank').focus())
+                  }>
+                    Pay
+                  </Button>
+                  <Button onClick={() =>
+                    api.entity.requestInvoice(this.state.enid, fair.evid).exec()
+                      .then(() => window.location.reload())
+                  }>
+                    Request invoice
+                  </Button>
+                  {this.state.isAdmin &&
+                    <Button onClick={() =>
+                      api.entity.acceptPayment(this.state.enid, fair.evid).exec()
+                        .then(() => window.location.reload())
+                    }>
+                      Accept organisation's payment
+                    </Button>
+                  }
+                </>)}
+              </div>
+
             </>
           )}
         </Container>

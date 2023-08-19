@@ -1,0 +1,24 @@
+{
+  "name": "payment_service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "DEBUG=payment_service:* DEBUG_COLORS=true nodemon ./src/index.js",
+    "production": "node ./src/index.js"
+  },
+  "author": "Ischa Abraham",
+  "license": "ISC",
+  "dependencies": {
+    "@amicopo/amqpmessaging": "^1.0.9",
+    "debug": "^4.3.4",
+    "graphql": "^16.3.0",
+    "graphql-compose": "^9.0.8",
+    "mongoose": "^6.3.1",
+     "axios": "^0.27.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
