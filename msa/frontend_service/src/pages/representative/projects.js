@@ -128,7 +128,11 @@ class ProjectListing extends React.Component {
     // TODO: remove this loop with api calls
     for (const evid of [...new Set(Array.from(eventProjects.keys()).map(JSON.parse).flat())]) {
       // If there is a null event (from (A) above), give it a fitting name
+<<<<<<< HEAD
       events[evid] = evid ? await api.event.get(evid).exec() : {name: "No event"}
+=======
+      events[evid] = evid ? await api.event.get(evid).exec() : { name: 'No event' }
+>>>>>>> 65407ff715718cec2de641dc1f9148c4ca22bd4b
     }
 
     this.setState({ projects, votes, events, eventProjects })
@@ -251,10 +255,10 @@ class ProjectListing extends React.Component {
   }
 
   // Takes a list of evids, returns their earliest event
-  earliestEvent = (events) => {
-    return events.map(event => this.state.events[event]).reduce(
-      (first, event) => event.start < first.start ? event : first
-    )
+  earliestEvent = events => {
+    return events
+      .map(event => this.state.events[event])
+      .reduce((first, event) => (event.start < first.start ? event : first))
   }
 
   render() {
@@ -269,7 +273,11 @@ class ProjectListing extends React.Component {
       if (!a) return 1
       if (!b) return -1
 
+<<<<<<< HEAD
       return (a < b) ? 1 : -1
+=======
+      return a < b ? 1 : -1
+>>>>>>> 65407ff715718cec2de641dc1f9148c4ca22bd4b
     })
 
     return (
@@ -278,6 +286,7 @@ class ProjectListing extends React.Component {
           {Object.keys(this.state.projects).length === 0 ? <h4>No projects are linked to your company yet</h4> : null}
 
           {sortedEventProjectsEntries.map(([evids, pids]) => {
+<<<<<<< HEAD
               const projects = pids.map(pid => this.state.projects[pid])
 
               const events = JSON.parse(evids).map(evid => this.state.events[evid])
@@ -298,6 +307,28 @@ class ProjectListing extends React.Component {
                 </>
               )
             })}
+=======
+            const projects = pids.map(pid => this.state.projects[pid])
+
+            const events = JSON.parse(evids).map(evid => this.state.events[evid])
+
+            return (
+              <>
+                <br />
+                <span className='d-flex justify-content-between'>
+                  <h3 style={{ alignSelf: 'flex-end' }}>{events.map(event => event.name).join(' & ')}</h3>
+                  {events.map(event => (
+                    <time style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
+                      {event.start ? new Date(event.start).toLocaleDateString() : ''}
+                    </time>
+                  ))}
+                </span>
+                <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
+                {this.renderProjectListing(projects, events)}
+              </>
+            )
+          })}
+>>>>>>> 65407ff715718cec2de641dc1f9148c4ca22bd4b
         </Container>
 
         {this.state.popup ? this.renderStudentModal() : null}

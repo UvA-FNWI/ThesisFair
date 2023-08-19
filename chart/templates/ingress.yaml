@@ -11,7 +11,7 @@ spec:
   {{ if not .Values.dev_mode }}
   tls:
     - hosts:
-        - "{{ .Values.prod.host }}"
+        - {{ .Values.prod.host }}
       secretName: ingress-tls-csi-thesisfair
   {{ end }}
   rules:
