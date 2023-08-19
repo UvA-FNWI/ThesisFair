@@ -182,13 +182,14 @@ class EntityEditor extends React.Component {
     }
 
     const paymentLink = await api.entity.getPaymentLink(this.state.enid, evid).exec()
-    this.setState({paymentLink})
 
     return paymentLink
   }
 
   getStatusLabel(status) {
     switch (status) {
+      case "invoice":
+        return "invoice requested"
       case "failed":
       case "open":
         return "processing"
@@ -377,8 +378,18 @@ class EntityEditor extends React.Component {
                   }</p>
                   {/* TODO: set a 'loading' state on click that makes the button unclickable, gives it a spinner */}
                   {/* TODO: make the button reflect the payment status */}
-                  <Button onClick={() => this.getPaymentLink(fair.evid).then(url => window.open(url, '_blank').focus())}>
+                  {/* TODO: make buttons unclickable when invoice has been requested */}
+                  <Button onClick={() =>
+                    api.entity.getPaymentLink(this.state.enid, fair.evid).exec()
+                      .then(url => window.open(url, '_blank').focus())
+                  }>
                     Pay
+                  </Button>
+                  <Button onClick={() =>
+                    api.entity.requestInvoice(this.state.enid, fair.evid).exec()
+                      .then(() => window.location.reload())
+                  }>
+                    Request invoice
                   </Button>
                 </>)}
               </div>
