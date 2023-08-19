@@ -56,8 +56,9 @@ class LoginAs extends React.Component {
         <div className='mb-4'>
           <Form.Select onChange={e => this.loginAs(e.target.value)}>
             <option>Login as representative</option>
+            <option>Login as representative</option>
             {this.state.users
-              .filter(user => !!user.enid)
+              .filter(user => user.enids?.length > 0)
               .map(({ uid, firstname, lastname }) => (
                 <option value={uid}>
                   {firstname} {lastname}
