@@ -32,6 +32,7 @@ type Event {
   studentSubmitDeadline: Date
   entities: [ID]
   external_id: String
+  isMarketplace: Boolean
 }
 
 type EventImportResult {

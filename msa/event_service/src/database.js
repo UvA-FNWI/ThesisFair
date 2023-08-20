@@ -4,21 +4,25 @@ import debugLib from 'debug'
 const debug = debugLib('event_service:database')
 let conn
 
-const eventSchema = new mongoose.Schema({
-  enabled: { type: Boolean, required: true },
-  name: { type: String, required: true },
-  description: { type: String },
-  start: { type: Date, required: true },
-  end: { type: Date },
-  location: { type: String },
-  studentSubmitDeadline: { type: Date },
-  entities: [{ type: mongoose.Schema.ObjectId }],
-  external_id: { type: String },
-  degrees: [{ type: String }],
-}, {
-  toObject: { virtuals: true },
-  toJSON: { virtuals: true },
-})
+const eventSchema = new mongoose.Schema(
+  {
+    enabled: { type: Boolean, required: true },
+    name: { type: String, required: true },
+    description: { type: String },
+    start: { type: Date, required: true },
+    end: { type: Date },
+    location: { type: String },
+    studentSubmitDeadline: { type: Date },
+    entities: [{ type: mongoose.Schema.ObjectId }],
+    external_id: { type: String },
+    degrees: [{ type: String }],
+    isMarketplace: { type: Boolean },
+  },
+  {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
+  }
+)
 
 eventSchema.virtual('evid').get(function () {
   return this._id
