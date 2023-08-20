@@ -172,6 +172,7 @@ schemaComposer.Mutation.addNestedFields({
       studentSubmitDeadline: 'Date',
       entities: '[ID!]',
       external_id: 'String',
+      isMarketplace: 'Boolean',
     },
     description: 'Create new event.',
     resolve: async (obj, args, req) => {
@@ -200,6 +201,7 @@ schemaComposer.Mutation.addNestedFields({
       studentSubmitDeadline: 'Date',
       entities: '[ID!]',
       external_id: 'String',
+      isMarketplace: 'Boolean',
     },
     description: 'Update an event.',
     resolve: async (obj, args, req) => {

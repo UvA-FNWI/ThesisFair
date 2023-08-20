@@ -54,6 +54,9 @@ class ProjectEditor extends React.Component {
         numberOfStudents: false,
       },
       attendanceInteractions: [],
+      marketplaceInteractions: [],
+      allEvents: [],
+      allMarketplaces: [],
       showAttendance: false,
       activeEvents: [],
     }
@@ -64,7 +67,6 @@ class ProjectEditor extends React.Component {
     this.removeTag = this.removeTag.bind(this)
     this.handleTagCheck = this.handleTagCheck.bind(this)
     this.handleMasterCheck = this.handleMasterCheck.bind(this)
-    this.handleAttendanceChange = this.handleAttendanceChange.bind(this)
   }
 
   async componentDidMount() {
@@ -79,8 +81,10 @@ class ProjectEditor extends React.Component {
     }
 
     const activeEvents = await api.event.getActive().exec()
+    const allEvents = activeEvents.filter(event => !event.isMarketplace)
+    const allMarketplaces = activeEvents.filter(event => event.isMarketplace).map(event => event.evid)
 
-    this.setState({ activeEvents })
+    this.setState({ activeEvents, allEvents, allMarketplaces })
   }
 
   async submit(e) {
@@ -92,7 +96,7 @@ class ProjectEditor extends React.Component {
       return
     }
 
-    if (!this.attendanceIsValid()) {
+    if (!this.attendanceIsValid()[0]) {
       e.stopPropagation()
       return
     }
@@ -118,6 +122,18 @@ class ProjectEditor extends React.Component {
   }
 
   async updateProject() {
+    const validType = this.isValidEvent()
+
+    let evids = []
+
+    if (validType[1]) {
+      evids = this.state.evids
+    } else if (validType[2]) {
+      evids = this.state.allMarketplaces
+    } else {
+      throw new Error('That should not happen.')
+    }
+
     const project = {
       enid: this.props.params.enid,
       name: this.state.name,
@@ -125,7 +141,7 @@ class ProjectEditor extends React.Component {
       degrees: this.state.degrees,
       tags: this.state.tags,
       attendance: this.state.evids.length > 0 ? 'yes' : 'no',
-      evids: this.state.evids,
+      evids: evids,
       environment: this.state.environment,
       email: this.state.email,
     }
@@ -175,17 +191,11 @@ class ProjectEditor extends React.Component {
     }
 
     // Reset attendance if the degree is changed
-    if (degree === 'MScAI') {
-      this.setState({
-        evids: this.state.evids.filter(evid => !this.evidIsAIEvent(evid)),
-        attendanceInteractions: this.state.attendanceInteractions.filter(evid => !this.evidIsAIEvent(evid)),
-      })
-    } else {
-      this.setState({
-        evids: this.state.evids.filter(evid => this.evidIsAIEvent(evid)),
-        attendanceInteractions: this.state.attendanceInteractions.filter(evid => this.evidIsAIEvent(evid)),
-      })
-    }
+    this.setState({
+      evids: [],
+      attendanceInteractions: [],
+      marketplaceInteractions: [],
+    })
   }
 
   handleTagCheck(tag) {
@@ -217,26 +227,13 @@ class ProjectEditor extends React.Component {
     })
   }
 
-  handleAttendanceChange(e) {
-    this.setState({
-      hasBeenInteractedWith: {
-        ...this.state.hasBeenInteractedWith,
-        attendance: true,
-      },
-    })
-
-    if (e.currentTarget.value === this.state.attendance) {
-      this.setState({ attendance: null })
-    } else {
-      this.setState({ attendance: e.currentTarget.value })
-    }
-  }
-
   attendanceIsValid = () => {
-    const interactionCount = this.state.attendanceInteractions.length
-    const applicableEvents = this.state.activeEvents.filter(event => this.isValidEvent(event)).length
+    const isGoingToAnyEvent = this.state.evids.length > 0
+    const isValidToEvent =
+      this.state.allEvents.filter(event => this.isValidEvent(event)).length === this.state.attendanceInteractions.length
+    const isValidToMarketplace = this.state.allMarketplaces.length === this.state.marketplaceInteractions.length
 
-    return interactionCount === applicableEvents
+    return [(isGoingToAnyEvent && isValidToEvent) || isValidToMarketplace, isValidToEvent, isValidToMarketplace]
   }
 
   validate = () => Object.values(this.validation).every(f => f() === true)
@@ -607,7 +604,14 @@ class ProjectEditor extends React.Component {
         value={event.evid}
         className='attendance__buttons'
         checked={this.state.evids.includes(event.evid)}
-        onChange={this.handleAttendanceChange}
+        onChange={() => {
+          this.setState({
+            hasBeenInteractedWith: {
+              ...this.state.hasBeenInteractedWith,
+              attendance: true,
+            },
+          })
+        }}
       >
         <ToggleButton
           id={`yes-attendance-${event.evid}`}
@@ -656,6 +660,62 @@ class ProjectEditor extends React.Component {
     </div>
   )
 
+  getMarketplaceCard = (event, selectable) => (
+    <div key={event.evid} className={cl('attendance__event', { 'attendance__event--disabled': !selectable })}>
+      <div className='attendance__event-card'>
+        <div className='attendance__fading'>
+          <p className='attendance__event-name'>{event.name}</p>
+
+          <Tag className='attendance__event-tag' label='Marketplace'></Tag>
+
+          <MDEditor.Markdown
+            source={event.description}
+            previewOptions={{
+              rehypePlugins: [[rehypeSanitize]],
+            }}
+          />
+        </div>
+      </div>
+
+      <ButtonGroup
+        key={event.evid}
+        id={`attendance-${event.evid}`}
+        type='radio'
+        name='attendance'
+        value={event.evid}
+        className='attendance__buttons'
+        checked={this.state.evids.includes(event.evid)}
+        onChange={() => {
+          this.setState({
+            hasBeenInteractedWith: {
+              ...this.state.hasBeenInteractedWith,
+              attendance: true,
+            },
+          })
+        }}
+      >
+        <ToggleButton
+          id={`yes-attendance-${event.evid}`}
+          type='radio'
+          name='attendance'
+          value={'yes'}
+          className={cl('attendance__button', {
+            'attendance__button--selected':
+              this.state.evids.length > 0 || this.state.marketplaceInteractions.includes(event.evid),
+          })}
+          checked={this.state.evids.length > 0 || this.state.marketplaceInteractions.includes(event.evid)}
+          onClick={() => {
+            const marketplaceInteractions = [...new Set([...this.state.marketplaceInteractions, event.evid])]
+
+            this.setState({ marketplaceInteractions })
+          }}
+        >
+          Attend Digital Marketplace
+        </ToggleButton>
+      </ButtonGroup>
+    </div>
+  )
+
   getSubmitButton = disabled => (
     <Button disabled={disabled} className='button-disabled' variant='primary' type='submit' onClick={this.submit}>
       {this.props.params.pid ? 'Update' : 'Create'} Project
@@ -666,40 +726,58 @@ class ProjectEditor extends React.Component {
     <Container className='mt-2 attendance' data-color-mode='light'>
       <h1 className='mb-4 mt-3'>This project is for:</h1>
 
-      <p className='mb-3'>
-        This project will always be on the marketplace. Please select which (if any) Thesis Fairs is this for?
-      </p>
-
       <Form>
         <div className='attendance__events'>
           {this.state.activeEvents.length === 0 && <p>No events are currently active</p>}
-          {this.state.activeEvents.map(event =>
-            this.isValidEvent(event) ? (
-              this.getEventCard(event, true)
-            ) : (
-              <OverlayTrigger
-                key={event.evid}
-                overlay={
-                  <Tooltip>
-                    {event.degrees !== null && event.degrees.includes('MScAI') ? (
-                      <p style={{ margin: 0 }}>
-                        Not applicable to your project: select the AI Master to attend this event
-                      </p>
-                    ) : (
-                      <p style={{ margin: 0 }}>
-                        Not applicable to your project: select a non-AI Master to attend this event
-                      </p>
-                    )}
-                  </Tooltip>
-                }
-              >
-                <span>{this.getEventCard(event, false)}</span>
-              </OverlayTrigger>
-            )
-          )}
+          {this.state.activeEvents
+            .filter(event => !event.isMarketplace)
+            .map(event =>
+              this.isValidEvent(event) ? (
+                this.getEventCard(event, true)
+              ) : (
+                <OverlayTrigger
+                  overlay={
+                    <Tooltip>
+                      {event.degrees !== null && event.degrees.includes('MScAI') ? (
+                        <p style={{ margin: 0 }}>
+                          Not applicable to your project: select the AI Master to attend this event
+                        </p>
+                      ) : (
+                        <p style={{ margin: 0 }}>
+                          Not applicable to your project: select a non-AI Master to attend this event
+                        </p>
+                      )}
+                    </Tooltip>
+                  }
+                >
+                  <span>{this.getEventCard(event, false)}</span>
+                </OverlayTrigger>
+              )
+            )}
+
+          {/* Making sure that we only have a single marketplace event */}
+          {this.state.activeEvents
+            .filter(event => event.isMarketplace)
+            .map(event =>
+              this.state.evids.length === 0 &&
+              this.state.attendanceInteractions.length ===
+                this.state.allEvents.filter(event => this.isValidEvent(event)).length ? (
+                this.getMarketplaceCard(event, true)
+              ) : (
+                <OverlayTrigger
+                  overlay={
+                    <Tooltip>
+                      <p style={{ margin: 0 }}>Projects at an event are automatically on the marketplace</p>
+                    </Tooltip>
+                  }
+                >
+                  <span>{this.getMarketplaceCard(event, false)}</span>
+                </OverlayTrigger>
+              )
+            )}
         </div>
 
-        {this.attendanceIsValid() ? (
+        {this.attendanceIsValid()[0] ? (
           this.getSubmitButton(false)
         ) : (
           <OverlayTrigger overlay={<Tooltip>Select attendance for all events before submitting</Tooltip>}>

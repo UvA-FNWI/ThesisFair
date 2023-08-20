@@ -21,6 +21,7 @@ class EventEditor extends React.Component {
     this.state = {
       evid: null,
       enabled: false,
+      isMarketplace: false,
       name: '',
       description: '',
       start: new Date(),
@@ -63,14 +64,14 @@ class EventEditor extends React.Component {
         .getImage(event.evid, 'student')
         .exec()
         .then(studentImage => {
-          this.setState({studentImage})
+          this.setState({ studentImage })
         })
 
       api.event
         .getImage(event.evid, 'rep')
         .exec()
         .then(repImage => {
-          this.setState({repImage})
+          this.setState({ repImage })
         })
     }
   }
@@ -101,6 +102,7 @@ class EventEditor extends React.Component {
       end: this.state.end,
       location: this.state.location,
       enabled: this.state.enabled,
+      isMarketplace: this.state.isMarketplace,
     }
 
     let evid
@@ -171,313 +173,334 @@ class EventEditor extends React.Component {
   )
 
   render() {
-    return <Container className='mt-2 create-event' data-color-mode='light'>
-      <h1 className='mb-4'>{this.props.params.evid ? 'Edit' : 'Create'} Event</h1>
-      <Form>
-        <Row className='mb-3'>
-          <Form.Group as={Col} controlId='name'>
-            <Form.Label>Event Name</Form.Label>
-            <Form.Control
-              name='name'
-              type='text'
-              placeholder='Enter a title for the event'
-              value={this.state.name}
-              onChange={e => {
-                this.setState({
-                  name: e.target.value,
-                  hasBeenInteractedWith: {
-                    ...this.state.hasBeenInteractedWith,
-                    name: true,
-                  },
-                })
-              }}
-              isInvalid={this.state.hasBeenInteractedWith.name && !this.validation.name()}
-              required
-            />
-            <Form.Control.Feedback type='invalid'>Please enter a title for the event</Form.Control.Feedback>
-          </Form.Group>
-
-          <Col xs='auto'>
-            <Form.Group controlId='degrees'>
-              <Form.Label>Applicable masters</Form.Label>
-              <br />
-              <ButtonGroup
-                className={cl('degree-tags', {
-                  'is-invalid': this.state.hasBeenInteractedWith.degrees && !this.validation.degrees(),
-                })}
-              >
-                {Object.values(degrees).map(({ id, tag, tooltip }) => (
-                  <Form.Check className='form-tag' inline title={tag} key={tag}>
-                    <Form.Check.Input
-                      name={tag}
-                      key={tag}
-                      className='form-tag__checkbox'
-                      checked={this.state.degrees.includes(id)}
-                      onChange={() => {}}
-                    />
-                    <Form.Check.Label>
-                      <OverlayTrigger overlay={<Tooltip>{tooltip}</Tooltip>}>
-                        <span>
-                          <Tag
-                            label={tag}
-                            id={id}
-                            selectable={true}
-                            selected={this.state.degrees.includes(id)}
-                            onClick={this.handleMasterCheck}
-                          />
-                        </span>
-                      </OverlayTrigger>
-                    </Form.Check.Label>
-                  </Form.Check>
-                ))}
-              </ButtonGroup>
-              <Form.Control.Feedback type='invalid'>Please specify at least one degree</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className='mb-3'>
-          <Form.Group as={Col} className='mb-3' controlId='start'>
-            <Form.Label>Starts at</Form.Label>
-            <Form.Control
-              name='startDate'
-              type='date'
-              value={this.state.start.toISOString().split('T')[0]}
-              onChange={e => {
-                const [year, month, date] = e.target.value.split('-')
-                const newDate = this.state.start
-                newDate.setUTCFullYear(year)
-                newDate.setUTCMonth(month)
-                newDate.setUTCDate(date)
-                this.setState({
-                  start: newDate,
-                })
-              }}
-              onBlur={() => {
-                this.setState({
-                  hasBeenInteractedWith: {
-                    ...this.state.hasBeenInteractedWith,
-                    start: true,
-                  },
-                })
-              }}
-              isInvalid={this.state.hasBeenInteractedWith.start && !this.validation.start()}
-              required
-            />
-            <Form.Control
-              name='startTime'
-              type='time'
-              value={this.state.start.toISOString().split('T')[1].split('.')[0]}
-              onChange={e => {
-                const [hours, minutes] = e.target.value.split(':')
-                const newTime = this.state.start
-                newTime.setUTCHours(hours)
-                newTime.setUTCMinutes(minutes)
-                this.setState({
-                  start: newTime,
-                })
-              }}
-              onBlur={() => {
-                this.setState({
-                  hasBeenInteractedWith: {
-                    ...this.state.hasBeenInteractedWith,
-                    start: true,
-                  },
-                })
-              }}
-              isInvalid={this.state.hasBeenInteractedWith.start && !this.validation.start()}
-              required
-            />
-            <Form.Control.Feedback type='invalid'>Bruh just git gud</Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group as={Col} className='mb-3' controlId='end'>
-            <Form.Label>ends at</Form.Label>
-            <Form.Control
-              name='endDate'
-              type='date'
-              value={this.state.end.toISOString().split('T')[0]}
-              onChange={e => {
-                const [year, month, date] = e.target.value.split('-')
-                const newDate = this.state.end
-                newDate.setUTCFullYear(year)
-                newDate.setUTCMonth(month)
-                newDate.setUTCDate(date)
-                this.setState({
-                  end: newDate,
-                })
-              }}
-              onBlur={() => {
-                this.setState({
-                  hasBeenInteractedWith: {
-                    ...this.state.hasBeenInteractedWith,
-                    end: true,
-                  },
-                })
-              }}
-              isInvalid={this.state.hasBeenInteractedWith.end && !this.validation.end()}
-              required
-            />
-            <Form.Control
-              name='endTime'
-              type='time'
-              value={this.state.end.toISOString().split('T')[1].split('.')[0]}
-              onChange={e => {
-                const [hours, minutes] = e.target.value.split(':')
-                const newTime = this.state.end
-                newTime.setUTCHours(hours)
-                newTime.setUTCMinutes(minutes)
-                this.setState({
-                  end: newTime,
-                })
-              }}
-              onBlur={() => {
-                this.setState({
-                  hasBeenInteractedWith: {
-                    ...this.state.hasBeenInteractedWith,
-                    end: true,
-                  },
-                })
-              }}
-              isInvalid={this.state.hasBeenInteractedWith.end && !this.validation.end()}
-              required
-            />
-            <Form.Control.Feedback type='invalid'>Bruh just git gud</Form.Control.Feedback>
-          </Form.Group>
-        </Row>
-
-        <Form.Group className='mb-3 description' controlId='description'>
-          <Form.Label>Event description (Markdown)</Form.Label>
-          <MDEditor
-            value={this.state.description}
-            onChange={value => {
-              this.setState({
-                description: value,
-                hasBeenInteractedWith: { ...this.state.hasBeenInteractedWith, description: true },
-              })
-            }}
-            height={500}
-            className={cl({
-              'is-invalid': this.state.hasBeenInteractedWith.description && !this.validation.description(),
-            })}
-            previewOptions={{
-              rehypePlugins: [[rehypeSanitize]],
-            }}
-          />
-          <Form.Control.Feedback type='invalid'>Please write up a description</Form.Control.Feedback>
-        </Form.Group>
-
-        <Row>
-          <Col>
-            <Form.Group className='mb-3' controlId='location'>
-              <Form.Label>Location</Form.Label>
+    return (
+      <Container className='mt-2 create-event' data-color-mode='light'>
+        <h1 className='mb-4'>{this.props.params.evid ? 'Edit' : 'Create'} Event</h1>
+        <Form>
+          <Row className='mb-3'>
+            <Form.Group as={Col} controlId='name'>
+              <Form.Label>Event Name</Form.Label>
               <Form.Control
-                name='location'
+                name='name'
                 type='text'
-                placeholder='Where will this even take place?'
-                value={this.state.location}
+                placeholder='Enter a title for the event'
+                value={this.state.name}
                 onChange={e => {
                   this.setState({
-                    location: e.target.value,
+                    name: e.target.value,
                     hasBeenInteractedWith: {
                       ...this.state.hasBeenInteractedWith,
-                      location: true,
+                      name: true,
                     },
                   })
                 }}
-                isInvalid={this.state.hasBeenInteractedWith.name && !this.validation.location()}
+                isInvalid={this.state.hasBeenInteractedWith.name && !this.validation.name()}
                 required
               />
-              <Form.Control.Feedback type='invalid'>Please enter a location for the event</Form.Control.Feedback>
+              <Form.Control.Feedback type='invalid'>Please enter a title for the event</Form.Control.Feedback>
             </Form.Group>
-          </Col>
 
-          <Col>
-            <Form.Group className='mb-3' controlId='active'>
-              <Form.Label>Active</Form.Label>
-              <Form.Check
-                type='switch'
-                id='event-enable-switch'
-                label={this.state.enabled ? 'This event will be enabled' : 'This event will be disabled'}
-                onClick={_e => this.setState({ enabled: !this.state.enabled })}
-                value={this.state.enabled}
+            <Col xs='auto'>
+              <Form.Group controlId='degrees'>
+                <Form.Label>Applicable masters</Form.Label>
+                <br />
+                <ButtonGroup
+                  className={cl('degree-tags', {
+                    'is-invalid': this.state.hasBeenInteractedWith.degrees && !this.validation.degrees(),
+                  })}
+                >
+                  {Object.values(degrees).map(({ id, tag, tooltip }) => (
+                    <Form.Check className='form-tag' inline title={tag} key={tag}>
+                      <Form.Check.Input
+                        name={tag}
+                        key={tag}
+                        className='form-tag__checkbox'
+                        checked={this.state.degrees.includes(id)}
+                        onChange={() => {}}
+                      />
+                      <Form.Check.Label>
+                        <OverlayTrigger overlay={<Tooltip>{tooltip}</Tooltip>}>
+                          <span>
+                            <Tag
+                              label={tag}
+                              id={id}
+                              selectable={true}
+                              selected={this.state.degrees.includes(id)}
+                              onClick={this.handleMasterCheck}
+                            />
+                          </span>
+                        </OverlayTrigger>
+                      </Form.Check.Label>
+                    </Form.Check>
+                  ))}
+                </ButtonGroup>
+                <Form.Control.Feedback type='invalid'>Please specify at least one degree</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row className='mb-3'>
+            <Form.Group as={Col} className='mb-3' controlId='start'>
+              <Form.Label>Starts at</Form.Label>
+              <Form.Control
+                name='startDate'
+                type='date'
+                value={this.state.start.toISOString().split('T')[0]}
+                onChange={e => {
+                  const [year, month, date] = e.target.value.split('-')
+                  const newDate = this.state.start
+                  newDate.setUTCFullYear(year)
+                  newDate.setUTCMonth(month)
+                  newDate.setUTCDate(date)
+                  this.setState({
+                    start: newDate,
+                  })
+                }}
+                onBlur={() => {
+                  this.setState({
+                    hasBeenInteractedWith: {
+                      ...this.state.hasBeenInteractedWith,
+                      start: true,
+                    },
+                  })
+                }}
+                isInvalid={this.state.hasBeenInteractedWith.start && !this.validation.start()}
+                required
               />
+              <Form.Control
+                name='startTime'
+                type='time'
+                value={this.state.start.toISOString().split('T')[1].split('.')[0]}
+                onChange={e => {
+                  const [hours, minutes] = e.target.value.split(':')
+                  const newTime = this.state.start
+                  newTime.setUTCHours(hours)
+                  newTime.setUTCMinutes(minutes)
+                  this.setState({
+                    start: newTime,
+                  })
+                }}
+                onBlur={() => {
+                  this.setState({
+                    hasBeenInteractedWith: {
+                      ...this.state.hasBeenInteractedWith,
+                      start: true,
+                    },
+                  })
+                }}
+                isInvalid={this.state.hasBeenInteractedWith.start && !this.validation.start()}
+                required
+              />
+              <Form.Control.Feedback type='invalid'>Bruh just git gud</Form.Control.Feedback>
             </Form.Group>
-          </Col>
-        </Row>
+            <Form.Group as={Col} className='mb-3' controlId='end'>
+              <Form.Label>ends at</Form.Label>
+              <Form.Control
+                name='endDate'
+                type='date'
+                value={this.state.end.toISOString().split('T')[0]}
+                onChange={e => {
+                  const [year, month, date] = e.target.value.split('-')
+                  const newDate = this.state.end
+                  newDate.setUTCFullYear(year)
+                  newDate.setUTCMonth(month)
+                  newDate.setUTCDate(date)
+                  this.setState({
+                    end: newDate,
+                  })
+                }}
+                onBlur={() => {
+                  this.setState({
+                    hasBeenInteractedWith: {
+                      ...this.state.hasBeenInteractedWith,
+                      end: true,
+                    },
+                  })
+                }}
+                isInvalid={this.state.hasBeenInteractedWith.end && !this.validation.end()}
+                required
+              />
+              <Form.Control
+                name='endTime'
+                type='time'
+                value={this.state.end.toISOString().split('T')[1].split('.')[0]}
+                onChange={e => {
+                  const [hours, minutes] = e.target.value.split(':')
+                  const newTime = this.state.end
+                  newTime.setUTCHours(hours)
+                  newTime.setUTCMinutes(minutes)
+                  this.setState({
+                    end: newTime,
+                  })
+                }}
+                onBlur={() => {
+                  this.setState({
+                    hasBeenInteractedWith: {
+                      ...this.state.hasBeenInteractedWith,
+                      end: true,
+                    },
+                  })
+                }}
+                isInvalid={this.state.hasBeenInteractedWith.end && !this.validation.end()}
+                required
+              />
+              <Form.Control.Feedback type='invalid'>Bruh just git gud</Form.Control.Feedback>
+            </Form.Group>
+          </Row>
 
-        <Row className='mb-3'>
-          <Col>
-            <Form.Label>Student image</Form.Label>
-            {this.state.studentImage ? (
-              <img width='512px' className='mt-2' src={this.state.studentImage} alt='Student event map' />
-            ) : this.state.studentImage === false ? (
-              <h6>
-                <em>Loading image...</em>
-              </h6>
-            ) : (
-              <h6>
-                <em>No student image is set.</em>
-              </h6>
-            )}
-            <Button onClick={
-              async () => this.setState({studentImage: await getFileContent()})
-            }>Upload student image</Button>
-          </Col>
+          <Form.Group className='mb-3 description' controlId='description'>
+            <Form.Label>Event description (Markdown)</Form.Label>
+            <MDEditor
+              value={this.state.description}
+              onChange={value => {
+                this.setState({
+                  description: value,
+                  hasBeenInteractedWith: { ...this.state.hasBeenInteractedWith, description: true },
+                })
+              }}
+              height={500}
+              className={cl({
+                'is-invalid': this.state.hasBeenInteractedWith.description && !this.validation.description(),
+              })}
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
+              }}
+            />
+            <Form.Control.Feedback type='invalid'>Please write up a description</Form.Control.Feedback>
+          </Form.Group>
 
-          <Col>
-            <Form.Label>Representative image</Form.Label>
-            {this.state.repImage ? (
-              <img width='512px' className='mt-2' src={this.state.repImage} alt='Representative event map' />
-            ) : this.state.repImage === false ? (
-              <h6>
-                <em>Loading image...</em>
-              </h6>
-            ) : (
-              <h6>
-                <em>No representative image is set.</em>
-              </h6>
-            )}
-            <Button onClick={
-              async () => this.setState({repImage: await getFileContent()})
-            }>Upload representative image</Button>
-          </Col>
-        </Row>
+          <Row>
+            <Col>
+              <Form.Group className='mb-3' controlId='location'>
+                <Form.Label>Location</Form.Label>
+                <Form.Control
+                  name='location'
+                  type='text'
+                  placeholder='Where will this even take place?'
+                  value={this.state.location}
+                  onChange={e => {
+                    this.setState({
+                      location: e.target.value,
+                      hasBeenInteractedWith: {
+                        ...this.state.hasBeenInteractedWith,
+                        location: true,
+                      },
+                    })
+                  }}
+                  isInvalid={this.state.hasBeenInteractedWith.name && !this.validation.location()}
+                  required
+                />
+                <Form.Control.Feedback type='invalid'>Please enter a location for the event</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
 
-        <Button
-          variant='primary'
-          type='submit'
-          onClick={e => {
-            // Set all hasBeenInteractedWith to true
-            this.setState({
-              hasBeenInteractedWith: {
-                name: true,
-                description: true,
-                environment: true,
-                expectations: true,
-                degrees: true,
-                tags: true,
-                email: true,
-                numberOfStudents: true,
-              },
-            })
+            <Col>
+              <Form.Group className='mb-3' controlId='active'>
+                <Form.Label>Active</Form.Label>
+                <Form.Check
+                  type='switch'
+                  id='event-enable-switch'
+                  label={this.state.enabled ? 'This event will be enabled' : 'This event will be disabled'}
+                  onClick={_e => this.setState({ enabled: !this.state.enabled })}
+                  checked={this.state.enabled}
+                  value={this.state.enabled}
+                />
+              </Form.Group>
+            </Col>
 
-            this.submit(e)
-          }}
-        >
-          Submit
-        </Button>
+            <Col>
+              <Form.Group className='mb-3' controlId='marketplace'>
+                <Form.Label>Marketplace Event</Form.Label>
+                <Form.Check
+                  type='switch'
+                  id='event-marketplace-switch'
+                  label={
+                    this.state.isMarketplace
+                      ? 'This event will be marketplace only'
+                      : 'This event is not marketplace only'
+                  }
+                  onClick={() => this.setState({ isMarketplace: !this.state.isMarketplace })}
+                  checked={this.state.isMarketplace}
+                  value={this.state.isMarketplace}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
-        <Button variant='secondary' type='cancel' onClick={this.cancel}>
-          Cancel
-        </Button>
+          <Row className='mb-3'>
+            <Col>
+              <Form.Label>Student image</Form.Label>
+              {this.state.studentImage ? (
+                <img width='512px' className='mt-2' src={this.state.studentImage} alt='Student event map' />
+              ) : this.state.studentImage === false ? (
+                <h6>
+                  <em>Loading image...</em>
+                </h6>
+              ) : (
+                <h6>
+                  <em>No student image is set.</em>
+                </h6>
+              )}
+              <Button onClick={async () => this.setState({ studentImage: await getFileContent() })}>
+                Upload student image
+              </Button>
+            </Col>
 
-        {this.props.params.evid && (
-          <Button variant='secondary' type='cancel' onClick={this.deleteEvent}>
-            Delete event WARNING HAS UNFORESEEN CONSEQUENCES
+            <Col>
+              <Form.Label>Representative image</Form.Label>
+              {this.state.repImage ? (
+                <img width='512px' className='mt-2' src={this.state.repImage} alt='Representative event map' />
+              ) : this.state.repImage === false ? (
+                <h6>
+                  <em>Loading image...</em>
+                </h6>
+              ) : (
+                <h6>
+                  <em>No representative image is set.</em>
+                </h6>
+              )}
+              <Button onClick={async () => this.setState({ repImage: await getFileContent() })}>
+                Upload representative image
+              </Button>
+            </Col>
+          </Row>
+
+          <Button
+            variant='primary'
+            type='submit'
+            onClick={e => {
+              // Set all hasBeenInteractedWith to true
+              this.setState({
+                hasBeenInteractedWith: {
+                  name: true,
+                  description: true,
+                  environment: true,
+                  expectations: true,
+                  degrees: true,
+                  tags: true,
+                  email: true,
+                  numberOfStudents: true,
+                },
+              })
+
+              this.submit(e)
+            }}
+          >
+            Submit
           </Button>
-        )}
-      </Form>
-    </Container>
+
+          <Button variant='secondary' type='cancel' onClick={this.cancel}>
+            Cancel
+          </Button>
+
+          {this.props.params.evid && (
+            <Button variant='secondary' type='cancel' onClick={this.deleteEvent}>
+              Delete event WARNING HAS UNFORESEEN CONSEQUENCES
+            </Button>
+          )}
+        </Form>
+      </Container>
+    )
   }
 }
 

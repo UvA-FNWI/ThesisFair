@@ -164,7 +164,7 @@ export default url => {
   let apiTokenData = unpackToken(apiToken) || null
   let apiTokenDataOverride = browser ? JSON.parse(localStorage.getItem('apiTokenOverride')) : null
 
-  const requestPasswordReset = async (email) => {
+  const requestPasswordReset = async email => {
     const res = await axios.post(
       url + 'requestPasswordReset',
       { email },
@@ -782,6 +782,7 @@ export default url => {
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
               external_id: { value: event.external_id, type: 'String' },
+              isMarketplace: { value: event.isMarketplace, type: 'Boolean' },
             },
             cache: caching ? { instance: cache, type: 'event', key: 'evid', create: true } : false,
           }),
@@ -803,6 +804,7 @@ export default url => {
               studentSubmitDeadline: { value: event.studentSubmitDeadline, type: 'Date' },
               entities: { value: event.entities, type: '[ID!]' },
               external_id: { value: event.external_id, type: 'String' },
+              isMarketplace: { value: event.isMarketplace, type: 'Boolean' },
             },
             cache: caching ? { instance: cache, type: 'event', key: 'evid', update: true } : false,
           }),
