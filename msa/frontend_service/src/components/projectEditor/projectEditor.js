@@ -122,7 +122,7 @@ class ProjectEditor extends React.Component {
   }
 
   async updateProject() {
-    const validType = this.isValidEvent()
+    const validType = this.attendanceIsValid()
 
     let evids = []
 
@@ -569,7 +569,7 @@ class ProjectEditor extends React.Component {
   )
 
   isValidEvent = event => {
-    const isAIEvent = event.degrees !== null && event.degrees.includes('MScAI')
+    const isAIEvent = 'degrees' in event && event.degrees !== null && event.degrees?.includes('MScAI')
     const hasNonAIDegree = this.state.degrees.some(degree => degree !== 'MScAI')
 
     if (isAIEvent) return this.state.degrees.includes('MScAI')

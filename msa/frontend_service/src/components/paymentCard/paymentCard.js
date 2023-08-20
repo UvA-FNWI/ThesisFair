@@ -10,9 +10,9 @@ import api from '../../api'
 import graphqlFields from '../../api/graphqlFields'
 import Tag from '../tag/tag'
 
-import './entityCard.scss'
+import './paymentCard.scss'
 
-class EntityCard extends React.Component {
+class PaymentCard extends React.Component {
   constructor(props) {
     super(props)
 
@@ -44,52 +44,37 @@ class EntityCard extends React.Component {
   getStatusLabel(status) {
     switch (status) {
       case 'invoice':
-        return 'invoice requested'
+        return 'Invoice requested'
       case 'failed':
       case 'open':
-        return 'payment processing'
+        return 'Payment processing'
       case 'paid':
-        return 'payment completed'
+        return 'Paid'
       default:
-        return 'payment incomplete'
+        return 'Awaiting payment'
     }
   }
 
   render() {
-    const contactEmail = this.state.contact && this.state.contact.find(c => c.type === 'email')
+    const event = this.state.eventsByEvid[this.props.evid]
+    const payment = this.state.paymentsByDate[String(new Date(event.start).setHours(0, 0, 0, 0))]
 
     return (
-      <Card data-color-mode='light' className={cl('entity-card', { 'entity-card--no-image': !this.state.image })}>
-        <Card.Body className='d-flex flex-column entity-card__container'>
-          <Card.Title>{this.state.name}</Card.Title>
-          <Card.Subtitle className='entity-card__subtitle'>
-            <small className='text-muted'>{contactEmail && contactEmail.content}</small>
+      <Card data-color-mode='light' className={cl('payment-card', { 'payment-card--no-image': !this.state.image })}>
+        <Card.Body className='d-flex flex-column payment-card__container'>
+          <Card.Title>Outstanding Payment</Card.Title>
+          <Card.Subtitle className='payment-card__subtitle'>
+            <small className='text-muted'>{this.state.name}</small>
           </Card.Subtitle>
-          <Card.Text className='entity-card__body'>
-            {this.state.isAdmin && (
-              <div className='entity-card__tags'>
-                <Tag
-                  key='type'
-                  label={`Type: ${this.state.type || 'unknown'}`}
-                  tooltip={`type: ${this.state.type}`}
-                  selectable={false}
-                />
-                {this.state.evids &&
-                  this.state.evids.map(evid => {
-                    const event = this.state.eventsByEvid[evid]
-                    const payment = this.state.paymentsByDate[String(new Date(event.start).setHours(0, 0, 0, 0))]
-                    return (
-                      <Tag
-                        key={`payment-${evid}`}
-                        label={`${event.name}: ${this.getStatusLabel(payment?.status)}`}
-                        tooltip={`Payment status: ${payment?.status || 'no attempt made'}`}
-                        selectable={false}
-                        onClick={() => payment?.url && window.open(payment.url, '_blank').focus()}
-                      />
-                    )
-                  })}
-              </div>
-            )}
+          <Card.Text className='payment-card__body'>
+            <div className='payment-card__tags'>
+              <Tag
+                label={this.getStatusLabel(payment?.status)}
+                tooltip={`Payment status: ${payment?.status || 'no attempt made.'}`}
+                selectable={false}
+                onClick={() => payment?.url && window.open(payment.url, '_blank').focus()}
+              />
+            </div>
 
             <MDEditor.Markdown
               source={this.state.description}
@@ -111,4 +96,4 @@ class EntityCard extends React.Component {
   }
 }
 
-export default EntityCard
+export default PaymentCard
