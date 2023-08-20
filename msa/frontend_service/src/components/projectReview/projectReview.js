@@ -102,11 +102,11 @@ class ProjectReview extends React.Component {
   reviewButtons() {
     return [
       {
-        label: 'Reject',
+        label: () => 'Reject',
         onClick: this.reject,
       },
       {
-        label: 'Request Changes',
+        label: () => 'Request Changes',
         onClick: this.requestChanges,
       },
       api.getApiTokenData().type === 'a' && {
@@ -114,11 +114,11 @@ class ProjectReview extends React.Component {
         onClick: this.partiallyApprove,
       },
       {
-        label: 'Approve',
+        label: () => api.getApiTokenData().type === 'a' ? 'Partially approve' : 'Approve',
         onClick: this.approve,
       },
       {
-        label: 'Close',
+        label: () => 'Close',
         onClick: this.close,
       },
     ]
@@ -251,11 +251,11 @@ class ProjectReview extends React.Component {
           {this.reviewButtons().map(({ label, onClick }, index) => (
             <Button
               key={index}
-              variant={label === 'Close' ? 'secondary' : 'primary'}
+              variant={label() === 'Close' ? 'secondary' : 'primary'}
               onClick={onClick}
-              className={`project-review__button-${label.replace(' ', '-').toLowerCase()}`}
+              className={`project-review__button-${label().replace(' ', '-').toLowerCase()}`}
             >
-              {label}
+              {label()}
             </Button>
           ))}
         </div>
