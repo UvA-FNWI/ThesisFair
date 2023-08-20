@@ -925,6 +925,17 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,
           }),
+        comment: (pid, comment, projection) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'leaveNewComment',
+            functionPath: 'project.comment',
+            body: bodies.Project(projection),
+            args: {
+              pid: { value: pid, type: 'ID!' },
+              comment: { value: comment, type: 'String!' },
+            },
+          }),
         setApproval: (pid, approval, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
