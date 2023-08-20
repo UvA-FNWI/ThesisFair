@@ -48,10 +48,9 @@ class ProjectReview extends React.Component {
     }
   }
 
-  comment(message) {
-    this.setState({ newComment: '', project: { comments: [...this.state.project.comments, message] } })
-    // this.props.comment(message)
-    // this.props.onClose()
+  async comment(message) {
+    const project = await api.project.comment(this.state.project.pid, message).exec()
+    this.setState({ newComment: '', project })
   }
 
   async reject() {
@@ -198,7 +197,7 @@ class ProjectReview extends React.Component {
         <Button
           variant='primary'
           className='project-review__button-comment'
-          onClick={() => this.comment(this.state.newComment)}
+          onClick={async () => await this.comment(this.state.newComment)}
         >
           Comment
         </Button>
