@@ -28,6 +28,7 @@ type Entity {
   location: String
   payments: [BarePaymentInfo]
   evids: [ID]
+  grantsAcademicRights: Boolean
 }
 
 type BarePaymentInfo {
