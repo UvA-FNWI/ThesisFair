@@ -96,6 +96,7 @@ class App extends React.Component {
             ? <Page page={<AdminProjects />} />
             : <Page page={<Projects />} />
         } />
+        <Route path='/project/:pid/review' element={<Page page={<ProjectReview />} />} />
       </>
     )
   }
