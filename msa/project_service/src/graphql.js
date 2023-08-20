@@ -182,6 +182,24 @@ schemaComposer.Mutation.addNestedFields({
       await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
     },
   },
+  'project.comment': {
+    type: 'Project',
+    args: {
+      pid: 'ID!',
+      comment: 'String!',
+    },
+    description: 'Leave a new comment under a project',
+    resolve: async (obj, args, req) => {
+      // TODO: also allow repadmins
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED leave comments on projects')
+      }
+
+      return await Project.findByIdAndUpdate(args.pid, {
+        $push: { comments: args.comment }
+      }, { new: true })
+    },
+  },
   'project.approval': {
     type: 'Project',
     args: {
@@ -190,6 +208,7 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Set the approval status for the given project',
     resolve: async (obj, args, req) => {
+      // TODO: also allow repadmins
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED approve projects')
       }
