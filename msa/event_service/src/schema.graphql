@@ -33,6 +33,7 @@ type Event {
   entities: [ID]
   external_id: String
   isMarketplace: Boolean
+  grantsAcademicRights: Boolean
 }
 
 type EventImportResult {
