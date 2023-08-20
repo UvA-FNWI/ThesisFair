@@ -19,6 +19,7 @@ const projectSchema = new mongoose.Schema({
   approval: { type: String, default: () => 'awaiting' },
   datanoseLink: { type: String },
   external_id: { type: String },
+  comments: [{type: String, default: () => []}],
 })
 projectSchema.virtual('pid').get(function () {
   return this._id

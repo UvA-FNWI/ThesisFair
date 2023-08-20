@@ -1,0 +1,241 @@
+@import '../../index.scss';
+
+.project-review {
+  &__container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    height: calc(100vh - 1rem);
+    max-height: calc(100vh - 1rem);
+    margin-top: 1rem;
+    box-sizing: border-box;
+  }
+
+  &__data-and-comments {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 1;
+
+    width: 100%;
+    height: calc(100vh - 31.0625rem);
+    margin-bottom: 409px;
+
+    justify-content: space-between;
+    gap: 1rem;
+
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 1px;
+      height: calc(100% - 0.5rem);
+      background-color: #3a3a3a;
+      border-radius: 0.125rem;
+      top: 0.25rem;
+      right: 18.5rem;
+    }
+  }
+
+  &__data {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 31.0625rem);
+    overflow-y: scroll;
+    width: calc(100% - 19rem);
+    flex-shrink: 1;
+    padding-right: 1rem;
+  }
+
+  &__comments {
+    display: flex;
+    flex-direction: column;
+
+    height: fit-content;
+    max-height: calc(100vh - 31.0625rem);
+    min-width: 18rem;
+    overflow-y: scroll;
+    overflow-x: visible;
+  }
+
+  &__text {
+    &--micro {
+      position: relative;
+      width: fit-content;
+      font-size: 0.8rem;
+      font-weight: 400;
+      margin-bottom: 0.25rem;
+      margin-top: 0.75rem;
+      color: #3a3a3a;
+
+      &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        width: calc(100% + 0.5rem);
+        left: -0.25rem;
+        height: 1px;
+        background-color: #3a3a3a;
+        border-radius: 0.125rem;
+      }
+    }
+
+    &--value {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  &__fields {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  &__status {
+    margin: 0.25rem 0;
+    color: white;
+    border-radius: 0.5rem;
+    width: fit-content;
+    padding: 0.25rem 0.5rem;
+
+    &--approved {
+      background-color: #0a8f08 !important;
+    }
+
+    &--rejected {
+      background-color: #a00909 !important;
+    }
+
+    &--changes-requested {
+      background-color: #dea113 !important;
+    }
+
+    &--pending {
+      background-color: #3a3a3a !important;
+    }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  &__markdown {
+    margin: 0.5rem 0.5rem 1rem 0.5rem;
+    position: relative;
+
+    &::before {
+      display: flex;
+      position: absolute;
+      width: 1px;
+      margin: 0;
+      content: '';
+      left: -0.5rem;
+      top: -0.25rem;
+      bottom: -0.25rem;
+      background-color: #3a3a3a;
+      border-radius: 0.125rem;
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  &__button {
+    &-reject {
+      background-color: #a00909 !important;
+      border-color: #a00909 !important;
+
+      &:hover {
+        background-color: #8d0410 !important;
+        border-color: #8d0410 !important;
+      }
+
+      &:active,
+      &:focus,
+      &:focus-visible,
+      &:focus-within {
+        background-color: #82061f !important;
+        border-color: #82061f !important;
+      }
+    }
+
+    &-request-changes {
+      background-color: #dea113 !important;
+      border-color: #dea113 !important;
+
+      &:hover {
+        background-color: #dc9806 !important;
+        border-color: #dc9806 !important;
+      }
+
+      &:active,
+      &:focus,
+      &:focus-visible,
+      &:focus-within {
+        background-color: #e2900c !important;
+        border-color: #e2900c !important;
+      }
+    }
+  }
+
+  &__bottom-drawer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    right: 0;
+
+    background-color: var(--primary-light);
+    padding: 1rem 2rem 2rem 2rem;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: calc(100% + 13.25rem);
+      height: 1px;
+      background-color: #3a3a3a;
+      border-radius: 0.125rem;
+      top: 0;
+      left: -6.625rem;
+    }
+  }
+
+  &__markdown-editor {
+    margin-bottom: 1rem;
+  }
+
+  &__divider {
+    margin: 1rem 0;
+    background-color: #3a3a3a;
+    height: 1px;
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+
+  &__comment-text {
+    margin: 0 0 0.5rem 0;
+
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  &__comments-list {
+    padding: 0.5rem;
+    box-sizing: border-box;
+    width: 18rem;
+  }
+}

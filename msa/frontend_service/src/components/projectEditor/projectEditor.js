@@ -678,6 +678,7 @@ class ProjectEditor extends React.Component {
               this.getEventCard(event, true)
             ) : (
               <OverlayTrigger
+                key={event.evid}
                 overlay={
                   <Tooltip>
                     {event.degrees !== null && event.degrees.includes('MScAI') ? (

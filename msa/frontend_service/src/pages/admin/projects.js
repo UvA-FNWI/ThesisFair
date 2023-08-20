@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { Container, Badge } from 'react-bootstrap'
+import { Container, Badge, Button } from 'react-bootstrap'
 // import downloadIcon from 'bootstrap-icons/icons/download.svg'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import api from '../../api'
 
 import '../representative/projects.scss'
@@ -115,7 +115,9 @@ class ProjectListing extends React.Component {
                 email={project.email}
                 numberOfStudents={project.numberOfStudents}
                 headerBadge={this.approvalBadge(project)}
-                headerButtons={<Tag label={entityName} />}
+                headerButtons={<Link to={`/project/${project.pid}/review`}>
+                  <Button variant='primary'>Review</Button>
+                </Link>}
               />
             )
           })}

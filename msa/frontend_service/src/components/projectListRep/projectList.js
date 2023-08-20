@@ -82,7 +82,7 @@ function ProjectListItemRep(props) {
                 </a>
               )}
               <div className='list-item__tags'>
-                {props.tags.map(({ tag, tooltip }) => (
+                {props.tags?.map(({ tag, tooltip }) => (
                   <Tag key={tag} label={tag} tooltip={tooltip} />
                 ))}
               </div>

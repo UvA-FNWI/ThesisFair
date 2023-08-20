@@ -6,6 +6,7 @@ enum Attendance {
 
 enum ApprovalStatus {
   awaiting
+  commented
   preliminary
   approved
   rejected
@@ -47,6 +48,7 @@ type Project {
   attendance: Attendance
   datanoseLink: String
   external_id: String
+  comments: [String]
 }
 
 type ProjectImportResult {

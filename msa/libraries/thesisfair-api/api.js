@@ -961,15 +961,26 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,
           }),
-        setApproval: (args, projection) =>
+        comment: (pid, comment, projection) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'leaveNewComment',
+            functionPath: 'project.comment',
+            body: bodies.Project(projection),
+            args: {
+              pid: { value: pid, type: 'ID!' },
+              comment: { value: comment, type: 'String!' },
+            },
+          }),
+        setApproval: (pid, approval, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'setProjectApproval',
             functionPath: 'project.approval',
             body: bodies.Project(projection),
             args: {
-              pid: { value: args.pid, type: 'ID!' },
-              approval: { value: args.approval, type: 'ApprovalStatus!' },
+              pid: { value: pid, type: 'ID!' },
+              approval: { value: approval, type: 'ApprovalStatus!' },
             },
           }),
         delete: (pid, projection) =>
