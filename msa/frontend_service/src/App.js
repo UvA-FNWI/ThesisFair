@@ -22,14 +22,23 @@ import StudentAccount from './pages/student/StudentAccount'
 import Votes from './pages/student/Votes'
 import api from './api'
 
+import * as session from './session'
+
 class App extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
       tokenData: api.getApiTokenData(),
+      isAcademic: false,
     }
     api.setTokenChangeCallback(this.onTokenChange)
+  }
+
+  async componentDidMount() {
+  const entity = await api.entity.get(session.getEnid()).exec()
+
+  this.setState({isAcademic: entity.grantsAcademicRights})
   }
 
   onTokenChange = tokenData => {
@@ -82,7 +91,11 @@ class App extends React.Component {
       <>
         <Route path='' element={<Navigate to='/account' replace={true} />} />
         <Route path='/account' element={<Page page={<RepAccount />} />} />
-        <Route path='/projects' element={<Page page={<Projects />} />} />
+        <Route path='/projects' element={
+          this.state.isAcademic
+            ? <Page page={<AdminProjects />} />
+            : <Page page={<Projects />} />
+        } />
       </>
     )
   }
