@@ -97,7 +97,6 @@ spec:
           {{ end }}
           {{ end }}
           env:
-
             - name: mongodbConStr
               value: "mongodb://database/{{ $name }}"
             - name: amqpConStr
