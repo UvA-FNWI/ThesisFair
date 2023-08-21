@@ -246,6 +246,9 @@ class EntityEditor extends React.Component {
                           <option value='A'>A</option>
                           <option value='B'>B</option>
                           <option value='C'>C</option>
+                          <option value='Partner'>Partner</option>
+                          <option value='Lab42'>Lab 42</option>
+                          <option value='Free'>Free</option>
                         </Form.Control>
                       </Form.Group>
 
@@ -373,7 +376,7 @@ class EntityEditor extends React.Component {
                 {/* TODO: if two fairs have the same date, put them under a single header with a single pay button */}
                 {this.state.fairs.map(fair => <>
                   <h3>{fair.name}</h3>
-                  
+
                   <p>Status: {this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))]
                     ? this.getStatusLabel(this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))].status)
                     : "incomplete"

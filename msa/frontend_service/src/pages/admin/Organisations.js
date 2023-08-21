@@ -16,6 +16,7 @@ class Entities extends React.Component {
     this.state = {
       entities: [],
       allEvents: [],
+      allEventsByEvid: {},
       entitiesByEnid: {},
       entityNames: [],
       filteredEntities: [],
@@ -60,17 +61,13 @@ class Entities extends React.Component {
   }
 
   async componentDidMount() {
-    console.log('time')
-
     let entities
     try {
-      entities = await api.entity.getAll().exec()
+      entities = await api.entity.getAll(null, { enid: true, name: true, type: true, payments: true }).exec()
     } catch (error) {
       console.log(error)
       this.setState({ error: true })
     }
-
-    console.log('time stop')
 
     if (!entities || entities.length === 0) {
       this.setState({ error: true })
@@ -94,8 +91,16 @@ class Entities extends React.Component {
 
     const entityNames = entities.map(entity => ({ enid: entity.enid, name: entity.name }))
     const entitiesByEnid = Object.fromEntries(entities.map(entity => [entity.enid, entity]))
+    const allEventsByEvid = Object.fromEntries(events.map(event => [event.evid, event]))
 
-    this.setState({ entities, entitiesByEnid, entityNames, filteredEntities: entities, allEvents: events })
+    this.setState({
+      entities,
+      entitiesByEnid,
+      entityNames,
+      filteredEntities: entities,
+      allEvents: events,
+      allEventsByEvid,
+    })
   }
 
   changeEntityType = async (enid, event) => {
@@ -129,15 +134,37 @@ class Entities extends React.Component {
   getStatusLabel(status) {
     switch (status) {
       case 'invoice':
-        return 'invoice requested'
+        return { id: 'ir', fullText: 'invoice requested' }
       case 'failed':
       case 'open':
-        return 'payment processing'
+        return { id: 'pp', fullText: 'payment processing' }
       case 'paid':
-        return 'payment completed'
+        return { id: 'pc', fullText: 'payment completed' }
       default:
-        return 'payment incomplete'
+        return { id: 'pi', fullText: 'payment incomplete' }
     }
+  }
+
+  getPaymentTooltip = (event, paymentStatus) => {
+    let status = ''
+
+    switch (paymentStatus) {
+      case 'invoice':
+        status = 'an invoice has been requested'
+        break
+      case 'failed':
+      case 'open':
+        status = 'the payment is being processed'
+        break
+      case 'paid':
+        status = 'the payment has been completed'
+        break
+      default:
+        status = 'the payment is incomplete'
+        break
+    }
+
+    return `Payment status for ${event.name}: ${status}.`
   }
 
   render() {
@@ -162,35 +189,38 @@ class Entities extends React.Component {
         {this.state.filteredEntities?.length > 0 ? (
           <EntityList
             items={this.state.filteredEntities.map(entity => ({
+              enid: entity.enid,
               name: entity.name,
               getTags: async () => {
-                const events = (await api.event.getOfEntity(entity.enid).exec()) || []
+                const projectsByEntity =
+                  (await api.project.getOfEntity(null, entity.enid, { evids: true }).exec()) || []
+                const activeParticipatingEvents =
+                  [...new Set(projectsByEntity.map(project => project.evids).flat())]
+                    .map(evid => this.state.allEventsByEvid[evid])
+                    .filter(event => event !== undefined && event.enabled) || []
 
-                return () => (
-                  <div className='entity-card__tags'>
-                    {events &&
-                      events.map(event => {
-                        const payment = entity.payments?.filter(
-                          payment =>
-                            new Date(payment.eventDate).setHours(0, 0, 0, 0) ===
-                            new Date(event.start).setHours(0, 0, 0, 0)
-                        )?.[0]
+                return activeParticipatingEvents.map(event => {
+                  const payment = entity.payments?.filter(
+                    payment =>
+                      new Date(payment.eventDate).setHours(0, 0, 0, 0) === new Date(event.start).setHours(0, 0, 0, 0)
+                  )?.[0]
 
-                        if (!payment) return <></>
-
-                        return (
-                          <Tag
-                            key={`payment-${event.evid}`}
-                            label={`${event.name}: ${this.getStatusLabel(payment.status)}`}
-                            tooltip={`Payment status: ${payment?.status || 'no attempt made'}`}
-                            selectable={false}
-                            onClick={() => payment?.url && window.open(payment.url, '_blank').focus()}
-                          />
-                        )
-                      })}
-                  </div>
-                )
+                  return {
+                    event,
+                    payment,
+                  }
+                })
               },
+              createTag: ({ event, payment }) => (
+                <Tag
+                  key={`payment-${event.evid}`}
+                  className={`tag--payment-${this.getStatusLabel(payment?.status).id}`}
+                  label={event.name}
+                  tooltip={this.getPaymentTooltip(event, payment?.status)}
+                  selectable={false}
+                  onClick={() => payment?.url && window.open(payment.url, '_blank').focus()}
+                />
+              ),
               headerButtons: () => (
                 <>
                   <Form.Select
@@ -201,9 +231,9 @@ class Entities extends React.Component {
                     <option value='A'>Type A</option>
                     <option value='B'>Type B</option>
                     <option value='C'>Type C</option>
-                    <option value='Partner'>Type Partner</option>
-                    <option value='Lab42'>Type Lab 42</option>
-                    <option value='Free'>Type Free</option>
+                    <option value='Partner'>Partner</option>
+                    <option value='Lab42'>Lab 42</option>
+                    <option value='Free'>Free</option>
                   </Form.Select>
                   <Link to={`/organisation/${entity.enid}/edit/`}>
                     <Button variant='primary'>Edit</Button>

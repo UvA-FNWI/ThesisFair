@@ -98,4 +98,26 @@
 
     filter: brightness(1.1);
   }
+
+  &--payment {
+    &-ir {
+      // invoice requested
+      background-color: rgb(171, 143, 1);
+    }
+
+    &-pp {
+      // payment processing
+      background-color: rgb(43, 53, 194);
+    }
+
+    &-pc {
+      // payment complete
+      background-color: rgb(13, 139, 63);
+    }
+
+    &-pi {
+      // payment incomplete
+      background-color: rgb(150, 10, 10);
+    }
+  }
 }
