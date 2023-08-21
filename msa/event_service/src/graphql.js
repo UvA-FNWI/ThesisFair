@@ -77,16 +77,18 @@ schemaComposer.Query.addNestedFields({
     resolve: async (obj, args, req) => {
       entityReadAccess(req, args.enid)
 
-      const res = await rgraphql('api-project', 'query($enid: ID!) { projectsOfEntity(enid: $enid) { evids } }', {enid: args.enid})
+      const res = await rgraphql('api-project', 'query($enid: ID!) { projectsOfEntity(enid: $enid) { evids } }', {
+        enid: args.enid,
+      })
 
       if (res.errors || !res.data) {
         console.error(res)
-        throw new Error('An unkown error occurred while attempting to find the organisation\'s projects')
+        throw new Error("An unkown error occurred while attempting to find the organisation's projects")
       }
 
       const evids = [...new Set(res.data.projectsOfEntity.map(project => project.evids).flat())]
 
-      return await Event.find({ evid: { $in: evids} })
+      return await Event.find({ evid: { $in: evids } })
     },
   },
   eventByExtID: {

@@ -122,7 +122,7 @@ class ProjectEditor extends React.Component {
   }
 
   async updateProject() {
-    const validType = this.isValidEvent()
+    const validType = this.attendanceIsValid()
 
     let evids = []
 

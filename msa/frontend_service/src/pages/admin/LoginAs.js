@@ -14,21 +14,15 @@ class LoginAs extends React.Component {
   async componentDidMount() {
     const users = await api.user.getAll().exec()
 
-    console.log(users)
     users.sort((a, b) => {
       a = a.firstname + a.lastname
       b = b.firstname + b.lastname
 
-      if (a == b)
-        return 0
-
-      if (a < b)
-        return -1
-
-      if (a > b)
-        return 1
+      if (a < b) return -1
+      if (a > b) return 1
+      return 0
     })
-    console.log(users)
+
     this.setState({ users })
   }
 
