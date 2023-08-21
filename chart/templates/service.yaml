@@ -7,8 +7,8 @@ metadata:
   namespace: {{ .Release.namespace }}
 spec:
   ports:
-  - port: {{ .Values.msa.frontend_service.env.PORT }}
-    targetPort: 3000
+    - port: {{ .Values.msa.frontend_service.env.PORT }}
+      targetPort: 3000
   selector:
     app: frontend-service
 
@@ -23,8 +23,8 @@ metadata:
   namespace: {{ .Release.namespace }}
 spec:
   ports:
-  - port: 80
-    targetPort: 80
+    - port: 80
+      targetPort: 80
   selector:
     app: api-gateway
 
@@ -38,8 +38,8 @@ metadata:
   namespace: {{ .Release.namespace }}
 spec:
   ports:
-  - port: 27017
-    targetPort: 27017
+    - port: 27017
+      targetPort: 27017
   selector:
     app: database
 
@@ -54,7 +54,7 @@ metadata:
   namespace: {{ .Release.namespace }}
 spec:
   ports:
-  - port: 5672
-    targetPort: 5672
+    - port: 5672
+      targetPort: 5672
   selector:
     app: messaging-queue

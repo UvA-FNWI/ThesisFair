@@ -127,7 +127,7 @@ spec:
               value: "{{ $value }}"
             {{ end }}
             {{ end }}
-          image: "{{ $Values.dev_mode | ternary $Values.dev.cr $Values.prod.cr }}/{{ $name | lower }}"
+          image: {{ $Values.dev_mode | ternary $Values.dev.cr $Values.prod.cr }}/{{ $name | lower }}
           imagePullPolicy: {{ $Values.dev_mode | ternary $Values.dev.pullPolicy $Values.prod.pullPolicy }}
           command: [
             npm,
