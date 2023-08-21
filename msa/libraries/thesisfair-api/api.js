@@ -593,7 +593,8 @@ export default url => {
         },
       },
       entity: {
-        get: (enid, projection) => genGraphQLBuilder({
+        get: (enid, projection) =>
+          genGraphQLBuilder({
             name: 'getEntity',
             functionPath: 'entity',
             body: bodies.Entity(projection),
@@ -602,7 +603,7 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'entity', key: 'enid' } : false,
           }),
-        getFairs: (enid) =>
+        getFairs: enid =>
           genGraphQLBuilder({
             name: 'getFairs',
             functionPath: 'fairs',
@@ -619,7 +620,7 @@ export default url => {
               evid: { value: evid, type: 'ID!' },
             },
           }),
-        getAll: (evid, projection) =>
+        getAll: projection =>
           genGraphQLBuilder({
             name: 'getAllEntity',
             functionPath: 'entitiesAll',

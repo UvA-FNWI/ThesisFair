@@ -9,10 +9,10 @@ function EntityList(props) {
   const listRef = useRef(null)
 
   return (
-    <div className='list--red-border'>
-      <div className='list' style={{ maxHeight: props.maxHeight }} ref={listRef}>
+    <div className='entity-list--red-border'>
+      <div className='entity-list' style={{ maxHeight: props.maxHeight }} ref={listRef}>
         <ViewportList viewportRef={listRef} items={props.items} itemMinSize={48}>
-          {item => <EntityListItem {...item} />}
+          {item => <EntityListItem key={item.enid} {...item} />}
         </ViewportList>
       </div>
     </div>
@@ -20,27 +20,33 @@ function EntityList(props) {
 }
 
 function EntityListItem(props) {
-  const [badge, setBadge] = useState()
+  let badgeExecutionCount = 0
+
+  const [paymentTags, setPaymentTags] = useState([])
 
   useEffect(() => {
     const updateTags = async () => {
-      const getTags = await props.getTags()
+      if (badgeExecutionCount >= 1) return
+      badgeExecutionCount++
 
-      setBadge(getTags)
+      const tags = await props.getTags()
+
+      setPaymentTags(tags || [])
     }
 
     updateTags()
-  }, [props])
+  }, [badgeExecutionCount, props])
 
   return (
-    <li className='list-item'>
-      <div className='list-item__header'>
-        <div className='list-item__title'>
+    <li className='entity-list-item'>
+      <div className='entity-list-item__header'>
+        <div className='entity-list-item__title'>
           <p>{props.name}</p>
         </div>
 
-        {badge && typeof badge === 'function' && <div className='list-item__badge'>{badge()}</div>}
-        <div className='list-item__buttons'>{props.headerButtons()}</div>
+        <div className='entity-list-item__badge'>{paymentTags.map(props.createTag)}</div>
+
+        <div className='entity-list-item__buttons'>{props.headerButtons()}</div>
       </div>
     </li>
   )
