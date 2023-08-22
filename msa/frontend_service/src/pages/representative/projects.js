@@ -287,7 +287,7 @@ class ProjectListing extends React.Component {
                 <span className='d-flex justify-content-between'>
                   <h3 style={{ alignSelf: 'flex-end' }}>{events.map(event => event.name).join(' & ')}</h3>
                   {events.map(event => (
-                    <time style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
+                    <time key={event.evid} style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
                       {event.start ? new Date(event.start).toLocaleDateString() : ''}
                     </time>
                   ))}

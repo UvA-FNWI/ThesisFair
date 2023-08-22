@@ -99,13 +99,11 @@ class ProjectEditor extends React.Component {
     e.preventDefault()
 
     if (!this.validate()) {
-      console.log('invalid')
       e.stopPropagation()
       return
     }
 
     if (!this.attendanceIsValid()[0]) {
-      console.log('invalid attendance')
       e.stopPropagation()
       return
     }

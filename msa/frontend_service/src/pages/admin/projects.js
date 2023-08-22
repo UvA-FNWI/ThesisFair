@@ -111,10 +111,6 @@ class ProjectListing extends React.Component {
             })
 
             const fairLabel = getFairLabel(project.evids.map(evid => this.state.allEventsByEvid?.[evid]))
-            console.log(
-              project.evids.map(evid => this.state.allEventsByEvid?.[evid]),
-              fairLabel
-            )
 
             return (
               <ProjectList.Item
