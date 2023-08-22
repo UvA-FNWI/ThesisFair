@@ -2,7 +2,7 @@ import api from './api'
 
 const browser = typeof localStorage !== 'undefined'
 
-export const getSessionData = (item) => {
+export const getSessionData = item => {
   if (browser && document.cookie) {
     const cookies = document.cookie.split(';').map(cookie => cookie.split('='))
     const token = cookies.find(cookie => cookie[0].trim() === item)
@@ -27,7 +27,7 @@ export const getEnid = () => {
 
   if (!enid) {
     const enids = api.getApiTokenData().enids
-    enid = (enids && enids.length > 0) ? enids[0] : 'NO ENTITIES FOR USER'
+    enid = enids && enids.length > 0 ? enids[0] : 'NO ENTITIES FOR USER'
     setSessionData('enid', enid)
   }
 

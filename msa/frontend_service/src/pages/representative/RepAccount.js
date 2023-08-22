@@ -1,5 +1,6 @@
 import React from 'react'
-import { Container, Row, Col, Form, Button } from 'react-bootstrap'
+import { Button, Col, Container, Form, Row } from 'react-bootstrap'
+
 import api from '../../api'
 import * as session from '../../session'
 
