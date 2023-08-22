@@ -1,18 +1,17 @@
 import React from 'react'
-
-import { Container, Button, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Badge, Button, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
 // import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
+
 import api, { downloadCV } from '../../api'
-import * as session from '../../session'
-import StudentPopup from '../../components/studentPopup/studentPopup'
 import ProjectEditor from '../../components/projectEditor/projectEditor'
+import ProjectList from '../../components/projectListRep/projectList'
+import StudentPopup from '../../components/studentPopup/studentPopup'
+import { degreeById } from '../../definitions'
+import * as session from '../../session'
 
 import './projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
-import ProjectList from '../../components/projectListRep/projectList'
-
-import { degreeById } from '../../definitions'
 
 const genCVName = (student, project) => `${project.name} - ${student.firstname} ${student.lastname}`
 
@@ -269,7 +268,7 @@ class ProjectListing extends React.Component {
       if (!a) return 1
       if (!b) return -1
 
-      return (a < b) ? 1 : -1
+      return a < b ? 1 : -1
     })
 
     return (
