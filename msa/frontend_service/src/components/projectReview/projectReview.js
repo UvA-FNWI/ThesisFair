@@ -1,13 +1,13 @@
-import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
+import React from 'react'
+import { Button, Container } from 'react-bootstrap'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { Container, Button } from 'react-bootstrap'
-
 import api from '../../api'
+import { getMasterTag } from '../../utilities/masters'
+import Tag from '../tag/tag'
 
 import './style.scss'
-import Tag from '../tag/tag'
 
 // Expects params.pid as props
 class ProjectReview extends React.Component {
@@ -42,7 +42,7 @@ class ProjectReview extends React.Component {
   async componentDidMount() {
     if (this.props.params?.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
-      this.setState({project})
+      this.setState({ project })
     } else {
       this.close()
     }
@@ -65,7 +65,12 @@ class ProjectReview extends React.Component {
 
   async approve() {
     // TODO: if admin, 'preliminary', if rep 'approved'
-    await api.project.setApproval(this.state.project.pid, 'approved').exec()
+    if (api.getApiTokenData().type === 'a') {
+      await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
+    } else if (['r', 'ra'].includes(api.getApiTokenData().type)) {
+      await api.project.setApproval(this.state.project.pid, 'approved').exec()
+    }
+
     this.props.onClose()
   }
 
@@ -132,11 +137,17 @@ class ProjectReview extends React.Component {
             <div className='project-review__field'>
               <p className='project-review__text--micro'>Degrees</p>
               <div className='project-review__tags'>
-                {[...this.state.project.degrees, ...this.state.project.tags].map(tag => (tag &&
-                  <>
-                    <Tag key={tag} label={tag.split('.').reverse()[0]} />
-                  </>
-                ))}
+                {this.state.project.degrees.map(tagId => {
+                  return getMasterTag(Tag, tagId)
+                })}
+                {this.state.project.tags.map(
+                  tag =>
+                    tag && (
+                      <>
+                        <Tag key={tag} label={tag.split('.').reverse()[0]} />
+                      </>
+                    )
+                )}
               </div>
             </div>
           </div>

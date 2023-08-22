@@ -1,17 +1,14 @@
-import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
+import cl from 'clsx'
+import React from 'react'
+import { Button, ButtonGroup, Col, Container, Form, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 import rehypeSanitize from 'rehype-sanitize'
 
-import { OverlayTrigger, Tooltip, Container, Button, Form, Row, Col, ButtonGroup } from 'react-bootstrap'
-
 import api, { getFileContent } from '../../api'
-
-import './style.scss'
+import { degrees } from '../../utilities/degreeDefinitions'
 import Tag from '../tag/tag'
 
-import { degrees } from '../../definitions'
-
-import cl from 'clsx'
+import './style.scss'
 
 // Expects evid in props
 class EventEditor extends React.Component {

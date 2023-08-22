@@ -1,27 +1,26 @@
+import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg'
+import organisationsIcon from 'bootstrap-icons/icons/building.svg'
+import eventIcon from 'bootstrap-icons/icons/calendar-event.svg'
+import likesIcon from 'bootstrap-icons/icons/heart.svg'
+import projectsIcon from 'bootstrap-icons/icons/list-task.svg'
+import userIcon from 'bootstrap-icons/icons/people.svg'
+import overrideUserIcon from 'bootstrap-icons/icons/person.svg'
+import accountIcon from 'bootstrap-icons/icons/person-circle.svg'
 import React from 'react'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
-
 import { Link } from 'react-router-dom'
-import accountIcon from 'bootstrap-icons/icons/person-circle.svg'
-import likesIcon from 'bootstrap-icons/icons/heart.svg'
-import organisationsIcon from 'bootstrap-icons/icons/building.svg'
-import projectsIcon from 'bootstrap-icons/icons/list-task.svg'
-import eventIcon from 'bootstrap-icons/icons/calendar-event.svg'
-import userIcon from 'bootstrap-icons/icons/people.svg'
-import overrideUserIcon from 'bootstrap-icons/icons/person.svg'
-import logoutIcon from 'bootstrap-icons/icons/box-arrow-left.svg'
 
+import api from '../../api'
 import SetOrganisationPopup from '../setOrganisationPopup/setOrganisationPopup'
 
 import './navbar.scss'
-import api from '../../api'
 
 const navigationBarItems = {
   a: [
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Events', icon: eventIcon, link: '/events' },
-    { name: 'Organisations', icon: organisationsIcon, link: '/organisations' },
+    { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
     { name: 'Projects', icon: projectsIcon, link: '/projects' },
     { name: 'Students', icon: userIcon, link: '/students' },
     { name: 'LoginAs', icon: overrideUserIcon, link: '/loginAs' },
@@ -65,7 +64,7 @@ function CustomNavbar() {
             <img src='/images/uva-logo-small.png' width='64' height='64' alt='UvA Logo' />
           </Link>
 
-          {navigationBarItems[type].map(({ name, icon, link }, index) => (
+          {navigationBarItems[type].map(({ icon, link, name }, index) => (
             <Nav.Item key={index}>
               <Link className={`nav-link ${currentPage === name.toLowerCase() ? 'active' : ''}`} to={link}>
                 <img src={icon} alt='' />

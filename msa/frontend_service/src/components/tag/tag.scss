@@ -120,4 +120,22 @@
       background-color: rgb(150, 10, 10);
     }
   }
+
+  &--approval {
+    &-approved {
+      background-color: rgb(13, 139, 63);
+    }
+
+    &-awaiting {
+      background-color: rgb(171, 143, 1);
+    }
+
+    &-rejected {
+      background-color: rgb(150, 10, 10);
+    }
+
+    &-payment {
+      background-color: rgb(43, 53, 194);
+    }
+  }
 }

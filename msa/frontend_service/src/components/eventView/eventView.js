@@ -1,15 +1,14 @@
-import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
-import rehypeSanitize from 'rehype-sanitize'
+import React from 'react'
 import { Container } from 'react-bootstrap'
+import rehypeSanitize from 'rehype-sanitize'
 
 import api from '../../api'
 import graphqlFields from '../../api/graphqlFields'
+import { degreeById } from '../../utilities/degreeDefinitions'
 import Tag from '../tag/tag'
 
 import './eventView.scss'
-
-import { degreeById } from '../../definitions'
 
 class EventView extends React.Component {
   constructor(props) {
