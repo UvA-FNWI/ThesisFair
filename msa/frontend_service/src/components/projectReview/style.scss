@@ -21,7 +21,6 @@
 
     width: 100%;
     height: calc(100vh - 31.0625rem);
-    margin-bottom: 409px;
 
     justify-content: space-between;
     gap: 1rem;
@@ -193,7 +192,7 @@
   }
 
   &__bottom-drawer {
-    position: fixed;
+    position: relative;
     width: 100%;
     bottom: 0;
     right: 0;
@@ -237,5 +236,76 @@
     padding: 0.5rem;
     box-sizing: border-box;
     width: 18rem;
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .project-review {
+    &__container {
+      height: calc(100vh - 7rem);
+    }
+
+    &__data-and-comments {
+      height: calc(100vh - 28.5rem);
+
+      &::after {
+        right: 13.5rem;
+      }
+    }
+
+    &__data {
+      max-height: calc(100vh - 28.5rem);
+      width: calc(100% - 14rem);
+    }
+
+    &__comments {
+      max-height: calc(100vh - 28.5rem);
+      min-width: 13rem;
+    }
+
+    &__text {
+      &--micro {
+        margin-top: 0.5rem;
+      }
+
+      &--value {
+        font-size: 1rem;
+      }
+    }
+
+    &__tags {
+      margin-bottom: 0;
+    }
+
+    &__markdown {
+      margin: 0.5rem 0.5rem 1rem 0.5rem;
+    }
+
+    &__buttons {
+      margin-top: 0.5rem;
+    }
+
+    &__bottom-drawer {
+      padding: 0.5rem 1rem 1rem 1rem;
+    }
+
+    &__markdown-editor {
+      height: 128px !important;
+      margin-bottom: 0.5rem;
+    }
+
+    &__divider {
+      margin: 0.5rem 0;
+    }
+
+    &__comment-text {
+      margin: 0 0 0.5rem 0;
+
+      font-size: 1rem;
+    }
+
+    &__comments-list {
+      width: 13rem;
+    }
   }
 }

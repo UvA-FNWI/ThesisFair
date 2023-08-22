@@ -1,18 +1,16 @@
-import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
-import rehypeSanitize from 'rehype-sanitize'
-import { Card, Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-
 import cl from 'clsx'
+import React from 'react'
+import { Button, Card } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+import rehypeSanitize from 'rehype-sanitize'
 
 import api from '../../api'
 import graphqlFields from '../../api/graphqlFields'
+import { degreeById } from '../../utilities/degreeDefinitions'
 import Tag from '../tag/tag'
 
 import './eventCard.scss'
-
-import { degreeById } from '../../definitions'
 
 class EventCard extends React.Component {
   constructor(props) {
@@ -30,13 +28,11 @@ class EventCard extends React.Component {
       ...event,
       ...this.props.event,
     }
-    const image = await api.event
-     .getImage(event.evid, api.getApiTokenData().type === 's' ? 'student' : 'rep')
-     .exec()
+    const image = await api.event.getImage(event.evid, api.getApiTokenData().type === 's' ? 'student' : 'rep').exec()
 
     this.setState({
       ...event,
-      image
+      image,
     })
   }
 

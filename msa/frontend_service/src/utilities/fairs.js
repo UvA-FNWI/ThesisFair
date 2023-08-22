@@ -2,7 +2,7 @@ export const isAIEvent = event => event.degrees !== null && event.degrees.includ
 
 export const getEventType = event => (isAIEvent(event) ? 'AI' : 'General')
 
-const getFairLabel = events => {
+export const getFairLabel = events => {
   const AICount = events.filter(isAIEvent).length
   const GeneralCount = events.length - AICount
 

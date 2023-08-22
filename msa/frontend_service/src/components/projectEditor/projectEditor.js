@@ -17,7 +17,7 @@ import {
 import rehypeSanitize from 'rehype-sanitize'
 
 import api, { tags as allTags } from '../../api'
-import { degrees } from '../../definitions'
+import { degrees } from '../../utilities/degreeDefinitions'
 import Tag from '../tag/tag'
 
 import './style.scss'
@@ -745,6 +745,7 @@ class ProjectEditor extends React.Component {
                 this.getEventCard(event, true)
               ) : (
                 <OverlayTrigger
+                  key={event.evid}
                   overlay={
                     <Tooltip>
                       {event.degrees !== null && event.degrees.includes('MScAI') ? (
@@ -774,6 +775,7 @@ class ProjectEditor extends React.Component {
                 this.getMarketplaceCard(event, true)
               ) : (
                 <OverlayTrigger
+                  key={event.evid}
                   overlay={
                     <Tooltip>
                       <p style={{ margin: 0 }}>Projects at an event are automatically on the marketplace</p>

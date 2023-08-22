@@ -1,16 +1,16 @@
 import React from 'react'
-
-import { Container, Badge, Button } from 'react-bootstrap'
+import { Badge, Button, Container } from 'react-bootstrap'
 // import downloadIcon from 'bootstrap-icons/icons/download.svg'
-import { useParams, Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+
 import api from '../../api'
+import ProjectList from '../../components/projectListRep/projectList'
+import Tag from '../../components/tag/tag'
+import { degreeById } from '../../utilities/degreeDefinitions'
+import { getFairLabel } from '../../utilities/fairs'
 
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
-import ProjectList from '../../components/projectListRep/projectList'
-import Tag from '../../components/tag/tag'
-
-import { degreeById } from '../../definitions'
 
 class ProjectListing extends React.Component {
   constructor(props) {
@@ -20,11 +20,14 @@ class ProjectListing extends React.Component {
       projects: {}, // Map from PID to project
       projectsByEnid: new Map(), // Map from ENID to list of PIDs
       entityNameById: {}, // Map from ENID to entity name
+      allEventsByEvid: {}, // Map from EVID to event
       popup: false,
     }
   }
 
   approvalBadge(project) {
+    console.log(project)
+
     if (!project) {
       return
     }
@@ -56,6 +59,7 @@ class ProjectListing extends React.Component {
   async componentDidMount() {
     const currentEvents = await api.event.getActive().exec()
     const currentEventEvids = currentEvents.map(event => event.evid)
+    const allEventsByEvid = Object.fromEntries(currentEvents.map(event => [event.evid, event]))
 
     // Optimisation: Store student only once in state
     let projects = []
@@ -79,7 +83,7 @@ class ProjectListing extends React.Component {
 
     const entityNameById = Object.fromEntries(entities.map(entity => [entity.enid, entity.name]))
 
-    this.setState({ projects, projectsByEnid, entityNameById })
+    this.setState({ projects, projectsByEnid, entityNameById, allEventsByEvid })
   }
 
   renderProjectListing(projects) {
@@ -101,7 +105,7 @@ class ProjectListing extends React.Component {
               })
             })
 
-            const entityName = this.state.entityNameById[project.enid]
+            const fairLabel = getFairLabel(project.evids.map(evid => this.state.allEventsByEvid?.[evid]))
 
             return (
               <ProjectList.Item
@@ -114,10 +118,17 @@ class ProjectListing extends React.Component {
                 name={project.name}
                 email={project.email}
                 numberOfStudents={project.numberOfStudents}
-                headerBadge={this.approvalBadge(project)}
-                headerButtons={<Link to={`/project/${project.pid}/review`}>
-                  <Button variant='primary'>Review</Button>
-                </Link>}
+                headerBadge={
+                  <>
+                    {fairLabel && <Tag tag={fairLabel} className='mr-2' />}
+                    {this.approvalBadge(project)}
+                  </>
+                }
+                headerButtons={
+                  <Link to={`/project/${project.pid}/review`}>
+                    <Button variant='primary'>Review</Button>
+                  </Link>
+                }
               />
             )
           })}
