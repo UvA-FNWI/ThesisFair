@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge, Button, Container } from 'react-bootstrap'
+import { Button, Container } from 'react-bootstrap'
 // import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { Link, useParams } from 'react-router-dom'
 
