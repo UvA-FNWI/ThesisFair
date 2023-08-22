@@ -157,7 +157,7 @@ class Entities extends React.Component {
               enid: entity.enid,
               name: entity.name,
               getTags: async () => {
-                const fairs = getParticipatingFairs(api.project.getOfEntity, this.state.allEventsByEvid, entity)
+                const fairs = await getParticipatingFairs(api.project.getOfEntity, this.state.allEventsByEvid, entity)
 
                 return fairs?.map(fair => {
                   const payment = entity.payments?.filter(

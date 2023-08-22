@@ -12,5 +12,5 @@ export const getParticipatingFairs = async (getProjectsOfEntity, allEventsByEvid
 
   if (!events) return []
 
-  return findFairs(events)
+  return findFairs(events) || []
 }
