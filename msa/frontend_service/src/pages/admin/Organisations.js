@@ -1,11 +1,13 @@
 import fuzzysort from 'fuzzysort'
 import React from 'react'
-
-import { Button, Form, Container } from 'react-bootstrap'
+import { Button, Container, Form } from 'react-bootstrap'
 import { Link, useParams } from 'react-router-dom'
+
 import api from '../../api'
 import EntityList from '../../components/entityList/entityList'
 import Tag from '../../components/tag/tag'
+import { getParticipatingFairs } from '../../utilities/entities'
+import { getPaymentTagClassName, getPaymentTooltip } from '../../utilities/fairs'
 
 import '../../styles/events.scss'
 
@@ -130,43 +132,6 @@ class Entities extends React.Component {
     }
   }
 
-  // TODO: this exact same function is also in entityEditor -- reduce duplication
-  getStatusLabel(status) {
-    switch (status) {
-      case 'invoice':
-        return { id: 'ir', fullText: 'invoice requested' }
-      case 'failed':
-      case 'open':
-        return { id: 'pp', fullText: 'payment processing' }
-      case 'paid':
-        return { id: 'pc', fullText: 'payment completed' }
-      default:
-        return { id: 'pi', fullText: 'payment incomplete' }
-    }
-  }
-
-  getPaymentTooltip = (event, paymentStatus) => {
-    let status = ''
-
-    switch (paymentStatus) {
-      case 'invoice':
-        status = 'an invoice has been requested'
-        break
-      case 'failed':
-      case 'open':
-        status = 'the payment is being processed'
-        break
-      case 'paid':
-        status = 'the payment has been completed'
-        break
-      default:
-        status = 'the payment is incomplete'
-        break
-    }
-
-    return `Payment status for ${event.name}: ${status}.`
-  }
-
   render() {
     return (
       <Container>
@@ -192,31 +157,25 @@ class Entities extends React.Component {
               enid: entity.enid,
               name: entity.name,
               getTags: async () => {
-                const projectsByEntity =
-                  (await api.project.getOfEntity(null, entity.enid, { evids: true }).exec()) || []
-                const activeParticipatingEvents =
-                  [...new Set(projectsByEntity.map(project => project.evids).flat())]
-                    .map(evid => this.state.allEventsByEvid[evid])
-                    .filter(event => event !== undefined && event.enabled) || []
+                const fairs = getParticipatingFairs(api.project.getOfEntity, this.state.allEventsByEvid, entity)
 
-                return activeParticipatingEvents.map(event => {
+                return fairs?.map(fair => {
                   const payment = entity.payments?.filter(
-                    payment =>
-                      new Date(payment.eventDate).setHours(0, 0, 0, 0) === new Date(event.start).setHours(0, 0, 0, 0)
+                    payment => new Date(payment.eventDate).setHours(0, 0, 0, 0) === fair.date
                   )?.[0]
 
                   return {
-                    event,
+                    ...fair,
                     payment,
                   }
                 })
               },
-              createTag: ({ event, payment }) => (
+              createTag: ({ date, events, name, payment }) => (
                 <Tag
-                  key={`payment-${event.evid}`}
-                  className={`tag--payment-${this.getStatusLabel(payment?.status).id}`}
-                  label={event.name}
-                  tooltip={this.getPaymentTooltip(event, payment?.status)}
+                  key={`payment-${events[0].evid}`}
+                  className={getPaymentTagClassName(payment?.status)}
+                  label={name}
+                  tooltip={getPaymentTooltip(events, date, payment?.status)}
                   selectable={false}
                   onClick={() => payment?.url && window.open(payment.url, '_blank').focus()}
                 />

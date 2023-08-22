@@ -1,11 +1,11 @@
+import AddIcon from 'bootstrap-icons/icons/plus.svg'
 import React from 'react'
-import { Container, CloseButton, Form, Button, Row, Col } from 'react-bootstrap'
+import { Button, CloseButton, Col, Container, Form, Row } from 'react-bootstrap'
+
 import api from '../../api'
 import graphqlFields from '../../api/graphqlFields.js'
-import RepresentativeList from '../../components/representativeList/representativeList'
-
-import AddIcon from 'bootstrap-icons/icons/plus.svg'
 import AddContactPopup from '../../components/addContactPopup/addContactPopup'
+import RepresentativeList from '../../components/representativeList/representativeList'
 
 class EntityEditor extends React.Component {
   constructor(props) {
