@@ -1,29 +1,26 @@
-import React from 'react'
 import MDEditor from '@uiw/react-md-editor'
+import cl from 'clsx'
+import React from 'react'
+import {
+  Button,
+  ButtonGroup,
+  Col,
+  Container,
+  Form,
+  Nav,
+  OverlayTrigger,
+  Row,
+  Tab,
+  ToggleButton,
+  Tooltip,
+} from 'react-bootstrap'
 import rehypeSanitize from 'rehype-sanitize'
 
-import {
-  OverlayTrigger,
-  Tooltip,
-  Container,
-  Tab,
-  Button,
-  Form,
-  Row,
-  Col,
-  Nav,
-  ButtonGroup,
-  ToggleButton,
-} from 'react-bootstrap'
-
 import api, { tags as allTags } from '../../api'
-
-import './style.scss'
+import { degrees } from '../../definitions'
 import Tag from '../tag/tag'
 
-import { degrees } from '../../definitions'
-
-import cl from 'clsx'
+import './style.scss'
 
 // Expects params.pid and params.enid as props
 class ProjectEditor extends React.Component {
@@ -70,21 +67,31 @@ class ProjectEditor extends React.Component {
   }
 
   async componentDidMount() {
-    // TODO: add environment, attendance and expectations to database
-    if (this.props.params.pid) {
-      const project = await api.project.get(this.props.params.pid).exec()
-      this.setState(project)
-    }
-
-    if (this.props.params.project) {
-      this.setState(this.props.params.project)
-    }
-
     const activeEvents = await api.event.getActive().exec()
     const allEvents = activeEvents.filter(event => !event.isMarketplace)
     const allMarketplaces = activeEvents.filter(event => event.isMarketplace).map(event => event.evid)
 
     this.setState({ activeEvents, allEvents, allMarketplaces })
+
+    // TODO: add environment, attendance and expectations to database
+    if (this.props.params.pid) {
+      const project = await api.project.get(this.props.params.pid).exec()
+      project.numberOfStudents = project.numberOfStudents || ''
+
+      const attendanceInteractions = project.evids.filter(evid => !allMarketplaces.includes(evid))
+      const marketplaceInteractions = project.evids.filter(evid => allMarketplaces.includes(evid))
+
+      this.setState({ ...project, attendanceInteractions, marketplaceInteractions })
+    }
+
+    if (this.props.params.project) {
+      this.props.params.project.numberOfStudents = this.props.params.project.numberOfStudents || ''
+
+      const attendanceInteractions = this.props.params.project.evids.filter(evid => !allMarketplaces.includes(evid))
+      const marketplaceInteractions = this.props.params.project.evids.filter(evid => allMarketplaces.includes(evid))
+
+      this.setState({ ...this.props.params.project, attendanceInteractions, marketplaceInteractions })
+    }
   }
 
   async submit(e) {
@@ -92,11 +99,13 @@ class ProjectEditor extends React.Component {
     e.preventDefault()
 
     if (!this.validate()) {
+      console.log('invalid')
       e.stopPropagation()
       return
     }
 
     if (!this.attendanceIsValid()[0]) {
+      console.log('invalid attendance')
       e.stopPropagation()
       return
     }
