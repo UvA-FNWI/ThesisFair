@@ -89,7 +89,7 @@ class ProjectReview extends React.Component {
         onClick: this.requestChanges,
       },
       {
-        label: 'Approve',
+        label: api.getApiTokenData().type === 'a' ? 'Partially approve' : 'Approve',
         onClick: this.approve,
       },
       {
