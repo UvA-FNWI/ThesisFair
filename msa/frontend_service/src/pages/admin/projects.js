@@ -7,7 +7,7 @@ import api from '../../api'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
 import { degreeById } from '../../utilities/degreeDefinitions'
-import { getFairLabel } from '../../utilities/fairs'
+import { findFairs, getFairLabel } from '../../utilities/fairs'
 
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
@@ -25,9 +25,7 @@ class ProjectListing extends React.Component {
     }
   }
 
-  approvalBadge(project) {
-    console.log(project)
-
+  approvalStatus(project) {
     if (!project) {
       return
     }
@@ -36,21 +34,28 @@ class ProjectListing extends React.Component {
       return
     }
 
-    if (!this.state?.events?.[project.evid]?.enabled) {
+    const projectEvents = project.evids.map(evid => this.state.allEventsByEvid?.[evid])
+    const fairs = findFairs(projectEvents)
+
+    if (fairs.length === 0) {
       return
     }
 
     switch (project.approval) {
       case 'rejected':
-        return <Badge variant='danger'>Rejected</Badge>
+        return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
+      case 'commented':
+        return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
       case 'awaiting':
-        return <Badge variant='warning'>Awaiting approval</Badge>
-      case 'partially-approved':
-        return <Badge variant='warning'>Awaiting approval</Badge>
+        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
+      case 'preliminary':
+        if (api.getApiTokenData().type === 'a')
+          return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting Academic Approval' />
+        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
       case 'payment':
-        return <Badge variant='warning'>Awaiting payment</Badge>
+        return <Tag className='mr-2 tag--approval-payment' label='Awaiting payment' />
       case 'approved':
-        return <Badge variant='success'>Approved</Badge>
+        return <Tag className='mr-2 tag--approval-approved' label='Approved' />
       default:
         return
     }
@@ -106,6 +111,10 @@ class ProjectListing extends React.Component {
             })
 
             const fairLabel = getFairLabel(project.evids.map(evid => this.state.allEventsByEvid?.[evid]))
+            console.log(
+              project.evids.map(evid => this.state.allEventsByEvid?.[evid]),
+              fairLabel
+            )
 
             return (
               <ProjectList.Item
@@ -120,8 +129,8 @@ class ProjectListing extends React.Component {
                 numberOfStudents={project.numberOfStudents}
                 headerBadge={
                   <>
-                    {fairLabel && <Tag tag={fairLabel} className='mr-2' />}
-                    {this.approvalBadge(project)}
+                    {fairLabel && <Tag label={fairLabel} className='mr-2' />}
+                    {this.approvalStatus(project)}
                   </>
                 }
                 headerButtons={

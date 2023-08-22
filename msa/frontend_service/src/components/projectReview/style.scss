@@ -243,6 +243,9 @@
   .project-review {
     &__container {
       height: calc(100vh - 7rem);
+      margin-left: 1rem;
+      margin-right: 1rem;
+      max-width: calc(100vw - 2rem);
     }
 
     &__data-and-comments {

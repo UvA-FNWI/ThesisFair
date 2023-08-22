@@ -14,7 +14,6 @@ export const getFairLabel = events => {
 export const getPaymentTooltip = (events, date, paymentStatus) => {
   const plural = events.length > 1
   const eventNames = `${events.map(event => getEventType(event)).join(' & ')} Thesis Fair${plural ? 's' : ''}`
-  console.log(date)
 
   let dateIndicator
 
@@ -62,7 +61,7 @@ export const getPaymentTagClassName = status => {
 
 const groupFairsByDate = events =>
   events
-    .map(event => ({ ...event, date: new Date(event.startDate).setHours(0, 0, 0, 0) }))
+    .map(event => ({ ...event, date: new Date(event.start).setHours(0, 0, 0, 0) }))
     .reduce((fairs, event) => {
       const identicalDate = fairs.find(fair => fair.date === event.date)
 
@@ -78,5 +77,5 @@ export const findFairs = events => {
 
   const fairs = groupFairsByDate(activeEvents)
 
-  return fairs?.map(fair => ({ ...fair, name: getFairLabel(fair.events) })) || []
+  return fairs?.map(fair => ({ events: fair.events, date: new Date(fair.date), name: getFairLabel(fair.events) })) || []
 }

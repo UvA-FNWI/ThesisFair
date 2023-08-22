@@ -49,8 +49,7 @@ async function getFairsOfEntity(enid) {
     throw new Error('An unknown error occurred while attempting to find the events the organisation is participating in')
   }
 
-  // TODO: remove any events that are free to attend (marketplace events)
-  return res.data.eventsOfEntity.filter(event => event.enabled)
+  return res.data.eventsOfEntity.filter(event => event.enabled).filter(event => !event.isMarketplace) || []
 }
 
 function getAmountByEntityType(type) {
@@ -143,7 +142,7 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get a list of the evids of this entity',
     resolve: async (obj, args, req) => {
-      const fairs = await getFairsOfEntity(args.enid)
+      const fairs = await getFairsOfEntity(args.enid) || []
 
       return fairs.map(event => event.evid)
     },

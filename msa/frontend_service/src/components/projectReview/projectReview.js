@@ -65,7 +65,12 @@ class ProjectReview extends React.Component {
 
   async approve() {
     // TODO: if admin, 'preliminary', if rep 'approved'
-    await api.project.setApproval(this.state.project.pid, 'approved').exec()
+    if (api.getApiTokenData().type === 'a') {
+      await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
+    } else if (['r', 'ra'].includes(api.getApiTokenData().type)) {
+      await api.project.setApproval(this.state.project.pid, 'approved').exec()
+    }
+
     this.props.onClose()
   }
 
