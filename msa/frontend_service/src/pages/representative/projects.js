@@ -279,7 +279,13 @@ class ProjectListing extends React.Component {
           {sortedEventProjectsEntries.map(([evids, pids]) => {
             const projects = pids.map(pid => this.state.projects[pid])
 
-            const events = JSON.parse(evids).map(evid => this.state.events[evid])
+            let events = JSON.parse(evids).map(evid => this.state.events[evid])
+
+            const nonMarketplaceEvents = events.filter(event => !event.marketplace)
+
+            if (nonMarketplaceEvents.length > 0) {
+              events = nonMarketplaceEvents
+            }
 
             return (
               <>
