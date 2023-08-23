@@ -700,6 +700,15 @@ export default url => {
               evid: { value: evid, type: 'ID!' },
             },
           }),
+        requestChanges: (enid, pid) =>
+          genGraphQLBuilder({
+            name: 'requestChanges',
+            functionPath: 'entity.requestChanges',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+              pid: { value: pid, type: 'ID!' },
+            },
+          }),
         requestInvoice: (enid, evid) =>
           genGraphQLBuilder({
             type: 'mutation',

@@ -6,7 +6,49 @@ import { rgraphql } from '../../libraries/amqpmessaging/index.js'
 import { Entity } from './database.js'
 import { canGetAllEntities } from './permissions.js'
 
+import nodemailer from 'nodemailer'
+
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
+
+const mail = nodemailer.createTransport({
+  host: process.env.MAILHOST,
+  port: parseInt(process.env.MAILPORT),
+  ...(process.env.MAILUSER
+    ? {
+        auth: {
+          user: process.env.MAILUSER,
+          pass: process.env.MAILPASS,
+        },
+      }
+    : null),
+})
+
+const sendChangeRequestedMail = async (emails, projectName) => {
+  await mail.sendMail({
+    from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
+    to: process.env.OVERRIDEMAIL || emails,
+    subject: '',
+    text: `
+  Dear Madam/Sir,
+
+  ${emails.join(' ')}
+
+  We are writing to inform you about a time-sensitive matter related to your project, ${projectName}. This project has recently been flagged by an academic associated with the program, who has indicated the need for further information or a revision.
+
+  To address this promptly, we kindly request that you log in to the Thesis Fair platform at https://thesisfair.ivi.uva.nl/. Once logged in, please locate and select your project to review the comments provided by the academic. It is important to carefully consider their feedback and make any necessary adjustments to the project.
+
+  Given the urgency of this matter, please complete these revisions within the next 1-2 business days from the receipt of this email.
+
+  Should you have any questions or encounter any challenges during this process, please do not hesitate to reach out to us for assistance.
+
+  We look forward to your timely response and collaboration.
+
+  Kind regards,
+
+  The Thesis Fair Team
+  `,
+  })
+}
 
 const deleteEntity = async enid => {
   const calls = await Promise.all([
@@ -39,14 +81,20 @@ const deleteEntity = async enid => {
 }
 
 async function getFairsOfEntity(enid) {
-  const res = await rgraphql('api-event', 'query($enid: ID!) { eventsOfEntity(enid: $enid) { start, evid, enabled } }', { enid })
+  const res = await rgraphql(
+    'api-event',
+    'query($enid: ID!) { eventsOfEntity(enid: $enid) { start, evid, enabled } }',
+    { enid }
+  )
 
   if (res.errors) {
     console.error(res)
   }
   if (res.errors || !res.data) {
     // console.error(res)
-    throw new Error('An unknown error occurred while attempting to find the events the organisation is participating in')
+    throw new Error(
+      'An unknown error occurred while attempting to find the events the organisation is participating in'
+    )
   }
 
   return res.data.eventsOfEntity.filter(event => event.enabled).filter(event => !event.isMarketplace) || []
@@ -54,17 +102,17 @@ async function getFairsOfEntity(enid) {
 
 function getAmountByEntityType(type) {
   switch (type) {
-    case "A":
+    case 'A':
       return 1500
-    case "B":
+    case 'B':
       return 700
-    case "C":
+    case 'C':
       return 200
-    case "Lab42":
+    case 'Lab42':
       return 150
-    case "Partner":
+    case 'Partner':
       return 200
-    case "Free":
+    case 'Free':
       throw new Error('This organisation type does not need to pay to attend an event')
     default:
       throw new Error('Unknown organisation type, please contact an administrator')
@@ -108,9 +156,13 @@ schemaComposer.Query.addNestedFields({
       // TODO: only fetch payment if the user is allowed to see payments
       let payments = null
       if (requestedFields.includes('payments')) {
-        const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url, target } }', {
-          targets: events.map(event => `${args.enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`)
-        })
+        const res = await rgraphql(
+          'api-payment',
+          'query($targets: [String]) { payment(targets: $targets) { status, url, target } }',
+          {
+            targets: events.map(event => `${args.enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`),
+          }
+        )
 
         if (res.errors || !res.data) {
           console.error(res)
@@ -120,7 +172,7 @@ schemaComposer.Query.addNestedFields({
         payments = res.data.payment.map(payment => ({
           status: payment.status,
           url: payment.url,
-          eventDate: new Date(Number(payment.target.split("@")[1])),
+          eventDate: new Date(Number(payment.target.split('@')[1])),
         }))
       }
 
@@ -142,7 +194,7 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Get a list of the evids of this entity',
     resolve: async (obj, args, req) => {
-      const fairs = await getFairsOfEntity(args.enid) || []
+      const fairs = (await getFairsOfEntity(args.enid)) || []
 
       return fairs.map(event => event.evid)
     },
@@ -159,7 +211,11 @@ schemaComposer.Query.addNestedFields({
       const amount = getAmountByEntityType(entity.type)
       const target = await paymentTarget(args.enid, args.evid)
 
-      const paymentRes = await rgraphql('api-payment', 'query($target: String!, $amount: Int) { paymentLink(target: $target, amount: $amount) }', { target, amount })
+      const paymentRes = await rgraphql(
+        'api-payment',
+        'query($target: String!, $amount: Int) { paymentLink(target: $target, amount: $amount) }',
+        { target, amount }
+      )
 
       if (paymentRes.errors || !paymentRes.data) {
         console.error(paymentRes)
@@ -167,7 +223,7 @@ schemaComposer.Query.addNestedFields({
       }
 
       return paymentRes.data.paymentLink
-    }
+    },
   },
   entityByExtID: {
     type: 'Entity',
@@ -190,9 +246,7 @@ schemaComposer.Query.addNestedFields({
       let eventsByEnid = null
       if (requestedFields.includes('payments') || requestedFields.includes('evids')) {
         eventsByEnid = Object.fromEntries(
-          await Promise.all(entities.map(
-            async ({enid}) => [enid, await getFairsOfEntity(enid)]
-          ))
+          await Promise.all(entities.map(async ({ enid }) => [enid, await getFairsOfEntity(enid)]))
         )
       }
 
@@ -200,13 +254,15 @@ schemaComposer.Query.addNestedFields({
       let paymentsByEnid = null
       if (requestedFields.includes('payments')) {
         // Get statuses for each target
-        const res = await rgraphql('api-payment', 'query($targets: [String]) { payment(targets: $targets) { status, url, target } }', {
-          targets: Object.entries(eventsByEnid).map(
-            ([enid, events]) => events.map(
-              event => `${enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`
-            )
-          ).flat()
-        })
+        const res = await rgraphql(
+          'api-payment',
+          'query($targets: [String]) { payment(targets: $targets) { status, url, target } }',
+          {
+            targets: Object.entries(eventsByEnid)
+              .map(([enid, events]) => events.map(event => `${enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`))
+              .flat(),
+          }
+        )
 
         if (res.errors || !res.data) {
           console.error(res)
@@ -216,14 +272,15 @@ schemaComposer.Query.addNestedFields({
         const payments = res.data.payment.map(payment => ({
           status: payment.status,
           url: payment.url,
-          eventDate: new Date(Number(payment.target.split("@")[1])),
-          enid: payment.target.split("@")[0],
+          eventDate: new Date(Number(payment.target.split('@')[1])),
+          enid: payment.target.split('@')[0],
         }))
 
-        paymentsByEnid = Object.fromEntries(payments.reduce(
-          (map, payment) => map.set(payment.enid, [...map.get(payment.enid) || [], payment]),
-          new Map()
-        ).entries())
+        paymentsByEnid = Object.fromEntries(
+          payments
+            .reduce((map, payment) => map.set(payment.enid, [...(map.get(payment.enid) || []), payment]), new Map())
+            .entries()
+        )
       }
 
       for (const entity of entities) {
@@ -258,7 +315,11 @@ schemaComposer.Mutation.addNestedFields({
 
       const target = await paymentTarget(args.enid, args.evid)
 
-      const res = await rgraphql('api-payment', 'mutation acceptPayment($target: String!) { payment { acceptPayment(target: $target) { amount } } }', { target })
+      const res = await rgraphql(
+        'api-payment',
+        'mutation acceptPayment($target: String!) { payment { acceptPayment(target: $target) { amount } } }',
+        { target }
+      )
 
       if (res.errors || !res.data) {
         console.error(res)
@@ -266,6 +327,34 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       return !!res.data.payment?.acceptPayment
+    },
+  },
+  'entity.requestChanges': {
+    type: 'Boolean',
+    args: {
+      enid: 'ID!',
+      pid: 'ID!',
+    },
+    description: 'Request a change for the given entity',
+    resolve: async (obj, args) => {
+      // Query all users that are part of the entity
+      const users = await rgraphql('api-user', 'query($enid: ID!) { usersOfEntity(enid: $enid) { email } }', {
+        enid: args.enid,
+      })
+
+      const project = await rgraphql('api-project', 'query($pid: ID!) { project(pid: $pid) { name } }', {
+        pid: args.pid,
+      })
+
+      const projectName = project.data.project.name
+
+      if (users.errors || !users.data) return false
+
+      const emails = users.data.usersOfEntity.map(user => user.email)
+
+      await sendChangeRequestedMail(emails, projectName)
+
+      return true
     },
   },
   'entity.requestInvoice': {
@@ -280,7 +369,11 @@ schemaComposer.Mutation.addNestedFields({
       const amount = getAmountByEntityType(entity.type)
       const target = await paymentTarget(args.enid, args.evid)
 
-      const res = await rgraphql('api-payment', 'mutation requestInvoice($target: String!, $amount: Int!) { payment { requestInvoice(target: $target, amount: $amount) } }', { target, amount })
+      const res = await rgraphql(
+        'api-payment',
+        'mutation requestInvoice($target: String!, $amount: Int!) { payment { requestInvoice(target: $target, amount: $amount) } }',
+        { target, amount }
+      )
 
       if (res.errors || !res.data) {
         console.error(res)
@@ -327,10 +420,7 @@ schemaComposer.Mutation.addNestedFields({
       const enid = args.enid
       delete args.enid
 
-      if (!(
-        req.user.type === 'a' ||
-        (req.user.type === 'r' && req.user.repAdmin && req.user.enids.includes(enid))
-      )) {
+      if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.repAdmin && req.user.enids.includes(enid)))) {
         throw new Error('UNAUTHORIZED update this entity')
       }
 

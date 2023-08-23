@@ -1,6 +1,7 @@
-import React from 'react'
-import { Container, Table, Button } from 'react-bootstrap'
 import downloadIcon from 'bootstrap-icons/icons/download.svg'
+import React from 'react'
+import { Button, Container, Table } from 'react-bootstrap'
+
 import api, { downloadCV } from '../../api'
 
 class TableRow extends React.Component {

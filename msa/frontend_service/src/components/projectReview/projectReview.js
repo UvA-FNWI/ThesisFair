@@ -53,17 +53,33 @@ class ProjectReview extends React.Component {
     this.setState({ newComment: '', project })
   }
 
-  async reject() {
+  async reject(event) {
+    event.preventDefault()
+
     await api.project.setApproval(this.state.project.pid, 'rejected').exec()
     this.props.onClose()
   }
 
-  async requestChanges() {
+  async requestChanges(event) {
+    event.preventDefault()
+
     await api.project.setApproval(this.state.project.pid, 'commented').exec()
+
+    // TODO: Email the users that their project has been commented on
+    // console.log(this.state.project.enid.toString(), this.state.project.pid)
+
+    // try {
+    //   await api.entity.requestChanges(this.state.project.enid.toString(), this.state.project.pid).exec()
+    // } catch (error) {
+    //   console.log(error)
+    // }
+
     this.props.onClose()
   }
 
-  async approve() {
+  async approve(event) {
+    event.preventDefault()
+
     // TODO: if admin, 'preliminary', if rep 'approved'
     if (api.getApiTokenData().type === 'a') {
       await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
@@ -74,7 +90,8 @@ class ProjectReview extends React.Component {
     this.props.onClose()
   }
 
-  close() {
+  close(event) {
+    if (event) event.preventDefault()
     this.props.onClose()
   }
 

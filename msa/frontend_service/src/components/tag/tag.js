@@ -1,10 +1,8 @@
-import React from 'react'
-
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import closeIcon from 'bootstrap-icons/icons/x-lg.svg'
 import minusIcon from 'bootstrap-icons/icons/dash-lg.svg'
-
+import closeIcon from 'bootstrap-icons/icons/x-lg.svg'
 import cl from 'clsx'
+import React from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 import './tag.scss'
 

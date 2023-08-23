@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom'
 import api from '../../api'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
-import { degreeById } from '../../utilities/degreeDefinitions'
+import { degreeById, degrees } from '../../utilities/degreeDefinitions'
 import { findFairs, getFairLabel } from '../../utilities/fairs'
 
 import '../representative/projects.scss'
@@ -22,6 +22,9 @@ class ProjectListing extends React.Component {
       entityNameById: {}, // Map from ENID to entity name
       allEventsByEvid: {}, // Map from EVID to event
       popup: false,
+      filters: {
+        degrees: Object.values(degrees).map(degree => degree.id),
+      },
     }
   }
 
@@ -146,26 +149,68 @@ class ProjectListing extends React.Component {
     return (
       <>
         <Container>
-          {Object.keys(this.state.projects).length === 0 ? <h4>No projects found</h4> : null}
+          {Object.keys(this.state.projects).length === 0 ? (
+            <h4>No projects found</h4>
+          ) : (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                {Object.values(degrees).map(({ id, tag, tooltip }) => {
+                  return (
+                    <Tag
+                      key={id}
+                      label={tag}
+                      tooltip={tooltip}
+                      className='mr-2'
+                      selectable={true}
+                      selected={this.state.filters.degrees.includes(id)}
+                      onClick={() => {
+                        if (this.state.filters.degrees.includes(id)) {
+                          this.setState({
+                            filters: {
+                              ...this.state.filters,
+                              degrees: this.state.filters.degrees.filter(t => t !== id),
+                            },
+                          })
 
-          {/* Map over each enid and create a list of projects */}
-          {this.state.projectsByEnid?.entries &&
-            Array.from(this.state.projectsByEnid.entries()).map(([enid, pids]) => {
-              const projects = pids.map(pid => this.state.projects[pid])
+                          return
+                        }
 
-              const entityName = this.state.entityNameById[enid]
+                        this.setState({
+                          filters: { ...this.state.filters, degrees: [...this.state.filters.degrees, id] },
+                        })
+                      }}
+                    />
+                  )
+                })}
+              </div>
 
-              return (
-                <>
-                  <br />
-                  <span className='d-flex justify-content-between'>
-                    <h3 style={{ alignSelf: 'flex-end' }}>{entityName}</h3>
-                  </span>
-                  <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
-                  {this.renderProjectListing(projects)}
-                </>
-              )
-            })}
+              {this.state.projectsByEnid?.entries &&
+                Array.from(this.state.projectsByEnid.entries()).map(([enid, pids]) => {
+                  const projects = pids
+                    .map(pid => this.state.projects[pid])
+                    .filter(project => {
+                      if (!project) {
+                        return false
+                      }
+
+                      return project.degrees?.some(degree => this.state.filters.degrees.includes(degree))
+                    })
+
+                  const entityName = this.state.entityNameById[enid]
+
+                  return (
+                    <>
+                      <br />
+                      <span className='d-flex justify-content-between'>
+                        <h3 style={{ alignSelf: 'flex-end' }}>{entityName}</h3>
+                      </span>
+                      <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
+                      {this.renderProjectListing(projects)}
+                    </>
+                  )
+                })}
+            </>
+          )}
         </Container>
 
         {this.state.popup ? this.renderStudentModal() : null}

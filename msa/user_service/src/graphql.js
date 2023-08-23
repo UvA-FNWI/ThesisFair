@@ -165,7 +165,8 @@ Please ask your colleagues to check their spam folder in case they do not receiv
   Please update your password to a more secure one as soon as possible.
 
   Kind regards,
-  Thesis Fair Team
+
+  The Thesis Fair Team
   `,
   })
 
@@ -173,7 +174,9 @@ Please ask your colleagues to check their spam folder in case they do not receiv
 }
 
 const requestPasswordReset = async email => {
-  const user = await User.findOne({ email })
+  const caseInsensitiveEmailRegex = new RegExp(`^${email}$`, 'i')
+
+  const user = await User.findOne({ email: caseInsensitiveEmailRegex })
   if (!user) {
     throw new Error('No user with that email found.')
   }
@@ -193,7 +196,8 @@ const requestPasswordReset = async email => {
   If you did not request a password reset you can safely ignore this email.
 
   Kind regards,
-  Thesis Fair Team
+
+  The Thesis Fair Team
   `,
   })
 
