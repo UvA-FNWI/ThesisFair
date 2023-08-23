@@ -286,11 +286,10 @@ class ProjectListing extends React.Component {
                 <br />
                 <span className='d-flex justify-content-between'>
                   <h3 style={{ alignSelf: 'flex-end' }}>{events.map(event => event.name).join(' & ')}</h3>
-                  {events.map(event => (
-                    <time key={event.evid} style={{ alignSelf: 'flex-end' }} dateTime={event.start}>
-                      {event.start ? new Date(event.start).toLocaleDateString() : ''}
-                    </time>
-                  ))}
+
+                  <time key={events[0].evid} style={{ alignSelf: 'flex-end' }} dateTime={events[0].start}>
+                    {events[0].start ? new Date(events[0].start).toLocaleDateString() : ''}
+                  </time>
                 </span>
                 <hr style={{ marginTop: 0, marginBottom: '1.25em' }} />
                 {this.renderProjectListing(projects, events)}
