@@ -25,7 +25,7 @@ export const setSessionData = (item, value) => localStorage.setItem(item, value)
 export const getEnid = () => {
   let enid = getSessionData('enid')
 
-  if (!enid) {
+  if (!enid || enid === 'NO ENTITIES FOR USER') {
     const enids = api.getApiTokenData().enids
     enid = enids && enids.length > 0 ? enids[0] : 'NO ENTITIES FOR USER'
     setSessionData('enid', enid)

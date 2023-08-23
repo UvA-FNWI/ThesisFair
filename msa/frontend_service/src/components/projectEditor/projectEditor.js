@@ -80,8 +80,9 @@ class ProjectEditor extends React.Component {
 
       const attendanceInteractions = project.evids.filter(evid => !allMarketplaces.includes(evid))
       const marketplaceInteractions = project.evids.filter(evid => allMarketplaces.includes(evid))
+      const evids = attendanceInteractions || []
 
-      this.setState({ ...project, attendanceInteractions, marketplaceInteractions })
+      this.setState({ ...project, evids, attendanceInteractions, marketplaceInteractions })
     }
 
     if (this.props.params.project) {
@@ -89,8 +90,9 @@ class ProjectEditor extends React.Component {
 
       const attendanceInteractions = this.props.params.project.evids.filter(evid => !allMarketplaces.includes(evid))
       const marketplaceInteractions = this.props.params.project.evids.filter(evid => allMarketplaces.includes(evid))
+      const evids = attendanceInteractions || []
 
-      this.setState({ ...this.props.params.project, attendanceInteractions, marketplaceInteractions })
+      this.setState({ ...this.props.params.project, evids, attendanceInteractions, marketplaceInteractions })
     }
   }
 
@@ -129,17 +131,7 @@ class ProjectEditor extends React.Component {
   }
 
   async updateProject() {
-    const validType = this.attendanceIsValid()
-
-    let evids = []
-
-    if (validType[1]) {
-      evids = this.state.evids
-    } else if (validType[2]) {
-      evids = this.state.allMarketplaces
-    } else {
-      throw new Error('That should not happen.')
-    }
+    const evids = this.state.evids.length > 0 ? this.state.evids : this.state.allMarketplaces
 
     const project = {
       enid: this.props.params.enid,
@@ -147,7 +139,7 @@ class ProjectEditor extends React.Component {
       description: this.state.description,
       degrees: this.state.degrees,
       tags: this.state.tags,
-      attendance: this.state.evids.length > 0 ? 'yes' : 'no',
+      attendance: evids.length > 0 ? 'yes' : 'no',
       evids: evids,
       environment: this.state.environment,
       email: this.state.email,
@@ -237,10 +229,11 @@ class ProjectEditor extends React.Component {
   attendanceIsValid = () => {
     const isGoingToAnyEvent = this.state.evids.length > 0
     const isValidToEvent =
+      isGoingToAnyEvent &&
       this.state.allEvents.filter(event => this.isValidEvent(event)).length === this.state.attendanceInteractions.length
     const isValidToMarketplace = this.state.allMarketplaces.length === this.state.marketplaceInteractions.length
 
-    return [(isGoingToAnyEvent && isValidToEvent) || isValidToMarketplace, isValidToEvent, isValidToMarketplace]
+    return [isValidToEvent || isValidToMarketplace, isValidToEvent, isValidToMarketplace]
   }
 
   validate = () => Object.values(this.validation).every(f => f() === true)

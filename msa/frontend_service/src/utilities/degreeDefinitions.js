@@ -12,7 +12,7 @@ export const degrees = {
   cls: {
     id: 'MScCLSJD',
     tag: 'MSc CLSJD',
-    tooltip: 'Master Computer Science',
+    tooltip: 'Master Computational Science',
   },
   is: {
     id: 'MScISIS',

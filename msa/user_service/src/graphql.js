@@ -395,7 +395,9 @@ schemaComposer.Query.addNestedFields({
     },
     description: 'Login a user via email/password combination and return the JWT string.',
     resolve: async (obj, args) => {
-      const user = await User.findOne({ email: args.email })
+      const caseInsensitiveEmailRegex = new RegExp(`^${args.email}$`, 'i')
+
+      const user = await User.findOne({ email: caseInsensitiveEmailRegex })
       if (!user) {
         throw new Error('No user with that email found.')
       }
@@ -439,11 +441,14 @@ schemaComposer.Query.addNestedFields({
       let user
       if (args.student) {
         user = await Student.findOne({ studentnumber: args.external_id })
+
         if (!user) {
           // User does not exist
           const studies = await getStudies(args.external_id)
+          const caseInsensitiveEmailRegex = new RegExp(`^${args.email}$`, 'i')
+
           user = await Student.findOneAndUpdate(
-            { email: args.email },
+            { email: caseInsensitiveEmailRegex },
             { studentnumber: args.external_id, firstname: args.firstname, lastname: args.lastname, studies },
             { upsert: true, new: true }
           )
@@ -460,8 +465,10 @@ schemaComposer.Query.addNestedFields({
       } else {
         user = await Representative.findOne({ external_id: args.external_id })
         if (!user) {
+          const caseInsensitiveEmailRegex = new RegExp(`^${args.email}$`, 'i')
+
           user = await Representative.findOneAndUpdate(
-            { email: args.email },
+            { email: caseInsensitiveEmailRegex },
             { external_id: args.external_id, firstname: args.firstname, lastname: args.lastname }
           )
 
@@ -534,7 +541,8 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED create user accounts for this entity')
       }
 
-      const user = await Representative.findOne({ email: args.email })
+      const caseInsensitiveEmailRegex = new RegExp(`^${args.email}$`, 'i')
+      const user = await Representative.findOne({ email: caseInsensitiveEmailRegex })
 
       if (user) {
         return await Representative.findByIdAndUpdate(user.uid, { $addToSet: { enids: { $each: args.enids } } })

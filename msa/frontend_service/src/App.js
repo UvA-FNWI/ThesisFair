@@ -1,32 +1,26 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import api from './api'
-
-import LoginPage from './pages/LoginPage'
-import ForgotPasswordPage from './pages/ForgotPasswordPage'
-
-import Page from './pages/Page'
-import Error from './pages/Error'
-
-import Events from './pages/common/Events'
-import Event from './pages/common/Event'
-
-import Students from './pages/admin/Students'
-import EditEvent from './pages/admin/EditEvent'
-import AdminOrganisations from './pages/admin/Organisations'
 import AdminAccount from './pages/admin/AdminAccount'
+import EditEvent from './pages/admin/EditEvent'
 import LoginAs from './pages/admin/LoginAs'
-import AdminProjects from './pages/admin/projects'
+import AdminOrganisations from './pages/admin/Organisations'
 import ProjectReview from './pages/admin/ProjectReview.js'
-
-import StudentAccount from './pages/student/StudentAccount'
-import Organisations from './pages/student/Organisations'
-import Votes from './pages/student/Votes'
-
-import RepAccount from './pages/representative/RepAccount'
-import Projects from './pages/representative/projects'
+import AdminProjects from './pages/admin/projects'
+import Students from './pages/admin/Students'
+import Event from './pages/common/Event'
+import Events from './pages/common/Events'
+import Error from './pages/Error'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import LoginPage from './pages/LoginPage'
+import Page from './pages/Page'
 import OrganisationDashboard from './pages/representative/OrganisationDashboard'
+import Projects from './pages/representative/projects'
+import RepAccount from './pages/representative/RepAccount'
+import Organisations from './pages/student/Organisations'
+import StudentAccount from './pages/student/StudentAccount'
+import Votes from './pages/student/Votes'
+import api from './api'
 
 class App extends React.Component {
   constructor(props) {

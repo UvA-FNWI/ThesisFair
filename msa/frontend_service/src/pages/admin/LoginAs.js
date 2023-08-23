@@ -1,5 +1,6 @@
 import React from 'react'
 import { Container, Form } from 'react-bootstrap'
+
 import api from '../../api'
 
 class LoginAs extends React.Component {
@@ -35,11 +36,15 @@ class LoginAs extends React.Component {
     const newToken = {
       uid: uid,
     }
+
     if (user.studentnumber) {
       newToken.type = 's'
     } else {
       newToken.type = 'r'
-      newToken.enid = user.enid
+
+      if ('enid' in user) newToken.enid = user.enid
+      if ('enid' in user) newToken.enids = [user.enid]
+      if ('enids' in user) newToken.enids = user.enids
     }
 
     api.overrideApiTokenData(newToken)
@@ -57,8 +62,10 @@ class LoginAs extends React.Component {
             <option>Select a student</option>
             {this.state.users
               .filter(user => !!user.studentnumber)
-              .map(({ uid, firstname, lastname, studentnumber }) => (
-                <option value={uid}>{firstname || lastname ? `${firstname} ${lastname}` : studentnumber}</option>
+              .map(({ firstname, lastname, studentnumber, uid }) => (
+                <option key={uid} value={uid}>
+                  {firstname || lastname ? `${firstname} ${lastname}` : studentnumber}
+                </option>
               ))}
           </Form.Select>
         </div>
@@ -69,8 +76,8 @@ class LoginAs extends React.Component {
             <option>Login as representative</option>
             {this.state.users
               .filter(user => user.enids?.length > 0)
-              .map(({ uid, firstname, lastname }) => (
-                <option value={uid}>
+              .map(({ firstname, lastname, uid }) => (
+                <option key={uid} value={uid}>
                   {firstname} {lastname}
                 </option>
               ))}
