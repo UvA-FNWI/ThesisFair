@@ -1,10 +1,10 @@
 import fuzzysort from 'fuzzysort'
 import React from 'react'
-
-import { Col, Form, Row } from 'react-bootstrap'
+import { Container, Form } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
+
 import api from '../../api'
-import EntityCard from '../../components/entityCard/entityCard'
+import EntityList from '../../components/entityList/entityList'
 
 import '../../styles/events.scss'
 
@@ -15,53 +15,59 @@ class Entities extends React.Component {
     this.state = {
       entities: [],
       allEvents: [],
+      allEventsByEvid: {},
       entitiesByEnid: {},
       entityNames: [],
       filteredEntities: [],
       searchFilter: '',
       error: false,
+      filters: {
+        search: '',
+      },
     }
   }
 
+  searchFilterFunction = (entities, filters) => {
+    if (!filters.search) return entities
+
+    return fuzzysort
+      .go(filters.search, this.state.entityNames, { key: 'name', limit: 25, threshold: -5000 })
+      .map(e => this.state.entitiesByEnid[e.obj.enid])
+  }
+
+  filterFunctions = [this.searchFilterFunction]
+
+  filter = filters => {
+    const filteredEntities = this.filterFunctions.reduce(
+      (entities, filterFunction) => filterFunction(entities, filters),
+      this.state.entities
+    )
+
+    this.setState({ filteredEntities })
+  }
+
   search = searchFilter => {
-    if (searchFilter === this.state.searchFilter) return
+    if (searchFilter === this.state.filters.search) return
+
     if (searchFilter === '' || searchFilter === null) {
-      this.setState({ filteredEntities: this.state.entities, searchFilter: '' })
+      const filters = { ...this.state.filters, search: '' }
+
+      this.setState({ filters })
+      this.filter(filters)
       return
     }
 
-    // Ignore searches with less than 3 characters
-    if (this.state.searchFilter?.length < 3 && searchFilter.length < 3) return
+    const filters = { ...this.state.filters, search: searchFilter }
 
-    if (searchFilter?.length < 3) {
-      this.setState({ filteredEntities: this.state.entities, searchFilter: '' })
-      return
-    }
+    this.setState({ filters })
 
-    // If the search filter is extended, only search through the previous results
-    if (searchFilter.startsWith(this.state.searchFilter)) {
-      this.setState({
-        filteredEntities: fuzzysort
-          .go(searchFilter, this.state.filteredEntities, { key: 'name', limit: 25, threshold: -5000 })
-          .map(e => this.state.entitiesByEnid[e.obj.enid]),
-        searchFilter,
-      })
-
-      return
-    }
-
-    this.setState({
-      filteredEntities: fuzzysort
-        .go(searchFilter, this.state.entityNames, { key: 'name', limit: 25, threshold: -5000 })
-        .map(e => this.state.entitiesByEnid[e.obj.enid]),
-      searchFilter,
-    })
+    this.filter(filters)
   }
 
   async componentDidMount() {
     let entities
     try {
-      entities = await api.entity.getAll().exec()
+      entities = await api.entity.getAll(null, { enid: true, name: true, type: true, payments: true }).exec()
     } catch (error) {
       console.log(error)
       this.setState({ error: true })
@@ -71,6 +77,8 @@ class Entities extends React.Component {
       this.setState({ error: true })
       return
     }
+
+    entities = entities.map(entity => ({ ...entity, name: entity.name.trim() }))
 
     // Fetch info about all events to pass on to entries on entities, so they
     // don't have to fetch it (state passes down)
@@ -89,8 +97,31 @@ class Entities extends React.Component {
 
     const entityNames = entities.map(entity => ({ enid: entity.enid, name: entity.name }))
     const entitiesByEnid = Object.fromEntries(entities.map(entity => [entity.enid, entity]))
+    const allEventsByEvid = Object.fromEntries(events.map(event => [event.evid, event]))
 
-    this.setState({ entities, entitiesByEnid, entityNames, filteredEntities: entities, allEvents: events })
+    this.setState({
+      entities,
+      entitiesByEnid,
+      entityNames,
+      filteredEntities: entities,
+      allEvents: events,
+      allEventsByEvid,
+    })
+  }
+
+  changeEntityType = async (enid, event) => {
+    const type = event.target.value
+
+    const entity = {
+      enid,
+      type,
+    }
+
+    try {
+      await api.entity.update(entity).exec()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   getNoResultText() {
@@ -99,7 +130,7 @@ class Entities extends React.Component {
       case !this.state.error && this.state.entities?.length === 0:
         return 'Loading...'
       case !this.state.error && this.state.filteredEntities?.length === 0:
-        return 'No organisations found with the given search term.'
+        return 'No organisations found with the given filters and/or search term.'
       default:
         return 'Something went wrong while loading the organisations.'
     }
@@ -107,29 +138,61 @@ class Entities extends React.Component {
 
   render() {
     return (
-      <>
+      <Container>
         <h1 className='events-page__header'>Organisations</h1>
+
+        {/* TODO: Maybe add filters for students? */}
+        {/* <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+          {entityTypes.map(type => {
+            return (
+              <Tag
+                key={type}
+                label={type.length === 1 ? `Type ${type}` : type}
+                className='mr-2'
+                selectable={true}
+                selected={this.state.filters.degrees.includes(type.replace(' ', ''))}
+                onClick={() => {
+                  let filters
+
+                  if (this.state.filters.degrees.includes(type.replace(' ', ''))) {
+                    filters = {
+                      ...this.state.filters,
+                      types: this.state.filters.degrees.filter(t => t !== type.replace(' ', '')),
+                    }
+
+                    this.setState({ filters })
+                  } else {
+                    filters = { ...this.state.filters, types: [...this.state.filters.degrees, type.replace(' ', '')] }
+
+                    this.setState({ filters })
+                  }
+
+                  this.filter(filters)
+                }}
+              />
+            )
+          })}
+        </div> */}
+
         <Form className='search-bar'>
           <Form.Group className='mb-3' controlId='searchBar'>
-            <Form.Control
-              type='text'
-              placeholder='Search (type at least 3 characters)'
-              onInput={e => this.search(e.target.value)}
-            />
+            <Form.Control type='text' placeholder='Search organisations' onInput={e => this.search(e.target.value)} />
           </Form.Group>
         </Form>
+
         {this.state.filteredEntities?.length > 0 ? (
-          <Row className='g-4 events-page__row'>
-            {this.state.filteredEntities.map(entity => (
-              <Col md='auto' key={entity.enid}>
-                <EntityCard events={this.state.allEvents} entity={entity} />
-              </Col>
-            ))}
-          </Row>
+          <EntityList
+            items={this.state.filteredEntities.map(entity => ({
+              enid: entity.enid,
+              name: entity.name,
+
+              // TODO: Add description et al
+            }))}
+          />
         ) : (
           <p>{this.getNoResultText()}</p>
         )}
-      </>
+      </Container>
     )
   }
 }

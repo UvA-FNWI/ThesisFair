@@ -16,19 +16,19 @@
   }
 
   &--no-image {
-    & .card__image {
+    & .event-card__image {
       display: none;
     }
 
-    & .card__body {
-      height: 25rem;
+    & .event-card__body {
+      height: 24rem;
     }
   }
 
   &__body {
     display: flex;
     flex-direction: column;
-    height: 15rem;
+    height: 14rem;
     margin-bottom: 0 !important;
     overflow: hidden;
 

@@ -1,7 +1,8 @@
 import { findFairs } from './fairs'
 
 export const getParticipatingFairs = async (getProjectsOfEntity, allEventsByEvid, entity) => {
-  const projects = await getProjectsOfEntity(null, entity.enid, { evids: true }).exec()
+  let projects = await getProjectsOfEntity(null, entity.enid, { evids: true }).exec()
+  projects = projects.filter(project => project.approval === 'approved')
 
   if (!projects) return []
 
