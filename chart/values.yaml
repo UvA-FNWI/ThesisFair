@@ -42,9 +42,9 @@ msa:
   project_service:
   vote_service:
   payment_service:
-    # secrets:
-    #   - name: thesisfair-payments-token
-    #     key: PAYMENT_API_TOKEN
+    secrets:
+      - name: thesisfair-payments-token
+        key: PAYMENT_API_TOKEN
   frontend_service:
     env:
       PORT: 3000
