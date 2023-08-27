@@ -151,6 +151,7 @@ class ProjectEditor extends React.Component {
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
       await api.project.update({ ...project, pid: this.props.params.pid }).exec()
+      await api.project.setApproval(this.props.params.pid, 'awaiting').exec()
     } else {
       await api.project.create(project).exec()
     }

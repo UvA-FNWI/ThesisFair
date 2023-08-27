@@ -411,11 +411,15 @@ schemaComposer.Query.addNestedFields({
       // }
 
       if (!user.password) {
-        throw new Error('No password is set. Please use the "forgot password" function.')
+        throw new Error('No password set. Please use the "forgot password" function.')
       }
 
       if (!(await bcrypt.compare(args.password, user.password))) {
         throw new Error('Incorrect password')
+      }
+
+      if (user instanceof Representative && !user.admin && (!user.enids || user.enids.length === 0)) {
+        throw new Error('No organisation found: ask a colleague to add you back.')
       }
 
       return await genApiToken(user)
@@ -478,19 +482,6 @@ schemaComposer.Query.addNestedFields({
 
           if (!user) {
             user = await User.findOne({ email: args.email, admin: true }) // Admin login
-
-            try {
-              // If SSO email is j.b.jongejans@uva.nl, create an account with admin rights
-              if (!user && args.email === 'j.b.jongejans@uva.nl') {
-                user = await User.create({
-                  email: args.email,
-                  admin: true,
-                  password: '$2y$10$AqHYLaYRDA3SgF8pjUg1lewWqSN2n1.AaktFR8.1wAWdGkKeEKL9m',
-                })
-              }
-            } catch (error) {
-              throw new Error('Could not create admin account for Jake.')
-            }
 
             if (!user) {
               throw new Error(
@@ -733,13 +724,13 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       enid: 'ID!',
     },
-    description: 'Delete all representatives of an entity.',
+    description: 'Remove all representatives from an entity.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
         throw new Error('UNAUTHORIZED delete entities')
       }
 
-      await Representative.deleteMany({ enids: args.enid })
+      await Representative.updateMany({ $pull: { enids: args.enid } })
       await Student.updateMany({ $pull: { share: args.enid } })
       return true
     },

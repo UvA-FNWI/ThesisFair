@@ -1,0 +1,15 @@
+.button--danger-delete {
+  background-color: #bc1a08 !important;
+  color: #fff !important;
+  border: 1px solid #bc1a08 !important;
+
+  &:hover {
+    background-color: #ab1403 !important;
+    border: 1px solid #ab1403 !important;
+  }
+
+  &:active {
+    background-color: #9c1000 !important;
+    border: 1px solid #9c1000 !important;
+  }
+}

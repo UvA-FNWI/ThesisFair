@@ -37,14 +37,34 @@
 
   &__admin-button {
     margin-top: 1rem;
-    background-color: rgb(6, 145, 25);
+    background-color: rgb(7, 146, 79) !important;
+    border-color: rgb(7, 146, 79) !important;
 
     &:hover {
-      background-color: rgb(2, 133, 19);
+      background-color: rgb(6, 132, 71) !important;
+      border-color: rgb(6, 132, 71) !important;
     }
 
     &:active {
-      background-color: rgb(2, 122, 18);
+      background-color: rgb(1, 117, 61) !important;
+      border-color: rgb(1, 117, 61) !important;
+    }
+
+    &--paid {
+      background-color: rgb(200, 200, 200) !important;
+      border-color: rgb(200, 200, 200) !important;
+      color: white !important;
+      cursor: not-allowed !important;
+
+      &:hover {
+        background-color: rgb(200, 200, 200) !important;
+        border-color: rgb(200, 200, 200) !important;
+      }
+
+      &:active {
+        background-color: rgb(200, 200, 200) !important;
+        border-color: rgb(200, 200, 200) !important;
+      }
     }
   }
 }

@@ -2,7 +2,6 @@ import { SchemaComposer, TypeMapper } from 'graphql-compose'
 import { readFileSync } from 'fs'
 import { globSync } from 'glob'
 
-
 /* Takes in an InputTypeComposer, ScalarTypeComposer, EnumTypeComposer,
  * UnionTypeComposer, or InterfaceTypeComposer and returns the type as a
  * simplified string (i.e. input, scalar, enum, union, interface) */
@@ -22,31 +21,29 @@ function typeComposerVariant(tc) {
  * "{the original type}:" */
 function expandedFieldNames(tc) {
   if (typeComposerVariant(tc) === 'union') {
-    return [... new Set([].concat(
-      ...tc.getTypes().map(
-        t => expandedFieldNames(t).map(
-          name => name.includes(':') ? name : `${t.getTypeName()}:${name}`
+    return [
+      ...new Set(
+        [].concat(
+          ...tc
+            .getTypes()
+            .map(t => expandedFieldNames(t).map(name => (name.includes(':') ? name : `${t.getTypeName()}:${name}`)))
         )
-      )
-    ))]
+      ),
+    ]
   }
 
   if (typeComposerVariant(tc) === 'enum') {
     return tc.getFieldNames()
   }
 
-  // Map from interface name (e.g. userBase) to list of the interface's fields 
-  const ifaces = Object.fromEntries(
-    tc.getInterfaces().map(i => [i.getTypeName(), i.getFieldNames()])
-  )
+  // Map from interface name (e.g. userBase) to list of the interface's fields
+  const ifaces = Object.fromEntries(tc.getInterfaces().map(i => [i.getTypeName(), i.getFieldNames()]))
 
   const names = []
 
   for (const name of tc.getFieldNames()) {
     const field = tc.getFieldTC(name)
-    const iface = Object.keys(ifaces).find(
-      ifaceName => ifaces[ifaceName].includes(name)
-    )
+    const iface = Object.keys(ifaces).find(ifaceName => ifaces[ifaceName].includes(name))
 
     if (iface) {
       // Inherited fields
@@ -68,10 +65,10 @@ function expandedFieldNames(tc) {
  * not for compound, scalar or input types */
 function schemaToFields(schema) {
   const relevantVariants = ['object', 'enum', 'interface', 'union']
-  
-  const tm = new TypeMapper(new SchemaComposer)
+
+  const tm = new TypeMapper(new SchemaComposer())
   const types = tm.parseTypesFromString(schema)
-  
+
   // A list of relevant types (e.g. EntityContactInfo) as TypeComposer objects
   // representing these types
   const relevantTypes = [...types.values()].filter(v => relevantVariants.includes(typeComposerVariant(v)))
@@ -82,9 +79,11 @@ function schemaToFields(schema) {
 }
 
 // Generate a mapping of fields from GraphQL schema files
-const schema = globSync('../../**/schema.graphql').map(path => readFileSync(path).toString()).join()
+const schema = globSync('../../**/schema.graphql')
+  .map(path => readFileSync(path).toString())
+  .join()
 const fields = schemaToFields(schema)
 
 // Write result to json file
 // writeFileSync('graphqlFields.json', JSON.stringify(fields))
-console.log("export default " + JSON.stringify(fields, null, '\t'))
+console.log('export default ' + JSON.stringify(fields, null, '\t'))

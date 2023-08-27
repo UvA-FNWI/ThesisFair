@@ -1,5 +1,6 @@
 import React from 'react'
-import { Button, Accordion, Modal, Form, Row, Col } from 'react-bootstrap'
+import { Accordion, Button, Col, Form, Modal, Row } from 'react-bootstrap'
+
 import api from '../../api'
 
 const httpRegex = /^https?:\/\//
@@ -107,28 +108,40 @@ class EntitiesProjects extends React.Component {
     this.setState({ sharedEntities })
   }
 
-  approvalButton = (project) => {
-    const setApproval = (approval) => async () => {
+  approvalButton = project => {
+    const setApproval = approval => async () => {
       const pid = project.pid
-      await api.project.setApproval({approval: approval, pid: pid}).exec()
+      await api.project.setApproval({ approval: approval, pid: pid }).exec()
 
       const projects = Object.assign({}, this.state.projects)
       const stateProject = projects[project.enid].find(e => e.pid === pid)
-      
+
       if (stateProject) {
         project.approval = approval
       }
 
-      this.setState({projects})
+      this.setState({ projects })
     }
 
     switch (project.approval) {
       case 'approved':
-        return <Button onClick={setApproval('rejected')} variant='success'>Approved</Button>
+        return (
+          <Button onClick={setApproval('rejected')} variant='success'>
+            Approved
+          </Button>
+        )
       case 'rejected':
-        return <Button onClick={setApproval('awaiting')} variant='danger'>Rejected</Button>
+        return (
+          <Button onClick={setApproval('awaiting')} variant='danger'>
+            Rejected
+          </Button>
+        )
       case 'awaiting':
-        return <Button onClick={setApproval('approved')} variant='warning'>Awaiting approval</Button>
+        return (
+          <Button onClick={setApproval('approved')} variant='warning'>
+            Awaiting approval
+          </Button>
+        )
       default:
         return null
     }
@@ -174,13 +187,12 @@ class EntitiesProjects extends React.Component {
                     {this.state.projects[entity.enid]
                       ? this.state.projects[entity.enid].map((project, projectIndex) => (
                           <Accordion.Item key={projectIndex} eventKey={projectIndex}>
-                            <Accordion.Header>
-                              {project.name}
-                            </Accordion.Header>
+                            <Accordion.Header>{project.name}</Accordion.Header>
                             <Accordion.Body>
                               <div dangerouslySetInnerHTML={{ __html: project.description }} />
 
-                              <Button onClick={() =>
+                              <Button
+                                onClick={() =>
                                   this.setState({ popup: { enid: entity.enid, entityIndex, projectIndex } })
                                 }
                               >

@@ -36,6 +36,7 @@ class ProjectReview extends React.Component {
     this.reject = this.reject.bind(this)
     this.requestChanges = this.requestChanges.bind(this)
     this.approve = this.approve.bind(this)
+    this.partiallyApprove = this.partiallyApprove.bind(this)
     this.close = this.close.bind(this)
   }
 
@@ -80,12 +81,15 @@ class ProjectReview extends React.Component {
   async approve(event) {
     event.preventDefault()
 
-    // TODO: if admin, 'preliminary', if rep 'approved'
-    if (api.getApiTokenData().type === 'a') {
-      await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
-    } else if (['r', 'ra'].includes(api.getApiTokenData().type)) {
-      await api.project.setApproval(this.state.project.pid, 'approved').exec()
-    }
+    await api.project.setApproval(this.state.project.pid, 'approved').exec()
+
+    this.props.onClose()
+  }
+
+  async partiallyApprove(event) {
+    event.preventDefault()
+
+    await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
 
     this.props.onClose()
   }
@@ -105,8 +109,12 @@ class ProjectReview extends React.Component {
         label: 'Request Changes',
         onClick: this.requestChanges,
       },
+      api.getApiTokenData().type === 'a' && {
+        label: 'Partially approve',
+        onClick: this.partiallyApprove,
+      },
       {
-        label: api.getApiTokenData().type === 'a' ? 'Partially approve' : 'Approve',
+        label: 'Approve',
         onClick: this.approve,
       },
       {

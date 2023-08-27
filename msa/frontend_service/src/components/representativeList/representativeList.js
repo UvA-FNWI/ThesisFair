@@ -1,6 +1,7 @@
+import deleteIcon from 'bootstrap-icons/icons/x-lg.svg'
 import React from 'react'
 import { Button, Card } from 'react-bootstrap'
-import deleteIcon from 'bootstrap-icons/icons/x-lg.svg'
+
 import api from '../../api'
 import CreateUserPopup from '../createUserPopup/createUserPopup'
 

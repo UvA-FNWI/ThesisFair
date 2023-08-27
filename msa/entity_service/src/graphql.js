@@ -61,15 +61,11 @@ const deleteEntity = async enid => {
     rgraphql('api-user', 'mutation deleteLinkedUsers($enid: ID!) { user { deleteOfEntity(enid: $enid) } }', {
       enid: enid,
     }),
-    rgraphql(
-      'api-schedule',
-      'mutation deleteLinkedSchedules($enid: ID!) { schedule { deleteOfEntity(enid: $enid) } }',
-      { enid: enid }
-    ),
     rgraphql('api-vote', 'mutation deleteLinkedVotes($enid: ID!) { vote { deleteOfEntity(enid: $enid) } }', {
       enid: enid,
     }),
   ])
+
   for (const call of calls) {
     if (call.errors) {
       console.error('Deleting linked objects failed', call.errors)

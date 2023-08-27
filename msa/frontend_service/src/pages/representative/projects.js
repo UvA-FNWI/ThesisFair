@@ -81,7 +81,7 @@ class ProjectListing extends React.Component {
         return <Badge variant='danger'>Rejected</Badge>
       case 'awaiting':
         return <Badge variant='warning'>Awaiting approval</Badge>
-      case 'partially-approved':
+      case 'preliminary':
         return <Badge variant='warning'>Awaiting approval</Badge>
       case 'payment':
         return <Badge variant='warning'>Awaiting payment</Badge>

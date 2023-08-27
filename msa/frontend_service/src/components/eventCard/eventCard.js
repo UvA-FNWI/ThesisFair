@@ -28,6 +28,7 @@ class EventCard extends React.Component {
       ...event,
       ...this.props.event,
     }
+
     const image = await api.event.getImage(event.evid, api.getApiTokenData().type === 's' ? 'student' : 'rep').exec()
 
     this.setState({

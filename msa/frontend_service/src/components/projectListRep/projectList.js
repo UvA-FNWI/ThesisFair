@@ -1,15 +1,12 @@
-import React from 'react'
-
 import MDEditor from '@uiw/react-md-editor'
+import chevronDownIcon from 'bootstrap-icons/icons/chevron-down.svg'
+import gripIcon from 'bootstrap-icons/icons/grip-vertical.svg'
+import closeIcon from 'bootstrap-icons/icons/x-lg.svg'
+import cl from 'clsx'
+import React from 'react'
 import rehypeSanitize from 'rehype-sanitize'
 
-import chevronDownIcon from 'bootstrap-icons/icons/chevron-down.svg'
-import closeIcon from 'bootstrap-icons/icons/x-lg.svg'
-import gripIcon from 'bootstrap-icons/icons/grip-vertical.svg'
-
 import Tag from '../tag/tag'
-
-import cl from 'clsx'
 
 import './projectListItem.scss'
 import './projectList.scss'
@@ -40,7 +37,7 @@ function ProjectListItemRep(props) {
   }
 
   return (
-    <li className='list-item'>
+    <li className={cl('list-item', { 'list-item--red-border': props.notInList })}>
       <div className='list-item__header' onClick={toggleExpanded}>
         {props.selected && <img className='list-item__icon list-item__icon--grip' src={gripIcon} alt='grip icon' />}
 
@@ -69,74 +66,77 @@ function ProjectListItemRep(props) {
       </div>
 
       {/* Expanded view */}
+
       <div
         className={cl('list-item__expander', { 'list-item__expander--expanded': isExpanded })}
         data-color-mode='light'
       >
-        <div className={cl('list-item__expander-content', { 'list-item__expander-content--expanded': isExpanded })}>
-          <div className='list-item__expand-content'>
-            <div className='list-item__email-tags'>
-              {props.email && (
-                <a className='list-item__email' href={`mailto:${props.email}`}>
-                  {props.email}
-                </a>
+        {isExpanded && (
+          <div className={cl('list-item__expander-content', { 'list-item__expander-content--expanded': isExpanded })}>
+            <div className='list-item__expand-content'>
+              <div className='list-item__email-tags'>
+                {props.email && (
+                  <a className='list-item__email' href={`mailto:${props.email}`}>
+                    {props.email}
+                  </a>
+                )}
+                <div className='list-item__tags'>
+                  {props.tags?.map(({ tag, tooltip }) => (
+                    <Tag key={tag} label={tag} tooltip={tooltip} />
+                  ))}
+                </div>
+              </div>
+
+              <div className='list-item__divider list-item__divider--less-spacing'>
+                <p className='list-item__section-header'>Description</p>
+              </div>
+
+              <MDEditor.Markdown
+                source={props.description}
+                className='list-item__markdown'
+                previewOptions={{
+                  rehypePlugins: [[rehypeSanitize]],
+                }}
+              />
+
+              <div className='list-item__divider'>
+                <p className='list-item__section-header'>Work Environment</p>
+              </div>
+
+              <MDEditor.Markdown
+                source={props.environment}
+                className='list-item__markdown'
+                previewOptions={{
+                  rehypePlugins: [[rehypeSanitize]],
+                }}
+              />
+
+              {props.expectations && (
+                <>
+                  <div className='list-item__divider'>
+                    <p className='list-item__section-header'>Expectations</p>
+                  </div>
+
+                  <MDEditor.Markdown
+                    source={props.expectations}
+                    className='list-item__markdown'
+                    previewOptions={{
+                      rehypePlugins: [[rehypeSanitize]],
+                    }}
+                  />
+                </>
               )}
-              <div className='list-item__tags'>
-                {props.tags?.map(({ tag, tooltip }) => (
-                  <Tag key={tag} label={tag} tooltip={tooltip} />
+
+              <div className='list-item__buttons'>
+                {props.buttons?.map(({ colour, label, onClick }) => (
+                  <button key={label} className={`list-item__button list-item__button--${colour}`} onClick={onClick}>
+                    {label}
+                  </button>
                 ))}
               </div>
             </div>
-
-            <div className='list-item__divider list-item__divider--less-spacing'>
-              <p className='list-item__section-header'>Description</p>
-            </div>
-
-            <MDEditor.Markdown
-              source={props.description}
-              className='list-item__markdown'
-              previewOptions={{
-                rehypePlugins: [[rehypeSanitize]],
-              }}
-            />
-
-            <div className='list-item__divider'>
-              <p className='list-item__section-header'>Work Environment</p>
-            </div>
-
-            <MDEditor.Markdown
-              source={props.environment}
-              className='list-item__markdown'
-              previewOptions={{
-                rehypePlugins: [[rehypeSanitize]],
-              }}
-            />
-
-            {props.expectations && (
-              <>
-                <div className='list-item__divider'>
-                  <p className='list-item__section-header'>Expectations</p>
-                </div>
-
-                <MDEditor.Markdown
-                  source={props.expectations}
-                  className='list-item__markdown'
-                  previewOptions={{
-                    rehypePlugins: [[rehypeSanitize]],
-                  }}
-                />
-              </>
-            )}
-
-            <div className='list-item__buttons'>
-              {props.buttons?.map(({ label, colour, onClick }) => (
-                <button key={label} className={`list-item__button list-item__button--${colour}`} onClick={onClick}>
-                  {label}
-                </button>
-              ))}
-            </div>
           </div>
-        </div>
+        )}
       </div>
     </li>
   )

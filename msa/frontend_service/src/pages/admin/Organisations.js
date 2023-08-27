@@ -49,10 +49,10 @@ class Entities extends React.Component {
 
   filterFunctions = [this.searchFilterFunction, this.degreeFilterFunction]
 
-  filter = filters => {
+  filter = (filters, allEntities = this.state.entities) => {
     const filteredEntities = this.filterFunctions.reduce(
       (entities, filterFunction) => filterFunction(entities, filters),
-      this.state.entities
+      allEntities
     )
 
     this.setState({ filteredEntities })
@@ -76,6 +76,15 @@ class Entities extends React.Component {
     this.filter(filters)
   }
 
+  sortEntities = (a, b) => {
+    const aName = a.name.toLowerCase().trim()
+    const bName = b.name.toLowerCase().trim()
+
+    if (aName < bName) return -1
+    if (aName > bName) return 1
+    return 0
+  }
+
   async componentDidMount() {
     let entities
     try {
@@ -90,7 +99,7 @@ class Entities extends React.Component {
       return
     }
 
-    entities = entities.map(entity => ({ ...entity, name: entity.name.trim() }))
+    entities = entities.map(entity => ({ ...entity, name: entity.name.trim() })).sort(this.sortEntities)
 
     // Fetch info about all events to pass on to entries on entities, so they
     // don't have to fetch it (state passes down)
@@ -108,17 +117,18 @@ class Entities extends React.Component {
     }
 
     const entityNames = entities.map(entity => ({ enid: entity.enid, name: entity.name }))
-    const entitiesByEnid = Object.fromEntries(entities.map(entity => [entity.enid, entity]))
-    const allEventsByEvid = Object.fromEntries(events.map(event => [event.evid, event]))
+    const entitiesByEnid = Object.fromEntries(entities?.map(entity => [entity.enid, entity]) || [])
+    const allEventsByEvid = Object.fromEntries(events?.map(event => [event.evid, event]) || [])
 
     this.setState({
       entities,
       entitiesByEnid,
       entityNames,
-      filteredEntities: entities,
       allEvents: events,
       allEventsByEvid,
     })
+
+    this.filter(this.state.filters, entities)
   }
 
   changeEntityType = async (enid, event) => {

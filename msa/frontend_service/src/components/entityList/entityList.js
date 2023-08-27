@@ -1,5 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
-
+import React, { useEffect, useRef, useState } from 'react'
 import { ViewportList } from 'react-viewport-list'
 
 import './entityListItem.scss'
