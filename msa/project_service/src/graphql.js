@@ -1,6 +1,7 @@
 import { graphql } from 'graphql'
 import { schemaComposer } from 'graphql-compose'
 import { readFileSync } from 'fs'
+import { AsyncParser } from '@json2csv/node';
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js'
 import { Project } from './database.js'
@@ -8,6 +9,22 @@ import { Project } from './database.js'
 import { entityWriteAccess, projectWriteAccess } from './permissions.js'
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
+
+const orderedFields = [
+  ['pid', 'Unique ID'],
+  ['enid', 'Entity'],
+  ['evids', 'Events'],
+  ['name', 'Name'],
+  ['degrees', 'Degrees'],
+  ['tags', 'Tags'],
+  ['description', 'Description'],
+  ['environment', 'Working environment'],
+  ['expectations', 'Expectations'],
+  ['email', 'Contact E-mail'],
+  ['numberOfStudents', 'Number of students'],
+  ['approval', 'Approval status'],
+  ['attendance', 'Will this project attend a fair?'],
+]
 
 const evidExists = async evid => {
   const res = await rgraphql('api-event', 'query checkEVID($evid: ID!) { event(evid: $evid) { evid } }', { evid })
@@ -39,6 +56,29 @@ const enidExists = async enid => {
 }
 
 schemaComposer.Query.addNestedFields({
+  csv: {
+    type: 'String',
+    description: 'Pull a CSV dump of the project database',
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED read all project information')
+      }
+
+      const projects = await Project.find()
+      const table = []
+
+      for (const project of projects) {
+        const row = Object.fromEntries(orderedFields.map(
+          ([orig, fancy]) => [fancy, project[orig]]
+        ))
+
+        table.push(row)
+      }
+
+      const parser = new AsyncParser()
+      return await parser.parse(table).promise()
+    },
+  },
   tags: {
     type: '[String]',
     args: {},
