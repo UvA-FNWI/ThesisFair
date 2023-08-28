@@ -50,8 +50,13 @@ class ProjectReview extends React.Component {
   }
 
   async comment(message) {
-    const project = await api.project.comment(this.state.project.pid, message).exec()
-    this.setState({ newComment: '', project })
+    try {
+      const project = await api.project.comment(this.state.project.pid, message).exec()
+
+      this.setState({ newComment: '', project })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async reject(event) {
@@ -64,7 +69,11 @@ class ProjectReview extends React.Component {
   async requestChanges(event) {
     event.preventDefault()
 
-    await api.project.setApproval(this.state.project.pid, 'commented').exec()
+    if (api.getApiTokenData().type === 'a') {
+      await api.project.setApproval(this.state.project.pid, 'commented').exec()
+    } else {
+      await api.project.setApproval(this.state.project.pid, 'academicCommented').exec()
+    }
 
     // TODO: Email the users that their project has been commented on
     // console.log(this.state.project.enid.toString(), this.state.project.pid)
@@ -100,28 +109,40 @@ class ProjectReview extends React.Component {
   }
 
   reviewButtons() {
-    return [
+    const rejectReqChanges = [
       {
-        label: () => 'Reject',
+        label: 'Reject',
         onClick: this.reject,
       },
       {
-        label: () => 'Request Changes',
+        label: 'Request Changes',
         onClick: this.requestChanges,
       },
-      api.getApiTokenData().type === 'a' && {
-        label: 'Partially approve',
-        onClick: this.partiallyApprove,
-      },
+    ]
+
+    const approveClose = [
       {
-        label: () => api.getApiTokenData().type === 'a' ? 'Partially approve' : 'Approve',
+        label: 'Approve',
         onClick: this.approve,
       },
       {
-        label: () => 'Close',
+        label: 'Close',
         onClick: this.close,
       },
     ]
+
+    if (api.getApiTokenData().type === 'a') {
+      return [
+        ...rejectReqChanges,
+        {
+          label: 'Partially Approve',
+          onClick: this.partiallyApprove,
+        },
+        ...approveClose,
+      ]
+    }
+
+    return [...rejectReqChanges, ...approveClose]
   }
 
   getDataInputs = () => (
@@ -251,11 +272,11 @@ class ProjectReview extends React.Component {
           {this.reviewButtons().map(({ label, onClick }, index) => (
             <Button
               key={index}
-              variant={label() === 'Close' ? 'secondary' : 'primary'}
+              variant={label === 'Close' ? 'secondary' : 'primary'}
               onClick={onClick}
-              className={`project-review__button-${label().replace(' ', '-').toLowerCase()}`}
+              className={`project-review__button-${label.replace(' ', '-').toLowerCase()}`}
             >
-              {label()}
+              {label}
             </Button>
           ))}
         </div>

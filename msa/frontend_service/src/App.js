@@ -21,7 +21,6 @@ import Organisations from './pages/student/Organisations'
 import StudentAccount from './pages/student/StudentAccount'
 import Votes from './pages/student/Votes'
 import api from './api'
-
 import * as session from './session'
 
 class App extends React.Component {
@@ -36,9 +35,11 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-  const entity = await api.entity.get(session.getEnid()).exec()
+    if (api.getApiTokenData().type !== 'a') {
+      const entity = await api.entity.get(session.getEnid()).exec()
 
-  this.setState({isAcademic: entity.grantsAcademicRights})
+      this.setState({ isAcademic: entity.grantsAcademicRights })
+    }
   }
 
   onTokenChange = tokenData => {
@@ -91,12 +92,13 @@ class App extends React.Component {
       <>
         <Route path='' element={<Navigate to='/account' replace={true} />} />
         <Route path='/account' element={<Page page={<RepAccount />} />} />
-        <Route path='/projects' element={
-          this.state.isAcademic
-            ? <Page page={<AdminProjects />} />
-            : <Page page={<Projects />} />
-        } />
-        <Route path='/project/:pid/review' element={<Page page={<ProjectReview />} />} />
+        <Route
+          path='/projects'
+          element={
+            this.state.isAcademic ? <Page page={<AdminProjects isAcademic={true} />} /> : <Page page={<Projects />} />
+          }
+        />
+        {this.state.isAcademic && <Route path='/project/:pid/review' element={<Page page={<ProjectReview />} />} />}
       </>
     )
   }

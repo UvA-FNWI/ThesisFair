@@ -50,6 +50,7 @@ class ProjectEditor extends React.Component {
         email: false,
         numberOfStudents: false,
       },
+      comments: [],
       attendanceInteractions: [],
       marketplaceInteractions: [],
       allEvents: [],
@@ -151,7 +152,12 @@ class ProjectEditor extends React.Component {
     // TODO: handle errors and show to user
     if (this.props.params.pid) {
       await api.project.update({ ...project, pid: this.props.params.pid }).exec()
-      await api.project.setApproval(this.props.params.pid, 'awaiting').exec()
+
+      if (['academicCommented', 'approved'].includes(this.props.params.approval)) {
+        await api.project.setApproval(this.props.params.pid, 'preliminary').exec()
+      } else {
+        await api.project.setApproval(this.props.params.pid, 'awaiting').exec()
+      }
     } else {
       await api.project.create(project).exec()
     }
@@ -264,6 +270,21 @@ class ProjectEditor extends React.Component {
   getDataInputs = () => (
     <Container className='mt-2 create-project' data-color-mode='light'>
       <h1 className='mb-4'>{this.props.params.pid ? 'Edit' : 'Create'} Project</h1>
+      {this.state.comments && this.state.comments.length > 0 && (
+        <div className='comments mb-4'>
+          <h3>Comments</h3>
+
+          {this.state.comments?.map((comment, index) => (
+            <div key={index} className='comments__comment'>
+              <MDEditor.Markdown
+                className='comments__markdown'
+                source={comment}
+                previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
       <Form>
         <Row className='mb-3'>
           <Form.Group as={Col} controlId='name'>

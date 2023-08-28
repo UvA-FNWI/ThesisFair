@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Container } from 'react-bootstrap'
-// import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { Link, useParams } from 'react-router-dom'
 import { ViewportList } from 'react-viewport-list'
 
@@ -13,7 +12,9 @@ import { findFairs, getFairLabel } from '../../utilities/fairs'
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 
-const ProjectListing = () => {
+const academicApprovalStates = ['preliminary', 'academicCommented', 'payment', 'approved']
+
+const ProjectListing = props => {
   const [loading, setLoading] = useState(true)
   const [loadingData, setLoadingData] = useState(true)
   const [projects, setProjects] = useState([])
@@ -24,6 +25,8 @@ const ProjectListing = () => {
     degrees: Object.values(degrees).map(degree => degree.id),
   })
   const [items, setItems] = useState([])
+
+  const isAcademic = props.isAcademic || false
 
   const listRef = useRef(null)
 
@@ -47,14 +50,21 @@ const ProjectListing = () => {
       case 'rejected':
         return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
       case 'commented':
+      case 'academicCommented':
         return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
       case 'awaiting':
         return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
       case 'preliminary':
-        if (api.getApiTokenData().type === 'a')
-          return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting Academic Approval' />
-        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
+        if (isAcademic) {
+          return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
+        }
+
+        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting Academic Approval' />
       case 'payment':
+        if (isAcademic) {
+          return <Tag className='mr-2 tag--approval-awaiting' label='Approved' />
+        }
+
         return <Tag className='mr-2 tag--approval-payment' label='Awaiting payment' />
       case 'approved':
         return <Tag className='mr-2 tag--approval-approved' label='Approved' />
@@ -116,10 +126,8 @@ const ProjectListing = () => {
   const renderItem = ({ type, ...properties }) => {
     switch (type) {
       case 'header':
-        console.log('Rendering header')
         return renderHeader(properties)
       case 'project':
-        console.log('Rendering project')
         return renderProject(properties)
       default:
         return
@@ -139,7 +147,13 @@ const ProjectListing = () => {
 
       for (const evid of currentEventEvids) projects = projects.concat(await api.project.getOfEvent(evid).exec())
 
-      projects = Object.fromEntries(projects.map(project => [project.pid, project]))
+      const isAdmin = api.getApiTokenData().type === 'a'
+
+      projects = Object.fromEntries(
+        projects
+          .filter(project => isAdmin || academicApprovalStates.includes(project.approval))
+          .map(project => [project.pid, project])
+      )
       setProjects(projects)
 
       const projectsByEnid = new Map()
@@ -200,8 +214,17 @@ const ProjectListing = () => {
   }, [entityNameById, filters.degrees, loading, loadingData, projects, projectsByEnid])
 
   const filterDegrees = item => {
-    console.log('Filtering degrees')
     return filters.degrees.some(id => item.degrees.includes(id))
+  }
+
+  const filterItems = items => {
+    const filteredItems = items.filter(filterDegrees)
+
+    if (filteredItems.length === 0) {
+      return [{ type: 'header', title: 'No projects found' }]
+    }
+
+    return filteredItems
   }
 
   return (
@@ -234,18 +257,12 @@ const ProjectListing = () => {
           <h4>Loading...</h4>
         ) : (
           <div className='project-lists' ref={listRef}>
-            <ViewportList
-              viewportRef={listRef}
-              items={items.filter(filterDegrees) || [{ type: 'header' }]}
-              itemMinSize={48}
-              initialPrerender={32}
-            >
+            <ViewportList viewportRef={listRef} items={filterItems(items)} itemMinSize={48} initialPrerender={32}>
               {item => renderItem(item)}
             </ViewportList>
           </div>
         )}
       </Container>
-      {console.log('Finished rendering')}
 
       {/* {state.popup ? renderStudentModal() : null} */}
     </>
