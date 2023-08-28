@@ -17,6 +17,7 @@ const entitySchema = new mongoose.Schema({
   external_id: { type: Number, unique: true, sparse: true },
   representatives: { type: Number },
   location: { type: String },
+  grantsAcademicRights: { type: Boolean, default: () => false },
 })
 entitySchema.virtual('enid').get(function () {
   return this._id

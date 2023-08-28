@@ -36,6 +36,7 @@ class ProjectReview extends React.Component {
     this.reject = this.reject.bind(this)
     this.requestChanges = this.requestChanges.bind(this)
     this.approve = this.approve.bind(this)
+    this.partiallyApprove = this.partiallyApprove.bind(this)
     this.close = this.close.bind(this)
   }
 
@@ -49,37 +50,66 @@ class ProjectReview extends React.Component {
   }
 
   async comment(message) {
-    const project = await api.project.comment(this.state.project.pid, message).exec()
-    this.setState({ newComment: '', project })
+    try {
+      const project = await api.project.comment(this.state.project.pid, message).exec()
+
+      this.setState({ newComment: '', project })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  async reject() {
+  async reject(event) {
+    event.preventDefault()
+
     await api.project.setApproval(this.state.project.pid, 'rejected').exec()
     this.props.onClose()
   }
 
-  async requestChanges() {
-    await api.project.setApproval(this.state.project.pid, 'commented').exec()
-    this.props.onClose()
-  }
+  async requestChanges(event) {
+    event.preventDefault()
 
-  async approve() {
-    // TODO: if admin, 'preliminary', if rep 'approved'
     if (api.getApiTokenData().type === 'a') {
-      await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
-    } else if (['r', 'ra'].includes(api.getApiTokenData().type)) {
-      await api.project.setApproval(this.state.project.pid, 'approved').exec()
+      await api.project.setApproval(this.state.project.pid, 'commented').exec()
+    } else {
+      await api.project.setApproval(this.state.project.pid, 'academicCommented').exec()
     }
 
+    // TODO: Email the users that their project has been commented on
+    // console.log(this.state.project.enid.toString(), this.state.project.pid)
+
+    // try {
+    //   await api.entity.requestChanges(this.state.project.enid.toString(), this.state.project.pid).exec()
+    // } catch (error) {
+    //   console.log(error)
+    // }
+
     this.props.onClose()
   }
 
-  close() {
+  async approve(event) {
+    event.preventDefault()
+
+    await api.project.setApproval(this.state.project.pid, 'approved').exec()
+
+    this.props.onClose()
+  }
+
+  async partiallyApprove(event) {
+    event.preventDefault()
+
+    await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
+
+    this.props.onClose()
+  }
+
+  close(event) {
+    if (event) event.preventDefault()
     this.props.onClose()
   }
 
   reviewButtons() {
-    return [
+    const rejectReqChanges = [
       {
         label: 'Reject',
         onClick: this.reject,
@@ -88,8 +118,11 @@ class ProjectReview extends React.Component {
         label: 'Request Changes',
         onClick: this.requestChanges,
       },
+    ]
+
+    const approveClose = [
       {
-        label: api.getApiTokenData().type === 'a' ? 'Partially approve' : 'Approve',
+        label: 'Approve',
         onClick: this.approve,
       },
       {
@@ -97,6 +130,19 @@ class ProjectReview extends React.Component {
         onClick: this.close,
       },
     ]
+
+    if (api.getApiTokenData().type === 'a') {
+      return [
+        ...rejectReqChanges,
+        {
+          label: 'Partially Approve',
+          onClick: this.partiallyApprove,
+        },
+        ...approveClose,
+      ]
+    }
+
+    return [...rejectReqChanges, ...approveClose]
   }
 
   getDataInputs = () => (

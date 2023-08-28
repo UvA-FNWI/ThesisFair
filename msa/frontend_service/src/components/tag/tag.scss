@@ -119,11 +119,20 @@
       // payment incomplete
       background-color: rgb(150, 10, 10);
     }
+
+    &-card {
+      // payment card
+      background-color: rgb(82, 82, 82);
+    }
   }
 
   &--approval {
     &-approved {
       background-color: rgb(13, 139, 63);
+    }
+
+    &-changes {
+      background-color: rgb(171, 80, 5);
     }
 
     &-awaiting {

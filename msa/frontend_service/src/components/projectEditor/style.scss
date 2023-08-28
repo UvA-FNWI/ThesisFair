@@ -214,3 +214,27 @@
     }
   }
 }
+
+.comments {
+  &__comment {
+    margin-left: 0.5rem;
+  }
+
+  &__markdown {
+    margin: 0.5rem 0.5rem 1rem 0.5rem;
+    position: relative;
+
+    &::before {
+      display: flex;
+      position: absolute;
+      width: 1px;
+      margin: 0;
+      content: '';
+      left: -0.5rem;
+      top: -0.25rem;
+      bottom: -0.25rem;
+      background-color: #3a3a3a;
+      border-radius: 0.125rem;
+    }
+  }
+}

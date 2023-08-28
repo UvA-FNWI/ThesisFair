@@ -190,14 +190,27 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Leave a new comment under a project',
     resolve: async (obj, args, req) => {
-      // TODO: also allow repadmins
-      if (req.user.type !== 'a') {
+      const entities = await rgraphql(
+        'api-entity',
+        'query($enids: [ID!]!) { entities(enids: $enids) { grantsAcademicRights } }',
+        {
+          enids: req.user.enids,
+        }
+      )
+
+      const canApprove = req.user.type === 'a' || entities.data.entities.some(entity => entity.grantsAcademicRights)
+
+      if (!canApprove) {
         throw new Error('UNAUTHORIZED leave comments on projects')
       }
 
-      return await Project.findByIdAndUpdate(args.pid, {
-        $push: { comments: args.comment }
-      }, { new: true })
+      return await Project.findByIdAndUpdate(
+        args.pid,
+        {
+          $push: { comments: args.comment },
+        },
+        { new: true }
+      )
     },
   },
   'project.approval': {
@@ -208,14 +221,38 @@ schemaComposer.Mutation.addNestedFields({
     },
     description: 'Set the approval status for the given project',
     resolve: async (obj, args, req) => {
-      // TODO: also allow repadmins
-      if (req.user.type !== 'a') {
-        throw new Error('UNAUTHORIZED approve projects')
+      const updateApproval = async () => {
+        const pid = args.pid
+        delete args.pid
+        await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
       }
 
-      const pid = args.pid
-      delete args.pid
-      await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
+      if (req.user.type === 'a') return await updateApproval()
+
+      // Always allowed, even for non-academic users
+      if (args.approval === 'awaiting') return await updateApproval()
+
+      const project = await Project.findById(args.pid)
+
+      // Anybody can go from academicCommented to preliminary
+      if (args.approval === 'preliminary' && project.approval === 'academicCommented') {
+        return await updateApproval()
+      }
+
+      const entities = await rgraphql(
+        'api-entity',
+        'query($enids: [ID!]!) { entities(enids: $enids) { grantsAcademicRights } }',
+        {
+          enids: req.user.enids,
+        }
+      )
+
+      const canApprove = entities.data.entities.some(entity => entity.grantsAcademicRights)
+
+      // Academic users are also allowed to change the approval status
+      if (canApprove) return await updateApproval()
+
+      throw new Error('UNAUTHORIZED leave comments on projects')
     },
   },
   'project.delete': {

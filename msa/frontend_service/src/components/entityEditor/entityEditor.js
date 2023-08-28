@@ -1,11 +1,16 @@
 import AddIcon from 'bootstrap-icons/icons/plus.svg'
+import deleteIcon from 'bootstrap-icons/icons/x-lg.svg'
 import React from 'react'
-import { Button, CloseButton, Col, Container, Form, Row } from 'react-bootstrap'
+import { Button, Col, Container, Form, Row } from 'react-bootstrap'
 
 import api from '../../api'
 import graphqlFields from '../../api/graphqlFields.js'
 import AddContactPopup from '../../components/addContactPopup/addContactPopup'
 import RepresentativeList from '../../components/representativeList/representativeList'
+import { getParticipatingFairs } from '../../utilities/entities'
+import PaymentCard from '../paymentCard/paymentCard'
+
+import './style.scss'
 
 class EntityEditor extends React.Component {
   constructor(props) {
@@ -36,12 +41,33 @@ class EntityEditor extends React.Component {
     this.setState({
       ...entity,
       paymentsByDate: Object.fromEntries(
-        entity.payments.map(payment => [new Date(payment.eventDate).setHours(0, 0, 0, 0), payment])
+        entity.payments?.map(payment => [new Date(payment.eventDate).setHours(0, 0, 0, 0), payment])
       ),
       ...this.props.entity,
     })
 
-    const fairs = await Promise.all(entity.evids.map(evid => api.event.get(evid).exec()))
+    let events
+    try {
+      events = await api.event.getAll().exec()
+    } catch (error) {
+      console.log(error)
+    }
+
+    const allEventsByEvid = Object.fromEntries(events?.map(event => [event.evid, event]) || [])
+
+    let fairs = await getParticipatingFairs(api.project.getOfEntity, allEventsByEvid, entity)
+
+    fairs = fairs?.map(fair => {
+      const payments = entity.payments?.filter(
+        payment => new Date(payment.eventDate).setHours(0, 0, 0, 0) === fair.date.getTime()
+      )
+
+      return {
+        ...fair,
+        payment: payments[0],
+      }
+    })
+
     this.setState({ fairs })
   }
 
@@ -223,7 +249,7 @@ class EntityEditor extends React.Component {
                       required
                     />
                   </Form.Group>
-                  <Form.Group>
+                  <Form.Group className='mt-2'>
                     <Form.Label>Description</Form.Label>
                     <Form.Control
                       as='textarea'
@@ -332,8 +358,11 @@ class EntityEditor extends React.Component {
                               this.setState({ contact: newContact })
                             }}
                           />
-                          <CloseButton
-                            style={{ position: 'absolute', top: '7px', right: '18px' }}
+
+                          <img
+                            src={deleteIcon}
+                            alt='Delete user'
+                            style={{ position: 'absolute', top: '7px', right: '18px', cursor: 'pointer' }}
                             onClick={() => {
                               const newContact = [...this.state.contact]
                               newContact.splice(i, 1)
@@ -366,47 +395,73 @@ class EntityEditor extends React.Component {
                 </Form>
               </div>
 
-              <div>
+              <div className='mb-4'>
                 <h2>Company Accounts</h2>
                 <RepresentativeList enid={this.state.enid} />
               </div>
 
-              {
-                //              <div>
-                //                <h2>Payment</h2>
-                //                {/* TODO: if two fairs have the same date, put them under a single header with a single pay button */}
-                //                {this.state.fairs.map(fair => <>
-                //                  <h3>{fair.name}</h3>
-                //                  <p>Status: {this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))]
-                //                    ? this.getStatusLabel(this.state.paymentsByDate[String(new Date(fair.start).setHours(0, 0, 0, 0))].status)
-                //                    : "incomplete"
-                //                  }</p>
-                //                  {/* TODO: set a 'loading' state on click that makes the button unclickable, gives it a spinner */}
-                //                  {/* TODO: make the button reflect the payment status */}
-                //                  {/* TODO: make buttons unclickable when invoice has been requested */}
-                //                  <Button onClick={() =>
-                //                    api.entity.getPaymentLink(this.state.enid, fair.evid).exec()
-                //                      .then(url => window.open(url, '_blank').focus())
-                //                  }>
-                //                    Pay
-                //                  </Button>
-                //                  <Button onClick={() =>
-                //                    api.entity.requestInvoice(this.state.enid, fair.evid).exec()
-                //                      .then(() => window.location.reload())
-                //                  }>
-                //                    Request invoice
-                //                  </Button>
-                //                  {this.state.isAdmin &&
-                //                    <Button onClick={() =>
-                //                      api.entity.acceptPayment(this.state.enid, fair.evid).exec()
-                //                        .then(() => window.location.reload())
-                //                    }>
-                //                      Accept organisation's payment
-                //                    </Button>
-                //                  }
-                //                </>)}
-                //              </div>
-              }
+              <div className='mb-4'>
+                <h2>Payments</h2>
+
+                <p className='mb-4'>
+                  Clicking on Pay on any card leads you to Datanose. Here, you will see the up to date status of the
+                  payment. Our system is usually updated within a minute, but payments may take up to two days to
+                  process.
+                </p>
+
+                {this.state.fairs.map(({ date, events, name, payment }) => (
+                  <PaymentCard
+                    key={events[0].evid}
+                    title={name}
+                    subtitle={new Date(date).toLocaleDateString('en-GB', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                    status={this.getStatusLabel(payment?.status)}
+                    onPay={() => this.getPaymentLink(events[0].evid).then(url => window.open(url, '_blank').focus())}
+                    onRequestInvoice={() => api.entity.requestInvoice(this.state.enid, events[0].evid).exec()}
+                    onMarkAsPaid={() => {
+                      try {
+                        api.entity.acceptPayment(this.state.enid, events[0].evid).exec()
+                      } catch (error) {
+                        console.log(error)
+                      }
+                    }}
+                    isAdmin={this.state.isAdmin}
+                  />
+                ))}
+                {this.state.fairs.length === 0 && <p>No payments found.</p>}
+              </div>
+
+              {api.getApiTokenData().type === 'a' && (
+                <div className='mb-4'>
+                  <h2>Delete this organisation</h2>
+
+                  <p className='mb-4'>
+                    This action is irreversible. All data associated with this organisation will be deleted. This
+                    includes all projects, representatives, and payments.
+                  </p>
+
+                  <Button
+                    variant='danger'
+                    className='button--danger-delete'
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete this organisation?')) {
+                        try {
+                          api.entity.delete(this.state.enid).exec()
+                        } catch (error) {
+                          console.log(error)
+                        }
+                        // window.location.reload()
+                      }
+                    }}
+                  >
+                    Delete organisation
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </Container>

@@ -1,0 +1,70 @@
+.payment-card {
+  width: 16rem;
+  height: fit-content;
+
+  border-radius: 1rem !important;
+  overflow: hidden;
+
+  &__subtitle {
+    margin-bottom: 1rem !important;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    margin-bottom: 0 !important;
+    overflow: hidden;
+  }
+
+  &__tags {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: left;
+    margin-right: 0.5rem;
+    row-gap: 0.25rem;
+  }
+
+  &__buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: flex-start;
+    margin-top: 1rem;
+  }
+
+  &__admin-button {
+    margin-top: 1rem;
+    background-color: rgb(7, 146, 79) !important;
+    border-color: rgb(7, 146, 79) !important;
+
+    &:hover {
+      background-color: rgb(6, 132, 71) !important;
+      border-color: rgb(6, 132, 71) !important;
+    }
+
+    &:active {
+      background-color: rgb(1, 117, 61) !important;
+      border-color: rgb(1, 117, 61) !important;
+    }
+
+    &--paid {
+      background-color: rgb(200, 200, 200) !important;
+      border-color: rgb(200, 200, 200) !important;
+      color: white !important;
+      cursor: not-allowed !important;
+
+      &:hover {
+        background-color: rgb(200, 200, 200) !important;
+        border-color: rgb(200, 200, 200) !important;
+      }
+
+      &:active {
+        background-color: rgb(200, 200, 200) !important;
+        border-color: rgb(200, 200, 200) !important;
+      }
+    }
+  }
+}

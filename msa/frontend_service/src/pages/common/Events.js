@@ -1,9 +1,9 @@
 import React from 'react'
+import { Button, Col, Row } from 'react-bootstrap'
+import { Link, useParams } from 'react-router-dom'
 
-import EventCard from '../../components/eventCard/eventCard'
-import { useParams, Link } from 'react-router-dom'
-import { Row, Col, Button } from 'react-bootstrap'
 import api from '../../api'
+import EventCard from '../../components/eventCard/eventCard'
 
 import '../../styles/events.scss'
 

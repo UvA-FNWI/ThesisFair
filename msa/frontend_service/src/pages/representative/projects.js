@@ -1,5 +1,5 @@
 import React from 'react'
-import { Badge, Button, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Button, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
 // import downloadIcon from 'bootstrap-icons/icons/download.svg'
 import { useParams } from 'react-router-dom'
 
@@ -7,8 +7,10 @@ import api, { downloadCV } from '../../api'
 import ProjectEditor from '../../components/projectEditor/projectEditor'
 import ProjectList from '../../components/projectListRep/projectList'
 import StudentPopup from '../../components/studentPopup/studentPopup'
+import Tag from '../../components/tag/tag'
 import * as session from '../../session'
 import { degreeById } from '../../utilities/degreeDefinitions'
+import { findFairs } from '../../utilities/fairs'
 
 import './projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
@@ -58,12 +60,13 @@ class ProjectListing extends React.Component {
       projects: {}, // Map from PID to project
       votes: {}, // Map from PID to users that voted for it
       events: {}, // Map from EVID to event info
+      allEventsByEvid: {}, // Map from EVID to event info
       eventProjects: {}, // Map (actual map object) from list of EVIDs to list of PIDs
       popup: false,
     }
   }
 
-  approvalBadge(project) {
+  approvalStatus = project => {
     if (!project) {
       return
     }
@@ -72,21 +75,25 @@ class ProjectListing extends React.Component {
       return
     }
 
-    if (!this.state?.events?.[project.evid]?.enabled) {
+    const projectEvents = project.evids.map(evid => this.state.allEventsByEvid?.[evid]).filter(event => event)
+    const fairs = findFairs(projectEvents)
+
+    if (fairs.length === 0) {
       return
     }
 
     switch (project.approval) {
       case 'rejected':
-        return <Badge variant='danger'>Rejected</Badge>
+        return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
+      case 'commented':
+        return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
       case 'awaiting':
-        return <Badge variant='warning'>Awaiting approval</Badge>
-      case 'partially-approved':
-        return <Badge variant='warning'>Awaiting approval</Badge>
+      case 'preliminary':
+        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
       case 'payment':
-        return <Badge variant='warning'>Awaiting payment</Badge>
+        return <Tag className='mr-2 tag--approval-payment' label='Awaiting payment' />
       case 'approved':
-        return <Badge variant='success'>Approved</Badge>
+        return <Tag className='mr-2 tag--approval-approved' label='Approved' />
       default:
         return
     }
@@ -121,6 +128,11 @@ class ProjectListing extends React.Component {
         eventProjects.get(JSON.stringify(project.evids)).push(project.pid)
       }
     }
+
+    const currentEvents = await api.event.getActive().exec()
+    const allEventsByEvid = Object.fromEntries(currentEvents.map(event => [event.evid, event]))
+
+    this.setState({ allEventsByEvid })
 
     // Find info for every event
     const events = {}
@@ -180,7 +192,7 @@ class ProjectListing extends React.Component {
                 name={project.name}
                 email={project.email}
                 numberOfStudents={project.numberOfStudents}
-                headerBadge={this.approvalBadge(project)}
+                headerBadge={this.approvalStatus(project)}
                 headerButtons={projectButtons(
                   project,
                   this.props.params.duplicateProject,

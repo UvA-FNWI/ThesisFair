@@ -1,9 +1,9 @@
 import React from 'react'
+import { useParams } from 'react-router-dom'
 
 import api from '../../api'
-import * as session from '../../session'
 import EntityEditor from '../../components/entityEditor/entityEditor'
-import { useParams } from 'react-router-dom'
+import * as session from '../../session'
 
 class OrganisationDashboard extends React.Component {
   constructor(props) {

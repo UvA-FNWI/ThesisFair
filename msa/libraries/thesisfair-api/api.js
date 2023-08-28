@@ -700,6 +700,15 @@ export default url => {
               evid: { value: evid, type: 'ID!' },
             },
           }),
+        requestChanges: (enid, pid) =>
+          genGraphQLBuilder({
+            name: 'requestChanges',
+            functionPath: 'entity.requestChanges',
+            args: {
+              enid: { value: enid, type: 'ID!' },
+              pid: { value: pid, type: 'ID!' },
+            },
+          }),
         requestInvoice: (enid, evid) =>
           genGraphQLBuilder({
             type: 'mutation',
@@ -958,8 +967,8 @@ export default url => {
               attendance: { value: project.attendance, type: 'Attendance' },
               environment: { value: project.environment, type: 'String' },
               expectations: { value: project.expectations, type: 'String' },
-              // email: { value: project.email, type: 'String' },
-              // numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
+              email: { value: project.email, type: 'String' },
+              numberOfStudents: { value: project.numberOfStudents, type: 'Int' },
               datanoseLink: { value: project.datanoseLink, type: 'String' },
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', update: true } : false,

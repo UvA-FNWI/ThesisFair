@@ -35,13 +35,16 @@ msa:
       - name: thesisfair-mail-password
         key: MAILPASS
   entity_service:
+    secrets:
+      - name: thesisfair-mail-password
+        key: MAILPASS
   event_service:
   project_service:
   vote_service:
   payment_service:
-    # secrets:
-    #   - name: thesisfair-payments-token
-    #     key: PAYMENT_API_TOKEN
+    secrets:
+      - name: thesisfair-payments-token
+        key: PAYMENT_API_TOKEN
   frontend_service:
     env:
       PORT: 3000

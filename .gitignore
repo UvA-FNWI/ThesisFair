@@ -14,4 +14,6 @@ dev-values.yaml
 values.yml
 values-dev.yml
 dev-values.yml
+dump/
 dumps/
+scripts/import-datanose/old-data/**
