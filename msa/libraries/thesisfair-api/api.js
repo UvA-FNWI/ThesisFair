@@ -878,6 +878,13 @@ export default url => {
         },
       },
       project: {
+        getCSV: () =>
+          genGraphQLBuilder({
+            name: 'getCSVprojects',
+            functionPath: 'csv',
+            args: {},
+            cache: caching ? { instance: cache, type: 'projectCSV', key: '' } : false,
+          }),
         tags: projection =>
           genGraphQLBuilder({
             name: 'getAllTags',
