@@ -13,6 +13,26 @@ async function download(content, filename) {
   a.remove()
 }
 
+async function downloadNoFetchAPI(content, filename) {
+  const a = document.createElement('a')
+  const blob = new Blob([content], {type: 'text/csv'})
+  const url = URL.createObjectURL(blob)
+  a.setAttribute('href', url)
+  a.setAttribute('download', filename)
+  a.click()
+  a.remove()
+}
+
+export const downloadProjectCSV = async () => {
+  const csv = await api.api.project.getCSV().exec()
+  if (!csv) {
+    alert('Whoops, the CSV could not be downloaded. Please contact a developer about this')
+    return
+  }
+
+  downloadNoFetchAPI(csv, 'projects.csv')
+}
+
 export const downloadCV = async (uid, name = 'cv') => {
   const cv = await api.api.user.student.getCV(uid).exec()
   if (!cv) {
