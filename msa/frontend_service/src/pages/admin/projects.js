@@ -3,7 +3,7 @@ import { Button, Container } from 'react-bootstrap'
 import { Link, useParams } from 'react-router-dom'
 import { ViewportList } from 'react-viewport-list'
 
-import api from '../../api'
+import api, { downloadProjectCSV } from '../../api'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
 import { degreeById, degrees } from '../../utilities/degreeDefinitions'
@@ -275,6 +275,9 @@ class Projects extends React.Component {
       <Container className='mt-4'>
         <div className='mb-4'>
           <h1>Projects for upcoming events</h1>
+          <Button onClick={() => downloadProjectCSV()}>
+            CSV download
+          </Button>
         </div>
       </Container>
       <ProjectListing params={{ ...this.props.params }} />
