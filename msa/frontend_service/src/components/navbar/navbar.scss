@@ -72,6 +72,19 @@ $navbarWidth: 84px;
   }
 }
 
+.sidebar {
+  z-index: 100;
+  padding: 0 0.5rem;
+}
+
+.page-content {
+  padding-bottom: 75px;
+}
+
+.logout {
+  margin-left: auto !important;
+}
+
 @include media-breakpoint-up(md) {
   .sidebar {
     position: fixed;
