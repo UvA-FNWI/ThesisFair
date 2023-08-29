@@ -227,7 +227,7 @@ class ProjectReview extends React.Component {
         )}
       </div>
 
-      <div className='project-review__content'>
+      <div className='project-review__content mt-4'>
         <h2 className='project-review__text--header'>Comments</h2>
         <div className='project-review__comments-list'>
           {this.state.project.comments?.map((comment, index) => (
@@ -239,10 +239,11 @@ class ProjectReview extends React.Component {
               />
             </div>
           ))}
+          {this.state.project.comments?.length === 0 && <p className='project-review__text--value'>No comments yet</p>}
         </div>
       </div>
 
-      <div className='project-review__content project-review__content--padded'>
+      <div className='project-review__content mt-4'>
         <h2 className='project-review__text-header'>Add a comment</h2>
 
         <MDEditor
@@ -250,20 +251,23 @@ class ProjectReview extends React.Component {
           onChange={value => this.setState({ newComment: value })}
           className='project-review__markdown-editor'
         />
-        <Button
-          variant='primary'
-          className='project-review__button-comment'
-          onClick={async () => await this.comment(this.state.newComment)}
-        >
-          Comment
-        </Button>
-        <Button
-          variant='secondary'
-          className='project-review__button-comment'
-          onClick={() => this.setState({ newComment: '' })}
-        >
-          Clear
-        </Button>
+
+        <div className='project-review__buttons'>
+          <Button
+            variant='primary'
+            className='project-review__button-comment'
+            onClick={async () => await this.comment(this.state.newComment)}
+          >
+            Comment
+          </Button>
+          <Button
+            variant='secondary'
+            className='project-review__button-comment'
+            onClick={() => this.setState({ newComment: '' })}
+          >
+            Clear
+          </Button>
+        </div>
 
         <div className='project-review__divider' />
 
