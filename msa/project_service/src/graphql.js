@@ -14,7 +14,8 @@ const orderedFields = [
   ['pid', 'Unique ID'],
   ['enid', 'Entity'],
   ['entityName', 'Organisation name'],
-  ['evids', 'Events'],
+  ['evids', 'Event IDs'],
+  ['eventNames', 'Event names'],
   ['name', 'Name'],
   ['degrees', 'Degrees'],
   ['tags', 'Tags'],
@@ -68,10 +69,15 @@ schemaComposer.Query.addNestedFields({
       const entities = await rgraphql(
         'api-entity',
         'query { entitiesAll { enid, name } }',
-        {
-          enids: req.user.enids,
-        }
       )
+
+      const events = await rgraphql(
+        'api-event',
+        'query { events { evid, name } }',
+      )
+
+      console.log("SNOSDF")
+      console.log(events.data.events)
 
       const projects = await Project.find()
       const table = []
@@ -80,6 +86,16 @@ schemaComposer.Query.addNestedFields({
         if (entities?.data?.entitiesAll) {
           project.entityName = entities.data.entitiesAll.find(e => e.enid == project.enid)?.name
         }
+
+        if (events?.data?.events && project.evids) {
+          project.eventNames = project.evids.map(
+            evid => events.data.events.find(e => e.evid == evid)?.name
+          )
+        }
+
+        console.log(events.data.events)
+        console.log(project.evids)
+        console.log(project.eventNames)
 
         const row = Object.fromEntries(orderedFields.map(
           ([orig, fancy]) => [fancy, project[orig]]
