@@ -45,6 +45,7 @@ class LoginAs extends React.Component {
       if ('enid' in user) newToken.enid = user.enid
       if ('enid' in user) newToken.enids = [user.enid]
       if ('enids' in user) newToken.enids = user.enids
+      newToken.repAdmin = user.repAdmin
     }
 
     api.overrideApiTokenData(newToken)
