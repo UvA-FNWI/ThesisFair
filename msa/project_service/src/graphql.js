@@ -11,10 +11,10 @@ import { entityWriteAccess, projectWriteAccess } from './permissions.js'
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
 
 const orderedFields = [
-  ['pid', 'Unique ID'],
-  ['enid', 'Entity'],
+  // ['pid', 'Unique ID'],
+  // ['enid', 'Entity'],
   ['entityName', 'Organisation name'],
-  ['evids', 'Event IDs'],
+  // ['evids', 'Event IDs'],
   ['eventNames', 'Event names'],
   ['name', 'Name'],
   ['degrees', 'Degrees'],
