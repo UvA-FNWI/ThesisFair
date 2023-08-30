@@ -15,7 +15,7 @@ spec:
       secretName: ingress-tls-csi-thesisfair
   {{ end }}
   rules:
-    - host: thesisfair.ivi.uva.nl
+    - {{ if not .Values.dev_mode }}host: thesisfair.ivi.uva.nl{{ end }}
       http:
         paths:
           - path: /api/(.*)
