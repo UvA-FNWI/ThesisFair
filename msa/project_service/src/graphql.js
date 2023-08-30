@@ -11,9 +11,11 @@ import { entityWriteAccess, projectWriteAccess } from './permissions.js'
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
 
 const orderedFields = [
-  ['pid', 'Unique ID'],
-  ['enid', 'Entity'],
-  ['evids', 'Events'],
+  // ['pid', 'Unique ID'],
+  // ['enid', 'Entity'],
+  ['entityName', 'Organisation name'],
+  // ['evids', 'Event IDs'],
+  ['eventNames', 'Event names'],
   ['name', 'Name'],
   ['degrees', 'Degrees'],
   ['tags', 'Tags'],
@@ -64,10 +66,37 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED read all project information')
       }
 
+      const entities = await rgraphql(
+        'api-entity',
+        'query { entitiesAll { enid, name } }',
+      )
+
+      const events = await rgraphql(
+        'api-event',
+        'query { events { evid, name } }',
+      )
+
+      console.log("SNOSDF")
+      console.log(events.data.events)
+
       const projects = await Project.find()
       const table = []
 
       for (const project of projects) {
+        if (entities?.data?.entitiesAll) {
+          project.entityName = entities.data.entitiesAll.find(e => e.enid == project.enid)?.name
+        }
+
+        if (events?.data?.events && project.evids) {
+          project.eventNames = project.evids.map(
+            evid => events.data.events.find(e => e.evid == evid)?.name
+          )
+        }
+
+        console.log(events.data.events)
+        console.log(project.evids)
+        console.log(project.eventNames)
+
         const row = Object.fromEntries(orderedFields.map(
           ([orig, fancy]) => [fancy, project[orig]]
         ))
