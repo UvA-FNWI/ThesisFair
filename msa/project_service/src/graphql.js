@@ -13,6 +13,7 @@ schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8')
 const orderedFields = [
   ['pid', 'Unique ID'],
   ['enid', 'Entity'],
+  ['entityName', 'Organisation name'],
   ['evids', 'Events'],
   ['name', 'Name'],
   ['degrees', 'Degrees'],
@@ -64,10 +65,22 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED read all project information')
       }
 
+      const entities = await rgraphql(
+        'api-entity',
+        'query { entitiesAll { enid, name } }',
+        {
+          enids: req.user.enids,
+        }
+      )
+
       const projects = await Project.find()
       const table = []
 
       for (const project of projects) {
+        if (entities?.data?.entitiesAll) {
+          project.entityName = entities.data.entitiesAll.find(e => e.enid == project.enid)?.name
+        }
+
         const row = Object.fromEntries(orderedFields.map(
           ([orig, fancy]) => [fancy, project[orig]]
         ))
