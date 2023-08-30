@@ -280,8 +280,13 @@ schemaComposer.Query.addNestedFields({
       }
 
       for (const entity of entities) {
-        entity.evids = eventsByEnid[entity.enid].map(event => event.evid)
-        entity.payments = paymentsByEnid[entity.enid]
+        if (eventsByEnid) {
+          entity.evids = eventsByEnid[entity.enid]?.map(event => event.evid)
+        }
+
+        if (paymentsByEnid) {
+          entity.payments = paymentsByEnid[entity.enid]
+        }
       }
 
       return entities
