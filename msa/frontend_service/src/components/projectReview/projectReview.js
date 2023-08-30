@@ -148,123 +148,126 @@ class ProjectReview extends React.Component {
   getDataInputs = () => (
     <Container className='project-review__container' data-color-mode='light'>
       <h1 className='mb-4'>Review Project</h1>
-      <div className='project-review__data-and-comments'>
-        <div className='project-review__data'>
-          <div className='project-review__fields'>
-            <div className='project-review__field'>
-              <p className='project-review__text--micro'>Status of Review</p>
-              <Tag
-                className={`project-review__status project-review__status--${(this.state.project.approval || 'pending')
-                  .replace(' ', '-')
-                  .toLowerCase()}`}
-                label={this.state.project.approval || 'Not reviewed'}
-              />
-            </div>
-
-            <div className='project-review__field'>
-              <p className='project-review__text--micro'>Project Name</p>
-              <p className='project-review__text--value'>{this.state.project.name}</p>
-            </div>
-
-            <div className='project-review__field'>
-              <p className='project-review__text--micro'>Contact Email</p>
-              <a href={`mailto:${this.state.project.email}`}>
-                <p className='project-review__text--value'>{this.state.project.email}</p>
-              </a>
-            </div>
-
-            {this.state.project.numberOfStudents && (
-              <div className='project-review__field'>
-                <p className='project-review__text--micro'>Amount of Students</p>
-                <p className='project-review__text--value'>{this.state.project.numberOfStudents}</p>
-              </div>
-            )}
-
-            <div className='project-review__field'>
-              <p className='project-review__text--micro'>Degrees</p>
-              <div className='project-review__tags'>
-                {this.state.project.degrees.map(tagId => {
-                  return getMasterTag(Tag, tagId)
-                })}
-                {this.state.project.tags.map(
-                  tag =>
-                    tag && (
-                      <>
-                        <Tag key={tag} label={tag.split('.').reverse()[0]} />
-                      </>
-                    )
-                )}
-              </div>
-            </div>
-          </div>
-
+      <div className='project-review__content'>
+        <div className='project-review__fields'>
           <div className='project-review__field'>
-            <p className='project-review__text--micro'>Project Description</p>
-            <MDEditor.Markdown
-              className='project-review__markdown'
-              source={this.state.project.description}
-              previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+            <p className='project-review__text--micro'>Status of Review</p>
+            <Tag
+              className={`project-review__status project-review__status--${(this.state.project.approval || 'pending')
+                .replace(' ', '-')
+                .toLowerCase()}`}
+              label={this.state.project.approval || 'Not reviewed'}
             />
           </div>
 
           <div className='project-review__field'>
-            <p className='project-review__text--micro'>Project Environment</p>
+            <p className='project-review__text--micro'>Project Name</p>
+            <p className='project-review__text--value'>{this.state.project.name}</p>
+          </div>
+
+          <div className='project-review__field'>
+            <p className='project-review__text--micro'>Contact Email</p>
+            <a href={`mailto:${this.state.project.email}`}>
+              <p className='project-review__text--value'>{this.state.project.email}</p>
+            </a>
+          </div>
+
+          {this.state.project.numberOfStudents && (
+            <div className='project-review__field'>
+              <p className='project-review__text--micro'>Amount of Students</p>
+              <p className='project-review__text--value'>{this.state.project.numberOfStudents}</p>
+            </div>
+          )}
+
+          <div className='project-review__field'>
+            <p className='project-review__text--micro'>Degrees</p>
+            <div className='project-review__tags'>
+              {this.state.project.degrees.map(tagId => {
+                return getMasterTag(Tag, tagId)
+              })}
+              {this.state.project.tags.map(
+                tag =>
+                  tag && (
+                    <>
+                      <Tag key={tag} label={tag.split('.').reverse()[0]} />
+                    </>
+                  )
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className='project-review__field'>
+          <p className='project-review__text--micro'>Project Description</p>
+          <MDEditor.Markdown
+            className='project-review__markdown'
+            source={this.state.project.description}
+            previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+          />
+        </div>
+
+        <div className='project-review__field'>
+          <p className='project-review__text--micro'>Project Environment</p>
+          <MDEditor.Markdown
+            className='project-review__markdown'
+            source={this.state.project.environment}
+            previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+          />
+        </div>
+
+        {this.state.project.expectations && (
+          <div className='project-review__field'>
+            <p className='project-review__text--micro'>Expectations</p>
             <MDEditor.Markdown
               className='project-review__markdown'
-              source={this.state.project.environment}
+              source={this.state.project.expectations}
               previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
             />
           </div>
+        )}
+      </div>
 
-          {this.state.project.expectations && (
-            <div className='project-review__field'>
-              <p className='project-review__text--micro'>Expectations</p>
+      <div className='project-review__content mt-4'>
+        <h2 className='project-review__text--header'>Comments</h2>
+        <div className='project-review__comments-list'>
+          {this.state.project.comments?.map((comment, index) => (
+            <div key={index} className='project-review__comment'>
               <MDEditor.Markdown
                 className='project-review__markdown'
-                source={this.state.project.expectations}
+                source={comment}
                 previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
               />
             </div>
-          )}
-        </div>
-        <div className='project-review__comments'>
-          <h2 className='project-review__text--header'>Comments</h2>
-          <div className='project-review__comments-list'>
-            {this.state.project.comments?.map((comment, index) => (
-              <div key={index} className='project-review__comment'>
-                <MDEditor.Markdown
-                  className='project-review__markdown'
-                  source={comment}
-                  previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
-                />
-              </div>
-            ))}
-          </div>
+          ))}
+          {this.state.project.comments?.length === 0 && <p className='project-review__text--value'>No comments yet</p>}
         </div>
       </div>
 
-      <div className='project-review__bottom-drawer'>
-        <p className='project-review__comment-text'>Add a comment</p>
+      <div className='project-review__content mt-4'>
+        <h2 className='project-review__text-header'>Add a comment</h2>
 
         <MDEditor
           value={this.state.newComment}
           onChange={value => this.setState({ newComment: value })}
           className='project-review__markdown-editor'
         />
-        <Button
-          variant='primary'
-          className='project-review__button-comment'
-          onClick={async () => await this.comment(this.state.newComment)}
-        >
-          Comment
-        </Button>
-        <Button
-          variant='secondary'
-          className='project-review__button-comment'
-          onClick={() => this.setState({ newComment: '' })}
-        >
-          Clear
-        </Button>
+
+        <div className='project-review__buttons'>
+          <Button
+            variant='primary'
+            className='project-review__button-comment'
+            onClick={async () => await this.comment(this.state.newComment)}
+          >
+            Comment
+          </Button>
+          <Button
+            variant='secondary'
+            className='project-review__button-comment'
+            onClick={() => this.setState({ newComment: '' })}
+          >
+            Clear
+          </Button>
+        </div>
 
         <div className='project-review__divider' />
 
