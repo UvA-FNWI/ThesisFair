@@ -15,6 +15,7 @@ import '../../components/projectListItem/projectListItem.scss'
 const academicApprovalStates = ['preliminary', 'academicCommented', 'payment', 'approved']
 
 const ProjectListing = props => {
+  console.log(props)
   const [loading, setLoading] = useState(true)
   const [loadingData, setLoadingData] = useState(true)
   const [projects, setProjects] = useState([])
@@ -46,30 +47,59 @@ const ProjectListing = props => {
       return
     }
 
-    switch (project.approval) {
-      case 'rejected':
-        return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
-      case 'commented':
-      case 'academicCommented':
-        return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
-      case 'awaiting':
-        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
-      case 'preliminary':
-        if (isAcademic) {
+    if (isAcademic) {
+      const tags = []
+      for (const {degree, approval} of project.academicApproval) {
+        switch (approval) {
+          case 'approved':
+            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Approved`} />)
+            break
+          case 'rejected':
+            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Rejected`} />)
+            break
+          case 'commented':
+            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Changes requested`} />)
+            break
+          default:
+            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Awaiting approval`} />)
+            break
+        }
+      }
+
+      for (const degree of filters.degrees) {
+        if (!project.academicApproval.find(e => e.degree == degree))
+          tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Awaiting approval`} />)
+      }
+
+      return <>
+        {tags}
+      </>
+    } else {
+      switch (project.adminApproval) {
+        case 'rejected':
+          return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
+        case 'commented':
+        case 'academicCommented':
+          return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
+        case 'awaiting':
           return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
-        }
+        case 'preliminary':
+          if (isAcademic) {
+            return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
+          }
 
-        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting Academic Approval' />
-      case 'payment':
-        if (isAcademic) {
-          return <Tag className='mr-2 tag--approval-awaiting' label='Approved' />
-        }
+          return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting Academic Approval' />
+        case 'payment':
+          if (isAcademic) {
+            return <Tag className='mr-2 tag--approval-awaiting' label='Approved' />
+          }
 
-        return <Tag className='mr-2 tag--approval-payment' label='Awaiting payment' />
-      case 'approved':
-        return <Tag className='mr-2 tag--approval-approved' label='Approved' />
-      default:
-        return
+          return <Tag className='mr-2 tag--approval-payment' label='Awaiting payment' />
+        case 'approved':
+          return <Tag className='mr-2 tag--approval-approved' label='Approved' />
+        default:
+          return
+      }
     }
   }
 
@@ -151,7 +181,7 @@ const ProjectListing = props => {
 
       projects = Object.fromEntries(
         projects
-          .filter(project => isAdmin || academicApprovalStates.includes(project.approval))
+          // .filter(project => isAdmin || academicApprovalStates.includes(project.approval))
           .map(project => [project.pid, project])
       )
       setProjects(projects)
@@ -280,7 +310,7 @@ class Projects extends React.Component {
           </Button>
         </div>
       </Container>
-      <ProjectListing params={{ ...this.props.params }} />
+      <ProjectListing {...this.props} />
     </div>
   )
 }
