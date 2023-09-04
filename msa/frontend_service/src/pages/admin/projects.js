@@ -73,24 +73,11 @@ const ProjectListing = props => {
         case 'rejected':
           return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
         case 'commented':
-        case 'academicCommented':
           return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
         case 'awaiting':
           return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
-        case 'preliminary':
-          if (isAcademic) {
-            return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
-          }
-
-          return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting Academic Approval' />
-        case 'payment':
-          if (isAcademic) {
-            return <Tag className='mr-2 tag--approval-awaiting' label='Approved' />
-          }
-
-          return <Tag className='mr-2 tag--approval-payment' label='Awaiting payment' />
         case 'approved':
-          return <Tag className='mr-2 tag--approval-approved' label='Approved' />
+          return <Tag className='mr-2 tag--approval-approved' label='Partially approved' />
         default:
           return
       }
