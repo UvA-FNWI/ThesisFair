@@ -991,7 +991,7 @@ export default url => {
               comment: { value: comment, type: 'String!' },
             },
           }),
-        setApproval: (pid, approval, projection) =>
+        setApproval: (pid, approval, degree, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'setProjectApproval',
@@ -1000,6 +1000,7 @@ export default url => {
             args: {
               pid: { value: pid, type: 'ID!' },
               approval: { value: approval, type: 'ApprovalStatus!' },
+              degree: { value: degree, type: 'Degree' },
             },
           }),
         delete: (pid, projection) =>
