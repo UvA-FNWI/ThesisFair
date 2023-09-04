@@ -9,6 +9,7 @@ enum ApprovalStatus {
   approved
   commented
   rejected
+  preliminary
 }
 
 enum Degree {

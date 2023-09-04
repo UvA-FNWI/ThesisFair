@@ -42,12 +42,16 @@ class ProjectReview extends React.Component {
     this.approve = this.approve.bind(this)
     this.partiallyApprove = this.partiallyApprove.bind(this)
     this.close = this.close.bind(this)
-    this.getAcademicApproval = this.getAcademicApproval.bind(this)
+    this.getApproval = this.getApproval.bind(this)
   }
 
-  getAcademicApproval() {
+  getApproval() {
     if (this.state.selectedDegree) {
       return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval
+    }
+
+    if (this.state.project.adminApproval === 'preliminary') {
+      return 'approved'
     }
 
     return this.state.project.adminApproval
@@ -185,10 +189,10 @@ class ProjectReview extends React.Component {
           <div className='project-review__field'>
             <p className='project-review__text--micro'>Status of Review</p>
             <Tag
-              className={`project-review__status project-review__status--${(this.getAcademicApproval() || 'pending')
+              className={`project-review__status project-review__status--${(this.getApproval() || 'pending')
                 .replace(' ', '-')
                 .toLowerCase()}`}
-              label={this.getAcademicApproval() || 'Not reviewed'}
+              label={this.getApproval() || 'Not reviewed'}
             />
           </div>
 

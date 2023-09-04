@@ -50,6 +50,7 @@ const ProjectListing = props => {
       for (const degree of project.degrees.filter(e => filters.degrees.includes(e))) {
         const approval = project.academicApproval.find(e => e.degree == degree)?.approval
         switch (approval) {
+          case 'preliminary':
           case 'approved':
             tags.push(<Tag className='mr-2 tag--approval-approved' label={`${degreeTagById[degree]}: Approved`} />)
             break
