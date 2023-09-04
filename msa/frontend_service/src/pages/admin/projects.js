@@ -6,16 +6,13 @@ import { ViewportList } from 'react-viewport-list'
 import api, { downloadProjectCSV } from '../../api'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
-import { degreeById, degrees } from '../../utilities/degreeDefinitions'
+import { degreeById, degrees, degreeTagById } from '../../utilities/degreeDefinitions'
 import { findFairs, getFairLabel } from '../../utilities/fairs'
 
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 
-const academicApprovalStates = ['preliminary', 'academicCommented', 'payment', 'approved']
-
 const ProjectListing = props => {
-  console.log(props)
   const [loading, setLoading] = useState(true)
   const [loadingData, setLoadingData] = useState(true)
   const [projects, setProjects] = useState([])
@@ -50,26 +47,23 @@ const ProjectListing = props => {
     console.log(project.academicApproval)
     if (isAcademic) {
       const tags = []
-      for (const {degree, approval} of project.academicApproval) {
+
+      for (const degree of project.degrees.filter(e => filters.degrees.includes(e))) {
+        const approval = project.academicApproval.find(e => e.degree == degree)?.approval
         switch (approval) {
           case 'approved':
-            tags.push(<Tag className='mr-2 tag--approval-approved' label={`${degree}: Approved`} />)
+            tags.push(<Tag className='mr-2 tag--approval-approved' label={`${degreeTagById[degree]}: Approved`} />)
             break
           case 'rejected':
-            tags.push(<Tag className='mr-2 tag--approval-rejected' label={`${degree}: Rejected`} />)
+            tags.push(<Tag className='mr-2 tag--approval-rejected' label={`${degreeTagById[degree]}: Rejected`} />)
             break
           case 'commented':
-            tags.push(<Tag className='mr-2 tag--approval-changes' label={`${degree}: Changes requested`} />)
+            tags.push(<Tag className='mr-2 tag--approval-changes'  label={`${degreeTagById[degree]}: Changes requested`} />)
             break
           default:
-            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Awaiting approval`} />)
+            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degreeTagById[degree]}: Awaiting approval`} />)
             break
         }
-      }
-
-      for (const degree of project.degrees) {
-        if (!project.academicApproval.find(e => e.degree == degree))
-          tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Awaiting approval`} />)
       }
 
       return <>
