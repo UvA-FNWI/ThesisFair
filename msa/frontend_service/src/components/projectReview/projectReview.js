@@ -79,11 +79,7 @@ class ProjectReview extends React.Component {
   async requestChanges(event) {
     event.preventDefault()
 
-    if (api.getApiTokenData().type === 'a') {
-      await api.project.setApproval(this.state.project.pid, 'commented', this.state.selectedDegree).exec()
-    } else {
-      await api.project.setApproval(this.state.project.pid, 'academicCommented', this.state.selectedDegree).exec()
-    }
+    await api.project.setApproval(this.state.project.pid, 'commented', this.state.selectedDegree).exec()
 
     // TODO: Email the users that their project has been commented on
     // console.log(this.state.project.enid.toString(), this.state.project.pid)
