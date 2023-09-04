@@ -24,7 +24,7 @@ const orderedFields = [
   ['expectations', 'Expectations'],
   ['email', 'Contact E-mail'],
   ['numberOfStudents', 'Number of students'],
-  ['approval', 'Approval status'],
+  ['approval', 'Admin approval status'],
   ['attendance', 'Will this project attend a fair?'],
 ]
 
@@ -287,13 +287,58 @@ schemaComposer.Mutation.addNestedFields({
     args: {
       pid: 'ID!',
       approval: 'ApprovalStatus!',
+      degree: 'Degree', // If unspecified, this is taken to be an Admin's comment
     },
     description: 'Set the approval status for the given project',
     resolve: async (obj, args, req) => {
       const updateApproval = async () => {
         const pid = args.pid
         delete args.pid
-        await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
+        
+        if (args.approval) {
+          args.academicApproval = {degree: args.degree, approval: args.approval}
+          delete args.approval
+        }
+
+        delete args.degree
+        delete args.approval
+
+        if (args.approval) {
+          await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
+        } else {
+          await Project.findByIdAndUpdate(pid,
+            [
+              {
+                $addFields: {
+                  "academicApproval": {
+                    $filter: {
+                      input: {
+                        $ifNull: [
+                          "$academicApproval",
+                          []
+                        ]
+                      },
+                      as: "item",
+                      cond: {
+                        $ne: [ "$$item.degree", args.degree ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                $addFields: {
+                  "academicApproval": {
+                    $concatArrays: [
+                      "$academicApproval",
+                      [ args.academicApproval ]
+                    ]
+                  }
+                }
+              }
+            ]
+          )
+        }
       }
 
       if (req.user.type === 'a') return await updateApproval()

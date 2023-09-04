@@ -6,11 +6,10 @@ enum Attendance {
 
 enum ApprovalStatus {
   awaiting
-  commented
-  academicCommented
-  preliminary
   approved
+  commented
   rejected
+  preliminary
 }
 
 enum Degree {
@@ -33,6 +32,11 @@ input ProjectImport {
   enabled: Boolean!
 }
 
+type AcademicApprovalStatus {
+  degree: Degree
+  approval: ApprovalStatus
+}
+
 type Project {
   pid: ID!
   enid: ID!
@@ -46,6 +50,7 @@ type Project {
   email: String
   numberOfStudents: Int
   approval: ApprovalStatus
+  academicApproval: [AcademicApprovalStatus]
   attendance: Attendance
   datanoseLink: String
   external_id: String

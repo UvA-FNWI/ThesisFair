@@ -11,7 +11,7 @@ import { getPaymentTagClassName, getPaymentTooltip } from '../../utilities/fairs
 
 import '../../styles/events.scss'
 
-const entityTypes = ['A', 'B', 'C', 'Partner', 'Lab 42', 'Free']
+const entityTypes = ['A', 'B', 'C', 'Partner', 'Lab 42', 'Free', 'unknown']
 
 class Entities extends React.Component {
   constructor(props) {
@@ -44,7 +44,7 @@ class Entities extends React.Component {
   degreeFilterFunction = (entities, filters) => {
     if (filters.types.length === 0) return []
 
-    return entities.filter(entity => entity.type && filters.types.includes(entity.type.replace(' ', '')))
+    return entities.filter(entity => !entity.type || filters.types.includes(entity.type.replace(' ', '')))
   }
 
   filterFunctions = [this.searchFilterFunction, this.degreeFilterFunction]
@@ -249,6 +249,7 @@ class Entities extends React.Component {
                     <option value='Partner'>Partner</option>
                     <option value='Lab42'>Lab 42</option>
                     <option value='Free'>Free</option>
+                    <option value='unknown'>unknown</option>
                   </Form.Select>
                   <Link to={`/organisation/${entity.enid}/edit/`}>
                     <Button variant='primary'>Edit</Button>

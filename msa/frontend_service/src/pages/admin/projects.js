@@ -6,13 +6,11 @@ import { ViewportList } from 'react-viewport-list'
 import api, { downloadProjectCSV } from '../../api'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
-import { degreeById, degrees } from '../../utilities/degreeDefinitions'
+import { degreeById, degrees, degreeTagById } from '../../utilities/degreeDefinitions'
 import { findFairs, getFairLabel } from '../../utilities/fairs'
 
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
-
-const academicApprovalStates = ['preliminary', 'academicCommented', 'payment', 'approved']
 
 const ProjectListing = props => {
   const [loading, setLoading] = useState(true)
@@ -46,30 +44,44 @@ const ProjectListing = props => {
       return
     }
 
-    switch (project.approval) {
-      case 'rejected':
-        return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
-      case 'commented':
-      case 'academicCommented':
-        return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
-      case 'awaiting':
-        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
-      case 'preliminary':
-        if (isAcademic) {
+    if (isAcademic) {
+      const tags = []
+
+      for (const degree of project.degrees.filter(e => filters.degrees.includes(e))) {
+        const approval = project.academicApproval.find(e => e.degree == degree)?.approval
+        switch (approval) {
+          case 'preliminary':
+          case 'approved':
+            tags.push(<Tag className='mr-2 tag--approval-approved' label={`${degreeTagById[degree]}: Approved`} />)
+            break
+          case 'rejected':
+            tags.push(<Tag className='mr-2 tag--approval-rejected' label={`${degreeTagById[degree]}: Rejected`} />)
+            break
+          case 'commented':
+            tags.push(<Tag className='mr-2 tag--approval-changes'  label={`${degreeTagById[degree]}: Changes requested`} />)
+            break
+          default:
+            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degreeTagById[degree]}: Awaiting approval`} />)
+            break
+        }
+      }
+
+      return <>
+        {tags}
+      </>
+    } else {
+      switch (project.approval) {
+        case 'rejected':
+          return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
+        case 'commented':
+          return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
+        case 'awaiting':
           return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
-        }
-
-        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting Academic Approval' />
-      case 'payment':
-        if (isAcademic) {
-          return <Tag className='mr-2 tag--approval-awaiting' label='Approved' />
-        }
-
-        return <Tag className='mr-2 tag--approval-payment' label='Awaiting payment' />
-      case 'approved':
-        return <Tag className='mr-2 tag--approval-approved' label='Approved' />
-      default:
-        return
+        case 'approved':
+          return <Tag className='mr-2 tag--approval-approved' label='Partially approved' />
+        default:
+          return
+      }
     }
   }
 
@@ -151,7 +163,7 @@ const ProjectListing = props => {
 
       projects = Object.fromEntries(
         projects
-          .filter(project => isAdmin || academicApprovalStates.includes(project.approval))
+          // .filter(project => isAdmin || academicApprovalStates.includes(project.approval))
           .map(project => [project.pid, project])
       )
       setProjects(projects)
@@ -280,7 +292,7 @@ class Projects extends React.Component {
           </Button>
         </div>
       </Container>
-      <ProjectListing params={{ ...this.props.params }} />
+      <ProjectListing {...this.props} />
     </div>
   )
 }

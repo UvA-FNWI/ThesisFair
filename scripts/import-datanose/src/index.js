@@ -124,6 +124,10 @@ function entities(orgs) {
       external_id: org['ID'],
       representatives: reps.length,
     }
+  }).concat({
+    name: 'Thesisfair academics',
+    grantsAcademicRights: true,
+    type: 'C',
   })
 }
 

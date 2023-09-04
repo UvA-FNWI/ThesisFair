@@ -1,11 +1,12 @@
 import MDEditor from '@uiw/react-md-editor'
 import React from 'react'
-import { Button, Container } from 'react-bootstrap'
+import { Button, Container, DropdownButton, Dropdown } from 'react-bootstrap'
 import rehypeSanitize from 'rehype-sanitize'
 
 import api from '../../api'
 import { getMasterTag } from '../../utilities/masters'
 import Tag from '../tag/tag'
+import { degreeTagById } from '../../utilities/degreeDefinitions'
 
 import './style.scss'
 
@@ -16,6 +17,10 @@ class ProjectReview extends React.Component {
 
     this.state = {
       newComment: '',
+      selectedDegree: undefined,
+      entity: {
+        name: undefined,
+      },
       project: {
         pid: '',
         name: '',
@@ -29,6 +34,8 @@ class ProjectReview extends React.Component {
         status: '',
         numberOfStudents: null,
         comments: [],
+        approval: null,
+        academicApproval: [],
       },
     }
 
@@ -38,12 +45,32 @@ class ProjectReview extends React.Component {
     this.approve = this.approve.bind(this)
     this.partiallyApprove = this.partiallyApprove.bind(this)
     this.close = this.close.bind(this)
+    this.getApproval = this.getApproval.bind(this)
+  }
+
+  getApproval() {
+    if (this.state.selectedDegree) {
+      return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval
+    }
+
+    if (this.state.project.approval === 'preliminary') {
+      return 'approved'
+    }
+
+    return this.state.project.approval
   }
 
   async componentDidMount() {
     if (this.props.params?.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
       this.setState({ project })
+
+      if (api.getApiTokenData().type !== 'a') {
+        this.setState({ selectedDegree: project.degrees[0] })
+      }
+
+      const entity = await api.entity.get(project.enid).exec()
+      this.setState({ entity })
     } else {
       this.close()
     }
@@ -62,18 +89,14 @@ class ProjectReview extends React.Component {
   async reject(event) {
     event.preventDefault()
 
-    await api.project.setApproval(this.state.project.pid, 'rejected').exec()
+    await api.project.setApproval(this.state.project.pid, 'rejected', this.state.selectedDegree).exec()
     this.props.onClose()
   }
 
   async requestChanges(event) {
     event.preventDefault()
 
-    if (api.getApiTokenData().type === 'a') {
-      await api.project.setApproval(this.state.project.pid, 'commented').exec()
-    } else {
-      await api.project.setApproval(this.state.project.pid, 'academicCommented').exec()
-    }
+    await api.project.setApproval(this.state.project.pid, 'commented', this.state.selectedDegree).exec()
 
     // TODO: Email the users that their project has been commented on
     // console.log(this.state.project.enid.toString(), this.state.project.pid)
@@ -90,7 +113,7 @@ class ProjectReview extends React.Component {
   async approve(event) {
     event.preventDefault()
 
-    await api.project.setApproval(this.state.project.pid, 'approved').exec()
+    await api.project.setApproval(this.state.project.pid, 'approved', this.state.selectedDegree).exec()
 
     this.props.onClose()
   }
@@ -98,7 +121,7 @@ class ProjectReview extends React.Component {
   async partiallyApprove(event) {
     event.preventDefault()
 
-    await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
+    await api.project.setApproval(this.state.project.pid, 'approved').exec()
 
     this.props.onClose()
   }
@@ -131,14 +154,13 @@ class ProjectReview extends React.Component {
       },
     ]
 
-    if (api.getApiTokenData().type === 'a') {
+    if (!this.state.selectedDegree) {
       return [
         ...rejectReqChanges,
         {
           label: 'Partially Approve',
           onClick: this.partiallyApprove,
         },
-        ...approveClose,
       ]
     }
 
@@ -148,15 +170,35 @@ class ProjectReview extends React.Component {
   getDataInputs = () => (
     <Container className='project-review__container' data-color-mode='light'>
       <h1 className='mb-4'>Review Project</h1>
+      <DropdownButton id="dropdown-basic-button" title={`Reviewing for ${degreeTagById[this.state.selectedDegree] || "partial approval"}`}>
+        {api.getApiTokenData().type === 'a' &&
+            <Dropdown.Item onClick={() => this.setState({selectedDegree: undefined})}>For partial approval</Dropdown.Item>
+        }
+        {
+          this.state.project.degrees.map(id =>
+            <Dropdown.Item onClick={() => this.setState({selectedDegree: id})}>{degreeTagById[id]}</Dropdown.Item>
+          )
+        }
+      </DropdownButton>
       <div className='project-review__content'>
         <div className='project-review__fields'>
           <div className='project-review__field'>
-            <p className='project-review__text--micro'>Status of Review</p>
+            <p className='project-review__text--micro'>Admin Review Status</p>
             <Tag
               className={`project-review__status project-review__status--${(this.state.project.approval || 'pending')
                 .replace(' ', '-')
                 .toLowerCase()}`}
               label={this.state.project.approval || 'Not reviewed'}
+            />
+          </div>
+
+          <div className='project-review__field'>
+            <p className='project-review__text--micro'>Status of Review</p>
+            <Tag
+              className={`project-review__status project-review__status--${(this.getApproval() || 'pending')
+                .replace(' ', '-')
+                .toLowerCase()}`}
+              label={this.getApproval() || 'Not reviewed'}
             />
           </div>
 
@@ -170,6 +212,11 @@ class ProjectReview extends React.Component {
             <a href={`mailto:${this.state.project.email}`}>
               <p className='project-review__text--value'>{this.state.project.email}</p>
             </a>
+          </div>
+
+          <div className='project-review__field'>
+            <p className='project-review__text--micro'>Organization</p>
+            <p className='project-review__text--value'>{this.state.entity.name}</p>
           </div>
 
           {this.state.project.numberOfStudents && (

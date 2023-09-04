@@ -26,6 +26,7 @@ dev:
 	make pushDevelop
 	helm install thesisfair chart --values dev-values.yaml --wait
 	sleep 7
+	-killall kubectl
 	kubectl port-forward svc/database 27017:27017 &
 	# node test/test/db.js run
 	cd scripts/import-datanose && npm start dev
