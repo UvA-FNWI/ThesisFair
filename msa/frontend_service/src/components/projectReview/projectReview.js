@@ -1,11 +1,12 @@
 import MDEditor from '@uiw/react-md-editor'
 import React from 'react'
-import { Button, Container } from 'react-bootstrap'
+import { Button, Container, DropdownButton, Dropdown } from 'react-bootstrap'
 import rehypeSanitize from 'rehype-sanitize'
 
 import api from '../../api'
 import { getMasterTag } from '../../utilities/masters'
 import Tag from '../tag/tag'
+import { degreeTagById } from '../../utilities/degreeDefinitions'
 
 import './style.scss'
 
@@ -16,6 +17,7 @@ class ProjectReview extends React.Component {
 
     this.state = {
       newComment: '',
+      selectedDegree: undefined,
       project: {
         pid: '',
         name: '',
@@ -62,7 +64,7 @@ class ProjectReview extends React.Component {
   async reject(event) {
     event.preventDefault()
 
-    await api.project.setApproval(this.state.project.pid, 'rejected').exec()
+    await api.project.setApproval(this.state.project.pid, 'rejected', this.state.selectedDegree).exec()
     this.props.onClose()
   }
 
@@ -70,9 +72,9 @@ class ProjectReview extends React.Component {
     event.preventDefault()
 
     if (api.getApiTokenData().type === 'a') {
-      await api.project.setApproval(this.state.project.pid, 'commented').exec()
+      await api.project.setApproval(this.state.project.pid, 'commented', this.state.selectedDegree).exec()
     } else {
-      await api.project.setApproval(this.state.project.pid, 'academicCommented').exec()
+      await api.project.setApproval(this.state.project.pid, 'academicCommented', this.state.selectedDegree).exec()
     }
 
     // TODO: Email the users that their project has been commented on
@@ -90,7 +92,7 @@ class ProjectReview extends React.Component {
   async approve(event) {
     event.preventDefault()
 
-    await api.project.setApproval(this.state.project.pid, 'approved').exec()
+    await api.project.setApproval(this.state.project.pid, 'approved', this.state.selectedDegree).exec()
 
     this.props.onClose()
   }
@@ -98,7 +100,7 @@ class ProjectReview extends React.Component {
   async partiallyApprove(event) {
     event.preventDefault()
 
-    await api.project.setApproval(this.state.project.pid, 'preliminary').exec()
+    await api.project.setApproval(this.state.project.pid, 'preliminary', this.state.selectedDegree).exec()
 
     this.props.onClose()
   }
@@ -148,6 +150,13 @@ class ProjectReview extends React.Component {
   getDataInputs = () => (
     <Container className='project-review__container' data-color-mode='light'>
       <h1 className='mb-4'>Review Project</h1>
+      <DropdownButton id="dropdown-basic-button" title={`Reviewing for ${degreeTagById[this.state.selectedDegree]}`}>
+        {
+          this.state.project.degrees.map(id =>
+            <Dropdown.Item onClick={() => this.setState({selectedDegree: id})}>{degreeTagById[id]}</Dropdown.Item>
+          )
+        }
+      </DropdownButton>
       <div className='project-review__content'>
         <div className='project-review__fields'>
           <div className='project-review__field'>

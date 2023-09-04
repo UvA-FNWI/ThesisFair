@@ -47,18 +47,19 @@ const ProjectListing = props => {
       return
     }
 
+    console.log(project.academicApproval)
     if (isAcademic) {
       const tags = []
       for (const {degree, approval} of project.academicApproval) {
         switch (approval) {
           case 'approved':
-            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Approved`} />)
+            tags.push(<Tag className='mr-2 tag--approval-approved' label={`${degree}: Approved`} />)
             break
           case 'rejected':
-            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Rejected`} />)
+            tags.push(<Tag className='mr-2 tag--approval-rejected' label={`${degree}: Rejected`} />)
             break
           case 'commented':
-            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Changes requested`} />)
+            tags.push(<Tag className='mr-2 tag--approval-changes' label={`${degree}: Changes requested`} />)
             break
           default:
             tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Awaiting approval`} />)
@@ -66,7 +67,7 @@ const ProjectListing = props => {
         }
       }
 
-      for (const degree of filters.degrees) {
+      for (const degree of project.degrees) {
         if (!project.academicApproval.find(e => e.degree == degree))
           tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degree}: Awaiting approval`} />)
       }

@@ -316,7 +316,6 @@ schemaComposer.Mutation.addNestedFields({
                       input: {
                         $ifNull: [
                           "$academicApproval",
-                          "$academicApproval",
                           []
                         ]
                       },
@@ -333,7 +332,7 @@ schemaComposer.Mutation.addNestedFields({
                   "academicApproval": {
                     $concatArrays: [
                       "$academicApproval",
-                      [ args ]
+                      [ args.academicApproval ]
                     ]
                   }
                 }
