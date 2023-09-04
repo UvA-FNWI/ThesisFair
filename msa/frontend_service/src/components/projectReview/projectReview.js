@@ -18,6 +18,9 @@ class ProjectReview extends React.Component {
     this.state = {
       newComment: '',
       selectedDegree: undefined,
+      entity: {
+        name: undefined,
+      },
       project: {
         pid: '',
         name: '',
@@ -65,6 +68,9 @@ class ProjectReview extends React.Component {
       if (api.getApiTokenData().type !== 'a') {
         this.setState({ selectedDegree: project.degrees[0] })
       }
+
+      const entity = await api.entity.get(project.enid).exec()
+      this.setState({ entity })
     } else {
       this.close()
     }
@@ -206,6 +212,11 @@ class ProjectReview extends React.Component {
             <a href={`mailto:${this.state.project.email}`}>
               <p className='project-review__text--value'>{this.state.project.email}</p>
             </a>
+          </div>
+
+          <div className='project-review__field'>
+            <p className='project-review__text--micro'>Organization</p>
+            <p className='project-review__text--value'>{this.state.entity.name}</p>
           </div>
 
           {this.state.project.numberOfStudents && (
