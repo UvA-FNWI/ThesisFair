@@ -70,7 +70,7 @@ const ProjectListing = props => {
         {tags}
       </>
     } else {
-      switch (project.adminApproval) {
+      switch (project.approval) {
         case 'rejected':
           return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
         case 'commented':

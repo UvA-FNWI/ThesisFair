@@ -31,7 +31,7 @@ class ProjectReview extends React.Component {
         status: '',
         numberOfStudents: null,
         comments: [],
-        adminApproval: null,
+        approval: null,
         academicApproval: [],
       },
     }
@@ -50,11 +50,11 @@ class ProjectReview extends React.Component {
       return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval
     }
 
-    if (this.state.project.adminApproval === 'preliminary') {
+    if (this.state.project.approval === 'preliminary') {
       return 'approved'
     }
 
-    return this.state.project.adminApproval
+    return this.state.project.approval
   }
 
   async componentDidMount() {
@@ -179,10 +179,10 @@ class ProjectReview extends React.Component {
           <div className='project-review__field'>
             <p className='project-review__text--micro'>Admin Review Status</p>
             <Tag
-              className={`project-review__status project-review__status--${(this.state.project.adminApproval || 'pending')
+              className={`project-review__status project-review__status--${(this.state.project.approval || 'pending')
                 .replace(' ', '-')
                 .toLowerCase()}`}
-              label={this.state.project.adminApproval || 'Not reviewed'}
+              label={this.state.project.approval || 'Not reviewed'}
             />
           </div>
 

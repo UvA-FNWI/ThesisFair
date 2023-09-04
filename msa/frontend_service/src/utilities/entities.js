@@ -6,7 +6,7 @@ export const getParticipatingFairs = async (
   entity,
   approvalStates = ['approved', 'preliminary']
 ) => {
-  let projects = await getProjectsOfEntity(null, entity.enid, { evids: true, adminApproval: true }).exec()
+  let projects = await getProjectsOfEntity(null, entity.enid, { evids: true, approval: true }).exec()
   projects = projects.filter(project => approvalStates.includes(project.approval))
 
   if (!projects) return []
