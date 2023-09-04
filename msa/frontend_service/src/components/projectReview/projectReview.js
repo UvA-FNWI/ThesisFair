@@ -46,14 +46,21 @@ class ProjectReview extends React.Component {
   }
 
   getAcademicApproval() {
-    return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval
+    if (this.state.selectedDegree) {
+      return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval
+    }
+
+    return this.state.project.adminApproval
   }
 
   async componentDidMount() {
     if (this.props.params?.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
       this.setState({ project })
-      this.setState({ selectedDegree: project.degrees[0] })
+
+      if (api.getApiTokenData().type !== 'a') {
+        this.setState({ selectedDegree: project.degrees[0] })
+      }
     } else {
       this.close()
     }
@@ -104,7 +111,7 @@ class ProjectReview extends React.Component {
   async partiallyApprove(event) {
     event.preventDefault()
 
-    await api.project.setApproval(this.state.project.pid, 'preliminary', this.state.selectedDegree).exec()
+    await api.project.setApproval(this.state.project.pid, 'approved').exec()
 
     this.props.onClose()
   }
@@ -137,14 +144,13 @@ class ProjectReview extends React.Component {
       },
     ]
 
-    if (api.getApiTokenData().type === 'a') {
+    if (!this.state.selectedDegree) {
       return [
         ...rejectReqChanges,
         {
           label: 'Partially Approve',
           onClick: this.partiallyApprove,
         },
-        ...approveClose,
       ]
     }
 
@@ -154,7 +160,10 @@ class ProjectReview extends React.Component {
   getDataInputs = () => (
     <Container className='project-review__container' data-color-mode='light'>
       <h1 className='mb-4'>Review Project</h1>
-      <DropdownButton id="dropdown-basic-button" title={`Reviewing for ${degreeTagById[this.state.selectedDegree]}`}>
+      <DropdownButton id="dropdown-basic-button" title={`Reviewing for ${degreeTagById[this.state.selectedDegree] || "partial approval"}`}>
+        {api.getApiTokenData().type === 'a' &&
+            <Dropdown.Item onClick={() => this.setState({selectedDegree: undefined})}>For partial approval</Dropdown.Item>
+        }
         {
           this.state.project.degrees.map(id =>
             <Dropdown.Item onClick={() => this.setState({selectedDegree: id})}>{degreeTagById[id]}</Dropdown.Item>
