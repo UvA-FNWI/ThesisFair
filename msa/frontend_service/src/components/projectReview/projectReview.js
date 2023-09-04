@@ -31,6 +31,8 @@ class ProjectReview extends React.Component {
         status: '',
         numberOfStudents: null,
         comments: [],
+        adminApproval: null,
+        academicApproval: [],
       },
     }
 
@@ -40,12 +42,18 @@ class ProjectReview extends React.Component {
     this.approve = this.approve.bind(this)
     this.partiallyApprove = this.partiallyApprove.bind(this)
     this.close = this.close.bind(this)
+    this.getAcademicApproval = this.getAcademicApproval.bind(this)
+  }
+
+  getAcademicApproval() {
+    return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval
   }
 
   async componentDidMount() {
     if (this.props.params?.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
       this.setState({ project })
+      this.setState({ selectedDegree: project.degrees[0] })
     } else {
       this.close()
     }
@@ -160,12 +168,22 @@ class ProjectReview extends React.Component {
       <div className='project-review__content'>
         <div className='project-review__fields'>
           <div className='project-review__field'>
-            <p className='project-review__text--micro'>Status of Review</p>
+            <p className='project-review__text--micro'>Admin Review Status</p>
             <Tag
-              className={`project-review__status project-review__status--${(this.state.project.approval || 'pending')
+              className={`project-review__status project-review__status--${(this.state.project.adminApproval || 'pending')
                 .replace(' ', '-')
                 .toLowerCase()}`}
-              label={this.state.project.approval || 'Not reviewed'}
+              label={this.state.project.adminApproval || 'Not reviewed'}
+            />
+          </div>
+
+          <div className='project-review__field'>
+            <p className='project-review__text--micro'>Status of Review</p>
+            <Tag
+              className={`project-review__status project-review__status--${(this.getAcademicApproval() || 'pending')
+                .replace(' ', '-')
+                .toLowerCase()}`}
+              label={this.getAcademicApproval() || 'Not reviewed'}
             />
           </div>
 

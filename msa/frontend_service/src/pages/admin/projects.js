@@ -44,7 +44,6 @@ const ProjectListing = props => {
       return
     }
 
-    console.log(project.academicApproval)
     if (isAcademic) {
       const tags = []
 
