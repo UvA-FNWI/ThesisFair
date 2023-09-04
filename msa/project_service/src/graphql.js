@@ -24,7 +24,7 @@ const orderedFields = [
   ['expectations', 'Expectations'],
   ['email', 'Contact E-mail'],
   ['numberOfStudents', 'Number of students'],
-  ['adminApproval', 'Admin approval status'],
+  ['approval', 'Admin approval status'],
   ['attendance', 'Will this project attend a fair?'],
 ]
 
@@ -295,16 +295,15 @@ schemaComposer.Mutation.addNestedFields({
         const pid = args.pid
         delete args.pid
         
-        if (!args.degree) {
-          args.adminApproval = args.approval
-        } else {
+        if (args.approval) {
           args.academicApproval = {degree: args.degree, approval: args.approval}
+          delete args.approval
         }
 
         delete args.degree
         delete args.approval
 
-        if (args.adminApproval) {
+        if (args.approval) {
           await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
         } else {
           await Project.findByIdAndUpdate(pid,
