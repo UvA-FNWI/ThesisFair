@@ -60,6 +60,10 @@
     width: fit-content;
     padding: 0.25rem 0.5rem;
 
+    &--preliminary {
+      background-color: #0a8f08 !important;
+    }
+
     &--approved {
       background-color: #0a8f08 !important;
     }
@@ -68,11 +72,11 @@
       background-color: #a00909 !important;
     }
 
-    &--changes-requested {
+    &--commented {
       background-color: #dea113 !important;
     }
 
-    &--pending {
+    &--awaiting {
       background-color: #3a3a3a !important;
     }
   }
