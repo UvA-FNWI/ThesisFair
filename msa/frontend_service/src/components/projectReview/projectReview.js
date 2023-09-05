@@ -46,19 +46,41 @@ class ProjectReview extends React.Component {
     this.partiallyApprove = this.partiallyApprove.bind(this)
     this.close = this.close.bind(this)
     this.getApproval = this.getApproval.bind(this)
+    this.getAcademicApproval = this.getAcademicApproval.bind(this)
+    this.humanizeApproval = this.humanizeApproval.bind(this)
   }
 
   getApproval() {
-    if (this.state.selectedDegree) {
-      return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval
-    }
+      if (this.state.project.approval == 'approved')
+        return 'preliminary'
 
-    if (this.state.project.approval === 'preliminary') {
-      return 'approved'
-    }
-
-    return this.state.project.approval
+      return this.state.project.approval || 'awaiting'
   }
+
+  getAcademicApproval() {
+    if (!this.state.selectedDegree) {
+      return this.getApproval()
+    }
+
+    return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval || 'awaiting'
+  }
+
+  humanizeApproval(approval) {
+    switch (approval) {
+      case 'commented':
+        return 'Changes requested'
+      case 'rejected':
+        return 'Rejected'
+      case 'approved':
+        return 'Approved'
+      case 'preliminary':
+        return 'Partially approved'
+      default:
+        return 'Not reviewed'
+    }
+  }
+
+
 
   async componentDidMount() {
     if (this.props.params?.pid) {
@@ -185,20 +207,20 @@ class ProjectReview extends React.Component {
           <div className='project-review__field'>
             <p className='project-review__text--micro'>Admin Review Status</p>
             <Tag
-              className={`project-review__status project-review__status--${(this.state.project.approval || 'pending')
+              className={`project-review__status project-review__status--${(this.getApproval())
                 .replace(' ', '-')
                 .toLowerCase()}`}
-              label={this.state.project.approval || 'Not reviewed'}
+              label={this.humanizeApproval(this.getApproval())}
             />
           </div>
 
           <div className='project-review__field'>
             <p className='project-review__text--micro'>Status of Review</p>
             <Tag
-              className={`project-review__status project-review__status--${(this.getApproval() || 'pending')
+              className={`project-review__status project-review__status--${(this.getAcademicApproval())
                 .replace(' ', '-')
                 .toLowerCase()}`}
-              label={this.getApproval() || 'Not reviewed'}
+              label={this.humanizeApproval(this.getAcademicApproval())}
             />
           </div>
 

@@ -6,49 +6,7 @@ import { rgraphql } from '../../libraries/amqpmessaging/index.js'
 import { Entity } from './database.js'
 import { canGetAllEntities } from './permissions.js'
 
-import nodemailer from 'nodemailer'
-
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
-
-const mail = nodemailer.createTransport({
-  host: process.env.MAILHOST,
-  port: parseInt(process.env.MAILPORT),
-  ...(process.env.MAILUSER
-    ? {
-        auth: {
-          user: process.env.MAILUSER,
-          pass: process.env.MAILPASS,
-        },
-      }
-    : null),
-})
-
-const sendChangeRequestedMail = async (emails, projectName) => {
-  await mail.sendMail({
-    from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
-    to: process.env.OVERRIDEMAIL || emails,
-    subject: '',
-    text: `
-  Dear Madam/Sir,
-
-  ${emails.join(' ')}
-
-  We are writing to inform you about a time-sensitive matter related to your project, ${projectName}. This project has recently been flagged by an academic associated with the program, who has indicated the need for further information or a revision.
-
-  To address this promptly, we kindly request that you log in to the Thesis Fair platform at https://thesisfair.ivi.uva.nl/. Once logged in, please locate and select your project to review the comments provided by the academic. It is important to carefully consider their feedback and make any necessary adjustments to the project.
-
-  Given the urgency of this matter, please complete these revisions within the next 1-2 business days from the receipt of this email.
-
-  Should you have any questions or encounter any challenges during this process, please do not hesitate to reach out to us for assistance.
-
-  We look forward to your timely response and collaboration.
-
-  Kind regards,
-
-  The Thesis Fair Team
-  `,
-  })
-}
 
 const deleteEntity = async enid => {
   const calls = await Promise.all([
@@ -328,34 +286,6 @@ schemaComposer.Mutation.addNestedFields({
       }
 
       return !!res.data.payment?.acceptPayment
-    },
-  },
-  'entity.requestChanges': {
-    type: 'Boolean',
-    args: {
-      enid: 'ID!',
-      pid: 'ID!',
-    },
-    description: 'Request a change for the given entity',
-    resolve: async (obj, args) => {
-      // Query all users that are part of the entity
-      const users = await rgraphql('api-user', 'query($enid: ID!) { usersOfEntity(enid: $enid) { email } }', {
-        enid: args.enid,
-      })
-
-      const project = await rgraphql('api-project', 'query($pid: ID!) { project(pid: $pid) { name } }', {
-        pid: args.pid,
-      })
-
-      const projectName = project.data.project.name
-
-      if (users.errors || !users.data) return false
-
-      const emails = users.data.usersOfEntity.map(user => user.email)
-
-      await sendChangeRequestedMail(emails, projectName)
-
-      return true
     },
   },
   'entity.requestInvoice': {
