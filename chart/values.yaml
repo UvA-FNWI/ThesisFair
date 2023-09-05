@@ -35,11 +35,11 @@ msa:
       - name: thesisfair-mail-password
         key: MAILPASS
   entity_service:
+  event_service:
+  project_service:
     secrets:
       - name: thesisfair-mail-password
         key: MAILPASS
-  event_service:
-  project_service:
   vote_service:
   payment_service:
     secrets:
