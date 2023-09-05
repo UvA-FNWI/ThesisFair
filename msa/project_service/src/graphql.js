@@ -8,7 +8,63 @@ import { Project } from './database.js'
 
 import { entityWriteAccess, projectWriteAccess } from './permissions.js'
 
+import nodemailer from 'nodemailer'
+
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
+
+const mail = nodemailer.createTransport({
+  host: process.env.MAILHOST,
+  port: parseInt(process.env.MAILPORT),
+  ...(process.env.MAILUSER
+    ? {
+        auth: {
+          user: process.env.MAILUSER,
+          pass: process.env.MAILPASS,
+        },
+      }
+    : null),
+})
+
+async function sendChangeRequestedMail(project) {
+  const res = await rgraphql('api-user', 'query usersOfEntity($enid: ID!) { usersOfEntity(enid: $enid) { ... on UserBase { email, firstname, lastname } } }', { enid: project.enid })
+
+  if (res.errors || !res.data) {
+    console.error(res)
+    throw new Error('An unkown error occured while checking if the evid is valid')
+  }
+
+  const entityUsers = res.data
+
+  console.log("sending email")
+  const bongo = await mail.sendMail({
+    from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
+    to: process.env.OVERRIDEMAIL || project.email,
+    cc: process.env.OVERRIDEMAIL || entityUsers.usersOfEntity.map(user => `"${user.firstname} ${user.lastname}" <${user.email}>`),
+    // to: `"Project contact" <${project.email}>`,
+    // cc: entityUsers.usersOfEntity.map(user => `"${user.firstname} ${user.lastname}" <${user.email}>`),
+    subject: `URGENT: UvA ThesisFair requesting changes to project ${project.name}`,
+    text: `
+  Dear Madam/Sir,
+
+  We are writing to inform you about a time-sensitive matter related to your project, ${project.name}. This project has recently been flagged by an academic associated with the program, who has indicated the need for further information or a revision.
+
+  To address this promptly, we kindly request that you log in to the Thesis Fair platform at https://thesisfair.ivi.uva.nl/. Once logged in, please locate and select your project to review the comments provided by the academic. It is important to carefully consider their feedback and make any necessary adjustments to the project.
+
+  Given the urgency of this matter, please complete these revisions within the next 1-2 business days from the receipt of this email.
+
+  Should you have any questions or encounter any challenges during this process, please do not hesitate to reach out to us for assistance.
+
+  We look forward to your timely response and collaboration.
+
+  Kind regards,
+
+  The Thesis Fair Team
+  `,
+  })
+
+  console.log(bongo)
+  return bongo
+}
 
 const orderedFields = [
   // ['pid', 'Unique ID'],
@@ -295,18 +351,17 @@ schemaComposer.Mutation.addNestedFields({
         const pid = args.pid
         delete args.pid
         
-        if (args.approval) {
+        if (args.degree) {
           args.academicApproval = {degree: args.degree, approval: args.approval}
           delete args.approval
+          delete args.degree
         }
 
-        delete args.degree
-        delete args.approval
-
+        let project
         if (args.approval) {
-          await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
+          project = await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
         } else {
-          await Project.findByIdAndUpdate(pid,
+          project = await Project.findByIdAndUpdate(pid,
             [
               {
                 $addFields: {
@@ -336,8 +391,13 @@ schemaComposer.Mutation.addNestedFields({
                   }
                 }
               }
-            ]
+            ],
+            { new: true }
           )
+        }
+
+        if (args.academicApproval == "commented" || args.approval == "commented") {
+          await sendChangeRequestedMail(project)
         }
       }
 
