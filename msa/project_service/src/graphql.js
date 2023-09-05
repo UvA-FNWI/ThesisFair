@@ -351,14 +351,8 @@ schemaComposer.Mutation.addNestedFields({
         const pid = args.pid
         delete args.pid
         
-        if (args.degree) {
-          args.academicApproval = {degree: args.degree, approval: args.approval}
-          delete args.approval
-          delete args.degree
-        }
-
         let project
-        if (args.approval) {
+        if (!args.degree) {
           project = await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
         } else {
           project = await Project.findByIdAndUpdate(pid,
@@ -386,7 +380,7 @@ schemaComposer.Mutation.addNestedFields({
                   "academicApproval": {
                     $concatArrays: [
                       "$academicApproval",
-                      [ args.academicApproval ]
+                      [ args ]
                     ]
                   }
                 }
@@ -396,7 +390,8 @@ schemaComposer.Mutation.addNestedFields({
           )
         }
 
-        if (args.academicApproval == "commented" || args.approval == "commented") {
+        console.log(args)
+        if (args.approval == "commented") {
           await sendChangeRequestedMail(project)
         }
       }
