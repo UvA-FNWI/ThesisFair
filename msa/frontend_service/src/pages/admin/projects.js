@@ -77,6 +77,7 @@ const ProjectListing = props => {
           return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
         case 'awaiting':
           return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
+        case 'preliminary':
         case 'approved':
           return <Tag className='mr-2 tag--approval-approved' label='Partially approved' />
         default:
