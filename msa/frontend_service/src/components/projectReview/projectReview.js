@@ -88,7 +88,7 @@ class ProjectReview extends React.Component {
       const project = await api.project.get(this.props.params.pid).exec()
       this.setState({ project })
 
-      if (api.getApiTokenData().type !== 'a' && !selectedDegree) {
+      if (api.getApiTokenData().type !== 'a' && !this.state.selectedDegree) {
         this.setState({ selectedDegree: project.degrees[0] })
       }
 
