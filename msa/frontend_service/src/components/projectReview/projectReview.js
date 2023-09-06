@@ -7,6 +7,7 @@ import api from '../../api'
 import { getMasterTag } from '../../utilities/masters'
 import Tag from '../tag/tag'
 import { degreeTagById } from '../../utilities/degreeDefinitions'
+import * as session from '../../session'
 
 import './style.scss'
 
@@ -17,7 +18,7 @@ class ProjectReview extends React.Component {
 
     this.state = {
       newComment: '',
-      selectedDegree: undefined,
+      selectedDegree: session.getSessionData("reviewingDegree"),
       entity: {
         name: undefined,
       },
@@ -87,7 +88,7 @@ class ProjectReview extends React.Component {
       const project = await api.project.get(this.props.params.pid).exec()
       this.setState({ project })
 
-      if (api.getApiTokenData().type !== 'a') {
+      if (api.getApiTokenData().type !== 'a' && !selectedDegree) {
         this.setState({ selectedDegree: project.degrees[0] })
       }
 
