@@ -9,6 +9,7 @@ import Tag from '../../components/tag/tag'
 import { degreeById, degrees, degreeTagById } from '../../utilities/degreeDefinitions'
 import { findFairs, getFairLabel } from '../../utilities/fairs'
 
+import * as session from '../../session'
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 
@@ -20,7 +21,7 @@ const ProjectListing = props => {
   const [entityNameById, setEntityNameById] = useState({})
   const [allEventsByEvid, setAllEventsByEvid] = useState({})
   const [filters, setFilters] = useState({
-    degrees: Object.values(degrees).map(degree => degree.id),
+    degrees: [session.getSessionData("reviewingDegree")] || Object.values(degrees).map(degree => degree.id),
   })
   const [items, setItems] = useState([])
 
@@ -256,6 +257,7 @@ const ProjectListing = props => {
                 onClick={() => {
                   if (isAcademic) {
                     setFilters({ ...filters, degrees: [id] })
+                    session.setSessionData("reviewingDegree", id)
                     return
                   }
 
