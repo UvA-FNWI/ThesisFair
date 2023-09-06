@@ -254,9 +254,13 @@ const ProjectListing = props => {
                 selectable={true}
                 selected={filters.degrees.includes(id)}
                 onClick={() => {
+                  if (isAcademic) {
+                    setFilters({ ...filters, degrees: [id] })
+                    return
+                  }
+
                   if (filters.degrees.includes(id)) {
                     setFilters({ ...filters, degrees: filters.degrees.filter(t => t !== id) })
-
                     return
                   }
 
