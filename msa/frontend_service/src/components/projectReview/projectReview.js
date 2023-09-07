@@ -21,7 +21,9 @@ class ProjectReview extends React.Component {
       selectedDegree: api.getApiTokenData().type === 'a'
         ? undefined
         : (
-          session.getSessionData("reviewingDegrees") && JSON.parse(session.getSessionData("reviewingDegrees"))[-1]
+          session.getSessionData("reviewingDegrees")
+            ? JSON.parse(session.getSessionData("reviewingDegrees"))[-1]
+            : undefined
         ),
       entity: {
         name: undefined,
