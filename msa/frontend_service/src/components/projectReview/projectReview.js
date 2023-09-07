@@ -113,7 +113,8 @@ class ProjectReview extends React.Component {
     event.preventDefault()
 
     await api.project.setApproval(this.state.project.pid, 'rejected', this.state.selectedDegree).exec()
-    this.props.onClose()
+    // this.props.onClose()
+    window.location.reload()
   }
 
   async requestChanges(event) {
@@ -121,16 +122,8 @@ class ProjectReview extends React.Component {
 
     await api.project.setApproval(this.state.project.pid, 'commented', this.state.selectedDegree).exec()
 
-    // TODO: Email the users that their project has been commented on
-    // console.log(this.state.project.enid.toString(), this.state.project.pid)
-
-    // try {
-    //   await api.entity.requestChanges(this.state.project.enid.toString(), this.state.project.pid).exec()
-    // } catch (error) {
-    //   console.log(error)
-    // }
-
-    this.props.onClose()
+    // this.props.onClose()
+    window.location.reload()
   }
 
   async approve(event) {
@@ -138,7 +131,8 @@ class ProjectReview extends React.Component {
 
     await api.project.setApproval(this.state.project.pid, 'approved', this.state.selectedDegree).exec()
 
-    this.props.onClose()
+    // this.props.onClose()
+    window.location.reload()
   }
 
   async partiallyApprove(event) {
@@ -146,7 +140,8 @@ class ProjectReview extends React.Component {
 
     await api.project.setApproval(this.state.project.pid, 'approved').exec()
 
-    this.props.onClose()
+    // this.props.onClose()
+    window.location.reload()
   }
 
   close(event) {

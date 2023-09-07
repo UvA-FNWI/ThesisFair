@@ -98,7 +98,12 @@ class App extends React.Component {
             this.state.isAcademic ? <Page page={<AdminProjects isAcademic={true} />} /> : <Page page={<Projects />} />
           }
         />
-        {this.state.isAcademic && <Route path='/project/:pid/review' element={<Page page={<ProjectReview />} />} />}
+        <Route
+          path='/project/:pid/review'
+          element={
+            this.state.isAcademic ? <Page page={<ProjectReview />} /> : < Page page={<Projects />} />
+          }
+        />
       </>
     )
   }
