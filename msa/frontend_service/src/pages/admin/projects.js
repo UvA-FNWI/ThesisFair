@@ -21,7 +21,9 @@ const ProjectListing = props => {
   const [entityNameById, setEntityNameById] = useState({})
   const [allEventsByEvid, setAllEventsByEvid] = useState({})
   const [filters, setFilters] = useState({
-    degrees: [session.getSessionData("reviewingDegree")] || Object.values(degrees).map(degree => degree.id),
+    degrees: session.getSessionData("reviewingDegrees")
+      ? JSON.parse(session.getSessionData("reviewingDegrees"))
+      : Object.values(degrees).map(degree => degree.id),
   })
   const [items, setItems] = useState([])
 
@@ -257,16 +259,20 @@ const ProjectListing = props => {
                 onClick={() => {
                   if (isAcademic) {
                     setFilters({ ...filters, degrees: [id] })
-                    session.setSessionData("reviewingDegree", id)
+                    session.setSessionData("reviewingDegrees", JSON.stringify([id]))
                     return
                   }
 
                   if (filters.degrees.includes(id)) {
-                    setFilters({ ...filters, degrees: filters.degrees.filter(t => t !== id) })
+                    const degrees = filters.degrees.filter(t => t !== id)
+                    setFilters({ ...filters, degrees })
+                    session.setSessionData("reviewingDegrees", JSON.stringify(degrees))
                     return
                   }
 
-                  setFilters({ ...filters, degrees: [...filters.degrees, id] })
+                  const degrees = [...filters.degrees, id]
+                  setFilters({ ...filters, degrees })
+                  session.setSessionData("reviewingDegrees", JSON.stringify(degrees))
                 }}
               />
             )
