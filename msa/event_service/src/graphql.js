@@ -8,7 +8,7 @@ const ObjectId = mongoose.Types.ObjectId
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js'
 import { Event } from './database.js'
-import { canGetEvent, canGetActiveEvents, canGetEvents, entityReadAccess } from './permissions.js'
+import { canGetEvent, canGetEvents, entityReadAccess } from './permissions.js'
 
 const imageTypes = ['student', 'rep']
 
@@ -133,8 +133,6 @@ schemaComposer.Query.addNestedFields({
     args: {},
     description: 'Get all enabled events',
     resolve: async (obj, args, req) => {
-      canGetActiveEvents(req, args)
-
       const filter = {
         enabled: true,
       }

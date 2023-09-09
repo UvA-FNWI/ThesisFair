@@ -39,7 +39,7 @@ class EventsPage extends React.Component {
         {this.state.activeEvents.length > 0 ? (
           <Row className='g-4 events-page__row'>
             {this.state.activeEvents.map(event => (
-              <Col md='auto'>
+              <Col md='auto' key={event.evid}>
                 <EventCard evid={event.evid} />
               </Col>
             ))}
@@ -53,7 +53,7 @@ class EventsPage extends React.Component {
             <hr />
             <Row className='g-4 events-page__row'>
               {this.state.inactiveEvents.map(event => (
-                <Col md='auto'>
+                <Col md='auto' key={event.evid}>
                   <EventCard event={event} />
                 </Col>
               ))}

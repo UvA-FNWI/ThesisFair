@@ -84,16 +84,16 @@ class ProjectListing extends React.Component {
 
     switch (project.approval) {
       case 'rejected':
-        return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
+        return <Tag className='tag--approval-rejected' label='Rejected' />
       case 'commented':
-        return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
+        return <Tag className='tag--approval-changes' label='Changes requested' />
       case 'awaiting':
       case 'preliminary':
-        return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
+        return <Tag className='tag--approval-awaiting' label='Awaiting approval' />
       case 'payment':
-        return <Tag className='mr-2 tag--approval-payment' label='Awaiting payment' />
+        return <Tag className='tag--approval-payment' label='Awaiting payment' />
       case 'approved':
-        return <Tag className='mr-2 tag--approval-approved' label='Approved' />
+        return <Tag className='tag--approval-approved' label='Approved' />
       default:
         return
     }

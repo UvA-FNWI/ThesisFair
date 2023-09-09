@@ -1,7 +1,7 @@
 import { graphql } from 'graphql'
 import { schemaComposer } from 'graphql-compose'
 import { readFileSync } from 'fs'
-import { AsyncParser } from '@json2csv/node';
+import { AsyncParser } from '@json2csv/node'
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js'
 import { Project } from './database.js'
@@ -26,7 +26,11 @@ const mail = nodemailer.createTransport({
 })
 
 async function sendChangeRequestedMail(project) {
-  const res = await rgraphql('api-user', 'query usersOfEntity($enid: ID!) { usersOfEntity(enid: $enid) { ... on UserBase { email, firstname, lastname } } }', { enid: project.enid })
+  const res = await rgraphql(
+    'api-user',
+    'query usersOfEntity($enid: ID!) { usersOfEntity(enid: $enid) { ... on UserBase { email, firstname, lastname } } }',
+    { enid: project.enid }
+  )
 
   if (res.errors || !res.data) {
     console.error(res)
@@ -35,11 +39,13 @@ async function sendChangeRequestedMail(project) {
 
   const entityUsers = res.data
 
-  console.log("sending email")
+  console.log('sending email')
   const bongo = await mail.sendMail({
     from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
     to: process.env.OVERRIDEMAIL || project.email,
-    cc: process.env.OVERRIDEMAIL || entityUsers.usersOfEntity.map(user => `"${user.firstname} ${user.lastname}" <${user.email}>`),
+    cc:
+      process.env.OVERRIDEMAIL ||
+      entityUsers.usersOfEntity.map(user => `"${user.firstname} ${user.lastname}" <${user.email}>`),
     // to: `"Project contact" <${project.email}>`,
     // cc: entityUsers.usersOfEntity.map(user => `"${user.firstname} ${user.lastname}" <${user.email}>`),
     subject: `URGENT: UvA ThesisFair requesting changes to project ${project.name}`,
@@ -122,18 +128,12 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED read all project information')
       }
 
-      const entities = await rgraphql(
-        'api-entity',
-        'query { entitiesAll { enid, name } }',
-      )
+      const entities = await rgraphql('api-entity', 'query { entitiesAll { enid, name } }')
 
-      const events = await rgraphql(
-        'api-event',
-        'query { events { evid, name } }',
-      )
+      const events = await rgraphql('api-event', 'query { events { evid, name } }')
 
-      console.log("SNOSDF")
-      console.log(events.data.events)
+      // console.log('SNOSDF')
+      // console.log(events.data.events)
 
       const projects = await Project.find()
       const table = []
@@ -144,18 +144,14 @@ schemaComposer.Query.addNestedFields({
         }
 
         if (events?.data?.events && project.evids) {
-          project.eventNames = project.evids.map(
-            evid => events.data.events.find(e => e.evid == evid)?.name
-          )
+          project.eventNames = project.evids.map(evid => events.data.events.find(e => e.evid == evid)?.name)
         }
 
-        console.log(events.data.events)
-        console.log(project.evids)
-        console.log(project.eventNames)
+        // console.log(events.data.events)
+        // console.log(project.evids)
+        // console.log(project.eventNames)
 
-        const row = Object.fromEntries(orderedFields.map(
-          ([orig, fancy]) => [fancy, project[orig]]
-        ))
+        const row = Object.fromEntries(orderedFields.map(([orig, fancy]) => [fancy, project[orig]]))
 
         table.push(row)
       }
@@ -215,12 +211,111 @@ schemaComposer.Query.addNestedFields({
     },
   },
   projectsOfEvent: {
-    type: '[Project!]',
+    type: '[Project]!',
     args: {
       evid: 'ID!',
     },
     description: 'Get the projects available on an event.',
     resolve: (obj, args) => Project.find({ evids: args.evid }),
+  },
+  approvedProjects: {
+    type: '[Project]!',
+    description: 'Get the approved projects.',
+    resolve: async (obj, args) => {
+      const projects = await Project.find()
+
+      let events = await rgraphql('api-event', 'query { events { evid, enabled } }')
+      const eventsByEvid = Object.fromEntries(events.data.events?.map(event => [event.evid, event]) || [])
+
+      const isInCurrentFair = events => {
+        const activeEvents = events.filter(event => event?.enabled)
+        if (!activeEvents) return false
+        return true
+      }
+
+      const setApprovalDegrees = project => {
+        if (!project) {
+          return
+        }
+
+        if (!project.evids || project.evids.length === 0) {
+          return
+        }
+
+        const projectEvents = project.evids.map(evid => eventsByEvid?.[evid])
+
+        if (!isInCurrentFair(projectEvents)) {
+          return
+        }
+
+        if (!project.approval || !['preliminary', 'approved'].includes(project.approval)) return
+
+        const degrees = project.academicApproval
+          .filter(({ approval }) => approval === 'approved')
+          .map(({ degree }) => degree)
+
+        if (!degrees) return
+
+        project.degrees = degrees
+
+        return project
+      }
+
+      const activeProjects = projects.map(setApprovalDegrees).filter(project => !!project) || []
+
+      return activeProjects
+    },
+  },
+  approvedProjectsOfEvent: {
+    type: '[Project]!',
+    args: {
+      evid: 'ID!',
+    },
+    description: 'Get the projects available on an event.',
+    resolve: async (obj, args) => {
+      const projects = await Project.find({ evids: args.evid })
+
+      let events = await rgraphql('api-event', 'query { events { evid, enabled } }')
+      const eventsByEvid = Object.fromEntries(events.data.events?.map(event => [event.evid, event]) || [])
+
+      const isInCurrentFair = events => {
+        const activeEvents = events.filter(event => event.enabled)
+        if (!activeEvents) return false
+        return true
+      }
+
+      const setApprovalDegrees = project => {
+        if (!project) {
+          return
+        }
+
+        if (!project.evids || project.evids.length === 0) {
+          return
+        }
+
+        const projectEvents = project.evids.map(evid => eventsByEvid?.[evid])
+
+        if (!isInCurrentFair(projectEvents)) {
+          return
+        }
+
+        if (!project.approval || !['preliminary', 'approved'].includes(project.approval)) return
+
+        const degrees = project.academicApproval
+          .filter(({ approval }) => approval === 'approved')
+          .map(({ degree }) => degree)
+
+        if (!degrees) return
+
+        project.degrees = degrees
+
+        return project
+      }
+
+      const activeProjects = projects.map(setApprovalDegrees).filter(project => !!project) || []
+
+      return activeProjects
+    },
   },
 })
 
@@ -350,48 +445,43 @@ schemaComposer.Mutation.addNestedFields({
       const updateApproval = async () => {
         const pid = args.pid
         delete args.pid
-        
+
         let project
         if (!args.degree) {
           project = await Project.findByIdAndUpdate(pid, { $set: args }, { new: true })
         } else {
-          project = await Project.findByIdAndUpdate(pid,
+          project = await Project.findByIdAndUpdate(
+            pid,
             [
               {
                 $addFields: {
-                  "academicApproval": {
+                  academicApproval: {
                     $filter: {
                       input: {
-                        $ifNull: [
-                          "$academicApproval",
-                          []
-                        ]
+                        $ifNull: ['$academicApproval', []],
                       },
-                      as: "item",
+                      as: 'item',
                       cond: {
-                        $ne: [ "$$item.degree", args.degree ]
-                      }
-                    }
-                  }
-                }
+                        $ne: ['$$item.degree', args.degree],
+                      },
+                    },
+                  },
+                },
               },
               {
                 $addFields: {
-                  "academicApproval": {
-                    $concatArrays: [
-                      "$academicApproval",
-                      [ args ]
-                    ]
-                  }
-                }
-              }
+                  academicApproval: {
+                    $concatArrays: ['$academicApproval', [args]],
+                  },
+                },
+              },
             ],
             { new: true }
           )
         }
 
         console.log(args)
-        if (args.approval == "commented") {
+        if (args.approval == 'commented') {
           await sendChangeRequestedMail(project)
         }
       }

@@ -1,6 +1,7 @@
 import axios from 'axios'
-import GraphQLBuilder from './GraphQLBuilder.js'
 import NodeCache from 'node-cache'
+
+import GraphQLBuilder from './GraphQLBuilder.js'
 import fields from './graphqlFields.js' // assert { type: 'json' };
 
 let tracing = false
@@ -932,6 +933,16 @@ export default url => {
             },
             cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
           }),
+        getApprovedOfEvent: (evid, projection) =>
+          genGraphQLBuilder({
+            name: 'getApprovedProjectsOfEvent',
+            functionPath: 'approvedProjectsOfEvent',
+            body: bodies.Project(projection),
+            args: {
+              evid: { value: evid, type: 'ID!' },
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
+          }),
         create: (project, projection) =>
           genGraphQLBuilder({
             type: 'mutation',
@@ -1073,6 +1084,33 @@ export default url => {
             args: {
               votes: { value: votes, type: '[VoteImport!]!' },
               evid: { value: evid, type: 'ID!' },
+            },
+          }),
+        add: pid =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'voteProject',
+            functionPath: 'vote.add',
+            args: {
+              pid: { value: pid, type: 'ID!' },
+            },
+          }),
+        remove: pid =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'unvoteProject',
+            functionPath: 'vote.remove',
+            args: {
+              pid: { value: pid, type: 'ID!' },
+            },
+          }),
+        hide: pid =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'hideProject',
+            functionPath: 'vote.hide',
+            args: {
+              pid: { value: pid, type: 'ID!' },
             },
           }),
       },

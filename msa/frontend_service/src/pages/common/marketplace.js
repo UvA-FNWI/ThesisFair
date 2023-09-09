@@ -1,47 +1,18 @@
 import fuzzysort from 'fuzzysort'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Container, Form } from 'react-bootstrap'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { ViewportList } from 'react-viewport-list'
 
-import api, { downloadProjectCSV } from '../../api'
+import api from '../../api'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
 import * as session from '../../session'
-import { degreeById, degrees, degreeTagById } from '../../utilities/degreeDefinitions'
-import { findFairs, getFairLabel } from '../../utilities/fairs'
+import { degreeById, degrees } from '../../utilities/degreeDefinitions'
+import { getFairLabel } from '../../utilities/fairs'
 
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
-
-function humanizeApproval(approval, isAdmin) {
-  switch (approval) {
-    case 'preliminary':
-    case 'approved':
-      if (isAdmin) return 'Partially approved'
-      else return 'Approved'
-    case 'rejected':
-      return 'Rejected'
-    case 'commented':
-      return 'Changes requested'
-    default:
-      return 'Awaiting approval'
-  }
-}
-
-function approvalToUIClass(approval) {
-  switch (approval) {
-    case 'preliminary':
-    case 'approved':
-      return 'approved'
-    case 'rejected':
-      return 'rejected'
-    case 'commented':
-      return 'changes'
-    default:
-      return 'awaiting'
-  }
-}
 
 const ProjectListing = props => {
   const [loading, setLoading] = useState(true)
@@ -53,13 +24,13 @@ const ProjectListing = props => {
   const [allEventsByEvid, setAllEventsByEvid] = useState({})
   const [filtersState, setFilters] = useState({
     search: '',
-    degrees: session.getSessionData('reviewingDegrees')
-      ? JSON.parse(session.getSessionData('reviewingDegrees'))
+    degrees: session.getSessionData('filteredDegrees')
+      ? JSON.parse(session.getSessionData('filteredDegrees'))
       : Object.values(degrees).map(degree => degree.id),
   })
   const [items, setItems] = useState([])
 
-  const isAcademic = props.isAcademic || false
+  const isLoggedIn = props.isLoggedIn
 
   const listRef = useRef(null)
 
@@ -97,7 +68,6 @@ const ProjectListing = props => {
       const filters = { ...filtersState, search: '' }
 
       setFilters(filters)
-
       filter(filters)
       return
     }
@@ -105,7 +75,6 @@ const ProjectListing = props => {
     const filters = { ...filtersState, search: searchFilter }
 
     setFilters(filters)
-
     filter(filters)
   }
 
@@ -114,45 +83,16 @@ const ProjectListing = props => {
     return 1
   }
 
-  const approvalStatus = project => {
-    if (!project) {
-      return
-    }
+  const addVoteOnProject = project_id => {
+    api.votes.add(project_id)
+  }
 
-    if (!project.evids || project.evids.length === 0) {
-      return
-    }
+  const removeVoteOnProject = project_id => {
+    api.votes.remove(project_id)
+  }
 
-    const projectEvents = project.evids.map(evid => allEventsByEvid?.[evid])
-    const fairs = findFairs(projectEvents)
-
-    if (fairs.length === 0) {
-      return
-    }
-
-    const tags = []
-
-    // Admin approval tag
-    if (!isAcademic) {
-      tags.push(
-        <Tag
-          className={`mr-2 tag--approval-${approvalToUIClass(project.approval)}`}
-          label={`Admin: ${humanizeApproval(project.approval, true)}`}
-        />
-      )
-    }
-
-    for (const degree of project.degrees.filter(e => filters.degrees.includes(e))) {
-      const approval = project.academicApproval.find(e => e.degree == degree)?.approval
-      tags.push(
-        <Tag
-          className={`mr-2 tag--approval-${approvalToUIClass(approval)}`}
-          label={`${degreeTagById[degree]}: ${humanizeApproval(approval)}`}
-        />
-      )
-    }
-
-    return <>{tags}</>
+  const hideProject = project_id => {
+    api.votes.hide(project_id)
   }
 
   const renderHeader = ({ title }) => (
@@ -165,8 +105,8 @@ const ProjectListing = props => {
     </div>
   )
 
-  const renderProject = ({ project }) => {
-    const tags = project.tags.map(tag => ({ tag: tag.split('.')[1], tooltip: undefined }))
+  const renderProject = ({ entityName, project }) => {
+    const tags = (project.tags || []).map(tag => ({ tag: tag.split('.')[1], tooltip: undefined })) || []
 
     project.degrees.forEach(id => {
       const tag = degreeById[id]
@@ -176,7 +116,8 @@ const ProjectListing = props => {
       })
     })
 
-    const fairLabel = getFairLabel(project.evids.map(evid => allEventsByEvid?.[evid]))
+    let fairLabel
+    if (allEventsByEvid) fairLabel = getFairLabel(project.evids.map(evid => allEventsByEvid?.[evid])) || 'Marketplace'
 
     return (
       <ProjectList.Item
@@ -186,20 +127,22 @@ const ProjectListing = props => {
         expectations={project.expectations}
         environment={project.environment}
         tags={tags}
-        name={project.title}
+        name={`${entityName} - ${project.name}`}
         email={project.email}
         numberOfStudents={project.numberOfStudents}
         notInList={true}
-        headerBadge={
-          <>
-            {fairLabel && <Tag label={fairLabel} />}
-            {approvalStatus(project)}
-          </>
-        }
+        headerBadge={fairLabel && <Tag label={fairLabel} />}
         headerButtons={
-          <Link to={`/project/${project.pid}/review`}>
-            <Button variant='primary'>Review</Button>
-          </Link>
+          isLoggedIn && (
+            <Button
+              variant='primary'
+              onClick={() => {
+                addVoteOnProject(project.pid)
+              }}
+            >
+              Add to list
+            </Button>
+          )
         }
       />
     )
@@ -217,55 +160,50 @@ const ProjectListing = props => {
   }
 
   useEffect(() => {
-    const fetchAndSetData = async () => {
-      const currentEvents = await api.event.getActive().exec()
-      const currentEventEvids = currentEvents.map(event => event.evid)
-      const allEventsByEvid = Object.fromEntries(currentEvents.map(event => [event.evid, event]))
+    const fetchMarketplace = async () => {
+      const response = await api.project.marketplace()
 
+      const { entities, events, projects } = response.data
+
+      const allEventsByEvid = Object.fromEntries(events.map(event => [event.evid, event]))
       setAllEventsByEvid(allEventsByEvid)
 
-      // Optimisation: Store student only once in state
-      let projects = []
+      const projectsByPid = Object.fromEntries(projects.map(project => [project.pid, project]))
+      setProjects(projectsByPid)
 
-      for (const evid of currentEventEvids) projects = projects.concat(await api.project.getOfEvent(evid).exec())
+      const projectsByEnid = projects.reduce((accumulator, project) => {
+        const entitysProjects = accumulator.get(project.enid)
 
-      projects = Object.fromEntries(
-        projects
-          // .filter(project => isAdmin || academicApprovalStates.includes(project.approval))
-          .map(project => [project.pid, project])
-      )
-      setProjects(projects)
+        if (!entitysProjects) accumulator.set(project.enid, [project.pid])
+        else entitysProjects.push(project.pid)
 
-      const projectsByEnid = new Map()
-      for (const project of Object.values(projects)) {
-        if (!projectsByEnid.get(project.enid)) {
-          projectsByEnid.set(project.enid, [project.pid])
-        } else {
-          projectsByEnid.get(project.enid).push(project.pid)
-        }
-      }
+        return accumulator
+      }, new Map())
 
       setProjectsByEnid(projectsByEnid)
-
-      const enids = Array.from(projectsByEnid.keys())
-
-      const entities = await api.entity.getMultiple(enids).exec()
 
       const entityNameById = Object.fromEntries(entities.map(entity => [entity.enid, entity.name]))
       setEntityNameById(entityNameById)
 
       setLoadingData(false)
+      console.log('loadingData', loadingData)
     }
 
-    if (loadingData) fetchAndSetData()
+    if (loadingData) fetchMarketplace()
   }, [loadingData])
 
   useEffect(() => {
+    console.log('second useEffect')
     if (!projectsByEnid?.entries) return
+    console.log('entries found', !loading, loadingData, projects, projectsByEnid)
     if (!loading || loadingData) return
+    console.log('allowed to load')
+
+    console.log(Array.from(projectsByEnid.entries()), projectsByEnid)
 
     const newItems = Array.from(projectsByEnid.entries())
       .map(([enid, pids]) => {
+        console.log(enid, pids)
         const entityProjects = pids.map(pid => projects[pid])
 
         if (entityProjects.length === 0) {
@@ -274,13 +212,13 @@ const ProjectListing = props => {
 
         const entityName = entityNameById[enid]
 
-        return entityProjects
-          .map(project => ({ ...project, title: `${entityName} - ${project.name}` }))
-          .map(project => ({
-            type: 'project',
-            project,
-            title: `${entityName} - ${project.name}`,
-          }))
+        console.log(entityName)
+
+        return entityProjects.map(project => ({
+          type: 'project',
+          project,
+          entityName,
+        }))
       })
       .flat()
       .sort(sortProjects)
@@ -311,35 +249,17 @@ const ProjectListing = props => {
                 selectable={true}
                 selected={filtersState.degrees.includes(id)}
                 onClick={() => {
-                  if (isAcademic) {
-                    const filters = { ...filtersState, degrees: [id] }
-
-                    setFilters(filters)
-                    filter(filters)
-
-                    session.setSessionData('reviewingDegrees', JSON.stringify([id]))
-                    return
-                  }
+                  let filteredDegrees = [...filtersState.degrees, id]
 
                   if (filtersState.degrees.includes(id)) {
-                    const filteredDegrees = filtersState.degrees.filter(t => t !== id)
-                    const filters = { ...filtersState, degrees: filteredDegrees }
-
-                    setFilters(filters)
-                    filter(filters)
-
-                    session.setSessionData('reviewingDegrees', JSON.stringify(filteredDegrees))
-                    return
+                    filteredDegrees = filtersState.degrees.filter(t => t !== id)
                   }
-
-                  const filteredDegrees = [...filtersState.degrees, id]
 
                   const filters = { ...filtersState, degrees: filteredDegrees }
 
                   setFilters(filters)
                   filter(filters)
-
-                  session.setSessionData('reviewingDegrees', JSON.stringify(filteredDegrees))
+                  session.setSessionData('filteredDegrees', JSON.stringify(filteredDegrees))
                 }}
               />
             )
@@ -383,7 +303,6 @@ class Projects extends React.Component {
       <Container className='mt-4'>
         <div className='mb-4'>
           <h1>Projects for upcoming events</h1>
-          <Button onClick={() => downloadProjectCSV()}>CSV download</Button>
         </div>
       </Container>
       <ProjectListing {...this.props} />
@@ -391,10 +310,10 @@ class Projects extends React.Component {
   )
 }
 
-function ProjectsWithParams(props) {
+function Marketplace(props) {
   const params = useParams()
 
   return <Projects {...props} params={params} />
 }
 
-export default ProjectsWithParams
+export default Marketplace

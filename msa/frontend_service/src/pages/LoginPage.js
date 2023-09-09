@@ -1,3 +1,4 @@
+import marketplaceIcon from 'bootstrap-icons/icons/shop-window.svg'
 import React from 'react'
 import { Button, Col, Container, Form, Row } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
@@ -109,6 +110,15 @@ class LoginPage extends React.Component {
               <div className='login-page__forgot-password'>
                 <Link to={'/forgotPassword'}>
                   <span>Forgot password?</span>
+                </Link>
+              </div>
+
+              <div className='mt-4'>
+                <Link to='/marketplace'>
+                  <Button variant='primary'>
+                    <img src={marketplaceIcon} alt='' className='me-2' style={{ marginTop: '-0.25rem' }} />
+                    To Marketplace
+                  </Button>
                 </Link>
               </div>
             </Form>
