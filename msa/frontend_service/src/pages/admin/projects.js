@@ -13,6 +13,37 @@ import * as session from '../../session'
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
 
+function humanizeApproval(approval, isAdmin) {
+  switch (approval) {
+    case 'preliminary':
+    case 'approved':
+      if (isAdmin)
+        return 'Partially approved'
+      else
+        return 'Approved'
+    case 'rejected':
+      return 'Rejected'
+    case 'commented':
+      return 'Changes requested'
+    default:
+      return 'Awaiting approval'
+  }
+}
+
+function approvalToUIClass(approval) {
+  switch (approval) {
+    case 'preliminary':
+    case 'approved':
+      return 'approved'
+    case 'rejected':
+      return 'rejected'
+    case 'commented':
+      return 'changes'
+    default:
+      return 'awaiting'
+  }
+}
+
 const ProjectListing = props => {
   const [loading, setLoading] = useState(true)
   const [loadingData, setLoadingData] = useState(true)
@@ -47,46 +78,28 @@ const ProjectListing = props => {
       return
     }
 
-    if (isAcademic) {
-      const tags = []
+    const tags = []
 
-      for (const degree of project.degrees.filter(e => filters.degrees.includes(e))) {
-        const approval = project.academicApproval.find(e => e.degree == degree)?.approval
-        switch (approval) {
-          case 'preliminary':
-          case 'approved':
-            tags.push(<Tag className='mr-2 tag--approval-approved' label={`${degreeTagById[degree]}: Approved`} />)
-            break
-          case 'rejected':
-            tags.push(<Tag className='mr-2 tag--approval-rejected' label={`${degreeTagById[degree]}: Rejected`} />)
-            break
-          case 'commented':
-            tags.push(<Tag className='mr-2 tag--approval-changes'  label={`${degreeTagById[degree]}: Changes requested`} />)
-            break
-          default:
-            tags.push(<Tag className='mr-2 tag--approval-awaiting' label={`${degreeTagById[degree]}: Awaiting approval`} />)
-            break
-        }
-      }
-
-      return <>
-        {tags}
-      </>
-    } else {
-      switch (project.approval) {
-        case 'rejected':
-          return <Tag className='mr-2 tag--approval-rejected' label='Rejected' />
-        case 'commented':
-          return <Tag className='mr-2 tag--approval-changes' label='Changes requested' />
-        case 'awaiting':
-          return <Tag className='mr-2 tag--approval-awaiting' label='Awaiting approval' />
-        case 'preliminary':
-        case 'approved':
-          return <Tag className='mr-2 tag--approval-approved' label='Partially approved' />
-        default:
-          return
-      }
+    // Admin approval tag
+    if (!isAcademic) {
+      tags.push(<Tag
+        className={`mr-2 tag--approval-${approvalToUIClass(project.approval)}`}
+        label={`Admin: ${humanizeApproval(project.approval, true)}`}
+      />)
     }
+
+    for (const degree of project.degrees.filter(e => filters.degrees.includes(e))) {
+      const approval = project.academicApproval.find(e => e.degree == degree)?.approval
+      tags.push(<Tag
+        className={`mr-2 tag--approval-${approvalToUIClass(approval)}`}
+        label={`${degreeTagById[degree]}: ${humanizeApproval(approval)}`}
+      />)
+    }
+
+
+    return <>
+      {tags}
+    </>
   }
 
   const renderHeader = ({ title }) => (
