@@ -1,11 +1,18 @@
 export const isAIEvent = event => event.degrees !== null && event.degrees.includes('MScAI')
+export const isMarketplaceOnlyEvent = event => event.isMarketplace
 
 export const getEventType = event => (isAIEvent(event) ? 'AI' : 'General')
 
 export const getFairLabel = events => {
-  const AICount = events.filter(isAIEvent).length
-  const GeneralCount = events.length - AICount
+  if (!events || !events.every(e => e))
+    return
 
+  console.log(events)
+  const AICount = events.filter(isAIEvent).length
+  const MarketplaceCount = events.filter(isMarketplaceOnlyEvent).length
+  const GeneralCount = events.length - AICount - MarketplaceCount
+
+  if (MarketplaceCount > 0) return 'Marketplace only'
   if (AICount > 0 && GeneralCount > 0) return 'Thesis Fair & AI Thesis Fair'
   if (AICount > 0 && GeneralCount === 0) return 'AI Thesis Fair'
   if (AICount === 0 && GeneralCount > 0) return 'General Thesis Fair'

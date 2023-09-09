@@ -7,6 +7,7 @@ import api from '../../api'
 import { getMasterTag } from '../../utilities/masters'
 import Tag from '../tag/tag'
 import { degreeTagById } from '../../utilities/degreeDefinitions'
+import { getFairLabel } from '../../utilities/fairs'
 import * as session from '../../session'
 
 import './style.scss'
@@ -28,6 +29,8 @@ class ProjectReview extends React.Component {
       entity: {
         name: undefined,
       },
+      evids: [],
+      allEventsByEvid: {},
       project: {
         pid: '',
         name: '',
@@ -55,6 +58,13 @@ class ProjectReview extends React.Component {
     this.getApproval = this.getApproval.bind(this)
     this.getAcademicApproval = this.getAcademicApproval.bind(this)
     this.humanizeApproval = this.humanizeApproval.bind(this)
+    this.getFairLabel = this.getFairLabel.bind(this)
+  }
+
+  getFairLabel() {
+    const fairLabel = getFairLabel(this.state.project.evids.map(evid => this.state.allEventsByEvid?.[evid]))
+
+    return <Tag label={fairLabel} className='mr-2' />
   }
 
   getApproval() {
@@ -87,8 +97,6 @@ class ProjectReview extends React.Component {
     }
   }
 
-
-
   async componentDidMount() {
     if (this.props.params?.pid) {
       const project = await api.project.get(this.props.params.pid).exec()
@@ -100,6 +108,10 @@ class ProjectReview extends React.Component {
 
       const entity = await api.entity.get(project.enid).exec()
       this.setState({ entity })
+
+      const currentEvents = await api.event.getActive().exec()
+      const allEventsByEvid = Object.fromEntries(currentEvents.map(event => [event.evid, event]))
+      this.setState({ allEventsByEvid })
     } else {
       this.close()
     }
@@ -241,6 +253,11 @@ class ProjectReview extends React.Component {
           <div className='project-review__field'>
             <p className='project-review__text--micro'>Organization</p>
             <p className='project-review__text--value'>{this.state.entity.name}</p>
+          </div>
+
+          <div className='project-review__field'>
+            <p className='project-review__text--micro'>Fairs</p>
+            <p className='project-review__text--value'>{this.getFairLabel()}</p>
           </div>
 
           {this.state.project.numberOfStudents && (
