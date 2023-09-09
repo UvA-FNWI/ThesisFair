@@ -1,6 +1,7 @@
 import axios from 'axios'
-import GraphQLBuilder from './GraphQLBuilder.js'
 import NodeCache from 'node-cache'
+
+import GraphQLBuilder from './GraphQLBuilder.js'
 import fields from './graphqlFields.js' // assert { type: 'json' };
 
 let tracing = false
@@ -260,6 +261,26 @@ export default url => {
       apiTokenData = null
       tokenChangeCallback()
     }
+  }
+
+  const getMarketplace = async () => {
+    const response = await axios.post(
+      url + 'marketplace',
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/JSON',
+        },
+      }
+    )
+
+    if (response.data.errors) {
+      console.error(response.data.errors)
+      throw response.data.errors
+    }
+
+    return response.data
   }
 
   const graphql = async (functionPath, query, variables) => {
@@ -878,6 +899,7 @@ export default url => {
         },
       },
       project: {
+        marketplace: getMarketplace,
         getCSV: () =>
           genGraphQLBuilder({
             name: 'getCSVprojects',
@@ -926,6 +948,16 @@ export default url => {
           genGraphQLBuilder({
             name: 'getProjectsOfEvent',
             functionPath: 'projectsOfEvent',
+            body: bodies.Project(projection),
+            args: {
+              evid: { value: evid, type: 'ID!' },
+            },
+            cache: caching ? { instance: cache, type: 'project', key: 'pid', multiple: true } : false,
+          }),
+        getApprovedOfEvent: (evid, projection) =>
+          genGraphQLBuilder({
+            name: 'getApprovedProjectsOfEvent',
+            functionPath: 'approvedProjectsOfEvent',
             body: bodies.Project(projection),
             args: {
               evid: { value: evid, type: 'ID!' },
@@ -1073,6 +1105,33 @@ export default url => {
             args: {
               votes: { value: votes, type: '[VoteImport!]!' },
               evid: { value: evid, type: 'ID!' },
+            },
+          }),
+        add: pid =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'voteProject',
+            functionPath: 'vote.add',
+            args: {
+              pid: { value: pid, type: 'ID!' },
+            },
+          }),
+        remove: pid =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'unvoteProject',
+            functionPath: 'vote.remove',
+            args: {
+              pid: { value: pid, type: 'ID!' },
+            },
+          }),
+        hide: pid =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'hideProject',
+            functionPath: 'vote.hide',
+            args: {
+              pid: { value: pid, type: 'ID!' },
             },
           }),
       },

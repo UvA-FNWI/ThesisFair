@@ -10,6 +10,7 @@ import AdminProjects from './pages/admin/projects'
 import Students from './pages/admin/Students'
 import Event from './pages/common/Event'
 import Events from './pages/common/Events'
+import Marketplace from './pages/common/marketplace'
 import Error from './pages/Error'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import LoginPage from './pages/LoginPage'
@@ -35,7 +36,9 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    if (api.getApiTokenData().type !== 'a') {
+    if (!api.getApiTokenData()) {
+      this.setState({ isGuest: true })
+    } else if (api.getApiTokenData().type === 'r') {
       const entity = await api.entity.get(session.getEnid()).exec()
 
       this.setState({ isAcademic: entity.grantsAcademicRights })
@@ -52,6 +55,7 @@ class App extends React.Component {
         <Route path='/forgotPassword' element={<ForgotPasswordPage />} />
         <Route path='/resetPassword' element={<ForgotPasswordPage unknownPassword={true} />} />
         <Route path='' element={<LoginPage />} />
+        <Route path='/marketplace' element={<Marketplace />} />
       </>
     )
   }
@@ -71,6 +75,7 @@ class App extends React.Component {
         <Route path='/project/:pid/review' element={<Page page={<ProjectReview />} />} />
         <Route path='/students' element={<Page page={<Students />} />} />
         <Route path='/loginAs' element={<Page page={<LoginAs />} />} />
+        <Route path='/marketplace' element={<Page page={<Marketplace />} />} />
         <Route path='' element={<Page page={<Events />} />} />
       </>
     )
@@ -83,6 +88,7 @@ class App extends React.Component {
         <Route path='/account' element={<Page page={<StudentAccount />} />} />
         <Route path='/organisations' element={<Page page={<Organisations />} />} />
         <Route path='/votes' element={<Page page={<Votes />} />} />
+        <Route path='/marketplace' element={<Page page={<Marketplace isLoggedIn={true} />} />} />
       </>
     )
   }
@@ -100,9 +106,7 @@ class App extends React.Component {
         />
         <Route
           path='/project/:pid/review'
-          element={
-            this.state.isAcademic ? <Page page={<ProjectReview />} /> : < Page page={<Projects />} />
-          }
+          element={this.state.isAcademic ? <Page page={<ProjectReview />} /> : <Page page={<Projects />} />}
         />
       </>
     )

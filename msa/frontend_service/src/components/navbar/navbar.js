@@ -6,6 +6,7 @@ import projectsIcon from 'bootstrap-icons/icons/list-task.svg'
 import userIcon from 'bootstrap-icons/icons/people.svg'
 import overrideUserIcon from 'bootstrap-icons/icons/person.svg'
 import accountIcon from 'bootstrap-icons/icons/person-circle.svg'
+import marketplaceIcon from 'bootstrap-icons/icons/shop-window.svg'
 import React from 'react'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
@@ -22,6 +23,7 @@ const navigationBarItems = {
     { name: 'Events', icon: eventIcon, link: '/events' },
     { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
     { name: 'Projects', icon: projectsIcon, link: '/projects' },
+    { name: 'Marketplace', icon: marketplaceIcon, link: '/marketplace' },
     { name: 'Students', icon: userIcon, link: '/students' },
     { name: 'LoginAs', icon: overrideUserIcon, link: '/loginAs' },
   ],
@@ -29,6 +31,7 @@ const navigationBarItems = {
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Events', icon: eventIcon, link: '/events' },
     { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
+    { name: 'Marketplace', icon: marketplaceIcon, link: '/marketplace' },
     { name: 'Votes', icon: likesIcon, link: '/votes' },
   ],
   r: [
