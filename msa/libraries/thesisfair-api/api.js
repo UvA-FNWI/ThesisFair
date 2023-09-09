@@ -263,6 +263,26 @@ export default url => {
     }
   }
 
+  const getMarketplace = async () => {
+    const response = await axios.post(
+      url + 'marketplace',
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/JSON',
+        },
+      }
+    )
+
+    if (response.data.errors) {
+      console.error(response.data.errors)
+      throw response.data.errors
+    }
+
+    return response.data
+  }
+
   const graphql = async (functionPath, query, variables) => {
     let response
     try {
@@ -879,6 +899,7 @@ export default url => {
         },
       },
       project: {
+        marketplace: getMarketplace,
         getCSV: () =>
           genGraphQLBuilder({
             name: 'getCSVprojects',

@@ -161,9 +161,7 @@ const ProjectListing = props => {
 
   useEffect(() => {
     const fetchMarketplace = async () => {
-      const response = await api.project.marketplace()
-
-      const { entities, events, projects } = response.data
+      const { entities, events, projects } = await api.project.marketplace()
 
       const allEventsByEvid = Object.fromEntries(events.map(event => [event.evid, event]))
       setAllEventsByEvid(allEventsByEvid)
@@ -189,6 +187,7 @@ const ProjectListing = props => {
       console.log('loadingData', loadingData)
     }
 
+    console.log(loadingData)
     if (loadingData) fetchMarketplace()
   }, [loadingData])
 
