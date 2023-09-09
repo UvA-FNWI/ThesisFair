@@ -197,6 +197,10 @@ class ProjectReview extends React.Component {
           label: 'Partially Approve',
           onClick: this.partiallyApprove,
         },
+        {
+          label: 'Close',
+          onClick: this.close,
+        },
       ]
     }
 
