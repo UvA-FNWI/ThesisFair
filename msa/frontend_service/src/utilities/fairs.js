@@ -6,7 +6,7 @@ export const getFairLabel = events => {
   const AICount = events.filter(isAIEvent).length
   const GeneralCount = events.length - AICount
 
-  if (AICount > 0 && GeneralCount > 0) return 'Thesis Fair'
+  if (AICount > 0 && GeneralCount > 0) return 'Thesis Fair & AI Thesis Fair'
   if (AICount > 0 && GeneralCount === 0) return 'AI Thesis Fair'
   if (AICount === 0 && GeneralCount > 0) return 'General Thesis Fair'
 }
