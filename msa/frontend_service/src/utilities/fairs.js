@@ -4,10 +4,8 @@ export const isMarketplaceOnlyEvent = event => event.isMarketplace
 export const getEventType = event => (isAIEvent(event) ? 'AI' : 'General')
 
 export const getFairLabel = events => {
-  if (!events || !events.every(e => e))
-    return
+  if (!events || !events.every(e => e)) return
 
-  console.log(events)
   const AICount = events.filter(isAIEvent).length
   const MarketplaceCount = events.filter(isMarketplaceOnlyEvent).length
   const GeneralCount = events.length - AICount - MarketplaceCount
