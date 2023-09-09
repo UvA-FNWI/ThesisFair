@@ -198,7 +198,9 @@ const ProjectListing = props => {
         }
         headerButtons={
           <Link to={`/project/${project.pid}/review`}>
-            <Button variant='primary'>Review</Button>
+            <Button variant='primary' style={{ width: 'max-content', marginLeft: '0.75rem' }}>
+              Review
+            </Button>
           </Link>
         }
       />

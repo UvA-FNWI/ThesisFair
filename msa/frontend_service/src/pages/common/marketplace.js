@@ -139,6 +139,7 @@ const ProjectListing = props => {
               onClick={() => {
                 addVoteOnProject(project.pid)
               }}
+              style={{ width: 'max-content', marginLeft: '0.75rem' }}
             >
               Add to list
             </Button>
@@ -184,25 +185,17 @@ const ProjectListing = props => {
       setEntityNameById(entityNameById)
 
       setLoadingData(false)
-      console.log('loadingData', loadingData)
     }
 
-    console.log(loadingData)
     if (loadingData) fetchMarketplace()
   }, [loadingData])
 
   useEffect(() => {
-    console.log('second useEffect')
     if (!projectsByEnid?.entries) return
-    console.log('entries found', !loading, loadingData, projects, projectsByEnid)
     if (!loading || loadingData) return
-    console.log('allowed to load')
-
-    console.log(Array.from(projectsByEnid.entries()), projectsByEnid)
 
     const newItems = Array.from(projectsByEnid.entries())
       .map(([enid, pids]) => {
-        console.log(enid, pids)
         const entityProjects = pids.map(pid => projects[pid])
 
         if (entityProjects.length === 0) {
@@ -210,8 +203,6 @@ const ProjectListing = props => {
         }
 
         const entityName = entityNameById[enid]
-
-        console.log(entityName)
 
         return entityProjects.map(project => ({
           type: 'project',

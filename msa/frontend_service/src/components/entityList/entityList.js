@@ -30,6 +30,8 @@ function EntityListItem(props) {
 
       const tags = await props.getTags()
 
+      if (!tags || tags.length === 0) return
+
       setPaymentTags(tags || [])
     }
 

@@ -39,7 +39,6 @@ async function sendChangeRequestedMail(project) {
 
   const entityUsers = res.data
 
-  console.log('sending email')
   const bongo = await mail.sendMail({
     from: 'UvA ThesisFair <thesisfair-IvI@uva.nl>',
     to: process.env.OVERRIDEMAIL || project.email,
@@ -68,7 +67,7 @@ async function sendChangeRequestedMail(project) {
   `,
   })
 
-  console.log(bongo)
+  // console.log(bongo)
   return bongo
 }
 
@@ -480,7 +479,7 @@ schemaComposer.Mutation.addNestedFields({
           )
         }
 
-        console.log(args)
+        // console.log(args)
         if (args.approval == 'commented') {
           await sendChangeRequestedMail(project)
         }
