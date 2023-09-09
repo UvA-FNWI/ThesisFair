@@ -175,7 +175,6 @@ class Entities extends React.Component {
               <Tag
                 key={type}
                 label={type.length === 1 ? `Type ${type}` : type}
-                className='mr-2'
                 selectable={true}
                 selected={this.state.filters.types.includes(type.replace(' ', ''))}
                 onClick={() => {

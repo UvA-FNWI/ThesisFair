@@ -8,12 +8,6 @@ export const canGetEvent = (req, args, event) => {
   }
 }
 
-export const canGetActiveEvents = (req, args) => {
-  if (args.all && req.user.type !== 'a' && req.user.type !== 'r') {
-    throw new Error('UNAUTHORIZED list all events')
-  }
-}
-
 export const canGetEvents = (req, args) => {
   if (args.all && req.user.type !== 'a') {
     throw new Error('UNAUTHORIZED list all events')

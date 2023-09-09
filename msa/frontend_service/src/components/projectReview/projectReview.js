@@ -1,14 +1,14 @@
 import MDEditor from '@uiw/react-md-editor'
 import React from 'react'
-import { Button, Container, DropdownButton, Dropdown } from 'react-bootstrap'
+import { Button, Container, Dropdown, DropdownButton } from 'react-bootstrap'
 import rehypeSanitize from 'rehype-sanitize'
 
 import api from '../../api'
-import { getMasterTag } from '../../utilities/masters'
-import Tag from '../tag/tag'
+import * as session from '../../session'
 import { degreeTagById } from '../../utilities/degreeDefinitions'
 import { getFairLabel } from '../../utilities/fairs'
-import * as session from '../../session'
+import { getMasterTag } from '../../utilities/masters'
+import Tag from '../tag/tag'
 
 import './style.scss'
 
@@ -19,13 +19,10 @@ class ProjectReview extends React.Component {
 
     this.state = {
       newComment: '',
-      selectedDegree: api.getApiTokenData().type === 'a'
-        ? undefined
-        : (
-          session.getSessionData("reviewingDegrees")
-            ? JSON.parse(session.getSessionData("reviewingDegrees"))[-1]
-            : undefined
-        ),
+      selectedDegree:
+        api.getApiTokenData().type === 'a'
+          ? undefined
+          : session.getSessionData('reviewingDegrees') && JSON.parse(session.getSessionData('reviewingDegrees'))[-1],
       entity: {
         name: undefined,
       },
@@ -68,10 +65,9 @@ class ProjectReview extends React.Component {
   }
 
   getApproval() {
-      if (this.state.project.approval == 'approved')
-        return 'preliminary'
+    if (this.state.project.approval === 'approved') return 'preliminary'
 
-      return this.state.project.approval || 'awaiting'
+    return this.state.project.approval || 'awaiting'
   }
 
   getAcademicApproval() {
@@ -79,7 +75,7 @@ class ProjectReview extends React.Component {
       return this.getApproval()
     }
 
-    return this.state.project.academicApproval.find(e => e.degree == this.state.selectedDegree)?.approval || 'awaiting'
+    return this.state.project.academicApproval.find(e => e.degree === this.state.selectedDegree)?.approval || 'awaiting'
   }
 
   humanizeApproval(approval) {
@@ -210,22 +206,27 @@ class ProjectReview extends React.Component {
   getDataInputs = () => (
     <Container className='project-review__container' data-color-mode='light'>
       <h1 className='mb-4'>Review Project</h1>
-      <DropdownButton id="dropdown-basic-button" title={`Reviewing for ${degreeTagById[this.state.selectedDegree] || "partial approval"}`}>
-        {api.getApiTokenData().type === 'a' &&
-            <Dropdown.Item onClick={() => this.setState({selectedDegree: undefined})}>For partial approval</Dropdown.Item>
-        }
-        {
-          this.state.project.degrees.map(id =>
-            <Dropdown.Item onClick={() => this.setState({selectedDegree: id})}>{degreeTagById[id]}</Dropdown.Item>
-          )
-        }
+      <DropdownButton
+        id='dropdown-basic-button'
+        title={`Reviewing for ${degreeTagById[this.state.selectedDegree] || 'partial approval'}`}
+      >
+        {api.getApiTokenData().type === 'a' && (
+          <Dropdown.Item onClick={() => this.setState({ selectedDegree: undefined })}>
+            For partial approval
+          </Dropdown.Item>
+        )}
+        {this.state.project.degrees.map(id => (
+          <Dropdown.Item key={id} onClick={() => this.setState({ selectedDegree: id })}>
+            {degreeTagById[id]}
+          </Dropdown.Item>
+        ))}
       </DropdownButton>
       <div className='project-review__content'>
         <div className='project-review__fields'>
           <div className='project-review__field'>
             <p className='project-review__text--micro'>Admin Review Status</p>
             <Tag
-              className={`project-review__status project-review__status--${(this.getApproval())
+              className={`project-review__status project-review__status--${this.getApproval()
                 .replace(' ', '-')
                 .toLowerCase()}`}
               label={this.humanizeApproval(this.getApproval())}
@@ -235,7 +236,7 @@ class ProjectReview extends React.Component {
           <div className='project-review__field'>
             <p className='project-review__text--micro'>Status of Review</p>
             <Tag
-              className={`project-review__status project-review__status--${(this.getAcademicApproval())
+              className={`project-review__status project-review__status--${this.getAcademicApproval()
                 .replace(' ', '-')
                 .toLowerCase()}`}
               label={this.humanizeApproval(this.getAcademicApproval())}

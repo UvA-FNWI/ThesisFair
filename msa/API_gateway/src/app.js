@@ -4,6 +4,7 @@ import morgan from 'morgan'
 
 import auth from './auth.js'
 import login from './routes/login.js'
+import marketplace from './routes/marketplace.js'
 import sso from './routes/sso.js'
 import requestPasswordReset from './routes/requestPasswordReset.js'
 import resetPassword from './routes/resetPassword.js'
@@ -37,6 +38,7 @@ const createApp = async () => {
   }
 
   newApp.use('/login', login)
+  newApp.use('/marketplace', marketplace)
   newApp.use('/sso', sso)
   newApp.use('/requestPasswordReset', requestPasswordReset)
   newApp.use('/resetPassword', resetPassword)

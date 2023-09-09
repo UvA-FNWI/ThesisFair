@@ -29,7 +29,8 @@ dev:
 	-killall kubectl
 	kubectl port-forward svc/database 27017:27017 &
 	# node test/test/db.js run
-	cd scripts/import-datanose && npm start dev
+	# cd scripts/import-datanose && npm start dev
+	mongorestore --drop dumps/real-data-modified
 	xdg-open http://$$(minikube ip) || open http://$$(minikube ip)
 
 
