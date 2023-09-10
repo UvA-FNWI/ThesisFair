@@ -87,8 +87,9 @@ class App extends React.Component {
         <Route path='' element={<Navigate to='/account' replace={true} />} />
         <Route path='/account' element={<Page page={<StudentAccount />} />} />
         <Route path='/organisations' element={<Page page={<Organisations />} />} />
+        {/* <Route path='/organisation/:enid/' element={<Page page={<OrganisationDashboard />} />} /> */}
         <Route path='/votes' element={<Page page={<Votes />} />} />
-        <Route path='/marketplace' element={<Page page={<Marketplace isLoggedIn={true} />} />} />
+        <Route path='/marketplace' element={<Page page={<Marketplace isStudent={true} />} />} />
       </>
     )
   }

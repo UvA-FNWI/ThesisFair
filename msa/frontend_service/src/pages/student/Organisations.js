@@ -3,6 +3,8 @@ import React from 'react'
 import { Container, Form } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 
+// import { Button } from 'react-bootstrap'
+// import { Link } from 'react-router-dom'
 import api from '../../api'
 import EntityList from '../../components/entityList/entityList'
 
@@ -186,7 +188,16 @@ class Entities extends React.Component {
               enid: entity.enid,
               name: entity.name,
 
-              // TODO: Add description et al
+              // TODO: Add description et al?
+              // TODO: Add details page?
+
+              // headerButtons: () => (
+              //   <Link to={`/organisation/${entity.enid}/`}>
+              //     <Button variant='primary' style={{ width: 'max-content' }}>
+              //       View details
+              //     </Button>
+              //   </Link>
+              // ),
             }))}
           />
         ) : (

@@ -1,3 +1,5 @@
+import likesIcon from 'bootstrap-icons/icons/heart.svg'
+import likesFilledIcon from 'bootstrap-icons/icons/heart-fill.svg'
 import fuzzysort from 'fuzzysort'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Container, Form } from 'react-bootstrap'
@@ -13,12 +15,15 @@ import { getFairLabel } from '../../utilities/fairs'
 
 import '../representative/projects.scss'
 import '../../components/projectListItem/projectListItem.scss'
+import './marketplace.scss'
 
 const ProjectListing = props => {
+  const [showHeadings, setShowHeadings] = useState(true)
   const [loading, setLoading] = useState(true)
   const [loadingData, setLoadingData] = useState(true)
   const [projects, setProjects] = useState([])
   const [filteredProjects, setFilteredProjects] = useState([])
+  const [votedProjects, setVotedProjects] = useState([])
   const [projectsByEnid, setProjectsByEnid] = useState(new Map())
   const [entityNameById, setEntityNameById] = useState({})
   const [allEventsByEvid, setAllEventsByEvid] = useState({})
@@ -27,17 +32,27 @@ const ProjectListing = props => {
     degrees: session.getSessionData('filteredDegrees')
       ? JSON.parse(session.getSessionData('filteredDegrees'))
       : Object.values(degrees).map(degree => degree.id),
+    tags: session.getSessionData('filteredTags') ? JSON.parse(session.getSessionData('filteredDegrees')) : [],
   })
   const [items, setItems] = useState([])
 
-  const isLoggedIn = props.isLoggedIn
+  const isStudent = props.isStudent
 
   const listRef = useRef(null)
+  const listRefVoted = useRef(null)
 
   const searchFilterFunction = (projects, filters) => {
     if (!filters.search) return projects
 
     return fuzzysort.go(filters.search, projects, { key: 'project.title', limit: 25, threshold: -5000 }).map(e => e.obj)
+  }
+
+  const tagFilterFunction = (projects, filters) => {
+    if (filters.tags.length === 0) return projects
+
+    return projects.filter(
+      ({ project }) => !project.tags || project.tags.some(tag => filters.tags.includes(tag.replace(' ', '')))
+    )
   }
 
   const degreeFilterFunction = (projects, filters) => {
@@ -51,7 +66,7 @@ const ProjectListing = props => {
 
   const filter = useCallback(
     (filters, allProjects = items) => {
-      const filteredEntities = [searchFilterFunction, degreeFilterFunction].reduce(
+      const filteredEntities = [searchFilterFunction, degreeFilterFunction, tagFilterFunction].reduce(
         (projects, filterFunction) => filterFunction(projects, filters),
         allProjects
       )
@@ -79,21 +94,26 @@ const ProjectListing = props => {
   }
 
   const sortProjects = (a, b) => {
-    if (a.title < b.title) return -1
+    if (a.entityName < b.entityName) return -1
+    if (a.entityName > b.entityName) return 1
+
+    if (a.project.name < b.project.name) return -1
     return 1
   }
 
   const addVoteOnProject = project_id => {
     api.votes.add(project_id)
+    setVotedProjects([...votedProjects, project_id])
   }
 
   const removeVoteOnProject = project_id => {
     api.votes.remove(project_id)
+    setVotedProjects(votedProjects.filter(pid => pid !== project_id))
   }
 
-  const hideProject = project_id => {
-    api.votes.hide(project_id)
-  }
+  // const hideProject = project_id => {
+  //   api.votes.hide(project_id)
+  // }
 
   const renderHeader = ({ title }) => (
     <div key={title}>
@@ -105,15 +125,23 @@ const ProjectListing = props => {
     </div>
   )
 
-  const renderProject = ({ entityName, project }) => {
+  const renderProject = ({ entityName, project }, isVotedList) => {
+    if (isVotedList && !votedProjects.includes(project.pid)) return
+    if (!isVotedList && votedProjects.includes(project.pid)) return
+
     const tags = (project.tags || []).map(tag => ({ tag: tag.split('.')[1], tooltip: undefined })) || []
 
     project.degrees.forEach(id => {
       const tag = degreeById[id]
-      tags.push({
-        tag: tag.tag,
-        tooltip: tag.tooltip,
-      })
+
+      const tagExists = !!tags.find(t => t.tag === tag.tag)
+
+      if (!tagExists) {
+        tags.push({
+          tag: tag.tag,
+          tooltip: tag.tooltip,
+        })
+      }
     })
 
     let fairLabel
@@ -127,21 +155,29 @@ const ProjectListing = props => {
         expectations={project.expectations}
         environment={project.environment}
         tags={tags}
-        name={`${entityName} - ${project.name}`}
+        name={showHeadings && !isVotedList ? project.name : `${entityName} - ${project.name}`}
         email={project.email}
         numberOfStudents={project.numberOfStudents}
         notInList={true}
         headerBadge={fairLabel && <Tag label={fairLabel} />}
         headerButtons={
-          isLoggedIn && (
+          isStudent && (
             <Button
               variant='primary'
               onClick={() => {
-                addVoteOnProject(project.pid)
+                if (isVotedList) {
+                  removeVoteOnProject(project.pid)
+                } else {
+                  addVoteOnProject(project.pid)
+                }
               }}
-              style={{ width: 'max-content', marginLeft: '0.75rem' }}
+              style={{ width: 'max-content', marginLeft: '0.75rem', padding: '0.375rem' }}
             >
-              Add to list
+              <img
+                src={isVotedList ? likesFilledIcon : likesIcon}
+                style={{ width: '1.5rem', height: '1.5rem', filter: 'invert()' }}
+                alt={isVotedList ? 'unvote' : 'vote'}
+              />
             </Button>
           )
         }
@@ -149,12 +185,12 @@ const ProjectListing = props => {
     )
   }
 
-  const renderItem = ({ type, ...properties }) => {
+  const renderItem = ({ type, ...properties }, isVotedList) => {
     switch (type) {
       case 'header':
         return renderHeader(properties)
       case 'project':
-        return renderProject(properties)
+        return renderProject(properties, isVotedList)
       default:
         return
     }
@@ -218,17 +254,39 @@ const ProjectListing = props => {
     setLoading(false)
   }, [entityNameById, filter, filtersState, loading, loadingData, projects, projectsByEnid])
 
-  const showNoProjectsIfRequired = items => {
-    if (items.length === 0) {
-      return [{ type: 'header', title: 'No projects found' }]
+  const showNoProjectsIfRequired = (items, isVotedList) => {
+    const projects = isVotedList
+      ? items.filter(({ project }) => votedProjects.includes(project.pid))
+      : items.filter(({ project }) => !votedProjects.includes(project.pid))
+
+    if (projects.length === 0) {
+      return [{ type: 'header', title: isVotedList ? 'You have not voted for any project' : 'No projects found' }]
     }
 
-    return items
+    return projects
+  }
+
+  const addHeaders = items => {
+    if (!showHeadings) return items
+
+    return items.reduce((accumulator, nextItem) => {
+      const [previousItem] = accumulator ? accumulator.slice(-1) : [undefined]
+
+      if (!previousItem || !('entityName' in previousItem) || previousItem.entityName !== nextItem.entityName)
+        accumulator.push({ type: 'header', title: nextItem.entityName })
+      accumulator.push(nextItem)
+
+      return accumulator
+    }, [])
   }
 
   return (
     <>
       <Container>
+        <Button style={{ marginBottom: '0.75rem' }} variant='primary' onClick={() => setShowHeadings(!showHeadings)}>
+          {showHeadings ? 'Hide headings' : 'Show headings'}
+        </Button>
+
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
           {Object.values(degrees).map(({ id, tag, tooltip }) => {
             return (
@@ -265,19 +323,40 @@ const ProjectListing = props => {
         {loading ? (
           <h4>Loading...</h4>
         ) : (
-          <div
-            className='project-lists'
-            ref={listRef}
-            style={{ maxHeight: '70vh', marginTop: '1.5rem', overflowY: 'auto' }}
-          >
-            <ViewportList
-              viewportRef={listRef}
-              items={showNoProjectsIfRequired(filteredProjects)}
-              itemMinSize={48}
-              initialPrerender={32}
+          <div className='project-lists-container'>
+            <div
+              className='project-lists'
+              ref={listRef}
+              style={{ maxHeight: '70vh', marginTop: '1.5rem', overflowY: 'auto' }}
             >
-              {item => renderItem(item)}
-            </ViewportList>
+              <ViewportList
+                viewportRef={listRef}
+                items={addHeaders(showNoProjectsIfRequired(filteredProjects))}
+                itemMinSize={48}
+                initialPrerender={32}
+              >
+                {item => renderItem(item)}
+              </ViewportList>
+            </div>
+            {isStudent && (
+              <div
+                className='project-lists'
+                ref={listRefVoted}
+                style={{ maxHeight: '70vh', marginTop: '1.5rem', overflowY: 'auto' }}
+              >
+                <ViewportList
+                  viewportRef={listRefVoted}
+                  items={[
+                    { type: 'header', title: 'Projects you have voted on' },
+                    ...showNoProjectsIfRequired(items, true),
+                  ]}
+                  itemMinSize={48}
+                  initialPrerender={32}
+                >
+                  {item => renderItem(item, true)}
+                </ViewportList>
+              </div>
+            )}
           </div>
         )}
       </Container>
@@ -292,7 +371,11 @@ class Projects extends React.Component {
     <div>
       <Container className='mt-4'>
         <div className='mb-4'>
-          <h1>Projects for upcoming events</h1>
+          <h1>Project Marketplace</h1>
+          <p>
+            This page shows the project for all upcoming Thesis Fairs, as well as the projects that have been
+            specifically put onto the marketplace.
+          </p>
         </div>
       </Container>
       <ProjectListing {...this.props} />

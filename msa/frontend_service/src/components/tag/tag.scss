@@ -65,6 +65,10 @@
     background-color: rgb(102, 26, 183);
   }
 
+  &--Marketplaceonly {
+    background-color: rgb(182, 84, 3);
+  }
+
   &--disabled {
     background-color: rgb(225, 225, 225);
     filter: brightness(1) !important;

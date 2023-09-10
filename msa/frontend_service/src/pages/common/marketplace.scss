@@ -1,0 +1,25 @@
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+
+.project-lists-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  & .project-lists {
+    max-width: calc(50% - 1rem);
+    width: calc(50% - 1rem);
+
+    &:only-child {
+      max-width: 100%;
+      width: 100%;
+    }
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .project-lists-container {
+    flex-direction: column;
+  }
+}
