@@ -1068,13 +1068,12 @@ export default url => {
           }),
       },
       votes: {
-        getOfStudent: (uid, evid) =>
+        getOfStudent: uid =>
           genGraphQLBuilder({
             name: 'getVotesOfStudent',
             functionPath: 'votesOfStudent',
             args: {
               uid: { value: uid, type: 'ID!' },
-              evid: { value: evid, type: 'ID!' },
             },
           }),
         getOfEntity: (enid, evid, projection) =>
@@ -1107,21 +1106,23 @@ export default url => {
               evid: { value: evid, type: 'ID!' },
             },
           }),
-        add: pid =>
+        add: (uid, pid) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'voteProject',
             functionPath: 'vote.add',
             args: {
+              uid: { value: uid, type: 'ID!' },
               pid: { value: pid, type: 'ID!' },
             },
           }),
-        remove: pid =>
+        remove: (uid, pid) =>
           genGraphQLBuilder({
             type: 'mutation',
             name: 'unvoteProject',
             functionPath: 'vote.remove',
             args: {
+              uid: { value: uid, type: 'ID!' },
               pid: { value: pid, type: 'ID!' },
             },
           }),
@@ -1129,78 +1130,11 @@ export default url => {
           genGraphQLBuilder({
             type: 'mutation',
             name: 'hideProject',
-            functionPath: 'vote.hide',
+            functionPath: 'voteHide',
             args: {
               pid: { value: pid, type: 'ID!' },
             },
           }),
-      },
-      schedule: {
-        generate: evid =>
-          genGraphQLBuilder({
-            type: 'mutation',
-            name: 'generateSchedule',
-            functionPath: 'schedule.generate',
-            args: {
-              evid: { value: evid, type: 'ID!' },
-            },
-          }),
-        import: (evid, file) =>
-          genGraphQLBuilder({
-            type: 'mutation',
-            name: 'importSchedule',
-            functionPath: 'schedule.import',
-            args: {
-              evid: { value: evid, type: 'ID!' },
-              file: { value: file, type: 'String!' },
-            },
-          }),
-        getAll: (evid, projection) =>
-          genGraphQLBuilder({
-            name: 'getFullSchedule',
-            functionPath: 'scheduleAdmin',
-            body: bodies.Schedule(projection),
-            args: {
-              evid: { value: evid, type: 'ID!' },
-            },
-          }),
-        update: (appointment, projection) =>
-          genGraphQLBuilder({
-            type: 'mutation',
-            name: 'updateAppointment',
-            functionPath: 'schedule.update',
-            body: bodies.Schedule(projection),
-            args: {
-              sid: { value: appointment.sid, type: 'ID!' },
-              uid: { value: appointment.uid, type: 'ID' },
-              enid: { value: appointment.enid, type: 'ID' },
-              slot: { value: appointment.slot, type: 'String' },
-            },
-          }),
-        representative: {
-          get: (enid, evid, projection) =>
-            genGraphQLBuilder({
-              name: 'getRepresentativeSchedule',
-              functionPath: 'scheduleRepresentative',
-              body: bodies.Schedule(projection),
-              args: {
-                enid: { value: enid, type: 'ID!' },
-                evid: { value: evid, type: 'ID!' },
-              },
-            }),
-        },
-        student: {
-          get: (uid, evid, projection) =>
-            genGraphQLBuilder({
-              name: 'getStudentSchedule',
-              functionPath: 'scheduleStudent',
-              body: bodies.Schedule(projection),
-              args: {
-                uid: { value: uid, type: 'ID!' },
-                evid: { value: evid, type: 'ID!' },
-              },
-            }),
-        },
       },
     },
   }

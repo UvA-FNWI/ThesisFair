@@ -1,7 +1,7 @@
-import { graphql } from 'graphql';
-import { schemaComposer } from 'graphql-compose';
-import { readFileSync } from 'fs';
-import mongoose from 'mongoose';
+import { graphql } from 'graphql'
+import { schemaComposer } from 'graphql-compose'
+import { readFileSync } from 'fs'
+import mongoose from 'mongoose'
 
 const ObjectId = mongoose.Types.ObjectId
 
@@ -81,61 +81,61 @@ const getEvid = async external_id => {
 
 schemaComposer.Query.addNestedFields({
   votesOfStudent: {
-    type: '[Pid!]',
+    type: '[ID!]',
     args: {
       uid: 'ID!',
-      evid: 'ID!',
+      // evid: 'ID!',
     },
     description: 'Get the votes of a student from an event.',
     resolve: async (obj, args, req) => {
       canGetStudentVotes(req, args)
-      return await Vote.findOne({ evid: args.evid, uid: args.uid }).then(result =>
-        result ? result.votes.map(v => v.pid) : null
-      )
+      return await Vote.findOne({ uid: args.uid }).then(result => result?.pids || null)
     },
   },
   votesOfEntity: {
-    type: '[StudentVote!]',
+    type: '[Vote!]',
     args: {
       enid: 'ID!',
-      evid: 'ID'
+      evid: 'ID',
     },
     description: 'Get the students that voted for an entity on an event.',
     resolve: async (obj, args, req) => {
-      canGetEntityVotes(req, args);
+      canGetEntityVotes(req, args)
 
-      const match = args.evid ?
-        {evid: new ObjectId(args.evid), 'votes.enid': new ObjectId(args.enid)} : 
-        {'votes.enid': new ObjectId(args.enid)}
+      throw new Error('Broken due to vote schema change')
+
+      const match = args.evid
+        ? { evid: new ObjectId(args.evid), 'votes.enid': new ObjectId(args.enid) }
+        : { 'votes.enid': new ObjectId(args.enid) }
 
       const votes = await Vote.aggregate([
-        {'$match': match},
-        {'$project': {
-          uid: '$uid',
-          votes: {
-            '$filter': {
-              input: '$votes',
-              as: 'vote',
-              cond: { $eq: [ '$$vote.enid', new ObjectId(args.enid) ] }
-            }
-          }
-        }},
+        { $match: match },
+        {
+          $project: {
+            uid: '$uid',
+            votes: {
+              $filter: {
+                input: '$votes',
+                as: 'vote',
+                cond: { $eq: ['$$vote.enid', new ObjectId(args.enid)] },
+              },
+            },
+          },
+        },
       ])
 
       if (!votes) {
-        return null;
+        return null
       }
 
-      return await votes.map(
-        ({uid, votes}) => votes.map(({pid}) => ({uid, pid}))
-      ).flat();
-    }
+      return await votes.map(({ uid, votes }) => votes.map(({ pid }) => ({ uid, pid }))).flat()
+    },
   },
   votesOfProject: {
     type: '[ID!]',
     args: {
       pid: 'ID!',
-      evid: 'ID'
+      evid: 'ID',
     },
     description: 'Get the students who voted for a project on an event.',
     resolve: async (obj, args, req) => {
@@ -143,7 +143,9 @@ schemaComposer.Query.addNestedFields({
         throw new Error('UNAUTHORIZED get votes of projects')
       }
 
-      const query = args.evid ? { evid: args.evid } : {};
+      throw new Error('Broken due to vote schema change')
+
+      const query = args.evid ? { evid: args.evid } : {}
 
       if (req.user.type === 'a') {
         query['votes.pid'] = args.pid
@@ -155,15 +157,17 @@ schemaComposer.Query.addNestedFields({
     },
   },
   votesOfEvent: {
-    type: '[EventVote!]!',
+    type: '[Vote!]!',
     args: {
       evid: 'ID!',
     },
     description: 'Get all the votes of an event.',
     resolve: async (obj, args, req) => {
       if (req.user.type !== 'a') {
-        throw Error('UNAUTHORIZED to get all votes of the event')
+        throw new Error('UNAUTHORIZED to get all votes of the event')
       }
+
+      throw new Error('Broken due to vote schema change')
 
       return await Vote.find({ evid: args.evid })
     },
@@ -179,6 +183,8 @@ schemaComposer.Query.addNestedFields({
       if (req.user.type !== 'a') {
         throw Error('UNAUTHORIZED internal only route')
       }
+
+      throw new Error('Broken due to vote schema change')
 
       return !!(await Vote.findOne({ uid: args.uid, 'votes.enid': args.enid }))
     },
@@ -197,7 +203,9 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED delete vote')
       }
 
-      await Vote.deleteMany({ enid: args.enid })
+      // TODO: Add back functionality with new schema
+
+      // await Vote.deleteMany({ enid: args.enid })
     },
   },
   'vote.deleteOfEvent': {
@@ -211,7 +219,61 @@ schemaComposer.Mutation.addNestedFields({
         throw new Error('UNAUTHORIZED delete vote')
       }
 
-      await Vote.deleteMany({ evid: args.evid })
+      // TODO: Add back functionality with new schema
+
+      // await Vote.deleteMany({ evid: args.evid })
+    },
+  },
+  'vote.add': {
+    type: 'Boolean',
+    args: {
+      uid: 'ID!',
+      pid: 'ID!',
+    },
+    description: "Add a project to a student's votes.",
+    resolve: async (obj, args, req) => {
+      canGetStudentVotes(req, args)
+
+      const currentVotes = await Vote.findOne({ uid: args.uid })
+
+      const pidObject = new ObjectId(args.pid)
+
+      if (!currentVotes) {
+        await Vote.create({ uid: args.uid, pids: [pidObject] })
+        return true
+      }
+
+      const newVotes = [...currentVotes.pids, pidObject]
+
+      await Vote.findOneAndUpdate({ uid: args.uid }, { pids: newVotes })
+
+      return true
+    },
+  },
+  'vote.remove': {
+    type: 'Boolean',
+    args: {
+      uid: 'ID!',
+      pid: 'ID!',
+    },
+    description: "Remove a project from a student's votes.",
+    resolve: async (obj, args, req) => {
+      canGetStudentVotes(req, args)
+
+      const currentVotes = await Vote.findOne({ uid: args.uid })
+
+      if (!currentVotes) {
+        await Vote.create({ uid: args.uid, pids: [] })
+        return true
+      }
+
+      const pidObject = new ObjectId(args.pid)
+
+      const newVotes = currentVotes.pids.filter(p => !p.equals(pidObject))
+
+      await Vote.findOneAndUpdate({ uid: args.uid }, { pids: newVotes })
+
+      return true
     },
   },
 })

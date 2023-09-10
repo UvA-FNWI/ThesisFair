@@ -15,7 +15,7 @@ async function download(content, filename) {
 
 async function downloadNoFetchAPI(content, filename) {
   const a = document.createElement('a')
-  const blob = new Blob([content], {type: 'text/csv'})
+  const blob = new Blob([content], { type: 'text/csv' })
   const url = URL.createObjectURL(blob)
   a.setAttribute('href', url)
   a.setAttribute('download', filename)
@@ -72,13 +72,13 @@ export const getFileContent = (text = false) => {
 }
 
 export const degrees = {
-  'AI': 'MSc Artificial Intelligence',
-  'CPS': 'MSc Computational Science',
+  AI: 'MSc Artificial Intelligence',
+  CPS: 'MSc Computational Science',
   // 'CS': 'MSc Computer Science',
-  'DS': 'MSc Information Studies (Data Science track)',
-  'IS': 'MSc Information Studies (Information Systems track)',
-  'MoL': 'MSc Logic',
-  'SE': 'MSc Software Engineering',
+  DS: 'MSc Information Studies (Data Science track)',
+  IS: 'MSc Information Studies (Information Systems track)',
+  MoL: 'MSc Logic',
+  SE: 'MSc Software Engineering',
 }
 
 export const tags = {
@@ -139,11 +139,7 @@ export const tags = {
     'Cultural Heritage',
     'Forensics',
   ],
-  'Quantitative Healthcare Analysis': [
-    'AI & Health',
-    'Medical image analysis',
-    'Medical signal processing',
-  ],
+  'Quantitative Healthcare Analysis': ['AI & Health', 'Medical image analysis', 'Medical signal processing'],
   'Theory of Computer Science': [
     'Algorithms and datastructures',
     'Complexity theory',

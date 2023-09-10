@@ -6,19 +6,20 @@ let conn
 
 const voteSchema = new mongoose.Schema({
   uid: { type: mongoose.Schema.ObjectId, required: true },
-  evid: { type: mongoose.Schema.ObjectId, required: true },
-  votes: [
-    new mongoose.Schema({
-      enid: { type: mongoose.Schema.ObjectId, required: true },
-      pid: { type: mongoose.Schema.ObjectId, required: true },
-    }),
-  ],
+  pids: [{ type: mongoose.Schema.ObjectId, required: true }],
+  // evid: { type: mongoose.Schema.ObjectId, required: true },
+  // votes: [
+  //   new mongoose.Schema({
+  //     enid: { type: mongoose.Schema.ObjectId, required: true },
+  //     pid: { type: mongoose.Schema.ObjectId, required: true },
+  //   }),
+  // ],
 })
 voteSchema.virtual('vid').get(function () {
   return this._id
 }) // Create _id alias
-voteSchema.index({ uid: 1, evid: 1 }, { unique: true })
-voteSchema.index({ uid: 1, evid: 1, 'votes.pid': 1 }, { unique: true })
+// voteSchema.index({ uid: 1, pid: 1 }, { unique: true })
+// voteSchema.index({ uid: 1, evid: 1, 'votes.pid': 1 }, { unique: true })
 export let Vote
 
 export const connect = async uri => {

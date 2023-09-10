@@ -98,7 +98,13 @@ export default class GraphQLBuilder {
       }
     }
 
-    let res = await this.executor(this.functionPath, this.genQuery(), this.genVariablesDict())
+    let res
+
+    try {
+      res = await this.executor(this.functionPath, this.genQuery(), this.genVariablesDict())
+    } catch (error) {
+      return
+    }
 
     for (const key of this.functionPath.split('.')) {
       res = res[key]

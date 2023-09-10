@@ -36,7 +36,7 @@ const ProjectListing = props => {
     tags: session.getSessionData('filteredTags') ? JSON.parse(session.getSessionData('filteredTags')) : [],
   })
 
-  console.log(session.getSessionData('filteredTags'), filtersState.tags)
+  console.log(votedProjects)
 
   const [items, setItems] = useState([])
 
@@ -48,7 +48,7 @@ const ProjectListing = props => {
   const searchFilterFunction = (projects, filters) => {
     if (!filters.search) return projects
 
-    return fuzzysort.go(filters.search, projects, { key: 'project.title', limit: 25, threshold: -5000 }).map(e => e.obj)
+    return fuzzysort.go(filters.search, projects, { key: 'search', limit: 25, threshold: -5000 }).map(e => e.obj)
   }
 
   const tagFilterFunction = (projects, filters) => {
@@ -106,13 +106,23 @@ const ProjectListing = props => {
   }
 
   const addVoteOnProject = project_id => {
-    api.votes.add(project_id)
-    setVotedProjects([...votedProjects, project_id])
+    try {
+      const uid = api.getApiTokenData().uid
+      api.votes.add(uid, project_id).exec()
+      setVotedProjects([...votedProjects, project_id])
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const removeVoteOnProject = project_id => {
-    api.votes.remove(project_id)
-    setVotedProjects(votedProjects.filter(pid => pid !== project_id))
+    try {
+      const uid = api.getApiTokenData().uid
+      api.votes.remove(uid, project_id).exec()
+      setVotedProjects(votedProjects.filter(pid => pid !== project_id))
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   // const hideProject = project_id => {
@@ -163,7 +173,16 @@ const ProjectListing = props => {
         email={project.email}
         numberOfStudents={project.numberOfStudents}
         notInList={true}
-        headerBadge={fairLabel && <Tag label={fairLabel} />}
+        headerBadge={
+          fairLabel && (
+            <Tag
+              label={fairLabel}
+              tooltip={
+                fairLabel === 'Marketplace only' ? 'This project will NOT appear at any Thesis Fairs.' : undefined
+              }
+            />
+          )
+        }
         headerButtons={
           isStudent && (
             <Button
@@ -224,11 +243,21 @@ const ProjectListing = props => {
       const entityNameById = Object.fromEntries(entities.map(entity => [entity.enid, entity.name]))
       setEntityNameById(entityNameById)
 
+      if (isStudent) {
+        try {
+          const uid = api.getApiTokenData().uid
+          const votes = (await api.votes.getOfStudent(uid).exec()) || []
+          setVotedProjects(votes)
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
       setLoadingData(false)
     }
 
     if (loadingData) fetchMarketplace()
-  }, [loadingData])
+  }, [isStudent, loadingData])
 
   useEffect(() => {
     if (!projectsByEnid?.entries) return
@@ -248,6 +277,7 @@ const ProjectListing = props => {
           type: 'project',
           project,
           entityName,
+          search: `${entityName} - ${project.name}`,
         }))
       })
       .flat()
