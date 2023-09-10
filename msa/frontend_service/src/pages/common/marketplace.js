@@ -2,11 +2,11 @@ import likesIcon from 'bootstrap-icons/icons/heart.svg'
 import likesFilledIcon from 'bootstrap-icons/icons/heart-fill.svg'
 import fuzzysort from 'fuzzysort'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Container, Form } from 'react-bootstrap'
+import { Button, Col, Container, Form, Nav, Row, Tab } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 import { ViewportList } from 'react-viewport-list'
 
-import api from '../../api'
+import api, { tags as allTags } from '../../api'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
 import * as session from '../../session'
@@ -19,6 +19,7 @@ import './marketplace.scss'
 
 const ProjectListing = props => {
   const [showHeadings, setShowHeadings] = useState(true)
+  const [showTagFilters, setShowTagFilters] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadingData, setLoadingData] = useState(true)
   const [projects, setProjects] = useState([])
@@ -32,8 +33,11 @@ const ProjectListing = props => {
     degrees: session.getSessionData('filteredDegrees')
       ? JSON.parse(session.getSessionData('filteredDegrees'))
       : Object.values(degrees).map(degree => degree.id),
-    tags: session.getSessionData('filteredTags') ? JSON.parse(session.getSessionData('filteredDegrees')) : [],
+    tags: session.getSessionData('filteredTags') ? JSON.parse(session.getSessionData('filteredTags')) : [],
   })
+
+  console.log(session.getSessionData('filteredTags'), filtersState.tags)
+
   const [items, setItems] = useState([])
 
   const isStudent = props.isStudent
@@ -50,9 +54,9 @@ const ProjectListing = props => {
   const tagFilterFunction = (projects, filters) => {
     if (filters.tags.length === 0) return projects
 
-    return projects.filter(
-      ({ project }) => !project.tags || project.tags.some(tag => filters.tags.includes(tag.replace(' ', '')))
-    )
+    console.log(projects.map(({ project }) => project.tags))
+
+    return projects.filter(({ project }) => project.tags && project.tags.some(tag => filters.tags.includes(tag)))
   }
 
   const degreeFilterFunction = (projects, filters) => {
@@ -283,9 +287,110 @@ const ProjectListing = props => {
   return (
     <>
       <Container>
-        <Button style={{ marginBottom: '0.75rem' }} variant='primary' onClick={() => setShowHeadings(!showHeadings)}>
-          {showHeadings ? 'Hide headings' : 'Show headings'}
-        </Button>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
+          <Button
+            style={{ marginBottom: '0.75rem', marginRight: '0.75rem' }}
+            variant='primary'
+            onClick={() => setShowHeadings(!showHeadings)}
+          >
+            {showHeadings ? 'Hide headings' : 'Show headings'}
+          </Button>
+          <Button
+            style={{ marginBottom: '0.75rem' }}
+            variant='primary'
+            onClick={() => setShowTagFilters(!showTagFilters)}
+          >
+            {showTagFilters ? 'Hide tag filters' : 'Show tag filters'}
+          </Button>
+        </div>
+
+        {showTagFilters && (
+          <div className='tag-filtering'>
+            <Form.Group className='mb-3 tags' controlId='tags'>
+              <Form.Label>Filter on tags</Form.Label>
+              <Row>
+                <Tab.Container id='left-tabs-example' defaultActiveKey={Object.keys(allTags)[0]}>
+                  <Col xs='3'>
+                    <Form.Label>Category</Form.Label>
+                    <Nav variant='pills' className='tag-category'>
+                      {Object.keys(allTags).map(category => (
+                        <Nav.Item key={category} className='tag-category__item'>
+                          <Nav.Link eventKey={category}>{category}</Nav.Link>
+                        </Nav.Item>
+                      ))}
+                    </Nav>
+                  </Col>
+                  <Col>
+                    <Form.Label>Tags</Form.Label>
+                    <Tab.Content>
+                      {Object.entries(allTags).map(([category, tags]) => (
+                        <Tab.Pane eventKey={category} key={category} className='selectable-tags'>
+                          {tags.map(tag => (
+                            <Form.Check className='form-tag selectable-tag' inline key={`${category}.${tag}`}>
+                              <Form.Check.Input
+                                name={`${category}.${tag}`}
+                                key={`${category}.${tag}`}
+                                className='form-tag__checkbox'
+                                checked={filtersState.tags.includes(`${category}.${tag}`)}
+                                onChange={() => {}}
+                              />
+                              <Form.Check.Label>
+                                <Tag
+                                  label={tag}
+                                  id={`${category}.${tag}`}
+                                  selectable={true}
+                                  selected={filtersState.tags.includes(`${category}.${tag}`)}
+                                  onClick={() => {
+                                    const tagId = `${category}.${tag}`
+                                    let filteredTags = [...filtersState.tags, tagId]
+
+                                    if (filtersState.tags.includes(tagId))
+                                      filteredTags = filteredTags.filter(t => t !== tagId)
+
+                                    const filters = { ...filtersState, tags: filteredTags }
+
+                                    setFilters(filters)
+                                    filter(filters)
+                                    session.setSessionData('filteredTags', JSON.stringify(filters.tags))
+                                  }}
+                                />
+                              </Form.Check.Label>
+                            </Form.Check>
+                          ))}
+                        </Tab.Pane>
+                      ))}
+                    </Tab.Content>
+                  </Col>
+                </Tab.Container>
+                <Col>
+                  <Form.Label>Currently selected</Form.Label>
+                  <div className='selected-tags'>
+                    {filtersState.tags.map(tag => (
+                      <Tag
+                        label={tag.split('.')[1]}
+                        id={tag}
+                        key={tag}
+                        selectable={true}
+                        selected={true}
+                        onClick={() => {
+                          const filteredTags = filtersState.tags.filter(t => t !== tag)
+                          const filters = { ...filtersState, tags: filteredTags }
+
+                          setFilters(filters)
+                          filter(filters)
+                          session.setSessionData('filteredTags', JSON.stringify(filters.tags))
+                        }}
+                      />
+                    ))}
+                  </div>
+                </Col>
+              </Row>
+
+              <br />
+              <Form.Control.Feedback type='invalid'>Please select 1-3 tags</Form.Control.Feedback>
+            </Form.Group>
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
           {Object.values(degrees).map(({ id, tag, tooltip }) => {

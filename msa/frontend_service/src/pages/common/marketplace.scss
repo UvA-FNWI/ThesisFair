@@ -23,3 +23,52 @@
     flex-direction: column;
   }
 }
+
+.tag-category {
+  max-height: 25vh;
+  overflow-y: scroll;
+
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 0.5rem !important;
+  background-color: white;
+
+  &__item {
+    width: 100%;
+
+    & a {
+      color: black;
+
+      &.nav-link {
+        &.active {
+          background-color: var(--primary-dark);
+          color: white;
+        }
+
+        &:hover {
+          background-color: var(--primary-hover);
+          color: white;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
+.tab-content > .active.selectable-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  & > .selectable-tag {
+    width: fit-content;
+    margin: 0;
+  }
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding-top: 2px;
+}
