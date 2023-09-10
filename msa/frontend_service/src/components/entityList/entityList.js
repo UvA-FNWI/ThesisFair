@@ -28,6 +28,8 @@ function EntityListItem(props) {
       if (badgeExecutionCount >= 1) return
       badgeExecutionCount++
 
+      if (!props.getTags) return
+
       const tags = await props.getTags()
 
       if (!tags || tags.length === 0) return
@@ -45,9 +47,11 @@ function EntityListItem(props) {
           <p>{props.name}</p>
         </div>
 
-        <div className='entity-list-item__badge'>{paymentTags.map(props.createTag)}</div>
+        {paymentTags && props.createTag && (
+          <div className='entity-list-item__badge'>{paymentTags?.map(props.createTag)}</div>
+        )}
 
-        <div className='entity-list-item__buttons'>{props.headerButtons()}</div>
+        {props.headerButtons && <div className='entity-list-item__buttons'>{props.headerButtons()}</div>}
       </div>
     </li>
   )

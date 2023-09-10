@@ -143,7 +143,7 @@ const ProjectListing = props => {
     }
 
     for (const degree of project.degrees.filter(e => filtersState.degrees.includes(e))) {
-      const approval = project.academicApproval.find(e => e.degree == degree)?.approval
+      const approval = project.academicApproval.find(e => e.degree === degree)?.approval
       tags.push(
         <Tag
           className={`mr-2 tag--approval-${approvalToUIClass(approval)}`}
