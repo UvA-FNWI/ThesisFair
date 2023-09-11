@@ -107,7 +107,7 @@ class ProjectListing extends React.Component {
     // Get the votes of this entity as a list of [pid, uid] pairs
     let votes = await api.votes.getOfEntity(session.getEnid(), null).exec()
     // Reduce the uids into lists, indexed by these pids ({pid: [uid, uid, ...], ...})
-    votes = votes.reduce((c, vote) => ({ ...c, [vote.pid]: [...(c[vote.pid] || []), vote.uid] }), {})
+    votes = votes?.reduce((c, vote) => ({ ...c, [vote.pid]: [...(c[vote.pid] || []), vote.uid] }), {}) || {}
     // Call 'getMultiple(uids)' for user info on these lists
     // TODO: remove this loop with api calls
     for (const [pid, uids] of Object.entries(votes)) {
