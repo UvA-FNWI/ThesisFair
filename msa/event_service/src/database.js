@@ -17,6 +17,7 @@ const eventSchema = new mongoose.Schema(
     external_id: { type: String },
     degrees: [{ type: String }],
     isMarketplace: { type: Boolean },
+    acceptsNewProjects: { type: Boolean },
   },
   {
     toObject: { virtuals: true },
