@@ -4,8 +4,6 @@ import { readFileSync, mkdirSync, existsSync, constants } from 'fs'
 import { writeFile, readFile, access } from 'fs/promises'
 import mongoose from 'mongoose'
 
-const ObjectId = mongoose.Types.ObjectId
-
 import { rgraphql } from '../../libraries/amqpmessaging/index.js'
 import { Event } from './database.js'
 import { canGetEvent, canGetEvents, entityReadAccess } from './permissions.js'
@@ -173,6 +171,7 @@ schemaComposer.Mutation.addNestedFields({
       entities: '[ID!]',
       external_id: 'String',
       isMarketplace: 'Boolean',
+      acceptsNewProjects: 'Boolean',
     },
     description: 'Create new event.',
     resolve: async (obj, args, req) => {
@@ -202,6 +201,7 @@ schemaComposer.Mutation.addNestedFields({
       entities: '[ID!]',
       external_id: 'String',
       isMarketplace: 'Boolean',
+      acceptsNewProjects: 'Boolean',
     },
     description: 'Update an event.',
     resolve: async (obj, args, req) => {

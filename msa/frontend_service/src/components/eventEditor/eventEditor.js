@@ -19,6 +19,7 @@ class EventEditor extends React.Component {
       evid: null,
       enabled: false,
       isMarketplace: false,
+      acceptsNewProjects: true,
       name: '',
       description: '',
       start: new Date(),
@@ -398,7 +399,7 @@ class EventEditor extends React.Component {
                   type='switch'
                   id='event-enable-switch'
                   label={this.state.enabled ? 'This event will be enabled' : 'This event will be disabled'}
-                  onClick={_e => this.setState({ enabled: !this.state.enabled })}
+                  onClick={() => this.setState({ enabled: !this.state.enabled })}
                   checked={this.state.enabled}
                   value={this.state.enabled}
                 />
@@ -419,6 +420,19 @@ class EventEditor extends React.Component {
                   onClick={() => this.setState({ isMarketplace: !this.state.isMarketplace })}
                   checked={this.state.isMarketplace}
                   value={this.state.isMarketplace}
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group className='mb-3' controlId='marketplace'>
+                <Form.Label>New Projects Allowed</Form.Label>
+                <Form.Check
+                  type='switch'
+                  id='event-new-projects-switch'
+                  label={this.state.acceptsNewProjects ? 'Allows new projects' : 'Does not allow new projects'}
+                  onClick={() => this.setState({ acceptsNewProjects: !this.state.acceptsNewProjects })}
+                  checked={this.state.acceptsNewProjects}
+                  value={this.state.acceptsNewProjects}
                 />
               </Form.Group>
             </Col>
