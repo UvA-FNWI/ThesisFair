@@ -1080,7 +1080,7 @@ export default url => {
           genGraphQLBuilder({
             name: 'getVotesOfEntity',
             functionPath: 'votesOfEntity',
-            body: bodies.StudentVote(projection),
+            body: bodies.Vote(projection),
             args: {
               enid: { value: enid, type: 'ID!' },
               evid: { value: evid, type: 'ID' },
@@ -1093,17 +1093,6 @@ export default url => {
             args: {
               pid: { value: pid, type: 'ID!' },
               evid: { value: evid, type: 'ID' },
-            },
-          }),
-        import: (votes, evid, projection) =>
-          genGraphQLBuilder({
-            type: 'mutation',
-            name: 'importVotes',
-            functionPath: 'vote.import',
-            body: bodies.VoteImportResult(projection),
-            args: {
-              votes: { value: votes, type: '[VoteImport!]!' },
-              evid: { value: evid, type: 'ID!' },
             },
           }),
         add: (uid, pid) =>
@@ -1130,8 +1119,9 @@ export default url => {
           genGraphQLBuilder({
             type: 'mutation',
             name: 'hideProject',
-            functionPath: 'voteHide',
+            functionPath: 'vote.hide',
             args: {
+              uid: { value: uid, type: 'ID!' },
               pid: { value: pid, type: 'ID!' },
             },
           }),
