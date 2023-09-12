@@ -171,11 +171,7 @@ schemaComposer.Mutation.addNestedFields({
       entities: '[ID!]',
       external_id: 'String',
       isMarketplace: 'Boolean',
-<<<<<<< HEAD
-      acceptsNewProjects: 'Boolean',
-=======
       deadlinePassed: 'Boolean',
->>>>>>> dev
     },
     description: 'Create new event.',
     resolve: async (obj, args, req) => {
