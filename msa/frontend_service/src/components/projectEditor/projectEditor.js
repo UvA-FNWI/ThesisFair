@@ -755,7 +755,7 @@ class ProjectEditor extends React.Component {
             .filter(event => !event.isMarketplace)
             .map(event =>
               this.isValidEvent(event) ? (
-                event.deadlinePassed ? (
+                (!api.apiTokenOverriden() && event.deadlinePassed) ? (
                   <OverlayTrigger
                     key={event.evid}
                     overlay={
@@ -836,7 +836,9 @@ class ProjectEditor extends React.Component {
     </Container>
   )
 
-  render = () => (!this.state.showAttendance ? this.getDataInputs() : this.getAttendanceInputs())
+  render () {
+    return !this.state.showAttendance ? this.getDataInputs() : this.getAttendanceInputs()
+  }
 }
 
 export default ProjectEditor
