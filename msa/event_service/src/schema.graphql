@@ -33,7 +33,7 @@ type Event {
   entities: [ID]
   external_id: String
   isMarketplace: Boolean
-  acceptsNewProjects: Boolean
+  deadlinePassed: Boolean
 }
 
 type EventImportResult {

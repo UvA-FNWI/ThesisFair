@@ -101,6 +101,7 @@ class EventEditor extends React.Component {
       location: this.state.location,
       enabled: this.state.enabled,
       isMarketplace: this.state.isMarketplace,
+      deadlinePassed: this.state.deadlinePassed,
     }
 
     let evid
@@ -423,16 +424,21 @@ class EventEditor extends React.Component {
                 />
               </Form.Group>
             </Col>
+
             <Col>
               <Form.Group className='mb-3' controlId='marketplace'>
-                <Form.Label>New Projects Allowed</Form.Label>
+                <Form.Label>Deadline passed</Form.Label>
                 <Form.Check
                   type='switch'
-                  id='event-new-projects-switch'
-                  label={this.state.acceptsNewProjects ? 'Allows new projects' : 'Does not allow new projects'}
-                  onClick={() => this.setState({ acceptsNewProjects: !this.state.acceptsNewProjects })}
-                  checked={this.state.acceptsNewProjects}
-                  value={this.state.acceptsNewProjects}
+                  id='event-deadline-switch'
+                  label={
+                    this.state.deadlinePassed
+                      ? 'This event will not allow new projects for submission'
+                      : 'This event will allow new projects for submission'
+                  }
+                  onClick={() => this.setState({ deadlinePassed: !this.state.deadlinePassed })}
+                  checked={this.state.deadlinePassed}
+                  value={this.state.deadlinePassed}
                 />
               </Form.Group>
             </Col>
