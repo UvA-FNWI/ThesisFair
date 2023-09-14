@@ -247,9 +247,8 @@ class EventEditor extends React.Component {
                 onChange={e => {
                   const [year, month, date] = e.target.value.split('-')
                   const newDate = this.state.start
-                  newDate.setUTCFullYear(year)
-                  newDate.setUTCMonth(month)
-                  newDate.setUTCDate(date)
+                  newDate.setUTCFullYear(year, month - 1, date)
+
                   this.setState({
                     start: newDate,
                   })
@@ -272,8 +271,14 @@ class EventEditor extends React.Component {
                 onChange={e => {
                   const [hours, minutes] = e.target.value.split(':')
                   const newTime = this.state.start
-                  newTime.setUTCHours(hours)
-                  newTime.setUTCMinutes(minutes)
+
+                  const offsetMinutes = newTime.getTimezoneOffset()
+                  const offsetHours = Math.floor(offsetMinutes / 60)
+                  const offsetMinutesRemainder = offsetMinutes % 60
+
+                  newTime.setUTCHours(hours - offsetHours)
+                  newTime.setUTCMinutes(minutes - offsetMinutesRemainder)
+
                   this.setState({
                     start: newTime,
                   })
@@ -300,9 +305,8 @@ class EventEditor extends React.Component {
                 onChange={e => {
                   const [year, month, date] = e.target.value.split('-')
                   const newDate = this.state.end
-                  newDate.setUTCFullYear(year)
-                  newDate.setUTCMonth(month)
-                  newDate.setUTCDate(date)
+                  newDate.setUTCFullYear(year, month - 1, date)
+
                   this.setState({
                     end: newDate,
                   })
@@ -325,8 +329,14 @@ class EventEditor extends React.Component {
                 onChange={e => {
                   const [hours, minutes] = e.target.value.split(':')
                   const newTime = this.state.end
-                  newTime.setUTCHours(hours)
-                  newTime.setUTCMinutes(minutes)
+
+                  const offsetMinutes = newTime.getTimezoneOffset()
+                  const offsetHours = Math.floor(offsetMinutes / 60)
+                  const offsetMinutesRemainder = offsetMinutes % 60
+
+                  newTime.setUTCHours(hours - offsetHours)
+                  newTime.setUTCMinutes(minutes - offsetMinutesRemainder)
+
                   this.setState({
                     end: newTime,
                   })
