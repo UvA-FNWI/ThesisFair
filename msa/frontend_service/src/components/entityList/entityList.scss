@@ -12,14 +12,10 @@
   overflow-x: hidden;
 
   // Add a thick red border on the left side
-  border: 1px solid #e0e0e0;
-  border-right: 2px solid #e0e0e0;
   border-left: 0;
 
   &--red-border {
     // Add a thick red border on the left side
-    border-left: 0.25rem solid var(--primary);
-    max-height: 70vh;
     overflow: auto;
   }
 }

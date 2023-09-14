@@ -140,7 +140,7 @@ class Entities extends React.Component {
 
   render() {
     return (
-      <Container>
+      <Container className='scrollable-page' style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
         <h1 className='events-page__header'>Organisations</h1>
 
         {/* TODO: Maybe add filters for students? */}
@@ -184,6 +184,7 @@ class Entities extends React.Component {
 
         {this.state.filteredEntities?.length > 0 ? (
           <EntityList
+            style={{ height: '1px', flexGrow: '1' }}
             items={this.state.filteredEntities.map(entity => ({
               enid: entity.enid,
               name: entity.name,

@@ -8,7 +8,7 @@ function EntityList(props) {
   const listRef = useRef(null)
 
   return (
-    <div className='entity-list--red-border'>
+    <div className='entity-list--red-border' style={props.style}>
       <div className='entity-list' style={{ maxHeight: props.maxHeight }} ref={listRef}>
         <ViewportList viewportRef={listRef} items={props.items} itemMinSize={48}>
           {item => <EntityListItem key={item.enid} {...item} />}

@@ -79,6 +79,10 @@ $navbarWidth: 84px;
 
 .page-content {
   padding-bottom: 75px;
+
+  &:has(.scrollable-page) {
+    padding-bottom: 0;
+  }
 }
 
 .logout {

@@ -302,7 +302,7 @@ const ProjectListing = props => {
 
   return (
     <>
-      <Container>
+      <Container style={{ display: 'flex', flexDirection: 'column', flexGrow: '1' }}>
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
           {Object.values(degrees).map(({ id, tag, tooltip }) => {
             return (
@@ -360,7 +360,7 @@ const ProjectListing = props => {
           <div
             className='project-lists'
             ref={listRef}
-            style={{ maxHeight: '70vh', marginTop: '1.5rem', overflowY: 'auto' }}
+            style={{ marginTop: '1.5rem', overflowY: 'auto', flexGrow: '1', height: '1px' }}
           >
             <ViewportList
               viewportRef={listRef}
@@ -381,8 +381,8 @@ const ProjectListing = props => {
 
 class Projects extends React.Component {
   render = () => (
-    <div>
-      <Container className='mt-4'>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '100vh' }}>
+      <Container className='mt-4 scrollable-page'>
         <div className='mb-4'>
           <h1>Projects for upcoming events</h1>
           <Button onClick={() => downloadProjectCSV()}>CSV download</Button>

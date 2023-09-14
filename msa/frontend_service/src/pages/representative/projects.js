@@ -415,7 +415,7 @@ class Projects extends React.Component {
       case null:
         return (
           <div>
-            <Container className='mt-4'>
+            <Container className='mt-4 scrollable-page'>
               <div className='mb-4'>
                 <h1>Projects</h1>
               </div>
