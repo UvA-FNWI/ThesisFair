@@ -177,17 +177,19 @@ class EventEditor extends React.Component {
   }
 
   DateToLocalTime = date => {
-    const offsetMinutes = date.getTimezoneOffset()
+    const newDate = new Date()
+
+    const offsetMinutes = newDate.getTimezoneOffset()
     const offsetHours = Math.floor(offsetMinutes / 60)
     const offsetMinutesRemainder = offsetMinutes % 60
 
     const hours = date.getHours() - offsetHours
     const minutes = date.getMinutes() - offsetMinutesRemainder
 
-    date.setUTCHours(hours)
-    date.setUTCMinutes(minutes)
+    newDate.setUTCHours(hours)
+    newDate.setUTCMinutes(minutes)
 
-    return date
+    return newDate
   }
 
   getSubmitButton = disabled => (
