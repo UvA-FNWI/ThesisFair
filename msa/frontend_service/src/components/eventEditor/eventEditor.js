@@ -174,7 +174,7 @@ class EventEditor extends React.Component {
   }
 
   DateToLocalTime = date => {
-    const offsetMinutes = new Date.getTimezoneOffset()
+    const offsetMinutes = date.getTimezoneOffset()
     const offsetHours = Math.floor(offsetMinutes / 60)
     const offsetMinutesRemainder = offsetMinutes % 60
 
