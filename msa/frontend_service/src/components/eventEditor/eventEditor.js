@@ -164,6 +164,25 @@ class EventEditor extends React.Component {
     location: () => true,
   }
 
+  localToUTCTime = (date, hours, minutes) => {
+    const offsetMinutes = date.getTimezoneOffset()
+    const offsetHours = Math.floor(offsetMinutes / 60)
+    const offsetMinutesRemainder = offsetMinutes % 60
+
+    return date.setUTCHours(hours + offsetHours).setUTCMinutes(minutes + offsetMinutesRemainder)
+  }
+
+  DateToLocalTime = date => {
+    const offsetMinutes = new Date.getTimezoneOffset()
+    const offsetHours = Math.floor(offsetMinutes / 60)
+    const offsetMinutesRemainder = offsetMinutes % 60
+
+    const hours = date.getHours() - offsetHours
+    const minutes = date.getMinutes() - offsetMinutesRemainder
+
+    return { hours, minutes }
+  }
+
   getSubmitButton = disabled => (
     <Button disabled={disabled} className='button-disabled' variant='primary' type='submit' onClick={this.submit}>
       {this.props.params.evid ? 'Update' : 'Create'} Event
@@ -267,17 +286,10 @@ class EventEditor extends React.Component {
               <Form.Control
                 name='startTime'
                 type='time'
-                value={this.state.start.toISOString().split('T')[1].split('.')[0]}
+                value={this.DateToLocalTime(this.state.start).toISOString().split('T')[1].split('.')[0]}
                 onChange={e => {
                   const [hours, minutes] = e.target.value.split(':')
-                  const newTime = this.state.start
-
-                  const offsetMinutes = newTime.getTimezoneOffset()
-                  const offsetHours = Math.floor(offsetMinutes / 60)
-                  const offsetMinutesRemainder = offsetMinutes % 60
-
-                  newTime.setUTCHours(hours - offsetHours)
-                  newTime.setUTCMinutes(minutes - offsetMinutesRemainder)
+                  const newTime = this.localToUTCTime(this.state.start, hours, minutes)
 
                   this.setState({
                     start: newTime,
@@ -325,17 +337,10 @@ class EventEditor extends React.Component {
               <Form.Control
                 name='endTime'
                 type='time'
-                value={this.state.end.toISOString().split('T')[1].split('.')[0]}
+                value={this.DateToLocalTime(this.state.end).toISOString().split('T')[1].split('.')[0]}
                 onChange={e => {
                   const [hours, minutes] = e.target.value.split(':')
-                  const newTime = this.state.end
-
-                  const offsetMinutes = newTime.getTimezoneOffset()
-                  const offsetHours = Math.floor(offsetMinutes / 60)
-                  const offsetMinutesRemainder = offsetMinutes % 60
-
-                  newTime.setUTCHours(hours - offsetHours)
-                  newTime.setUTCMinutes(minutes - offsetMinutesRemainder)
+                  const newTime = this.localToUTCTime(this.state.end, hours, minutes)
 
                   this.setState({
                     end: newTime,
@@ -409,7 +414,7 @@ class EventEditor extends React.Component {
                   type='switch'
                   id='event-enable-switch'
                   label={this.state.enabled ? 'This event will be enabled' : 'This event will be disabled'}
-                  onClick={_e => this.setState({ enabled: !this.state.enabled })}
+                  onClick={() => this.setState({ enabled: !this.state.enabled })}
                   checked={this.state.enabled}
                   value={this.state.enabled}
                 />
