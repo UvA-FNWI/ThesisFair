@@ -110,7 +110,10 @@ const ProjectListing = props => {
   }
 
   const sortProjects = (a, b) => {
-    if (a.title < b.title) return -1
+    const aTitle = a.title.toLowerCase().trim()
+    const bTitle = b.title.toLowerCase().trim()
+
+    if (aTitle < bTitle) return -1
     return 1
   }
 
@@ -276,12 +279,14 @@ const ProjectListing = props => {
 
         const entityName = entityNameById[enid]
 
+        const title = `${entityName.trim()} - ${entityProjects[0].name}`.trim()
+
         return entityProjects
-          .map(project => ({ ...project, title: `${entityName} - ${project.name}` }))
+          .map(project => ({ ...project, title }))
           .map(project => ({
             type: 'project',
             project,
-            title: `${entityName} - ${project.name}`,
+            title,
           }))
       })
       .flat()
