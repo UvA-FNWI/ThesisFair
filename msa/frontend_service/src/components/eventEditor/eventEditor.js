@@ -169,7 +169,10 @@ class EventEditor extends React.Component {
     const offsetHours = Math.floor(offsetMinutes / 60)
     const offsetMinutesRemainder = offsetMinutes % 60
 
-    return date.setUTCHours(hours + offsetHours).setUTCMinutes(minutes + offsetMinutesRemainder)
+    date.setUTCHours(hours + offsetHours)
+    date.setUTCMinutes(minutes + offsetMinutesRemainder)
+
+    return date
   }
 
   DateToLocalTime = date => {
@@ -180,7 +183,10 @@ class EventEditor extends React.Component {
     const hours = date.getHours() - offsetHours
     const minutes = date.getMinutes() - offsetMinutesRemainder
 
-    return date.setHours(hours).setMinutes(minutes)
+    date.setUTCHours(hours)
+    date.setUTCMinutes(minutes)
+
+    return date
   }
 
   getSubmitButton = disabled => (
