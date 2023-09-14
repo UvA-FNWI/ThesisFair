@@ -3,7 +3,7 @@ import likesFilledIcon from 'bootstrap-icons/icons/heart-fill.svg'
 import fuzzysort from 'fuzzysort'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Col, Container, Form, Nav, Row, Tab } from 'react-bootstrap'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { ViewportList } from 'react-viewport-list'
 
 import api, { tags as allTags } from '../../api'
@@ -35,8 +35,6 @@ const ProjectListing = props => {
       : Object.values(degrees).map(degree => degree.id),
     tags: session.getSessionData('filteredTags') ? JSON.parse(session.getSessionData('filteredTags')) : [],
   })
-
-  console.log(votedProjects)
 
   const [items, setItems] = useState([])
 
@@ -129,6 +127,14 @@ const ProjectListing = props => {
   //   api.votes.hide(project_id)
   // }
 
+  const renderText = ({ text }) => (
+    <div key={text}>
+      <span className='d-flex justify-content-between'>
+        <p style={{ alignSelf: 'flex-end' }}>{text}</p>
+      </span>
+    </div>
+  )
+
   const renderHeader = ({ title }) => (
     <div key={title}>
       <br />
@@ -210,6 +216,8 @@ const ProjectListing = props => {
 
   const renderItem = ({ type, ...properties }, isVotedList) => {
     switch (type) {
+      case 'text':
+        return renderText(properties)
       case 'header':
         return renderHeader(properties)
       case 'project':
@@ -294,7 +302,7 @@ const ProjectListing = props => {
       : items.filter(({ project }) => !votedProjects.includes(project.pid))
 
     if (projects.length === 0) {
-      return [{ type: 'header', title: isVotedList ? 'You have not voted for any project' : 'No projects found' }]
+      return [{ type: 'text', text: isVotedList ? 'You have not voted for any project' : 'No projects found' }]
     }
 
     return projects
@@ -316,7 +324,7 @@ const ProjectListing = props => {
 
   return (
     <>
-      <Container>
+      <Container style={{ display: 'flex', flexGrow: '1', flexDirection: 'column' }}>
         <div style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
           <Button
             style={{ marginBottom: '0.75rem', marginRight: '0.75rem' }}
@@ -331,10 +339,18 @@ const ProjectListing = props => {
             onClick={() => setShowTagFilters(!showTagFilters)}
           >
             {showTagFilters ? 'Hide tag filters' : 'Show tag filters'}
+            {filtersState.tags.length > 0 ? ` (${filtersState.tags.length})` : ''}
           </Button>
+          {!api.getApiTokenData() && (
+            <Link to='/'>
+              <Button style={{ marginBottom: '0.75rem', marginLeft: '0.75rem' }} variant='primary'>
+                Back to Login
+              </Button>
+            </Link>
+          )}
         </div>
 
-        {showTagFilters && (
+        {showTagFilters ? (
           <div className='tag-filtering'>
             <Form.Group className='mb-3 tags' controlId='tags'>
               <Form.Label>Filter on tags</Form.Label>
@@ -417,8 +433,27 @@ const ProjectListing = props => {
               </Row>
 
               <br />
-              <Form.Control.Feedback type='invalid'>Please select 1-3 tags</Form.Control.Feedback>
             </Form.Group>
+          </div>
+        ) : (
+          <div className='selected-tags selected-tags--stand-alone'>
+            {filtersState.tags.map(tag => (
+              <Tag
+                label={tag.split('.')[1]}
+                id={tag}
+                key={tag}
+                selectable={true}
+                selected={true}
+                onClick={() => {
+                  const filteredTags = filtersState.tags.filter(t => t !== tag)
+                  const filters = { ...filtersState, tags: filteredTags }
+
+                  setFilters(filters)
+                  filter(filters)
+                  session.setSessionData('filteredTags', JSON.stringify(filters.tags))
+                }}
+              />
+            ))}
           </div>
         )}
 
@@ -458,12 +493,8 @@ const ProjectListing = props => {
         {loading ? (
           <h4>Loading...</h4>
         ) : (
-          <div className='project-lists-container'>
-            <div
-              className='project-lists'
-              ref={listRef}
-              style={{ maxHeight: '70vh', marginTop: '1.5rem', overflowY: 'auto' }}
-            >
+          <div className='project-lists-container scrollable-page' style={{ flexGrow: '1', height: '1px' }}>
+            <div className='project-lists' ref={listRef} style={{ overflowY: 'auto' }}>
               <ViewportList
                 viewportRef={listRef}
                 items={addHeaders(showNoProjectsIfRequired(filteredProjects))}
@@ -474,11 +505,7 @@ const ProjectListing = props => {
               </ViewportList>
             </div>
             {isStudent && (
-              <div
-                className='project-lists'
-                ref={listRefVoted}
-                style={{ maxHeight: '70vh', marginTop: '1.5rem', overflowY: 'auto' }}
-              >
+              <div className='project-lists' ref={listRefVoted} style={{ marginTop: '1.5rem', overflowY: 'auto' }}>
                 <ViewportList
                   viewportRef={listRefVoted}
                   items={[
@@ -503,7 +530,7 @@ const ProjectListing = props => {
 
 class Projects extends React.Component {
   render = () => (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '100vh' }}>
       <Container className='mt-4'>
         <div className='mb-4'>
           <h1>Project Marketplace</h1>
