@@ -180,7 +180,7 @@ class EventEditor extends React.Component {
     const hours = date.getHours() - offsetHours
     const minutes = date.getMinutes() - offsetMinutesRemainder
 
-    return { hours, minutes }
+    return date.setHours(hours).setMinutes(minutes)
   }
 
   getSubmitButton = disabled => (
