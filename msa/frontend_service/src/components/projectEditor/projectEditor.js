@@ -758,7 +758,7 @@ class ProjectEditor extends React.Component {
             .filter(event => !event.isMarketplace)
             .map(event =>
               this.isValidEvent(event) ? (
-                (!api.apiTokenOverriden() && event.deadlinePassed) ? (
+                (api.getApiTokenData().type !== 'a' && event.deadlinePassed) ? (
                   <OverlayTrigger
                     key={event.evid}
                     overlay={
@@ -802,7 +802,7 @@ class ProjectEditor extends React.Component {
             .map(event =>
               this.state.evids.length === 0 &&
               this.state.attendanceInteractions.length ===
-                this.state.allEvents.filter(event => this.isValidEvent(event) && !event.deadlinePassed).length ? (
+                this.state.allEvents.filter(event => this.isValidEvent(event) && (!event.deadlinePassed || api.getApiTokenData().type === 'a')).length ? (
                 this.getMarketplaceCard(event, true)
               ) : (
                 <OverlayTrigger
