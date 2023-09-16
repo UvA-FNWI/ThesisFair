@@ -7,6 +7,16 @@ import { rgraphql } from '../../libraries/amqpmessaging/index.js'
 import { Project } from './database.js'
 
 import { entityWriteAccess, projectWriteAccess } from './permissions.js'
+// TODO: put a degrees enum in a library and reference it from both FE and here
+const degrees = [
+  'MScAI',
+  'MScCS',
+  'MScCLSJD',
+  'MScISIS',
+  'MScISDS',
+  'MScLogic',
+  'MScSE',
+]
 
 import nodemailer from 'nodemailer'
 
@@ -152,6 +162,15 @@ schemaComposer.Query.addNestedFields({
 
         const row = Object.fromEntries(orderedFields.map(([orig, fancy]) => [fancy, project[orig]]))
 
+        for (const degree of degrees) {
+          row[`Academic approval for ${degree}`] = 'awaiting'
+        }
+
+        for (const approval of project.academicApproval) {
+          row[`Academic approval for ${approval.degree}`] = approval.approval
+        }
+
+        console.log(row)
         table.push(row)
       }
 
