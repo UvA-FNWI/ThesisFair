@@ -199,13 +199,21 @@ const ProjectListing = props => {
             {approvalStatus(project)}
           </>
         }
-        headerButtons={
+        headerButtons={<>
+          {isAcademic ||
+            <Link to={`/project/${project.pid}/edit`}>
+              <Button variant='secondary' style={{ width: 'max-content', marginLeft: '0.75rem' }}>
+                Edit
+              </Button>
+            </Link>
+          }
+            
           <Link to={`/project/${project.pid}/review`}>
             <Button variant='primary' style={{ width: 'max-content', marginLeft: '0.75rem' }}>
               Review
             </Button>
           </Link>
-        }
+        </>}
       />
     )
   }
