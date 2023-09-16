@@ -38,7 +38,7 @@ const deleteEntity = async enid => {
 async function getFairsOfEntity(enid) {
   const res = await rgraphql(
     'api-event',
-    'query($enid: ID!) { eventsOfEntity(enid: $enid) { start, evid, enabled } }',
+    'query($enid: ID!) { eventsOfEntity(enid: $enid) { start, evid, enabled, name, isMarketplace } }',
     { enid }
   )
 
@@ -52,7 +52,8 @@ async function getFairsOfEntity(enid) {
     )
   }
 
-  return res.data.eventsOfEntity.filter(event => event.enabled).filter(event => !event.isMarketplace) || []
+  return res.data.eventsOfEntity.filter(event => event.enabled) || []
+  // return res.data.eventsOfEntity.filter(event => event.enabled).filter(event => !event.isMarketplace) || []
 }
 
 function getAmountByEntityType(type) {
@@ -97,7 +98,7 @@ schemaComposer.Query.addNestedFields({
     resolve: async (obj, args, req) => {
       canGetAllEntities(req)
 
-      const entities = await Entity.find()
+      const entities = (await Entity.find())
 
       // TODO: use an "all events by enid" endpoint or something rather than many requests
       const eventsByEnid = Object.fromEntries(
@@ -133,16 +134,6 @@ schemaComposer.Query.addNestedFields({
           .entries()
       )
 
-      for (const entity of entities) {
-        if (eventsByEnid) {
-          entity.evids = eventsByEnid[entity.enid]?.map(event => event.evid)
-        }
-
-        if (paymentsByEnid) {
-          entity.payments = paymentsByEnid[entity.enid]
-        }
-      }
-
       const table = []
 
       for (const entity of entities) {
@@ -150,17 +141,17 @@ schemaComposer.Query.addNestedFields({
           'Name': entity.name,
           // 'Email addresses': ,
           'Type': entity.type,
-          // 'Events': ,
-          'Payment status': entity.payments,
+          'Events': eventsByEnid[entity.enid]?.filter(event => !event.isMarketplace).map(event => event.name) || [],
+          'Payment status': paymentsByEnid[entity.enid],
         }
+
+        console.log(row)
 
         table.push(row)
       }
 
       const parser = new AsyncParser()
-      const bruh = await parser.parse(table).promise()
-      console.log(bruh)
-      return bruh
+      return await parser.parse(table).promise()
     },
   },
   entity: {
