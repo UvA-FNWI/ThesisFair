@@ -1,6 +1,7 @@
 import { graphql } from 'graphql'
 import { schemaComposer } from 'graphql-compose'
 import { readFileSync } from 'fs'
+import { AsyncParser } from '@json2csv/node'
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js'
 import { Entity } from './database.js'
@@ -90,6 +91,78 @@ async function paymentTarget(enid, evid) {
 }
 
 schemaComposer.Query.addNestedFields({
+  entityCSV: {
+    type: 'String',
+    description: 'Pull a CSV dump of the organization database and some peripheral data',
+    resolve: async (obj, args, req) => {
+      canGetAllEntities(req)
+
+      const entities = await Entity.find()
+
+      // TODO: use an "all events by enid" endpoint or something rather than many requests
+      const eventsByEnid = Object.fromEntries(
+        await Promise.all(entities.map(async ({ enid }) => [enid, await getFairsOfEntity(enid)]))
+      )
+
+      // Get statuses for each target
+      const res = await rgraphql(
+        'api-payment',
+        'query($targets: [String]) { payment(targets: $targets) { status, url, target } }',
+        {
+          targets: Object.entries(eventsByEnid)
+            .map(([enid, events]) => events.map(event => `${enid}@${new Date(event.start).setHours(0, 0, 0, 0)}`))
+            .flat(),
+        }
+      )
+
+      if (res.errors || !res.data) {
+        console.error(res)
+        throw new Error('An unknown error occured while attempting look up payment status')
+      }
+
+      const payments = res.data.payment.map(payment => ({
+        status: payment.status,
+        url: payment.url,
+        eventDate: new Date(Number(payment.target.split('@')[1])),
+        enid: payment.target.split('@')[0],
+      }))
+
+      const paymentsByEnid = Object.fromEntries(
+        payments
+          .reduce((map, payment) => map.set(payment.enid, [...(map.get(payment.enid) || []), payment]), new Map())
+          .entries()
+      )
+
+      for (const entity of entities) {
+        if (eventsByEnid) {
+          entity.evids = eventsByEnid[entity.enid]?.map(event => event.evid)
+        }
+
+        if (paymentsByEnid) {
+          entity.payments = paymentsByEnid[entity.enid]
+        }
+      }
+
+      const table = []
+
+      for (const entity of entities) {
+        const row = {
+          'Name': entity.name,
+          // 'Email addresses': ,
+          'Type': entity.type,
+          // 'Events': ,
+          'Payment status': entity.payments,
+        }
+
+        table.push(row)
+      }
+
+      const parser = new AsyncParser()
+      const bruh = await parser.parse(table).promise()
+      console.log(bruh)
+      return bruh
+    },
+  },
   entity: {
     type: 'Entity',
     args: {
