@@ -3,7 +3,7 @@ import React from 'react'
 import { Button, Container, Form } from 'react-bootstrap'
 import { Link, useParams } from 'react-router-dom'
 
-import api from '../../api'
+import api, { downloadEntityCSV } from '../../api'
 import EntityList from '../../components/entityList/entityList'
 import Tag from '../../components/tag/tag'
 import { getParticipatingFairs } from '../../utilities/entities'
@@ -168,6 +168,8 @@ class Entities extends React.Component {
             Create new organisation
           </Button>
         </Link>
+
+        <Button onClick={() => downloadEntityCSV()}>CSV download</Button>
 
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
           {entityTypes.map(type => {
