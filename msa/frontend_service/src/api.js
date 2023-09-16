@@ -33,6 +33,16 @@ export const downloadProjectCSV = async () => {
   downloadNoFetchAPI(csv, 'projects.csv')
 }
 
+export const downloadEntityCSV = async () => {
+  const csv = await api.api.entity.getCSV().exec()
+  if (!csv) {
+    alert('Whoops, the CSV could not be downloaded. Please contact a developer about this')
+    return
+  }
+
+  downloadNoFetchAPI(csv, 'orgs.csv')
+}
+
 export const downloadCV = async (uid, name = 'cv') => {
   const cv = await api.api.user.student.getCV(uid).exec()
   if (!cv) {

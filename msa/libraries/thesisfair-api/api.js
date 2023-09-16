@@ -614,6 +614,13 @@ export default url => {
         },
       },
       entity: {
+        getCSV: () =>
+          genGraphQLBuilder({
+            name: 'getCSVentities',
+            functionPath: 'entityCSV',
+            args: {},
+            cache: caching ? { instance: cache, type: 'entityCSV', key: '' } : false,
+          }),
         get: (enid, projection) =>
           genGraphQLBuilder({
             name: 'getEntity',
