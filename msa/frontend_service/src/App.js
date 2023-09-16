@@ -17,6 +17,7 @@ import LoginPage from './pages/LoginPage'
 import Page from './pages/Page'
 import OrganisationDashboard from './pages/representative/OrganisationDashboard'
 import Projects from './pages/representative/projects'
+import ProjectEditor from './pages/representative/projectEditor'
 import RepAccount from './pages/representative/RepAccount'
 import Organisations from './pages/student/Organisations'
 import StudentAccount from './pages/student/StudentAccount'
@@ -73,6 +74,7 @@ class App extends React.Component {
         {/*<Route path='event/:evid/projects' element={<Page page={<EventProjects />} />} />*/}
         <Route path='/projects' element={<Page page={<AdminProjects />} />} />
         <Route path='/project/:pid/review' element={<Page page={<ProjectReview />} />} />
+        <Route path='/project/:pid/edit' element={<Page page={<ProjectEditor onClose={() => window.location.href = '/projects'} />} />} />
         <Route path='/students' element={<Page page={<Students />} />} />
         <Route path='/loginAs' element={<Page page={<LoginAs />} />} />
         <Route path='/marketplace' element={<Page page={<Marketplace />} />} />
