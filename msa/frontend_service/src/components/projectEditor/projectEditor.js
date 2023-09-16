@@ -601,7 +601,7 @@ class ProjectEditor extends React.Component {
   getEventCard = (event, isValid) => (
     <div
       key={event.evid}
-      className={cl('attendance__event', { 'attendance__event--disabled': !isValid || !event.acceptsNewProjects })}
+      className={cl('attendance__event', { 'attendance__event--disabled': !isValid })}
     >
       <div className='attendance__event-card'>
         <div className='attendance__fading'>
