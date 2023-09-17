@@ -136,16 +136,21 @@ schemaComposer.Query.addNestedFields({
 
       const table = []
 
+      const paymentDates = Array.from(new Set(Object.values(paymentsByEnid).flat().map(payment => payment.eventDate)))
+
       for (const entity of entities) {
         const row = {
           'Name': entity.name,
           // 'Email addresses': ,
           'Type': entity.type,
           'Events': eventsByEnid[entity.enid]?.filter(event => !event.isMarketplace).map(event => event.name) || [],
-          'Payment status': paymentsByEnid[entity.enid],
         }
 
-        console.log(row)
+        for (const date of paymentDates) {
+          console.log(paymentsByEnid[entity.enid])
+          row[`Payment status for ${date}`] = paymentsByEnid[entity.enid]?.find(payment => payment.eventDate?.getTime() === date.getTime())?.status || "open"
+          row[`Payment url for ${date}`] = paymentsByEnid[entity.enid]?.find(payment => payment.eventDate?.getTime() === date.getTime())?.url || "No URL"
+        }
 
         table.push(row)
       }
