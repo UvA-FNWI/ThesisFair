@@ -104,7 +104,7 @@ const getStudies = async studentnumber => {
     return []
   }
 
-  return result.data.map(study => study.Code)
+  return result.data.map(study => study.Code.replace(/\s/g, ''))
 }
 
 const checkStudentVotedForEntity = async (uid, enid) => {
