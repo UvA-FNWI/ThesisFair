@@ -409,7 +409,10 @@ schemaComposer.Mutation.addNestedFields({
         args.evids = [...args.evids, args.evid]
       }
 
-      const res = await Promise.all([...args.evids.map(evid => evidExists(evid)), enidExists(args.enid)])
+      console.log(args)
+      console.log(args)
+
+      const res = await Promise.all([...args.evids.map(evid => evidExists(evid)), () => !enid || enidExists(args.enid)])
 
       if (res.some(i => !i)) {
         throw new Error('A given evid or the enid do not exist')
