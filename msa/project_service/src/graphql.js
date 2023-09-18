@@ -63,7 +63,7 @@ async function sendChangeRequestedMail(project) {
 
   We are writing to inform you about a time-sensitive matter related to your project, ${project.name}. This project has recently been flagged by an academic associated with the program, who has indicated the need for further information or a revision.
 
-  To address this promptly, we kindly request that you log in to the Thesis Fair platform at https://thesisfair.ivi.uva.nl/. Once logged in, please locate and select your project to review the comments provided by the academic. It is important to carefully consider their feedback and make any necessary adjustments to the project.
+  To address this promptly, we kindly request that you log in to the Thesis Fair platform at https://thesisfair.ivi.uva.nl/. Once logged in, please locate your project and click "Edit". At the top of the page, the comments made by academics are visible. Please review the comments provided by the academic. It is important to carefully consider their feedback and make any necessary adjustments to the project.
 
   Given the urgency of this matter, please complete these revisions within the next 1-2 business days from the receipt of this email.
 
