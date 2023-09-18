@@ -7,6 +7,8 @@ import { useParams } from 'react-router-dom'
 // import { Link } from 'react-router-dom'
 import api from '../../api'
 import EntityList from '../../components/entityList/entityList'
+import Tag from '../../components/tag/tag'
+import * as session from '../../session'
 
 import '../../styles/events.scss'
 
@@ -25,8 +27,16 @@ class Entities extends React.Component {
       error: false,
       filters: {
         search: '',
+        fairType: ['AI', 'General'],
       },
     }
+  }
+
+  fairTypeFilterFunction = (entities, filters) => {
+    if (!filters.fairType) return []
+
+    // TODO: Utilise filters.fairType to filter entities. This requires fetching all active projects and seeing if the entity has a project for that fair. Maybe fetch projects, sort on Enid, then reduce to a map of enid -> fairType, then filter entities based on that map.
+    return entities
   }
 
   searchFilterFunction = (entities, filters) => {
@@ -37,7 +47,7 @@ class Entities extends React.Component {
       .map(e => this.state.entitiesByEnid[e.obj.enid])
   }
 
-  filterFunctions = [this.searchFilterFunction]
+  filterFunctions = [this.searchFilterFunction, this.fairTypeFilterFunction]
 
   filter = filters => {
     const filteredEntities = this.filterFunctions.reduce(
@@ -175,6 +185,40 @@ class Entities extends React.Component {
             )
           })}
         </div> */}
+
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+          {['AI', 'General'].map(name => {
+            return (
+              <Tag
+                key={name}
+                label={`${name} Thesis Fair`}
+                selectable={true}
+                selected={this.state.filters.fairType.includes(name)}
+                onClick={() => {
+                  if (this.state.filters.fairType.includes(name)) {
+                    const filteredFairs = this.state.filters.fairType.filter(t => t !== name)
+                    const filters = { fairType: filteredFairs }
+
+                    this.setState({ filters })
+                    this.filter(filters)
+
+                    session.setSessionData('filteredFairs', JSON.stringify(filteredFairs))
+                    return
+                  }
+
+                  const filteredFairs = [...this.state.filters.fairType, name]
+
+                  const filters = { fairType: filteredFairs }
+
+                  this.setState({ filters })
+                  this.filter(filters)
+
+                  session.setSessionData('filteredFairs', JSON.stringify(filteredFairs))
+                }}
+              />
+            )
+          })}
+        </div>
 
         <Form className='search-bar'>
           <Form.Group className='mb-3' controlId='searchBar'>
