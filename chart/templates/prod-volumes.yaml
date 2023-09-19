@@ -19,7 +19,7 @@ spec:
 {{ if $service }}
 {{ if $service.storage }}
 ---
-apiVersion: apps/v1
+apiVersion: v1
 
 kind: PersistentVolumeClaim
 metadata:
