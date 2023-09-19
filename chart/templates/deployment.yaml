@@ -143,11 +143,11 @@ spec:
           {{ else }}
             - mountPath: /etc/secrets
               name: secrets
+          {{ end }}
           {{ if $service }}
           {{ if $service.storage }}
             - mountPath: /app/data
               name: {{ $name | kebabcase }}-data-storage
-          {{ end }}
           {{ end }}
           {{ end }}
 
