@@ -27,7 +27,7 @@ metadata:
   namespace: {{ $Release.Namespace }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: default
   resources:
     requests:
