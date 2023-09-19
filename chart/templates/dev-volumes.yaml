@@ -29,7 +29,7 @@ spec:
     - ReadWriteOnce
   volumeMode: Filesystem
   local:
-    path: /tmp/{{ $name | kebabcase }}
+    path: /data
   capacity:
     storage: {{ $service.storage }}
   nodeAffinity:
