@@ -10,6 +10,56 @@ metadata:
 provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: WaitForFirstConsumer
 
+
+# Add mounts for services that have storage attached
+{{ range $name, $service := .Values.msa }}
+{{ if $service }}
+{{ if $service.storage }}
+---
+apiVersion: v1
+
+# Mount the shared libraries
+kind: PersistentVolume
+metadata:
+  name: {{ $name | kebabcase }}-data-storage
+  namespace: {{ $Release.Namespace }}
+spec:
+  storageClassName: thesisfair-dev-storage
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  local:
+    path: /tmp/{{ $name | kebabcase }}
+  capacity:
+    storage: {{ $service.storage }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: "kubernetes.io/hostname"
+              operator: In
+              values:
+                - minikube
+
+---
+apiVersion: v1
+
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name | kebabcase }}-data-storage
+  namespace: {{ $Release.Namespace }}
+spec:
+  storageClassName: thesisfair-dev-storage
+  accessModes:
+    - ReadWriteOnce
+  volumeName: {{ $name | kebabcase }}-data-storage
+  resources:
+    requests:
+      storage: {{ $service.storage }}
+{{ end }}
+{{ end }}
+{{ end }}
+
 ---
 apiVersion: v1
 

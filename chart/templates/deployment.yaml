@@ -143,6 +143,12 @@ spec:
           {{ else }}
             - mountPath: /etc/secrets
               name: secrets
+          {{ if $service }}
+          {{ if $service.storage }}
+            - mountPath: /app/data
+              name: {{ $name | kebabcase }}-data-storage
+          {{ end }}
+          {{ end }}
           {{ end }}
 
       volumes:
@@ -160,5 +166,12 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: thesisfair-secrets
+      {{ end }}
+      {{ if $service }}
+      {{ if $service.storage }}
+        - name: {{ $name | kebabcase }}-data-storage
+          persistentVolumeClaim:
+            claimName: {{ $name | kebabcase }}-data-storage
+      {{ end }}
       {{ end }}
 {{ end }}

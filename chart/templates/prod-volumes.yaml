@@ -1,3 +1,4 @@
+{{ $Release := .Release }}
 {{ if not .Values.dev_mode }}
 apiVersion: v1
 
@@ -13,4 +14,25 @@ spec:
   resources:
     requests:
       storage: 50Mi
+
+{{ range $name, $service := .Values.msa }}
+{{ if $service }}
+{{ if $service.storage }}
+---
+apiVersion: apps/v1
+
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $name | kebabcase }}-data-storage
+  namespace: {{ $Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: default
+  resources:
+    requests:
+      storage: {{ $service.storage }}
+{{ end }}
+{{ end }}
+{{ end }}
 {{ end }}
