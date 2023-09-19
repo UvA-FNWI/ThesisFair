@@ -426,10 +426,6 @@ The following environment variables should be used within the docker-compose fil
 
 All shared libraries are in the `/msa/libraries` folder. The folder name should match their package name on npm so that during building the code can be rewritten using the regex `(\.\./)*libraries` -> `@amicopo`
 
-## Shared databases
-
-In the docker-compose.yml files, every service has its private MongoDB service. However, because these all have the same name only one will be created and all services will communicate with the same MongoDB database.
-
 ## Authenticating the browser
 
 When the `NODE_ENV` is set to `development`, it is possible to authenticate get requests sent directly from the browser by adding an authorization query parameter.
