@@ -111,7 +111,7 @@ const getStudies = async studentnumber => {
   if (programmes.find(code => code == "MScCPS")) {
     programmes[programmes.indexOf("MScCPS")] = "MScCS"
   }
-  return result.data.map()
+  return programmes
 }
 
 const checkStudentVotedForEntity = async (uid, enid) => {
