@@ -438,3 +438,5 @@ This way it is possible to access the graphqli interface via the URL: [http://lo
 ## Automatic testing
 
 Automatic testing is done using [mocha](https://mochajs.org/) and [chai](https://www.chaijs.com/) by running `npm run test` in the `/test` directory.
+
+Doesn't work anymore.
