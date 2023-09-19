@@ -434,9 +434,3 @@ In the docker-compose.yml files, every service has its private MongoDB service. 
 
 When the `NODE_ENV` is set to `development`, it is possible to authenticate get requests sent directly from the browser by adding an authorization query parameter.
 This way it is possible to access the graphqli interface via the URL: [http://localhost:3000/api/graphql?authorization={"type":"a"}](http://localhost:3000/api/graphql?authorization=%7B%22type%22%3A%22a%22%7D)
-
-## Automatic testing
-
-Automatic testing is done using [mocha](https://mochajs.org/) and [chai](https://www.chaijs.com/) by running `npm run test` in the `/test` directory.
-
-Doesn't work anymore.
