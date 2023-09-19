@@ -46,11 +46,13 @@ const ProjectListing = props => {
   const listRefVoted = useRef(null)
 
   if (isStudent && studentProgrammes.length > 0 && !studentFiltersSet) {
-    const studentDegrees = Object.values(degrees).filter(({programmeId}) => studentProgrammes.includes(programmeId)).map(({id}) => id)
+    const studentDegrees = Object.values(degrees)
+      .filter(({ programmeId }) => studentProgrammes.includes(programmeId))
+      .map(({ id }) => id)
 
     setFilters({
       ...filtersState,
-      degrees: studentDegrees
+      degrees: studentDegrees,
     })
     setStudentFiltersSet(true)
   }
@@ -108,10 +110,10 @@ const ProjectListing = props => {
   }
 
   const sortProjects = (a, b) => {
-    if (a.entityName < b.entityName) return -1
-    if (a.entityName > b.entityName) return 1
+    const aName = a.search.trim().toLowerCase()
+    const bName = b.search.trim().toLowerCase()
 
-    if (a.project.name < b.project.name) return -1
+    if (aName < bName) return -1
     return 1
   }
 
@@ -241,17 +243,16 @@ const ProjectListing = props => {
 
   useEffect(() => {
     const nameToProgrammeId = name => {
-      if (name.startsWith("Master")) {
+      if (name.startsWith('Master')) {
         return {
-          "Master Software Engineering": "MScSE",
-          "Master Artificial Intelligence": "MScAI",
-          "Master Computer Science (joint degree)": "MScCS",
-          "Master Computer Science": "MScCS",
-          "Master Computational Science (joint degree)": "MScCLSJD",
-          "Master Computational Science": "MScCLSJD",
-          "Master Information Studies": "MScIS",
-          "Master Logic": "MScLogic",
-          "Master Software Engineering": "MScSE",
+          'Master Software Engineering': 'MScSE',
+          'Master Artificial Intelligence': 'MScAI',
+          'Master Computer Science (joint degree)': 'MScCS',
+          'Master Computer Science': 'MScCS',
+          'Master Computational Science (joint degree)': 'MScCLSJD',
+          'Master Computational Science': 'MScCLSJD',
+          'Master Information Studies': 'MScIS',
+          'Master Logic': 'MScLogic',
         }[name]
       }
 
@@ -259,7 +260,7 @@ const ProjectListing = props => {
     }
 
     const fetchStudentDegrees = async () => {
-      const {studies} = await api.user.get(api.getApiTokenData().uid, {studies: true}).exec()
+      const { studies } = await api.user.get(api.getApiTokenData().uid, { studies: true }).exec()
       const programmes = studies.map(nameToProgrammeId)
       setStudentProgrammes(programmes || [])
     }
@@ -507,8 +508,7 @@ const ProjectListing = props => {
                 selectable={true}
                 selected={filtersState.degrees.includes(id)}
                 onClick={() => {
-                  if (isStudent)
-                    return
+                  if (isStudent) return
 
                   let filteredDegrees = [...filtersState.degrees, id]
 

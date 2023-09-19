@@ -173,6 +173,11 @@ const ProjectListing = props => {
 
     project.degrees.forEach(id => {
       const tag = degreeById[id]
+
+      const tagFound = tags.find(t => t.tag === tag.tag)
+
+      if (tagFound) return
+
       tags.push({
         tag: tag.tag,
         tooltip: tag.tooltip,
@@ -199,21 +204,23 @@ const ProjectListing = props => {
             {approvalStatus(project)}
           </>
         }
-        headerButtons={<>
-          {isAcademic ||
-            <Link to={`/project/${project.pid}/edit`}>
-              <Button variant='secondary' style={{ width: 'max-content', marginLeft: '0.75rem' }}>
-                Edit
+        headerButtons={
+          <>
+            {isAcademic || (
+              <Link to={`/project/${project.pid}/edit`}>
+                <Button variant='secondary' style={{ width: 'max-content', marginLeft: '0.75rem' }}>
+                  Edit
+                </Button>
+              </Link>
+            )}
+
+            <Link to={`/project/${project.pid}/review`}>
+              <Button variant='primary' style={{ width: 'max-content', marginLeft: '0.75rem' }}>
+                Review
               </Button>
             </Link>
-          }
-            
-          <Link to={`/project/${project.pid}/review`}>
-            <Button variant='primary' style={{ width: 'max-content', marginLeft: '0.75rem' }}>
-              Review
-            </Button>
-          </Link>
-        </>}
+          </>
+        }
       />
     )
   }
@@ -287,15 +294,15 @@ const ProjectListing = props => {
 
         const entityName = entityNameById[enid]
 
-        const title = `${entityName.trim()} - ${entityProjects[0].name}`.trim()
+        return entityProjects.map(project => {
+          const title = `${entityName.trim()} - ${project.name}`.trim()
 
-        return entityProjects
-          .map(project => ({ ...project, title }))
-          .map(project => ({
+          return {
             type: 'project',
-            project,
+            project: { ...project, title },
             title,
-          }))
+          }
+        })
       })
       .flat()
       .sort(sortProjects)
