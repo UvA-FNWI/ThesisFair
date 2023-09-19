@@ -29,7 +29,6 @@ msa:
       - name: thesisfair-oidc-secret
         key: OPENID_CLIENT_SECRET
   user_service:
-    storage: 20Mi
     secrets:
       - name: thesisfair-jwt-secret
         key: JWT_SECRET
