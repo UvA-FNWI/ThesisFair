@@ -108,7 +108,7 @@ const getStudies = async studentnumber => {
   programmes = programmes.map(study => study.Code.replace(/\s/g, ''))
   // Datanose MAY return the programme code of computer science as 'CPS', so we
   // convert it to the proper 'CS'
-  if (programmes.find("MScCPS")) {
+  if (programmes.find(code => code == "MScCPS")) {
     programmes[programmes.indexOf("MScCPS")] = "MScCS"
   }
   return result.data.map()
