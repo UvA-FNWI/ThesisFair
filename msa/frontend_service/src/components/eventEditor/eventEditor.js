@@ -276,6 +276,7 @@ class EventEditor extends React.Component {
                   const [year, month, date] = e.target.value.split('-')
                   const newDate = this.state.start
                   newDate.setUTCFullYear(year, month - 1, date)
+                  console.log(newDate, year, month - 1, date)
 
                   this.setState({
                     start: newDate,

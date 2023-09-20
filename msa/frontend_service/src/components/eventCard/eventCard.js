@@ -37,6 +37,22 @@ class EventCard extends React.Component {
     })
   }
 
+  DateToLocalTime = date => {
+    const newDate = new Date()
+
+    const offsetMinutes = newDate.getTimezoneOffset()
+    const offsetHours = Math.floor(offsetMinutes / 60)
+    const offsetMinutesRemainder = offsetMinutes % 60
+
+    const hours = date.getHours() - offsetHours
+    const minutes = date.getMinutes() - offsetMinutesRemainder
+
+    newDate.setUTCHours(hours)
+    newDate.setUTCMinutes(minutes)
+
+    return newDate
+  }
+
   render() {
     return (
       <Card data-color-mode='light' className={cl('event-card', { 'event-card--no-image': !this.state.image })}>
@@ -45,7 +61,9 @@ class EventCard extends React.Component {
           <Card.Title>{this.state.name}</Card.Title>
           <Card.Subtitle className='event-card__subtitle'>
             <small className='text-muted'>
-              <time dateTime={this.state.start}>{new Date(this.state.start).toLocaleDateString('NL-nl')}</time>
+              <time dateTime={this.state.start}>
+                {this.DateToLocalTime(new Date(this.state.start)).toLocaleDateString('NL-nl')}
+              </time>
               ,&ensp;
               <time dateTime={this.state.start}>
                 {new Date(this.state.start).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
