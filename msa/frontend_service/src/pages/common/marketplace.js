@@ -18,7 +18,7 @@ import '../../components/projectListItem/projectListItem.scss'
 import './marketplace.scss'
 
 const ProjectListing = props => {
-  const [showHeadings, setShowHeadings] = useState(true)
+  const [showHeadings, setShowHeadings] = useState(false)
   const [showTagFilters, setShowTagFilters] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadingData, setLoadingData] = useState(true)
@@ -367,13 +367,13 @@ const ProjectListing = props => {
     <>
       <Container style={{ display: 'flex', flexGrow: '1', flexDirection: 'column' }}>
         <div style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-          <Button
+          {/* <Button
             style={{ marginBottom: '0.75rem', marginRight: '0.75rem' }}
             variant='primary'
             onClick={() => setShowHeadings(!showHeadings)}
           >
             {showHeadings ? 'Hide headings' : 'Show headings'}
-          </Button>
+          </Button> */}
           <Button
             style={{ marginBottom: '0.75rem' }}
             variant='primary'
