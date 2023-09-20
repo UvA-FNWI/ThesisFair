@@ -169,9 +169,13 @@ class Entities extends React.Component {
           </Button>
         </Link>
 
-        <Button onClick={() => downloadEntityCSV()}>CSV download</Button>
+        <Button style={{ width: 'fit-content', marginBottom: '0.5rem' }} onClick={() => downloadEntityCSV()}>
+          CSV download
+        </Button>
 
-        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+        <div
+          style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginBottom: '0.5rem', gap: '0.375rem 0' }}
+        >
           {entityTypes.map(type => {
             return (
               <Tag
