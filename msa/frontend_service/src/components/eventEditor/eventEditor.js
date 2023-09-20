@@ -188,6 +188,7 @@ class EventEditor extends React.Component {
 
     newDate.setUTCHours(hours)
     newDate.setUTCMinutes(minutes)
+    newDate.setUTCSeconds(0)
 
     return newDate
   }
