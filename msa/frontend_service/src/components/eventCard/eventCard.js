@@ -34,6 +34,8 @@ class EventCard extends React.Component {
     this.setState({
       ...event,
       image,
+      start: event.start ? new Date(event.start) : new Date(new Date().now()),
+      end: event.end ? new Date(event.end) : new Date(new Date().now()),
     })
   }
 

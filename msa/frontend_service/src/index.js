@@ -11,7 +11,7 @@ import './index.scss'
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='en-gb'>
       <App />
     </LocalizationProvider>
   </React.StrictMode>
