@@ -168,34 +168,6 @@ class EventEditor extends React.Component {
     location: () => true,
   }
 
-  localToUTCTime = (date, hours, minutes) => {
-    const offsetMinutes = date.getTimezoneOffset()
-    const offsetHours = Math.floor(offsetMinutes / 60)
-    const offsetMinutesRemainder = offsetMinutes % 60
-
-    date.setUTCHours(hours + offsetHours)
-    date.setUTCMinutes(minutes + offsetMinutesRemainder)
-
-    return date
-  }
-
-  DateToLocalTime = date => {
-    const newDate = new Date()
-
-    const offsetMinutes = newDate.getTimezoneOffset()
-    const offsetHours = Math.floor(offsetMinutes / 60)
-    const offsetMinutesRemainder = offsetMinutes % 60
-
-    const hours = date.getHours() - offsetHours
-    const minutes = date.getMinutes() - offsetMinutesRemainder
-
-    newDate.setUTCHours(hours)
-    newDate.setUTCMinutes(minutes)
-    newDate.setUTCSeconds(0)
-
-    return newDate
-  }
-
   getSubmitButton = disabled => (
     <Button disabled={disabled} className='button-disabled' variant='primary' type='submit' onClick={this.submit}>
       {this.props.params.evid ? 'Update' : 'Create'} Event
