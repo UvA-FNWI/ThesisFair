@@ -132,15 +132,15 @@
 
   &--approval {
     &-approved {
-      background-color: rgb(13, 139, 63);
+      background-color: #1f449c;
     }
 
     &-changes {
-      background-color: rgb(171, 80, 5);
+      background-color: rgb(150, 10, 10);
     }
 
     &-awaiting {
-      background-color: rgb(171, 143, 1);
+      background-color: rgb(150, 10, 10);
     }
 
     &-rejected {
@@ -148,7 +148,7 @@
     }
 
     &-payment {
-      background-color: rgb(43, 53, 194);
+      background-color: #1f449c;
     }
   }
 }
