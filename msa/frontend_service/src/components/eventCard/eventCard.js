@@ -37,6 +37,8 @@ class EventCard extends React.Component {
       start: event.start ? new Date(event.start) : new Date(new Date().now()),
       end: event.end ? new Date(event.end) : new Date(new Date().now()),
     })
+
+    console.log(event.start, event.end, new Date(new Date().now()), new Date(event.start), new Date(event.end))
   }
 
   DateToLocalTime = date => {
