@@ -1,3 +1,4 @@
+import { DateTimePicker } from '@mui/material'
 import MDEditor from '@uiw/react-md-editor'
 import cl from 'clsx'
 import React from 'react'
@@ -269,107 +270,11 @@ class EventEditor extends React.Component {
           <Row className='mb-3'>
             <Form.Group as={Col} className='mb-3' controlId='start'>
               <Form.Label>Starts at</Form.Label>
-              <Form.Control
-                name='startDate'
-                type='date'
-                value={this.state.start.toISOString().split('T')[0]}
-                onChange={e => {
-                  console.log(e.target.value, this.state.start)
-                  const [year, month, date] = e.target.value.split('-')
-                  const newDate = this.state.start
-                  newDate.setUTCFullYear(year, month - 1, date)
-                  console.log(newDate, year, month - 1, date)
-
-                  this.setState({
-                    start: newDate,
-                  })
-                }}
-                onBlur={() => {
-                  this.setState({
-                    hasBeenInteractedWith: {
-                      ...this.state.hasBeenInteractedWith,
-                      start: true,
-                    },
-                  })
-                }}
-                isInvalid={this.state.hasBeenInteractedWith.start && !this.validation.start()}
-                required
-              />
-              <Form.Control
-                name='startTime'
-                type='time'
-                value={this.DateToLocalTime(this.state.start).toISOString().split('T')[1].split('.')[0]}
-                onChange={e => {
-                  const [hours, minutes] = e.target.value.split(':')
-                  const newTime = this.localToUTCTime(this.state.start, hours, minutes)
-
-                  this.setState({
-                    start: newTime,
-                  })
-                }}
-                onBlur={() => {
-                  this.setState({
-                    hasBeenInteractedWith: {
-                      ...this.state.hasBeenInteractedWith,
-                      start: true,
-                    },
-                  })
-                }}
-                isInvalid={this.state.hasBeenInteractedWith.start && !this.validation.start()}
-                required
-              />
-              <Form.Control.Feedback type='invalid'>Bruh just git gud</Form.Control.Feedback>
+              <DateTimePicker value={this.state.start} onChange={newValue => this.setState({ start: newValue })} />
             </Form.Group>
             <Form.Group as={Col} className='mb-3' controlId='end'>
-              <Form.Label>ends at</Form.Label>
-              <Form.Control
-                name='endDate'
-                type='date'
-                value={this.state.end.toISOString().split('T')[0]}
-                onChange={e => {
-                  const [year, month, date] = e.target.value.split('-')
-                  const newDate = this.state.end
-                  newDate.setUTCFullYear(year, month - 1, date)
-
-                  this.setState({
-                    end: newDate,
-                  })
-                }}
-                onBlur={() => {
-                  this.setState({
-                    hasBeenInteractedWith: {
-                      ...this.state.hasBeenInteractedWith,
-                      end: true,
-                    },
-                  })
-                }}
-                isInvalid={this.state.hasBeenInteractedWith.end && !this.validation.end()}
-                required
-              />
-              <Form.Control
-                name='endTime'
-                type='time'
-                value={this.DateToLocalTime(this.state.end).toISOString().split('T')[1].split('.')[0]}
-                onChange={e => {
-                  const [hours, minutes] = e.target.value.split(':')
-                  const newTime = this.localToUTCTime(this.state.end, hours, minutes)
-
-                  this.setState({
-                    end: newTime,
-                  })
-                }}
-                onBlur={() => {
-                  this.setState({
-                    hasBeenInteractedWith: {
-                      ...this.state.hasBeenInteractedWith,
-                      end: true,
-                    },
-                  })
-                }}
-                isInvalid={this.state.hasBeenInteractedWith.end && !this.validation.end()}
-                required
-              />
-              <Form.Control.Feedback type='invalid'>Bruh just git gud</Form.Control.Feedback>
+              <Form.Label>Ends at</Form.Label>
+              <DateTimePicker value={this.state.end} onChange={newValue => this.setState({ end: newValue })} />
             </Form.Group>
           </Row>
 
