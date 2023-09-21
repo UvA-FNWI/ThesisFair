@@ -270,12 +270,14 @@ class EventEditor extends React.Component {
           </Row>
 
           <Row className='mb-3'>
-            <Form.Group as={Col} className='mb-3' controlId='start'>
+            <Form.Group as={Col} controlId='start'>
               <Form.Label>Starts at</Form.Label>
+              <br />
               <DateTimePicker value={this.state.start} onChange={newValue => this.setState({ start: newValue })} />
             </Form.Group>
-            <Form.Group as={Col} className='mb-3' controlId='end'>
+            <Form.Group as={Col} controlId='end'>
               <Form.Label>Ends at</Form.Label>
+              <br />
               <DateTimePicker value={this.state.end} onChange={newValue => this.setState({ end: newValue })} />
             </Form.Group>
           </Row>
