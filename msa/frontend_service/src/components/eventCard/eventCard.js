@@ -61,16 +61,14 @@ class EventCard extends React.Component {
           <Card.Title>{this.state.name}</Card.Title>
           <Card.Subtitle className='event-card__subtitle'>
             <small className='text-muted'>
-              <time dateTime={this.state.start}>
-                {this.DateToLocalTime(new Date(this.state.start)).toLocaleDateString('NL-nl')}
-              </time>
+              <time dateTime={this.state.start}>{this.state.start.toLocaleDateString('NL-nl')}</time>
               ,&ensp;
               <time dateTime={this.state.start}>
-                {new Date(this.state.start).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
+                {this.state.start.toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
               </time>
               &ensp;&mdash;&ensp;
               <time dateTime={this.state.end}>
-                {new Date(this.state.end).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
+                {this.state.end.toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
               </time>
             </small>
           </Card.Subtitle>
