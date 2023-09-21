@@ -1,4 +1,4 @@
-import { DateTimePicker } from '@mui/material'
+// import { DateTimePicker } from '@mui/material'
 import MDEditor from '@uiw/react-md-editor'
 import cl from 'clsx'
 import React from 'react'
@@ -267,7 +267,7 @@ class EventEditor extends React.Component {
             </Col>
           </Row>
 
-          <Row className='mb-3'>
+          {/* <Row className='mb-3'>
             <Form.Group as={Col} className='mb-3' controlId='start'>
               <Form.Label>Starts at</Form.Label>
               <DateTimePicker value={this.state.start} onChange={newValue => this.setState({ start: newValue })} />
@@ -276,7 +276,7 @@ class EventEditor extends React.Component {
               <Form.Label>Ends at</Form.Label>
               <DateTimePicker value={this.state.end} onChange={newValue => this.setState({ end: newValue })} />
             </Form.Group>
-          </Row>
+          </Row> */}
 
           <Form.Group className='mb-3 description' controlId='description'>
             <Form.Label>Event description (Markdown)</Form.Label>
