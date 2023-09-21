@@ -536,30 +536,38 @@ const ProjectListing = props => {
         {loading ? (
           <h4>Loading...</h4>
         ) : (
-          <div className='project-lists-container scrollable-page' style={{ flexGrow: '1', height: '1px' }}>
+          <div className='project-lists-container' style={{ height: '100vh' }}>
             <div className='project-lists' ref={listRef} style={{ overflowY: 'auto' }}>
-              <ViewportList
-                viewportRef={listRef}
-                items={addHeaders(showNoProjectsIfRequired(filteredProjects))}
-                itemMinSize={48}
-                initialPrerender={32}
-              >
-                {item => renderItem(item)}
-              </ViewportList>
-            </div>
-            {isStudent && (
-              <div className='project-lists' ref={listRefVoted} style={{ marginTop: '1.5rem', overflowY: 'auto' }}>
+              {showNoProjectsIfRequired(filteredProjects).length <= 30 ? (
+                showNoProjectsIfRequired(filteredProjects).map(item => renderItem(item))
+              ) : (
                 <ViewportList
-                  viewportRef={listRefVoted}
-                  items={[
-                    { type: 'header', title: 'Projects you have voted on' },
-                    ...showNoProjectsIfRequired(items, true),
-                  ]}
+                  viewportRef={listRef}
+                  items={showNoProjectsIfRequired(filteredProjects)}
                   itemMinSize={48}
                   initialPrerender={32}
                 >
-                  {item => renderItem(item, true)}
+                  {item => renderItem(item)}
                 </ViewportList>
+              )}
+            </div>
+            {isStudent && (
+              <div className='project-lists' ref={listRefVoted} style={{ marginTop: '1.5rem', overflowY: 'auto' }}>
+                {showNoProjectsIfRequired(items, true).length <= 30 ? (
+                  showNoProjectsIfRequired(items, true).map(item => renderItem(item, true))
+                ) : (
+                  <ViewportList
+                    viewportRef={listRefVoted}
+                    items={[
+                      { type: 'header', title: 'Projects you have voted on' },
+                      ...showNoProjectsIfRequired(items, true),
+                    ]}
+                    itemMinSize={48}
+                    initialPrerender={32}
+                  >
+                    {item => renderItem(item, true)}
+                  </ViewportList>
+                )}
               </div>
             )}
           </div>
