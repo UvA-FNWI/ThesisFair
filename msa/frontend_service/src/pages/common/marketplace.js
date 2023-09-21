@@ -554,7 +554,10 @@ const ProjectListing = props => {
             {isStudent && (
               <div className='project-lists' ref={listRefVoted} style={{ marginTop: '1.5rem', overflowY: 'auto' }}>
                 {showNoProjectsIfRequired(items, true).length <= 30 ? (
-                  showNoProjectsIfRequired(items, true).map(item => renderItem(item, true))
+                  [
+                    { type: 'header', title: 'Projects you have voted on' },
+                    ...showNoProjectsIfRequired(items, true),
+                  ].map(item => renderItem(item, true))
                 ) : (
                   <ViewportList
                     viewportRef={listRefVoted}
