@@ -1,6 +1,8 @@
 // import { DateTimePicker } from '@mui/material'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import MDEditor from '@uiw/react-md-editor'
 import cl from 'clsx'
+import dayjs, { Dayjs } from 'dayjs'
 import React from 'react'
 import { Button, ButtonGroup, Col, Container, Form, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 import rehypeSanitize from 'rehype-sanitize'
@@ -23,8 +25,8 @@ class EventEditor extends React.Component {
       acceptsNewProjects: true,
       name: '',
       description: '',
-      start: new Date(),
-      end: new Date(),
+      start: Dayjs,
+      end: Dayjs,
       degrees: [],
       location: 'Somewhere over the rainbow',
       // studentSubmitDeadline: new Date(),
@@ -55,8 +57,8 @@ class EventEditor extends React.Component {
   async componentDidMount() {
     if (this.props.params.evid) {
       const event = await api.event.get(this.props.params.evid).exec()
-      event.start = new Date(event.start)
-      event.end = new Date(event.end)
+      event.start = dayjs(event.start)
+      event.end = dayjs(event.end)
       this.setState(event)
 
       api.event
@@ -97,8 +99,8 @@ class EventEditor extends React.Component {
       name: this.state.name,
       description: this.state.description,
       degrees: this.state.degrees,
-      start: this.state.start,
-      end: this.state.end,
+      start: this.state.start.toDate(),
+      end: this.state.end.toDate(),
       location: this.state.location,
       enabled: this.state.enabled,
       isMarketplace: this.state.isMarketplace,
@@ -267,7 +269,7 @@ class EventEditor extends React.Component {
             </Col>
           </Row>
 
-          {/* <Row className='mb-3'>
+          <Row className='mb-3'>
             <Form.Group as={Col} className='mb-3' controlId='start'>
               <Form.Label>Starts at</Form.Label>
               <DateTimePicker value={this.state.start} onChange={newValue => this.setState({ start: newValue })} />
@@ -276,7 +278,7 @@ class EventEditor extends React.Component {
               <Form.Label>Ends at</Form.Label>
               <DateTimePicker value={this.state.end} onChange={newValue => this.setState({ end: newValue })} />
             </Form.Group>
-          </Row> */}
+          </Row>
 
           <Form.Group className='mb-3 description' controlId='description'>
             <Form.Label>Event description (Markdown)</Form.Label>
