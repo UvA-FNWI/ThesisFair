@@ -273,12 +273,22 @@ class EventEditor extends React.Component {
             <Form.Group as={Col} controlId='start'>
               <Form.Label>Starts at</Form.Label>
               <br />
-              <DateTimePicker value={this.state.start} onChange={newValue => this.setState({ start: newValue })} />
+              <DateTimePicker
+                value={this.state.start}
+                onChange={newValue => this.setState({ start: newValue })}
+                ampm={false}
+                ampmInClock={false}
+              />
             </Form.Group>
             <Form.Group as={Col} controlId='end'>
               <Form.Label>Ends at</Form.Label>
               <br />
-              <DateTimePicker value={this.state.end} onChange={newValue => this.setState({ end: newValue })} />
+              <DateTimePicker
+                value={this.state.end}
+                onChange={newValue => this.setState({ end: newValue })}
+                ampm={false}
+                ampmInClock={false}
+              />
             </Form.Group>
           </Row>
 
