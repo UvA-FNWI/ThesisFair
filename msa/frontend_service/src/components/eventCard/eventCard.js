@@ -34,11 +34,11 @@ class EventCard extends React.Component {
     this.setState({
       ...event,
       image,
-      start: event.start ? new Date(event.start) : new Date(new Date().now()),
-      end: event.end ? new Date(event.end) : new Date(new Date().now()),
+      start: event.start ? new Date(event.start) : new Date(),
+      end: event.end ? new Date(event.end) : new Date(),
     })
 
-    console.log(event.start, event.end, new Date(new Date().now()), new Date(event.start), new Date(event.end))
+    console.log(event.start, event.end, new Date(), new Date(event.start), new Date(event.end))
   }
 
   DateToLocalTime = date => {
