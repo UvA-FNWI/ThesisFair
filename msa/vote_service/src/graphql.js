@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 const ObjectId = mongoose.Types.ObjectId
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js'
-import { Vote } from './database.js'
+import { Vote, Settings } from './database.js'
 import { canGetStudentVotes, canGetEntityVotes } from './permissions.js'
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
@@ -80,6 +80,14 @@ const getEvid = async external_id => {
 }
 
 schemaComposer.Query.addNestedFields({
+  votingClosed: {
+    type: 'Boolean!',
+    args: {},
+    description: 'Return whether voting is closed or not (true if it is, false otherwise)',
+    resolve: async (_obj, _args, _req) => {
+      return await Settings.findOne({}).then(result => Boolean(result?.votingClosed))
+    },
+  },
   votesOfStudent: {
     type: '[ID!]',
     args: {
@@ -192,6 +200,21 @@ schemaComposer.Query.addNestedFields({
 })
 
 schemaComposer.Mutation.addNestedFields({
+  'vote.closed': {
+    type: 'Boolean!',
+    args: {
+      closed: 'Boolean!',
+    },
+    description: 'Set the votingClosed setting to the given value',
+    resolve: async (_obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED change voting closed status')
+      }
+
+      await Settings.findOneAndUpdate({}, { votingClosed: args.closed })
+      return true
+    },
+  },
   'vote.deleteOfEntity': {
     type: 'String',
     args: {
