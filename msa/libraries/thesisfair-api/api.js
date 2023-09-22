@@ -1077,6 +1077,21 @@ export default url => {
           }),
       },
       votes: {
+        getClosed: () =>
+          genGraphQLBuilder({
+            name: 'getClosed',
+            functionPath: 'votingClosed',
+            args: {},
+          }),
+        setClosed: (closed) =>
+          genGraphQLBuilder({
+            type: 'mutation',
+            name: 'setClosed',
+            functionPath: 'vote.closed',
+            args: {
+              closed: { value: closed, type: 'Boolean!' },
+            },
+          }),
         getOfStudent: uid =>
           genGraphQLBuilder({
             name: 'getVotesOfStudent',

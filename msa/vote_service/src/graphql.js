@@ -6,10 +6,14 @@ import mongoose from 'mongoose'
 const ObjectId = mongoose.Types.ObjectId
 
 import { rgraphql } from '../../libraries/amqpmessaging/index.js'
-import { Vote } from './database.js'
+import { Vote, Settings } from './database.js'
 import { canGetStudentVotes, canGetEntityVotes } from './permissions.js'
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
+
+async function votingClosed() {
+  return await Settings.findOne({}).then(result => Boolean(result?.votingClosed))
+}
 
 const getUid = async studentnumber => {
   const res = await rgraphql(
@@ -80,6 +84,12 @@ const getEvid = async external_id => {
 }
 
 schemaComposer.Query.addNestedFields({
+  votingClosed: {
+    type: 'Boolean!',
+    args: {},
+    description: 'Return whether voting is closed or not (true if it is, false otherwise)',
+    resolve: votingClosed,
+  },
   votesOfStudent: {
     type: '[ID!]',
     args: {
@@ -192,6 +202,21 @@ schemaComposer.Query.addNestedFields({
 })
 
 schemaComposer.Mutation.addNestedFields({
+  'vote.closed': {
+    type: 'Boolean!',
+    args: {
+      closed: 'Boolean!',
+    },
+    description: 'Set the votingClosed setting to the given value',
+    resolve: async (_obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error('UNAUTHORIZED change voting closed status')
+      }
+
+      await Settings.findOneAndUpdate({}, { votingClosed: args.closed })
+      return true
+    },
+  },
   'vote.deleteOfEntity': {
     type: 'String',
     args: {
@@ -233,6 +258,9 @@ schemaComposer.Mutation.addNestedFields({
     description: "Add a project to a student's votes.",
     resolve: async (obj, args, req) => {
       canGetStudentVotes(req, args)
+      if (await votingClosed()) {
+        throw new Error('UNAUTHORIZED change votes after voting closed')
+      }
 
       const currentVotes = await Vote.findOne({ uid: args.uid })
 
@@ -259,6 +287,9 @@ schemaComposer.Mutation.addNestedFields({
     description: "Remove a project from a student's votes.",
     resolve: async (obj, args, req) => {
       canGetStudentVotes(req, args)
+      if (await votingClosed()) {
+        throw new Error('UNAUTHORIZED change votes after voting closed')
+      }
 
       const currentVotes = await Vote.findOne({ uid: args.uid })
 

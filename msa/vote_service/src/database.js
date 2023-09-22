@@ -4,6 +4,11 @@ import debugLib from 'debug'
 const debug = debugLib('vote_service:database')
 let conn
 
+const settingsSchema = new mongoose.Schema({
+  votingClosed: { type: 'Boolean', default: () => false },
+})
+export let Settings
+
 const voteSchema = new mongoose.Schema({
   uid: { type: mongoose.Schema.ObjectId, required: true },
   pids: [{ type: mongoose.Schema.ObjectId, required: true }],
@@ -28,6 +33,13 @@ export const connect = async uri => {
   debug(`Connected to database: ${conStr}`)
 
   Vote = conn.model('Vote', voteSchema)
+  Settings = conn.model('Settings', settingsSchema)
+
+  // Make sure there is a settings document
+  if (!await Settings.findOne()) {
+    await Settings.create({})
+  }
+
   return conn
 }
 

@@ -17,6 +17,7 @@ pushDevelop:
 	./scripts/push-development.sh .
 
 dev:
+	-killall kubectl
 	-cd msa/libraries/thesisfair-api && npm run build
 	minikube status | grep "host: Running" || minikube start --mount --mount-string="$$(pwd):/home/docker/thesisfair"
 	minikube addons enable ingress
@@ -26,7 +27,6 @@ dev:
 	make pushDevelop
 	helm install thesisfair chart --values dev-values.yaml --wait
 	sleep 7
-	-killall kubectl
 	kubectl port-forward svc/database 27017:27017 &
 	# node test/test/db.js run
 	# cd scripts/import-datanose && npm start dev

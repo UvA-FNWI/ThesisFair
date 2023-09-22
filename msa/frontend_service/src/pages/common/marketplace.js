@@ -30,6 +30,7 @@ const ProjectListing = props => {
   const [allEventsByEvid, setAllEventsByEvid] = useState({})
   const [studentProgrammes, setStudentProgrammes] = useState([])
   const [studentFiltersSet, setStudentFiltersSet] = useState(false)
+  const [votingClosed, setVotingClosed] = useState(false)
   const [filtersState, setFilters] = useState({
     search: '',
     degrees: session.getSessionData('filteredDegrees')
@@ -137,6 +138,12 @@ const ProjectListing = props => {
     }
   }
 
+  const toggleVoting = async () => {
+    console.log("Toggling votes")
+    console.log(await api.votes.setClosed(!votingClosed).exec())
+    setVotingClosed(!votingClosed)
+  }
+
   // const hideProject = project_id => {
   //   api.votes.hide(project_id)
   // }
@@ -204,7 +211,7 @@ const ProjectListing = props => {
           )
         }
         headerButtons={
-          isStudent && (
+          isStudent && !votingClosed && (
             <Button
               variant='primary'
               onClick={() => {
@@ -240,6 +247,13 @@ const ProjectListing = props => {
         return
     }
   }
+
+  useEffect(() => {
+    async function loadVotingClosedData() {
+      setVotingClosed(await api.votes.getClosed().exec())
+    }
+    loadVotingClosedData()
+  }, [])
 
   useEffect(() => {
     const nameToProgrammeId = name => {
@@ -375,13 +389,22 @@ const ProjectListing = props => {
             {showHeadings ? 'Hide headings' : 'Show headings'}
           </Button> */}
           <Button
-            style={{ marginBottom: '0.75rem' }}
+            style={{ marginBottom: '0.75rem', marginLeft: '0.75rem' }}
             variant='primary'
             onClick={() => setShowTagFilters(!showTagFilters)}
           >
             {showTagFilters ? 'Hide tag filters' : 'Show tag filters'}
             {filtersState.tags.length > 0 ? ` (${filtersState.tags.length})` : ''}
           </Button>
+          {api.getApiTokenData().type === 'a' &&
+            <Button
+              style={{ marginBottom: '0.75rem', marginLeft: '0.75rem' }}
+              variant='primary'
+              onClick={toggleVoting}
+            >
+              {votingClosed ? 'Open voting' : 'Close voting'}
+            </Button>
+          }
           {!api.getApiTokenData() && (
             <Link to='/'>
               <Button style={{ marginBottom: '0.75rem', marginLeft: '0.75rem' }} variant='primary'>
