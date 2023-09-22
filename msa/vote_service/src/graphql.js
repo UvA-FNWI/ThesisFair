@@ -11,6 +11,10 @@ import { canGetStudentVotes, canGetEntityVotes } from './permissions.js'
 
 schemaComposer.addTypeDefs(readFileSync('./src/schema.graphql').toString('utf8'))
 
+async function votingClosed() {
+  return await Settings.findOne({}).then(result => Boolean(result?.votingClosed))
+}
+
 const getUid = async studentnumber => {
   const res = await rgraphql(
     'api-user',
@@ -84,9 +88,7 @@ schemaComposer.Query.addNestedFields({
     type: 'Boolean!',
     args: {},
     description: 'Return whether voting is closed or not (true if it is, false otherwise)',
-    resolve: async (_obj, _args, _req) => {
-      return await Settings.findOne({}).then(result => Boolean(result?.votingClosed))
-    },
+    resolve: votingClosed,
   },
   votesOfStudent: {
     type: '[ID!]',
@@ -256,6 +258,9 @@ schemaComposer.Mutation.addNestedFields({
     description: "Add a project to a student's votes.",
     resolve: async (obj, args, req) => {
       canGetStudentVotes(req, args)
+      if (await votingClosed()) {
+        throw new Error('UNAUTHORIZED change votes after voting closed')
+      }
 
       const currentVotes = await Vote.findOne({ uid: args.uid })
 
@@ -282,6 +287,9 @@ schemaComposer.Mutation.addNestedFields({
     description: "Remove a project from a student's votes.",
     resolve: async (obj, args, req) => {
       canGetStudentVotes(req, args)
+      if (await votingClosed()) {
+        throw new Error('UNAUTHORIZED change votes after voting closed')
+      }
 
       const currentVotes = await Vote.findOne({ uid: args.uid })
 
