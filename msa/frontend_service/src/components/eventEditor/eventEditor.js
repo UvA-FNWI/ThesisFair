@@ -1,5 +1,8 @@
+// import { DateTimePicker } from '@mui/material'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import MDEditor from '@uiw/react-md-editor'
 import cl from 'clsx'
+import dayjs, { Dayjs } from 'dayjs'
 import React from 'react'
 import { Button, ButtonGroup, Col, Container, Form, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 import rehypeSanitize from 'rehype-sanitize'
@@ -22,8 +25,8 @@ class EventEditor extends React.Component {
       acceptsNewProjects: true,
       name: '',
       description: '',
-      start: new Date(),
-      end: new Date(),
+      start: Dayjs,
+      end: Dayjs,
       degrees: [],
       location: 'Somewhere over the rainbow',
       // studentSubmitDeadline: new Date(),
@@ -54,8 +57,8 @@ class EventEditor extends React.Component {
   async componentDidMount() {
     if (this.props.params.evid) {
       const event = await api.event.get(this.props.params.evid).exec()
-      event.start = new Date(event.start)
-      event.end = new Date(event.end)
+      event.start = dayjs(event.start)
+      event.end = dayjs(event.end)
       this.setState(event)
 
       api.event
@@ -96,8 +99,8 @@ class EventEditor extends React.Component {
       name: this.state.name,
       description: this.state.description,
       degrees: this.state.degrees,
-      start: this.state.start,
-      end: this.state.end,
+      start: this.state.start.toDate(),
+      end: this.state.end.toDate(),
       location: this.state.location,
       enabled: this.state.enabled,
       isMarketplace: this.state.isMarketplace,
@@ -163,33 +166,6 @@ class EventEditor extends React.Component {
     start: () => true,
     end: () => true,
     location: () => true,
-  }
-
-  localToUTCTime = (date, hours, minutes) => {
-    const offsetMinutes = date.getTimezoneOffset()
-    const offsetHours = Math.floor(offsetMinutes / 60)
-    const offsetMinutesRemainder = offsetMinutes % 60
-
-    date.setUTCHours(hours + offsetHours)
-    date.setUTCMinutes(minutes + offsetMinutesRemainder)
-
-    return date
-  }
-
-  DateToLocalTime = date => {
-    const newDate = new Date()
-
-    const offsetMinutes = newDate.getTimezoneOffset()
-    const offsetHours = Math.floor(offsetMinutes / 60)
-    const offsetMinutesRemainder = offsetMinutes % 60
-
-    const hours = date.getHours() - offsetHours
-    const minutes = date.getMinutes() - offsetMinutesRemainder
-
-    newDate.setUTCHours(hours)
-    newDate.setUTCMinutes(minutes)
-
-    return newDate
   }
 
   getSubmitButton = disabled => (
@@ -266,107 +242,25 @@ class EventEditor extends React.Component {
           </Row>
 
           <Row className='mb-3'>
-            <Form.Group as={Col} className='mb-3' controlId='start'>
+            <Form.Group as={Col} controlId='start'>
               <Form.Label>Starts at</Form.Label>
-              <Form.Control
-                name='startDate'
-                type='date'
-                value={this.state.start.toISOString().split('T')[0]}
-                onChange={e => {
-                  const [year, month, date] = e.target.value.split('-')
-                  const newDate = this.state.start
-                  newDate.setUTCFullYear(year, month - 1, date)
-
-                  this.setState({
-                    start: newDate,
-                  })
-                }}
-                onBlur={() => {
-                  this.setState({
-                    hasBeenInteractedWith: {
-                      ...this.state.hasBeenInteractedWith,
-                      start: true,
-                    },
-                  })
-                }}
-                isInvalid={this.state.hasBeenInteractedWith.start && !this.validation.start()}
-                required
+              <br />
+              <DateTimePicker
+                value={this.state.start}
+                onChange={newValue => this.setState({ start: newValue })}
+                ampm={false}
+                ampmInClock={false}
               />
-              <Form.Control
-                name='startTime'
-                type='time'
-                value={this.DateToLocalTime(this.state.start).toISOString().split('T')[1].split('.')[0]}
-                onChange={e => {
-                  const [hours, minutes] = e.target.value.split(':')
-                  const newTime = this.localToUTCTime(this.state.start, hours, minutes)
-
-                  this.setState({
-                    start: newTime,
-                  })
-                }}
-                onBlur={() => {
-                  this.setState({
-                    hasBeenInteractedWith: {
-                      ...this.state.hasBeenInteractedWith,
-                      start: true,
-                    },
-                  })
-                }}
-                isInvalid={this.state.hasBeenInteractedWith.start && !this.validation.start()}
-                required
-              />
-              <Form.Control.Feedback type='invalid'>Bruh just git gud</Form.Control.Feedback>
             </Form.Group>
-            <Form.Group as={Col} className='mb-3' controlId='end'>
-              <Form.Label>ends at</Form.Label>
-              <Form.Control
-                name='endDate'
-                type='date'
-                value={this.state.end.toISOString().split('T')[0]}
-                onChange={e => {
-                  const [year, month, date] = e.target.value.split('-')
-                  const newDate = this.state.end
-                  newDate.setUTCFullYear(year, month - 1, date)
-
-                  this.setState({
-                    end: newDate,
-                  })
-                }}
-                onBlur={() => {
-                  this.setState({
-                    hasBeenInteractedWith: {
-                      ...this.state.hasBeenInteractedWith,
-                      end: true,
-                    },
-                  })
-                }}
-                isInvalid={this.state.hasBeenInteractedWith.end && !this.validation.end()}
-                required
+            <Form.Group as={Col} controlId='end'>
+              <Form.Label>Ends at</Form.Label>
+              <br />
+              <DateTimePicker
+                value={this.state.end}
+                onChange={newValue => this.setState({ end: newValue })}
+                ampm={false}
+                ampmInClock={false}
               />
-              <Form.Control
-                name='endTime'
-                type='time'
-                value={this.DateToLocalTime(this.state.end).toISOString().split('T')[1].split('.')[0]}
-                onChange={e => {
-                  const [hours, minutes] = e.target.value.split(':')
-                  const newTime = this.localToUTCTime(this.state.end, hours, minutes)
-
-                  this.setState({
-                    end: newTime,
-                  })
-                }}
-                onBlur={() => {
-                  this.setState({
-                    hasBeenInteractedWith: {
-                      ...this.state.hasBeenInteractedWith,
-                      end: true,
-                    },
-                  })
-                }}
-                isInvalid={this.state.hasBeenInteractedWith.end && !this.validation.end()}
-                required
-              />
-              <Form.Control.Feedback type='invalid'>Bruh just git gud</Form.Control.Feedback>
             </Form.Group>
           </Row>
 
