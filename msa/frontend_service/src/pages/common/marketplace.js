@@ -211,7 +211,7 @@ const ProjectListing = props => {
           )
         }
         headerButtons={
-          isStudent && (
+          isStudent && !votingClosed && (
             <Button
               variant='primary'
               onClick={() => {
