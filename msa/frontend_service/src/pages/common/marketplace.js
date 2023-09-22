@@ -18,7 +18,7 @@ import '../../components/projectListItem/projectListItem.scss'
 import './marketplace.scss'
 
 const ProjectListing = props => {
-  const [showHeadings, setShowHeadings] = useState(true)
+  const [showHeadings, setShowHeadings] = useState(false)
   const [showTagFilters, setShowTagFilters] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadingData, setLoadingData] = useState(true)
@@ -367,13 +367,13 @@ const ProjectListing = props => {
     <>
       <Container style={{ display: 'flex', flexGrow: '1', flexDirection: 'column' }}>
         <div style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-          <Button
+          {/* <Button
             style={{ marginBottom: '0.75rem', marginRight: '0.75rem' }}
             variant='primary'
             onClick={() => setShowHeadings(!showHeadings)}
           >
             {showHeadings ? 'Hide headings' : 'Show headings'}
-          </Button>
+          </Button> */}
           <Button
             style={{ marginBottom: '0.75rem' }}
             variant='primary'
@@ -536,30 +536,41 @@ const ProjectListing = props => {
         {loading ? (
           <h4>Loading...</h4>
         ) : (
-          <div className='project-lists-container scrollable-page' style={{ flexGrow: '1', height: '1px' }}>
+          <div className='project-lists-container' style={{ height: '100vh' }}>
             <div className='project-lists' ref={listRef} style={{ overflowY: 'auto' }}>
-              <ViewportList
-                viewportRef={listRef}
-                items={addHeaders(showNoProjectsIfRequired(filteredProjects))}
-                itemMinSize={48}
-                initialPrerender={32}
-              >
-                {item => renderItem(item)}
-              </ViewportList>
-            </div>
-            {isStudent && (
-              <div className='project-lists' ref={listRefVoted} style={{ marginTop: '1.5rem', overflowY: 'auto' }}>
+              {showNoProjectsIfRequired(filteredProjects).length <= 30 ? (
+                showNoProjectsIfRequired(filteredProjects).map(item => renderItem(item))
+              ) : (
                 <ViewportList
-                  viewportRef={listRefVoted}
-                  items={[
-                    { type: 'header', title: 'Projects you have voted on' },
-                    ...showNoProjectsIfRequired(items, true),
-                  ]}
+                  viewportRef={listRef}
+                  items={showNoProjectsIfRequired(filteredProjects)}
                   itemMinSize={48}
                   initialPrerender={32}
                 >
-                  {item => renderItem(item, true)}
+                  {item => renderItem(item)}
                 </ViewportList>
+              )}
+            </div>
+            {isStudent && (
+              <div className='project-lists' ref={listRefVoted} style={{ marginTop: '1.5rem', overflowY: 'auto' }}>
+                {showNoProjectsIfRequired(items, true).length <= 30 ? (
+                  [
+                    { type: 'header', title: 'Projects you have voted on' },
+                    ...showNoProjectsIfRequired(items, true),
+                  ].map(item => renderItem(item, true))
+                ) : (
+                  <ViewportList
+                    viewportRef={listRefVoted}
+                    items={[
+                      { type: 'header', title: 'Projects you have voted on' },
+                      ...showNoProjectsIfRequired(items, true),
+                    ]}
+                    itemMinSize={48}
+                    initialPrerender={32}
+                  >
+                    {item => renderItem(item, true)}
+                  </ViewportList>
+                )}
               </div>
             )}
           </div>

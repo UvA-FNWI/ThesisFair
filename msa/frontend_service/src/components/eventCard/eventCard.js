@@ -34,7 +34,27 @@ class EventCard extends React.Component {
     this.setState({
       ...event,
       image,
+      start: event.start ? new Date(event.start) : new Date(),
+      end: event.end ? new Date(event.end) : new Date(),
     })
+
+    console.log(event.start, event.end, new Date(), new Date(event.start), new Date(event.end))
+  }
+
+  DateToLocalTime = date => {
+    const newDate = new Date()
+
+    const offsetMinutes = newDate.getTimezoneOffset()
+    const offsetHours = Math.floor(offsetMinutes / 60)
+    const offsetMinutesRemainder = offsetMinutes % 60
+
+    const hours = date.getHours() - offsetHours
+    const minutes = date.getMinutes() - offsetMinutesRemainder
+
+    newDate.setUTCHours(hours)
+    newDate.setUTCMinutes(minutes)
+
+    return newDate
   }
 
   render() {
@@ -45,14 +65,14 @@ class EventCard extends React.Component {
           <Card.Title>{this.state.name}</Card.Title>
           <Card.Subtitle className='event-card__subtitle'>
             <small className='text-muted'>
-              <time dateTime={this.state.start}>{new Date(this.state.start).toLocaleDateString('NL-nl')}</time>
+              <time dateTime={this.state.start}>{this.state.start?.toLocaleDateString('NL-nl')}</time>
               ,&ensp;
               <time dateTime={this.state.start}>
-                {new Date(this.state.start).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
+                {this.state.start?.toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
               </time>
               &ensp;&mdash;&ensp;
               <time dateTime={this.state.end}>
-                {new Date(this.state.end).toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
+                {this.state.end?.toLocaleTimeString('NL-nl', { hour: '2-digit', minute: '2-digit' })}
               </time>
             </small>
           </Card.Subtitle>
