@@ -1,6 +1,7 @@
 import { graphql } from 'graphql'
 import { schemaComposer } from 'graphql-compose'
 import { readFileSync } from 'fs'
+import { AsyncParser } from '@json2csv/node'
 import mongoose from 'mongoose'
 
 const ObjectId = mongoose.Types.ObjectId
@@ -84,6 +85,46 @@ const getEvid = async external_id => {
 }
 
 schemaComposer.Query.addNestedFields({
+  votesCSV: {
+    type: 'String',
+    description: 'Pull a CSV dump of the vote database',
+    resolve: async (obj, args, req) => {
+      if (req.user.type !== 'a') {
+        throw new Error("UNAUTHORIZED pull vote CSV")
+      }
+
+      const votes = await Vote.find()
+      const votedPids = [...new Set(votes.map(vote => vote.pids).flat())]
+      const entitiesRes = await rgraphql('api-entity', 'query { entitiesAll { enid, name } }')
+      const projectsRes = await rgraphql('api-project', 'query getProjectsWithVotes($pids: [ID!]!) { projects(pids: $pids) { pid, name, enid } }', { pids: votedPids })
+      const usersRes = await rgraphql('api-user', 'query { usersAll { ... on UserBase { uid, firstname, lastname, email }, ... on Student { studentnumber } } }')
+      
+      const entities = entitiesRes.data.entitiesAll
+      const projects = projectsRes.data.projects
+      const users = usersRes.data.usersAll
+      
+      const projectNameByPid = Object.fromEntries(projects.map(project => [project.pid, project.name]))
+      const enidByPid = Object.fromEntries(projects.map(project => [project.pid, project.enid]))
+      const entityNameByEnid = Object.fromEntries(entities.map(entity => [entity.enid, entity.name]))
+      const userByUid = Object.fromEntries(users.map(user => [user.uid, user]))
+
+      const table = []
+
+      for (const vote of votes) {
+        const user = userByUid[vote.uid]
+        const rows = vote.pids.map(pid => ({
+          "Project": projectNameByPid[pid],
+          "Entity": entityNameByEnid[enidByPid[pid]],
+          "Student": `${user.firstname} ${user.lastname} (${user.studentnumber}) <${user.email}>`,
+        }))
+
+        table.push(...rows)
+      }
+      
+      const parser = new AsyncParser()
+      return await parser.parse(table).promise()
+    }
+  },
   votingClosed: {
     type: 'Boolean!',
     args: {},
