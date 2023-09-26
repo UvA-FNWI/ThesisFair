@@ -6,7 +6,7 @@ import { Button, Col, Container, Form, Nav, Row, Tab } from 'react-bootstrap'
 import { Link, useParams } from 'react-router-dom'
 import { ViewportList } from 'react-viewport-list'
 
-import api, { tags as allTags } from '../../api'
+import api, { downloadVotesCSV, tags as allTags } from '../../api'
 import ProjectList from '../../components/projectListRep/projectList'
 import Tag from '../../components/tag/tag'
 import * as session from '../../session'
@@ -396,7 +396,7 @@ const ProjectListing = props => {
             {showTagFilters ? 'Hide tag filters' : 'Show tag filters'}
             {filtersState.tags.length > 0 ? ` (${filtersState.tags.length})` : ''}
           </Button>
-          {api.getApiTokenData() && api.getApiTokenData().type === 'a' &&
+          {api.getApiTokenData() && api.getApiTokenData().type === 'a' && <>
             <Button
               style={{ marginBottom: '0.75rem', marginLeft: '0.75rem' }}
               variant='primary'
@@ -404,7 +404,15 @@ const ProjectListing = props => {
             >
               {votingClosed ? 'Open voting' : 'Close voting'}
             </Button>
-          }
+
+            <Button
+              style={{ marginLeft: '0.75rem', marginBottom: '0.75rem' }}
+              variant='primary'
+              onClick={() => downloadVotesCSV()}
+            >
+              CSV download of votes
+            </Button>
+          </>}
           {!api.getApiTokenData() && (
             <Link to='/'>
               <Button style={{ marginBottom: '0.75rem', marginLeft: '0.75rem' }} variant='primary'>
