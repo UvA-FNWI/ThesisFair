@@ -67,6 +67,7 @@ class ProjectListing extends React.Component {
   }
 
   approvalStatus = project => {
+    console.log(project)
     if (!project) {
       return
     }
@@ -88,11 +89,11 @@ class ProjectListing extends React.Component {
       case 'commented':
         return <Tag className='tag--approval-changes' label='Changes requested' />
       case 'awaiting':
-      case 'preliminary':
         return <Tag className='tag--approval-awaiting' label='Awaiting approval' />
       case 'payment':
         return <Tag className='tag--approval-payment' label='Awaiting payment' />
       case 'approved':
+      case 'preliminary':
         return <Tag className='tag--approval-approved' label='Approved' />
       default:
         return
