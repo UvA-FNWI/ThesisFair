@@ -46,7 +46,7 @@ const ProjectListing = props => {
   const listRef = useRef(null)
   const listRefVoted = useRef(null)
 
-  if (isStudent && studentProgrammes.length > 0 && !studentFiltersSet) {
+  if (isStudent && studentProgrammes?.length > 0 && !studentFiltersSet) {
     const studentDegrees = Object.values(degrees)
       .filter(({ programmeId }) => studentProgrammes.includes(programmeId))
       .map(({ id }) => id)
@@ -396,7 +396,7 @@ const ProjectListing = props => {
             {showTagFilters ? 'Hide tag filters' : 'Show tag filters'}
             {filtersState.tags.length > 0 ? ` (${filtersState.tags.length})` : ''}
           </Button>
-          {api.getApiTokenData().type === 'a' &&
+          {api.getApiTokenData() && api.getApiTokenData().type === 'a' &&
             <Button
               style={{ marginBottom: '0.75rem', marginLeft: '0.75rem' }}
               variant='primary'
