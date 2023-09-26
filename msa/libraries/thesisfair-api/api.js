@@ -1077,6 +1077,13 @@ export default url => {
           }),
       },
       votes: {
+        getCSV: () =>
+          genGraphQLBuilder({
+            name: 'getCSVvotes',
+            functionPath: 'votesCSV',
+            args: {},
+            cache: caching ? { instance: cache, type: 'votesCSV', key: '' } : false,
+          }),
         getClosed: () =>
           genGraphQLBuilder({
             name: 'getClosed',
