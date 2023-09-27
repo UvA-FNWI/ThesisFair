@@ -96,17 +96,22 @@ schemaComposer.Query.addNestedFields({
       const votes = await Vote.find()
       const votedPids = [...new Set(votes.map(vote => vote.pids).flat())]
       const entitiesRes = await rgraphql('api-entity', 'query { entitiesAll { enid, name } }')
-      const projectsRes = await rgraphql('api-project', 'query getProjectsWithVotes($pids: [ID!]!) { projects(pids: $pids) { pid, name, enid } }', { pids: votedPids })
+      const projectsRes = await rgraphql('api-project', 'query getProjectsWithVotes($pids: [ID!]!) { projects(pids: $pids) { pid, name, enid, degrees, evids } }', { pids: votedPids })
       const usersRes = await rgraphql('api-user', 'query { usersAll { ... on UserBase { uid, firstname, lastname, email }, ... on Student { studentnumber, studies } } }')
+      const eventsRes = await rgraphql('api-event', 'query { events { evid, name } }', { pids: votedPids })
 
       const entities = entitiesRes.data.entitiesAll
       const projects = projectsRes.data.projects
       const users = usersRes.data.usersAll
+      const events = eventsRes.data.events
       
       const projectNameByPid = Object.fromEntries(projects.map(project => [project.pid, project.name]))
       const enidByPid = Object.fromEntries(projects.map(project => [project.pid, project.enid]))
+      const evidsByPid = Object.fromEntries(projects.map(project => [project.pid, project.evids]))
+      const degreesByPid = Object.fromEntries(projects.map(project => [project.pid, project.degrees]))
       const entityNameByEnid = Object.fromEntries(entities.map(entity => [entity.enid, entity.name]))
       const userByUid = Object.fromEntries(users.map(user => [user.uid, user]))
+      const eventNameByEvid = Object.fromEntries(events.map(event => [event.evid, event.name]))
 
       const table = []
 
@@ -121,6 +126,8 @@ schemaComposer.Query.addNestedFields({
           "Entity": entityNameByEnid[enidByPid[pid]],
           "Student": `${user.firstname} ${user.lastname} (${user.studentnumber}) <${user.email}>`,
           "Degrees": user.studies,
+          "Project degrees": degreesByPid[pid],
+          "Project events": evidsByPid[pid].map(evid => eventNameByEvid[evid]),
         }))
 
         table.push(...rows)
