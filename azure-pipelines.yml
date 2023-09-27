@@ -25,7 +25,7 @@ jobs:
           VERSION="0.${BUILD_BUILDNUMBER}"
           helm package --version "${VERSION}" --app-version "${VERSION}" chart
           helm push "thesisfair-${VERSION}.tgz" oci://fnwicr.azurecr.io/helm
-          curl "https://k8s.datanose.nl/gitops-updater?name=thesisfair&secret=${UPDATER_SECRET}&version=${VERSION}"
+          curl -k "https://k8s.datanose.nl/gitops-updater?name=thesisfair&secret=${UPDATER_SECRET}&version=${VERSION}"
         displayName: Build Helm chart and push to registry
         condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
         env:
