@@ -97,7 +97,7 @@ schemaComposer.Query.addNestedFields({
       const votedPids = [...new Set(votes.map(vote => vote.pids).flat())]
       const entitiesRes = await rgraphql('api-entity', 'query { entitiesAll { enid, name } }')
       const projectsRes = await rgraphql('api-project', 'query getProjectsWithVotes($pids: [ID!]!) { projects(pids: $pids) { pid, name, enid } }', { pids: votedPids })
-      const usersRes = await rgraphql('api-user', 'query { usersAll { ... on UserBase { uid, firstname, lastname, email }, ... on Student { studentnumber } } }')
+      const usersRes = await rgraphql('api-user', 'query { usersAll { ... on UserBase { uid, firstname, lastname, email }, ... on Student { studentnumber, studies } } }')
 
       const entities = entitiesRes.data.entitiesAll
       const projects = projectsRes.data.projects
@@ -120,6 +120,7 @@ schemaComposer.Query.addNestedFields({
           "Project": projectNameByPid[pid],
           "Entity": entityNameByEnid[enidByPid[pid]],
           "Student": `${user.firstname} ${user.lastname} (${user.studentnumber}) <${user.email}>`,
+          "Degrees": user.studies,
         }))
 
         table.push(...rows)
