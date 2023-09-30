@@ -38,12 +38,14 @@ const navigationBarItems = {
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Events', icon: eventIcon, link: '/events' },
     { name: 'Projects', icon: projectsIcon, link: '/projects' },
+    { name: 'Students', icon: userIcon, link: '/students' },
   ],
   ra: [
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Organisation', icon: organisationsIcon, link: '/organisation' },
     { name: 'Events', icon: eventIcon, link: '/events' },
     { name: 'Projects', icon: projectsIcon, link: '/projects' },
+    { name: 'Students', icon: userIcon, link: '/students' },
   ],
 }
 

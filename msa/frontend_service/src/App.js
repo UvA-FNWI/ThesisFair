@@ -8,6 +8,7 @@ import AdminOrganisations from './pages/admin/Organisations'
 import ProjectReview from './pages/admin/ProjectReview.js'
 import AdminProjects from './pages/admin/projects'
 import Students from './pages/admin/Students'
+import RepStudents from './pages/representative/Students'
 import Event from './pages/common/Event'
 import Events from './pages/common/Events'
 import Marketplace from './pages/common/marketplace'
@@ -110,6 +111,10 @@ class App extends React.Component {
         <Route
           path='/project/:pid/review'
           element={this.state.isAcademic ? <Page page={<ProjectReview />} /> : <Page page={<Projects />} />}
+        />
+        <Route
+          path='/students'
+          element={<Page page={<RepStudents />} />}
         />
       </>
     )
