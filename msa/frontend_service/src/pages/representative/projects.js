@@ -58,7 +58,6 @@ class ProjectListing extends React.Component {
 
     this.state = {
       projects: {}, // Map from PID to project
-      votes: {}, // Map from PID to users that voted for it
       events: {}, // Map from EVID to event info
       allEventsByEvid: {}, // Map from EVID to event info
       eventProjects: {}, // Map (actual map object) from list of EVIDs to list of PIDs
@@ -67,7 +66,6 @@ class ProjectListing extends React.Component {
   }
 
   approvalStatus = project => {
-    console.log(project)
     if (!project) {
       return
     }
@@ -105,16 +103,6 @@ class ProjectListing extends React.Component {
     let projects = await api.project.getOfEntity(null, session.getEnid()).exec()
     projects = Object.fromEntries(projects.map(project => [project.pid, project]))
 
-    // Get the votes of this entity as a list of [pid, uid] pairs
-    let votes = await api.votes.getOfEntity(session.getEnid(), null).exec()
-    // Reduce the uids into lists, indexed by these pids ({pid: [uid, uid, ...], ...})
-    votes = votes?.reduce((c, vote) => ({ ...c, [vote.pid]: [...(c[vote.pid] || []), vote.uid] }), {}) || {}
-    // Call 'getMultiple(uids)' for user info on these lists
-    // TODO: remove this loop with api calls
-    for (const [pid, uids] of Object.entries(votes)) {
-      votes[pid] = await api.user.getMultiple(uids).exec()
-    }
-
     const eventProjects = new Map()
     for (const project of Object.values(projects)) {
       // Make sure events with a null evid and no evids are both mapped
@@ -143,20 +131,7 @@ class ProjectListing extends React.Component {
       events[evid] = evid ? await api.event.get(evid).exec() : { name: 'No event' }
     }
 
-    this.setState({ projects, votes, events, eventProjects })
-  }
-
-  renderStudentModal = () => {
-    const { pid, uid } = this.state.popup
-    const student = this.state.votes[pid].find(user => user.uid === uid)
-
-    return <StudentPopup student={student} onHide={() => this.setState({ popup: false })} />
-  }
-
-  downloadAllCVs = async project => {
-    for (const student of this.state.votes[project.pid]) {
-      await downloadCV(student.uid, genCVName(student, project))
-    }
+    this.setState({ projects, events, eventProjects })
   }
 
   renderProjectListing(projects) {
@@ -205,59 +180,6 @@ class ProjectListing extends React.Component {
             )
           })}
         </ProjectList>
-        {/* TODO: Implement student interest list (stage 3) */}
-        {/* {this.state.votes[project.pid] ? (
-          this.state.votes[project.pid].length > 0 ? (
-            this.state.votes[project.pid].map(student => {
-              const studentInfoPresent = student.firstname || student.lastname || student.studies.length > 0
-              return (
-                <Card
-                  key={student.uid}
-                  className='mb-2 hoverable'
-                  bg={studentInfoPresent ? 'white' : 'gray'}
-                  onClick={
-                    studentInfoPresent
-                      ? e => this.setState({ popup: { pid: project.pid, uid: student.uid, cv: false } })
-                      : null
-                  }
-                >
-                  <Card.Body className='d-flex justify-content-between align-items-center'>
-                    {studentInfoPresent ? (
-                      <>
-                        <p className='m-0'>
-                          {student.firstname} {student.lastname}
-                          <span className='d-none d-sm-inline ps-2 pe-2'>-</span>
-                          <span className='d-none d-sm-inline'>{student.studies.join(' | ')}</span>
-                        </p>
-                        <div>
-                          <OverlayTrigger overlay={<Tooltip>Download CV from student</Tooltip>}>
-                            <Button
-                              size='sm'
-                              variant='outline-primary'
-                              className='cv-button'
-                              onClick={e => {
-                                e.stopPropagation()
-                                downloadCV(student.uid, genCVName(student, project))
-                              }}
-                            >
-                              <img className='cv-button__image' src={downloadIcon} alt='download' />
-                            </Button>
-                          </OverlayTrigger>
-                        </div>
-                      </>
-                    ) : (
-                      <p className='m-0'>Student has not logged in yet</p>
-                    )}
-                  </Card.Body>
-                </Card>
-              )
-            })
-          ) : (
-            <h6>
-              <em>No students have voted for this project.</em>
-            </h6>
-            )
-          ) : null} */}
       </>
     )
   }
