@@ -11,7 +11,7 @@ function VoteList(props) {
     <div className='entity-list--red-border' style={props.style}>
       <div className='entity-list' style={{ maxHeight: props.maxHeight }} ref={listRef}>
         <ViewportList viewportRef={listRef} items={props.items} itemMinSize={48}>
-          {item => <VoteListItem key={item.uid || item.text} {...item} />}
+          {item => <VoteListItem key={`${item.uid}-${item.pid}`} {...item} />}
         </ViewportList>
       </div>
     </div>

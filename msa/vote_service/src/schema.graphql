@@ -1,4 +1,4 @@
 type Vote {
-  enid: ID!
+  uid: ID!
   pids: [ID]!
 }

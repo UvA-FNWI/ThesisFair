@@ -3,6 +3,7 @@ import React from 'react'
 import { Container, Form } from 'react-bootstrap'
 import { useParams } from 'react-router-dom'
 
+import * as session from '../../session'
 import api from '../../api'
 import VoteList from '../../components/voteList/voteList'
 
@@ -13,6 +14,7 @@ class Students extends React.Component {
     super(props)
 
     this.state = {
+      projectsByPid: {},
       students: [], // List of items in the form of {firstname, lastname, ..., pids: [pid, ...]}
       filteredStudents: [],
       error: false,
@@ -60,19 +62,25 @@ class Students extends React.Component {
   }
 
   async componentDidMount() {
+    let projects
+    let votes
     let students
+
     try {
-      students = await api.user.getAll('student').exec()
+      projects = await api.project.getOfEntity(null, session.getEnid()).exec()
+      votes = await api.votes.getOfProjects(projects.map(project => project.pid)).exec()
+      students = await api.user.getMultiple(votes.map(({uid}) => uid)).exec()
     } catch (error) {
-      console.log(error)
+      console.error(error)
       this.setState({ error: true })
     }
 
     for (const student of students) {
-      student.pids = [Math.floor(Math.random() * 3)]
+      student.pids = votes.find(vote => vote.uid == student.uid).pids
     }
 
-    this.setState({ students })
+    const projectsByPid = Object.fromEntries(projects.map(project => [project.pid, project]))
+    this.setState({ students, projectsByPid })
 
     this.filter(this.state.filters, students)
   }
@@ -123,10 +131,13 @@ class Students extends React.Component {
         ? <VoteList
             style={{ height: '1px', flexGrow: '1' }}
             items={Array.from(this.categorizeByProjects(this.state.filteredStudents)).map(
-              ([pid, students]) => [
-                {type: 'heading', text: pid},
-                ...students,
-              ]
+              ([pid, students]) => {
+                console.log(pid)
+                console.log("bruh")
+                return [
+                {type: 'heading', text: this.state.projectsByPid[pid].name, pid},
+                ...students.map(student => ({...student, pid: pid})),
+              ]}
             ).flat()}
           />
         : <p>{this.getNoResultText()}</p>

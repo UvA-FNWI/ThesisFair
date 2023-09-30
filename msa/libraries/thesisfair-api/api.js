@@ -1107,23 +1107,13 @@ export default url => {
               uid: { value: uid, type: 'ID!' },
             },
           }),
-        getOfEntity: (enid, evid, projection) =>
+        getOfProjects: (pids) =>
           genGraphQLBuilder({
-            name: 'getVotesOfEntity',
-            functionPath: 'votesOfEntity',
-            body: bodies.Vote(projection),
+            name: 'getVotesOfProjects',
+            functionPath: 'votesOfProjects',
+            body: bodies.Vote({}),
             args: {
-              enid: { value: enid, type: 'ID!' },
-              evid: { value: evid, type: 'ID' },
-            },
-          }),
-        getOfProject: (pid, evid) =>
-          genGraphQLBuilder({
-            name: 'getVotesOfProject',
-            functionPath: 'votesOfProject',
-            args: {
-              pid: { value: pid, type: 'ID!' },
-              evid: { value: evid, type: 'ID' },
+              pids: { value: pids, type: '[ID!]' },
             },
           }),
         add: (uid, pid) =>
