@@ -1,5 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef } from 'react'
+import api, { downloadCV } from '../../api'
 import { ViewportList } from 'react-viewport-list'
+import { Button } from 'react-bootstrap'
 
 import './voteListItem.scss'
 import './voteList.scss'
@@ -38,8 +40,19 @@ function VoteListItem(props) {
               <div className='entity-list-item__title'>
                 <p>{props.firstname} {props.lastname}</p>
               </div>
+              {props.email &&
+                <div>
+                  <a href={`mailto:${props.email}`}>{props.email}</a>
+                </div>
+              }
 
-              {props.headerButtons && <div className='entity-list-item__buttons'>{props.headerButtons()}</div>}
+              <div>
+                <p>{props.studies.join(", ")}</p>
+              </div>
+
+              <div className='entity-list-item__buttons'>
+                <Button onClick={() => downloadCV(props.uid)}>Download CV</Button>
+              </div>
             </div>
           </li>
         )
