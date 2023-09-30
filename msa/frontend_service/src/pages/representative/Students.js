@@ -119,7 +119,9 @@ class Students extends React.Component {
   render() {
     return (
       <Container className='scrollable-page' style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-        <h1 className='events-page__header'>Students</h1>
+        <h1 className='events-page__header'>
+          {this.state.students.map(student => student.pids).flat().length} votes cast by {this.state.students.length} students
+        </h1>
 
         <Form className='search-bar'>
           <Form.Group className='mb-3' controlId='searchBar'>
