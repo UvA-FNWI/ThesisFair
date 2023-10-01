@@ -86,7 +86,6 @@ class Students extends React.Component {
   }
 
   getNoResultText() {
-    console.log(this.state)
     switch (true) {
       // First case assumes there is at least one vote
       case !this.state.error && this.state.students?.length === 0:
@@ -134,8 +133,6 @@ class Students extends React.Component {
             style={{ height: '1px', flexGrow: '1' }}
             items={Array.from(this.categorizeByProjects(this.state.filteredStudents)).map(
               ([pid, students]) => {
-                console.log(pid)
-                console.log("bruh")
                 return [
                 {type: 'heading', text: this.state.projectsByPid[pid].name, pid},
                 ...students.map(student => ({...student, pid: pid})),

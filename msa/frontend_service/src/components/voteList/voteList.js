@@ -1,7 +1,9 @@
 import React, { useRef } from 'react'
-import api, { downloadCV } from '../../api'
+import { downloadCV } from '../../api'
 import { ViewportList } from 'react-viewport-list'
 import { Button } from 'react-bootstrap'
+import { degreeById } from '../../utilities/degreeDefinitions'
+import Tag from '../tag/tag'
 
 import './voteListItem.scss'
 import './voteList.scss'
@@ -38,20 +40,27 @@ function VoteListItem(props) {
           <li className='entity-list-item'>
             <div className='entity-list-item__header'>
               <div className='entity-list-item__title'>
-                <p>{props.firstname} {props.lastname}</p>
+                <p>{props.firstname} {props.lastname}
+                  {props.email && <>
+                      {' ('}
+                      <a href={`mailto:${props.email}`}>{props.email}</a>
+                      {')'}
+                    </>
+                  }
+                  {' '}
+                </p>
               </div>
-              {props.email &&
-                <div>
-                  <a href={`mailto:${props.email}`}>{props.email}</a>
-                </div>
-              }
 
-              <div>
-                <p>{props.studies.join(", ")}</p>
-              </div>
+                {
+                  props.studies.map(tagId => {
+                    const tag = degreeById[tagId]
+
+                    return tag && <Tag key={tag.id} label={tag.tag} tooltip={tag.tooltip} selectable={false} />
+                  })
+                }
 
               <div className='entity-list-item__buttons'>
-                <Button onClick={() => downloadCV(props.uid)}>Download CV</Button>
+                <Button onClick={() => downloadCV(props.uid, `${student.firstname} ${student.lastname}`)}>Download CV</Button>
               </div>
             </div>
           </li>
