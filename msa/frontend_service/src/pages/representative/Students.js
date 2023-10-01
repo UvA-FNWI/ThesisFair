@@ -134,7 +134,8 @@ class Students extends React.Component {
             items={Array.from(this.categorizeByProjects(this.state.filteredStudents)).map(
               ([pid, students]) => {
                 return [
-                {type: 'heading', text: this.state.projectsByPid[pid].name, pid},
+                // {type: 'heading', text: `${this.state.projectsByPid[pid].name} (showing ${students.length} / ${this.state.students.filter(vote => vote.pids.includes(pid)).length} votes)`, pid},
+                {type: 'heading', text: `${this.state.projectsByPid[pid].name} (${this.state.students.filter(vote => vote.pids.includes(pid)).length} votes)`, pid},
                 ...students.map(student => ({...student, pid: pid})),
               ]}
             ).flat()}
