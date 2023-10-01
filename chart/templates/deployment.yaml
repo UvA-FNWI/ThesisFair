@@ -66,13 +66,26 @@ spec:
 apiVersion: apps/v1
 
 # Create a deployment for each service: {{ $name | kebabcase }} now
+{{ if $service }}
+{{ if $service.storage }}
+kind: StatefulSet
+{{ else }}
 kind: Deployment
+{{ end }}
+{{ else }}
+kind: Deployment
+{{ end }}
 metadata:
   name: {{ $name | kebabcase }}
   namespace: {{ $Release.Namespace }}
   labels:
     app: {{ $name | kebabcase }}
 spec:
+  {{ if $service }}
+  {{ if $service.storage }}
+  serviceName: {{ $name | kebabcase }}
+  {{ end }}
+  {{ end }}
   selector:
     matchLabels:
       app: {{ $name | kebabcase }}
