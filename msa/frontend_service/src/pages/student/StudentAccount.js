@@ -109,10 +109,7 @@ class StudentAccount extends React.Component {
 
   shareAll = async () => {
     this.setState({ sharingAll: true })
-    const event = await api.event.get(this.props.params.evid, { entities: true }).exec()
-    for (const enid of event.entities) {
-      await api.user.student.shareInfo(api.getApiTokenData().uid, enid, true).exec()
-    }
+    await api.user.student.shareInfo(api.getApiTokenData().uid, true).exec()
 
     this.setState({ sharingAll: false, shareAllDone: true })
   }

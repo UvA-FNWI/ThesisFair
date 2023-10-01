@@ -589,7 +589,7 @@ export default url => {
               },
               cache: caching ? { instance: cache, type: 'userCV', key: 'uid', update: true } : false,
             }),
-          shareInfo: (uid, enid, share, projection) =>
+          shareInfo: (uid, share, projection) =>
             genGraphQLBuilder({
               type: 'mutation',
               name: 'updateStudentShare',
@@ -597,19 +597,16 @@ export default url => {
               body: bodies.Student(projection),
               args: {
                 uid: { value: uid, type: 'ID!' },
-                enid: { value: enid, type: 'ID!' },
                 share: { value: share, type: 'Boolean!' },
               },
               cache: caching ? { instance: cache, type: 'user', key: 'uid', update: true } : false,
             }),
-          getWhoManuallyShared: (enid, projection) =>
+          getWhoManuallyShared: (projection) =>
             genGraphQLBuilder({
               name: 'getStudentsWhoManuallyShared',
               functionPath: 'studentsWhoManuallyShared',
               body: bodies.Student(projection),
-              args: {
-                enid: { value: enid, type: 'ID!' },
-              },
+              args: {},
             }),
         },
       },

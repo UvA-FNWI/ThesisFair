@@ -34,7 +34,7 @@ export const connect = async uri => {
       websites: [String],
       studies: [String],
       share: [mongoose.Schema.Types.ObjectId],
-      manuallyShared: [mongoose.Schema.Types.ObjectId],
+      manuallyShared: { type: Boolean },
     })
   )
 

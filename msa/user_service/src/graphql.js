@@ -313,17 +313,10 @@ schemaComposer.Query.addNestedFields({
   },
   studentsWhoManuallyShared: {
     type: '[Student]',
-    args: {
-      enid: 'ID!',
-    },
-    description: 'Get all users who manually shared their info with an entity.',
+    description: 'Get all users who manually shared their info with all entities.',
     resolve: async (obj, args, req) => {
-      if (!(req.user.type === 'a' || (req.user.type === 'r' && req.user.enid === args.enid))) {
-        throw new Error('UNAUTHORIZED to get the users who voted from another entity.')
-      }
-
       return await Student.find({
-        manuallyShared: { $elemMatch: { $eq: args.enid } },
+        manuallyShared: true,
       })
     },
   },
@@ -674,28 +667,15 @@ schemaComposer.Mutation.addNestedFields({
     type: 'Student',
     args: {
       uid: 'ID!',
-      enid: 'ID!',
       share: 'Boolean!',
     },
-    description: 'Allow or disallow a company to see student data.',
+    description: 'Allow or disallow all companies to see student data.',
     resolve: async (obj, args, req) => {
       if (!(req.user.type === 'a' || (req.user.type === 's' && req.user.uid === args.uid))) {
         throw new Error('UNAUTHORIZED update share information')
       }
 
-      const votedForEntity = await checkStudentVotedForEntity(args.uid, args.enid)
-      if (votedForEntity && !args.share) {
-        throw new Error('It is not possible to unshare a company that you have voted for.')
-      }
-
-      let operation
-      if (args.share) {
-        operation = { $addToSet: { share: args.enid, manuallyShared: args.enid } }
-      } else {
-        operation = { $pull: { share: args.enid, manuallyShared: args.enid } }
-      }
-
-      return await Student.findByIdAndUpdate(args.uid, operation, { new: true })
+      return await Student.findByIdAndUpdate(args.uid, { $set: { manuallyShared: args.share } }, { new: true })
     },
   },
   'user.delete': {
