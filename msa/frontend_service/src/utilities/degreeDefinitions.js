@@ -17,6 +17,12 @@ export const degrees = {
     tag: 'MSc CLSJD',
     tooltip: 'Master Computational Science',
   },
+  isords: {
+    id: 'MScIS',
+    programmeId: 'MScIS',
+    tag: 'MSc IS',
+    tooltip: 'Master Information Studies',
+  },
   is: {
     id: 'MScISIS',
     programmeId: 'MScIS',

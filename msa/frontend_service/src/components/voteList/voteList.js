@@ -23,7 +23,6 @@ function VoteList(props) {
 }
 
 function VoteListItem(props) {
-  console.log(props)
   switch (props?.type) {
       case 'heading':
         return (
@@ -52,8 +51,8 @@ function VoteListItem(props) {
                 </p>
               </div>
 
-            {
-              props.studies.map(tagId => {
+              {
+                props.studies.filter((e, i) => props.studies.indexOf(e) == i).map(tagId => {
                   const tag = degreeById[tagId]
 
                   return tag && <Tag key={tag.id} label={tag.tag} tooltip={tag.tooltip} selectable={false} />
