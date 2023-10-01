@@ -124,7 +124,7 @@ class Students extends React.Component {
 
         <Form className='search-bar'>
           <Form.Group className='mb-3' controlId='searchBar'>
-            <Form.Control type='text' placeholder='Search names' onInput={e => this.search(e.target.value)} />
+            <Form.Control type='text' placeholder='Search names and email addresses' onInput={e => this.search(e.target.value)} />
           </Form.Group>
         </Form>
 
