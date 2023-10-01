@@ -79,7 +79,7 @@ class Students extends React.Component {
 
     projects.push({pid: "manuallyShared", name: "Additional students"})
 
-    for (const student of additionalStudents) {
+    for (const student of additionalStudents || []) {
       if (!votes.map(vote => vote.uid).includes(student.uid))
         students.push(student)
     }
