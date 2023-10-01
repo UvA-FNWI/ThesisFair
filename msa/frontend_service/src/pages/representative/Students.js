@@ -65,18 +65,30 @@ class Students extends React.Component {
     let projects
     let votes
     let students
+    let additionalStudents
 
     try {
       projects = await api.project.getOfEntity(null, session.getEnid()).exec()
       votes = await api.votes.getOfProjects(projects.map(project => project.pid)).exec()
       students = await api.user.getMultiple(votes.map(({uid}) => uid)).exec()
+      additionalStudents = await api.user.student.getWhoManuallyShared().exec()
     } catch (error) {
       console.error(error)
       this.setState({ error: true })
     }
 
+    projects.push({pid: "manuallyShared", name: "Additional students"})
+
+    for (const student of additionalStudents) {
+      if (!votes.map(vote => vote.uid).includes(student.uid))
+        students.push(student)
+    }
+
     for (const student of students) {
-      student.pids = votes.find(vote => vote.uid == student.uid).pids
+      student.pids = votes.find(vote => vote.uid == student.uid)?.pids || []
+      if (additionalStudents.map(student => student.uid).includes(student.uid)) {
+        student.pids.push("manuallyShared")
+      }
     }
 
     const projectsByPid = Object.fromEntries(projects.map(project => [project.pid, project]))
@@ -135,7 +147,7 @@ class Students extends React.Component {
               ([pid, students]) => {
                 return [
                 // {type: 'heading', text: `${this.state.projectsByPid[pid].name} (showing ${students.length} / ${this.state.students.filter(vote => vote.pids.includes(pid)).length} votes)`, pid},
-                {type: 'heading', text: `${this.state.projectsByPid[pid].name} (${this.state.students.filter(vote => vote.pids.includes(pid)).length} votes)`, pid},
+                {type: 'heading', text: `${this.state.projectsByPid[pid].name} (${this.state.students.filter(vote => vote.pids.includes(pid)).length} students)`, pid},
                 ...students.map(student => ({...student, pid: pid})),
               ]}
             ).flat()}
