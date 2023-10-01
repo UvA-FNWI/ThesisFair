@@ -23,6 +23,7 @@ function VoteList(props) {
 }
 
 function VoteListItem(props) {
+  console.log(props)
   switch (props?.type) {
       case 'heading':
         return (
@@ -39,7 +40,7 @@ function VoteListItem(props) {
         return (
           <li className='entity-list-item'>
             <div className='entity-list-item__header'>
-              <div className='entity-list-item__title'>
+              <div className='entity-list-item__title' style={{marginRight: '2em'}}>
                 <p>{props.firstname} {props.lastname}
                   {props.email && <>
                       {' ('}
@@ -51,16 +52,26 @@ function VoteListItem(props) {
                 </p>
               </div>
 
-                {
-                  props.studies.map(tagId => {
-                    const tag = degreeById[tagId]
+            {
+              props.studies.map(tagId => {
+                  const tag = degreeById[tagId]
 
-                    return tag && <Tag key={tag.id} label={tag.tag} tooltip={tag.tooltip} selectable={false} />
-                  })
-                }
+                  return tag && <Tag key={tag.id} label={tag.tag} tooltip={tag.tooltip} selectable={false} />
+                })
+              }
+
+              {
+                props.websites.map(website => {
+                  try {
+                    return <a style={{marginLeft: '1em'}} href={website}>{(new URL(website)).hostname.replace('www.', '').replace('.com', '')}</a>
+                  } catch {
+                    return
+                  }
+                })
+              }
 
               <div className='entity-list-item__buttons'>
-                <Button onClick={() => downloadCV(props.uid, `${student.firstname} ${student.lastname}`)}>Download CV</Button>
+                <Button onClick={() => downloadCV(props.uid, `${props.firstname} ${props.lastname}`)}>Download CV</Button>
               </div>
             </div>
           </li>
