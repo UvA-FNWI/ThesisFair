@@ -1,4 +1,7 @@
 export const canGetUser = (req, args, user) => {
+  // TODO: improve security by looking for votes in projects, 'shared all' users, etc.
+  return
+
   if (
     !(
       req.user.type === 'a' ||

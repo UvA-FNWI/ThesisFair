@@ -85,6 +85,10 @@ class Students extends React.Component {
     }
 
     for (const student of students) {
+      if (!student) {
+        continue
+      }
+
       student.pids = votes.find(vote => vote.uid == student.uid)?.pids || []
       if (additionalStudents.map(student => student.uid).includes(student.uid)) {
         student.pids.push("manuallyShared")
