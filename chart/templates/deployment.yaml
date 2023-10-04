@@ -66,6 +66,9 @@ spec:
 apiVersion: apps/v1
 
 # Create a deployment for each service: {{ $name | kebabcase }} now
+{{ if $Values.dev_mode }}
+kind: Deployment
+{{ else }}
 {{ if $service }}
 {{ if $service.storage }}
 kind: StatefulSet
@@ -75,15 +78,18 @@ kind: Deployment
 {{ else }}
 kind: Deployment
 {{ end }}
+{{ end }}
 metadata:
   name: {{ $name | kebabcase }}
   namespace: {{ $Release.Namespace }}
   labels:
     app: {{ $name | kebabcase }}
 spec:
+  {{ if not $Values.dev_mode }}
   {{ if $service }}
   {{ if $service.storage }}
   serviceName: {{ $name | kebabcase }}
+  {{ end }}
   {{ end }}
   {{ end }}
   selector:
