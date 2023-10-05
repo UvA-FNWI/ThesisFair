@@ -53,14 +53,20 @@ schemaComposer.Query.addNestedFields({
         }
 
         const user = userByUid[vote.uid]
-        const rows = vote.pids.map(pid => ({
-          "Project": projectNameByPid[pid],
-          "Entity": entityNameByEnid[enidByPid[pid]],
-          "Student": `${user.firstname} ${user.lastname} (${user.studentnumber}) <${user.email}>`,
-          "Degrees": user.studies,
-          "Project degrees": degreesByPid[pid],
-          "Project events": evidsByPid[pid].map(evid => eventNameByEvid[evid]),
-        }))
+        const rows = []
+
+        for (const pid of vote.pids) {
+          if (projectNameByPid[pid]) {
+            rows.push({
+              "Project": projectNameByPid[pid],
+              "Entity": entityNameByEnid[enidByPid[pid]],
+              "Student": `${user.firstname} ${user.lastname} (${user.studentnumber}) <${user.email}>`,
+              "Degrees": user.studies,
+              "Project degrees": degreesByPid[pid],
+              "Project events": evidsByPid[pid].map(evid => eventNameByEvid[evid]),
+            })
+          }
+        }
 
         table.push(...rows)
       }
@@ -107,7 +113,6 @@ schemaComposer.Query.addNestedFields({
 
       const votes = await Vote.find({ pids: { $elemMatch: { $in: args.pids } } })
 
-      console.log(votes)
       return votes.map(vote => ({
         uid: vote.uid,
         pids: vote.pids.filter(pid => args.pids.includes(pid.toString()))
