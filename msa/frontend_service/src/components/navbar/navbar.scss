@@ -85,6 +85,18 @@ $navbarWidth: 84px;
   }
 }
 
+.popup-banner {
+  width: 100%;
+  background-color: #ef3030;
+  height: 2em;
+  position: relative;
+  color: white;
+  font-size: 2em;
+  padding-top: 0.5em;
+  padding-left: 0.5em;
+  line-height: 1em;
+}
+
 .logout {
   margin-left: auto !important;
 }
