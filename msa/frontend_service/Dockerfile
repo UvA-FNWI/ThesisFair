@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:latest
+FROM node:20.7
 LABEL org.opencontainers.image.source https://github.com/UvA-FNWI/ThesisFair
 
 ARG NODE_ENV=production
