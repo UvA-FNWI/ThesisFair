@@ -74,7 +74,7 @@ metadata:
 spec:
   {{- if $service.port }}
   ports:
-    - port: {{ $service.port }}
+    - port: {{ $service.env.PORT }}
       targetPort: {{ $service.port }}
   {{- end }}
   selector:
