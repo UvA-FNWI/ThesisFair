@@ -35,8 +35,6 @@ msa:
         key: JWT_SECRET
       - name: thesisfair-mail-password
         key: MAILPASS
-    env:
-      PORT: 3000
   entity_service:
   event_service:
   project_service:
