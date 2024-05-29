@@ -9,12 +9,10 @@ ENV NODE_ENV=${NODE_ENV}
 # Install dependencies of libraries
 WORKDIR /libraries/mongodbprovisioner
 COPY --from=libraries ./mongodbprovisioner/package*.json ./
-COPY --from=libraries ./mongodbprovisioner/node_module[s] ./node_modules
 RUN npm i
 
 WORKDIR /libraries/amqpmessaging
 COPY --from=libraries ./amqpmessaging/package*.json ./
-COPY --from=libraries ./amqpmessaging/node_module[s] ./node_modules
 RUN npm i
 
 WORKDIR /libraries/thesisfair-api
