@@ -72,10 +72,10 @@ metadata:
   name: {{ $name | kebabcase }}
   namespace: {{ $Release.Namespace }}
 spec:
-  {{- if $service.port }}
+  {{- if $service.env.PORT }}
   ports:
     - port: {{ $service.env.PORT }}
-      targetPort: {{ $service.port }}
+      targetPort: {{ $service.env.PORT }}
   {{- end }}
   selector:
     app: {{ $name | kebabcase }}
