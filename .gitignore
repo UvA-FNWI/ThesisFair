@@ -17,3 +17,5 @@ dev-values.yml
 dump/
 dumps/
 scripts/import-datanose/old-data/**
+
+.idea/
