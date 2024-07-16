@@ -8,6 +8,7 @@ enum Degree {
   MScISDS
   MScLogic
   MScSE
+  MScIS
 }
 
 input EventImport {
