@@ -9,22 +9,22 @@ ENV NODE_ENV=${NODE_ENV}
 # Install dependencies of libraries
 WORKDIR /libraries/mongodbprovisioner
 COPY --from=libraries ./mongodbprovisioner/package*.json ./
-RUN npm i
+RUN npm ci --no-progress
 
 WORKDIR /libraries/amqpmessaging
 COPY --from=libraries ./amqpmessaging/package*.json ./
-RUN npm i
+RUN npm ci --no-progress
 
 WORKDIR /libraries/thesisfair-api
 COPY --from=libraries ./thesisfair-api/package*.json ./
 COPY --from=libraries ./thesisfair-api/node_module[s] ./node_modules
-RUN npm i
+RUN npm ci --no-progress
 
 # Install dependencies of microservice
 WORKDIR /app
 COPY ./package*.json ./
 COPY ./node_module[s] ./node_modules
-RUN npm i
+RUN npm ci --no-progress
 
 # Copy library sources
 WORKDIR /libraries

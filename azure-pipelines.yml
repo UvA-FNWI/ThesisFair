@@ -10,7 +10,7 @@ jobs:
   - job: build
     steps:
       - script: |
-          npm i
+          npm ci --no-progress
           npm run build
         displayName: 'Build library'
         workingDirectory: ./msa/libraries/thesisfair-api
