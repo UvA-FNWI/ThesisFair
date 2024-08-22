@@ -124,6 +124,10 @@ export const tags = {
     '3D scene reconstruction',
     'Geometric algebra',
     'Simultaneous localization and mapping',
+    'Low level vision / physics-based action',
+    'Vision and language',
+    'Generative models',
+    'Robotic vision and embodied AI',
   ],
   'Digital Interactions Lab': [
     'Interaction Design',
