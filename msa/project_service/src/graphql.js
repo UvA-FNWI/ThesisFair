@@ -16,6 +16,7 @@ const degrees = [
   'MScISDS',
   'MScLogic',
   'MScSE',
+  'MScIS'
 ]
 
 import nodemailer from 'nodemailer'

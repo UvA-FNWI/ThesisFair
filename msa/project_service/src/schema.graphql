@@ -20,6 +20,7 @@ enum Degree {
   MScISDS
   MScLogic
   MScSE
+  MScIS
 }
 
 input ProjectImport {
