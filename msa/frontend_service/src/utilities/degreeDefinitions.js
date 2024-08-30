@@ -5,12 +5,12 @@ export const degrees = {
     tag: 'MSc AI',
     tooltip: 'Master Artificial Intelligence',
   },
-  cs: {
-    id: 'MScCS',
-    programmeId: 'MScCS',
-    tag: 'MSc CS',
-    tooltip: 'Master Computer Science',
-  },
+  // cs: {
+  //   id: 'MScCS',
+  //   programmeId: 'MScCS',
+  //   tag: 'MSc CS',
+  //   tooltip: 'Master Computer Science',
+  // },
   cls: {
     id: 'MScCLSJD',
     programmeId: 'MScCLSJD',
