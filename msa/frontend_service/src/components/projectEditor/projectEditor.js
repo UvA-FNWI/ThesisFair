@@ -110,7 +110,11 @@ class ProjectEditor extends React.Component {
       e.stopPropagation()
       return
     }
-
+    this.setState({
+      description: this.state.description.replace(/\uFFFD/g, ''),
+      environment: this.state.environment.replace(/\uFFFD/g, ''),
+      expectations: this.state.expectations.replace(/\uFFFD/g, ''),
+    })
     try {
       await this.updateProject()
       this.props.onClose()
