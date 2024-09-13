@@ -30,7 +30,7 @@ const navigationBarItems = {
   s: [
     { name: 'Account', icon: accountIcon, link: '/account' },
     { name: 'Events', icon: eventIcon, link: '/events' },
-    { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
+    // { name: 'Orgs', icon: organisationsIcon, link: '/organisations' },
     { name: 'Marketplace', icon: marketplaceIcon, link: '/marketplace' },
     // { name: 'Votes', icon: likesIcon, link: '/votes' },
   ],
