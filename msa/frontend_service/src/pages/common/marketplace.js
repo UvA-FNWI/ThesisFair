@@ -568,7 +568,7 @@ const ProjectListing = props => {
           <h4>Loading...</h4>
         ) : (
           <div className='project-lists-container' style={{ height: '100vh' }}>
-            <div className='project-lists' ref={listRef} style={{ overflowY: 'auto' }}>
+            <div className='project-lists' ref={listRef} style={{ overflowY: 'scroll' }}>
               {showNoProjectsIfRequired(filteredProjects).length <= 30 ? (
                 showNoProjectsIfRequired(filteredProjects).map(item => renderItem(item))
               ) : (
