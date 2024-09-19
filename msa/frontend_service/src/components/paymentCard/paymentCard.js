@@ -29,7 +29,7 @@ class PaymentCard extends React.Component {
             {/* TODO: make buttons unclickable when invoice has been requested */}
             <div className='payment-card__buttons'>
               <Button onClick={this.props.onPay}>Pay</Button>
-              <Button variant='secondary' onClick={this.props.onRequestInvoice}>
+              <Button variant='secondary' href='https://forms.office.com/e/XNCdbq4Gf6'>
                 Request invoice
               </Button>
             </div>
