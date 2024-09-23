@@ -115,7 +115,7 @@ spec:
           {{ end }}
           {{ end }}
           {{ end }}
-          {{ if eq $name "thesisfair-frontend" }}
+          {{ if eq $name "frontend-service" }}
           readinessProbe:
             httpGet:
               path: /
