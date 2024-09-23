@@ -115,7 +115,7 @@ spec:
           {{ end }}
           {{ end }}
           {{ end }}
-          {{ if eq $name "frontend-service" }}
+          {{ if eq $name "frontend_service" }}
           readinessProbe:
             httpGet:
               path: /
