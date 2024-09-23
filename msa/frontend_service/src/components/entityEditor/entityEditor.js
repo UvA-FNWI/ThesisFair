@@ -406,7 +406,7 @@ class EntityEditor extends React.Component {
                 <p className='mb-4'>
                   Clicking on Pay on any card leads you to Datanose. Here, you will see the up to date status of the
                   payment. Our system is usually updated within a minute, but payments may take up to two days to
-                  process.
+                  process. The proof of payment will be provided after the event.
                 </p>
 
                 {this.state.fairs.map(({ date, events, name, payment }) => (
