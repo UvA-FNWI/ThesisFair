@@ -18,7 +18,7 @@ class TableRow extends React.Component {
         <td>
           {this.props.user.firstname} {this.props.user.lastname}
         </td>
-        <td>{this.props.user.studies}</td>
+        <td>{this.props.user.studies.join(' ')}</td>
         <td>{this.props.user.email}</td>
         <td style={{ width: '1px', whiteSpace: 'nowrap' }}>
           <Button
