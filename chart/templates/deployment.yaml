@@ -115,6 +115,20 @@ spec:
           {{ end }}
           {{ end }}
           {{ end }}
+          {{ if eq $name "thesisfair-frontend" }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 90
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 90
+            periodSeconds: 10
+          {{ end }}
           env:
             - name: mongodbConStr
               value: "mongodb://database/{{ $name }}"
