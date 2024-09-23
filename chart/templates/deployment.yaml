@@ -115,6 +115,12 @@ spec:
           {{ end }}
           {{ end }}
           {{ end }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/true  # This will always return success
+            initialDelaySeconds: 90
+            periodSeconds: 10
           env:
             - name: mongodbConStr
               value: "mongodb://database/{{ $name }}"
