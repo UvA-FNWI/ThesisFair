@@ -71,7 +71,7 @@ class Students extends React.Component {
       projects = await api.project.getOfEntity(null, session.getEnid()).exec()
       votes = await api.votes.getOfProjects(projects.map(project => project.pid)).exec()
       students = await api.user.getMultiple(votes.map(({uid}) => uid)).exec()
-      // additionalStudents = await api.user.student.getWhoManuallyShared().exec()
+      additionalStudents = await api.user.student.getWhoManuallyShared().exec()
     } catch (error) {
       console.error(error)
       this.setState({ error: true })
