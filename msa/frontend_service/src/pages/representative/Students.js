@@ -77,7 +77,7 @@ class Students extends React.Component {
       this.setState({ error: true })
     }
 
-    projects.push({pid: "manuallyShared", name: "Additional students that shared their data with you"})
+    projects.push({pid: "manuallyShared", name: "Additional students that shared their profiles with you"})
 
     for (const student of additionalStudents || []) {
       if (!votes.map(vote => vote.uid).includes(student.uid))
