@@ -77,7 +77,7 @@ class Students extends React.Component {
       this.setState({ error: true })
     }
 
-    //projects.push({pid: "manuallyShared", name: "Additional students"})
+    projects.push({pid: "manuallyShared", name: "Additional students"})
 
     for (const student of additionalStudents || []) {
       if (!votes.map(vote => vote.uid).includes(student.uid))
@@ -89,10 +89,10 @@ class Students extends React.Component {
         continue
       }
 
-      // student.pids = votes.find(vote => vote.uid == student.uid)?.pids || []
-      // if (additionalStudents.map(student => student.uid).includes(student.uid)) {
-      //   student.pids.push("manuallyShared")
-      // } .
+      student.pids = votes.find(vote => vote.uid == student.uid)?.pids || []
+      if (additionalStudents.map(student => student.uid).includes(student.uid)) {
+        student.pids.push("manuallyShared")
+      }
     }
 
     const projectsByPid = Object.fromEntries(projects.map(project => [project.pid, project]))
