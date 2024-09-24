@@ -92,7 +92,7 @@ class Students extends React.Component {
       // student.pids = votes.find(vote => vote.uid == student.uid)?.pids || []
       // if (additionalStudents.map(student => student.uid).includes(student.uid)) {
       //   student.pids.push("manuallyShared")
-      // }
+      // } .
     }
 
     const projectsByPid = Object.fromEntries(projects.map(project => [project.pid, project]))
