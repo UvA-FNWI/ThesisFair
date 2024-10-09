@@ -10,7 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 5m
     nginx.ingress.kubernetes.io/server-snippet: |
       add_header X-Frame-Options "DENY";
-      add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; connect-src 'self' wss://thesisfair.ivi.uva.nl:3000; object-src 'self' data:" always;
+      add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; connect-src 'self' wss://thesisfair.ivi.uva.nl:3000 data:; object-src 'self' data:" always;
 spec:
   {{ if not .Values.dev_mode }}
   tls:
