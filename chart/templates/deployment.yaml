@@ -162,6 +162,7 @@ spec:
           image: {{ $Values.dev_mode | ternary $Values.dev.cr $Values.prod.cr }}/{{ $name | lower }}
           imagePullPolicy: {{ $Values.dev_mode | ternary $Values.dev.pullPolicy $Values.prod.pullPolicy }}
           command: [
+            NODE_ENV=production,
             npm,
             run,
             {{ $Values.dev_mode | ternary "start" "production"}},
