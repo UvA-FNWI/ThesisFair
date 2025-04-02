@@ -22,15 +22,15 @@ spec:
     - {{ if not .Values.dev_mode }}host: thesisfair.ivi.uva.nl{{ end }}
       http:
         paths:
-          - path: /api
-            pathType: ImplementationSpecific
+          - path: /api/
+            pathType: Prefix
             backend:
               service:
                 name: thesisfair-api
                 port:
                   number: 80
-          - path: /sso
-            pathType: ImplementationSpecific
+          - path: /sso/
+            pathType: Prefix
             backend:
               service:
                 name: thesisfair-api
